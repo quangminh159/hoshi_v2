@@ -107,8 +107,8 @@ Dự án này được phân phối dưới giấy phép MIT. Xem file [LICENSE]
 
 ## Liên hệ
 
-- Website: https://hoshi.vn
-- Email: contact@hoshi.vn
-- Facebook: https://facebook.com/hoshiapp
-- Twitter: https://twitter.com/hoshiapp 
+- Website: 
+- Email: quangminh159159@gmail.com
+- Facebook: 
+- Twitter:  
  
