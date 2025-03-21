@@ -55,7 +55,7 @@
             <!-- Posts -->
             {% for post_data in posts_with_data %}
             {% with post=post_data.post %}
-            <div class="card mb-4">
+            <div class="card mb-4" id="post-{{ post.id }}">
                 <!-- Post Header -->
                 <div class="card-header bg-white border-0 py-3">
                     <div class="d-flex align-items-center justify-content-between">
@@ -174,44 +174,50 @@
                     <!-- Comments -->
                     {% if post.comments.exists %}
                     <div class="comments-section">
-                        {% for comment in post.comments.all %}
+                        {% if post.comments.count > 3 %}
+                        <p class="text-muted small mb-2">
+                            <a href="{% url 'posts:post_detail' post.id %}" class="text-decoration-none">
+                                Xem tất cả {{ post.comments.count }} bình luận
+                            </a>
+                        </p>
+                        {% endif %}
+                        
+                        {% for comment in post.comments.all|slice:":3" %}
                         <div class="comment mb-2" id="comment-{{ comment.id }}">
-                            <div class="d-flex justify-content-between">
-                                <div>
+                            <div class="d-flex">
+                                <div class="flex-grow-1">
                                     <a href="{% url 'accounts:profile' username=comment.author.username %}" 
                                        class="text-dark text-decoration-none fw-bold">
                                         {{ comment.author.username }}
                                     </a>
-                                    {{ comment.text }}
-                                </div>
-                                <div class="dropdown">
-                                    <button class="btn btn-link btn-sm p-0 text-muted dropdown-toggle" 
-                                            type="button" 
-                                            data-bs-toggle="dropdown" 
-                                            aria-expanded="false">
-                                        <i class="fas fa-ellipsis-h"></i>
-                                    </button>
-                                    <ul class="dropdown-menu dropdown-menu-end">
-                                        <li>
-                                            <button class="dropdown-item reply-button" 
-                                                    data-username="{{ comment.author.username }}"
-                                                    data-post-id="{{ post.id }}">
-                                                <i class="fas fa-reply me-2"></i>Trả lời
-                                            </button>
-                                        </li>
+                                    {{ comment.text|truncatechars:80 }}
+                                    {% if comment.text|length > 80 %}
+                                    <a href="{% url 'posts:post_detail' post.id %}" class="text-muted small text-decoration-none">thêm</a>
+                                    {% endif %}
+                                    
+                                    <div class="text-muted small d-flex align-items-center mt-1">
+                                        <span>{{ comment.created_at|timesince }} trước</span>
+                                        <span class="mx-1">·</span>
+                                        <button class="btn btn-link btn-sm p-0 text-muted comment-like-button"
+                                                data-comment-id="{{ comment.id }}"
+                                                onclick="likeComment({{ comment.id }})">
+                                            <span>{% if request.user in comment.likes.all %}Đã thích{% else %}Thích{% endif %}</span>
+                                        </button>
+                                        <span class="mx-1">·</span>
+                                        <button class="btn btn-link btn-sm p-0 text-muted reply-button"
+                                                data-username="{{ comment.author.username }}"
+                                                data-post-id="{{ post.id }}">
+                                            Trả lời
+                                        </button>
                                         {% if request.user == comment.author or request.user == post.author %}
-                                        <li>
-                                            <button class="dropdown-item text-danger" 
-                                                   onclick="deleteComment({{ comment.id }})">
-                                                <i class="fas fa-trash-alt me-2"></i>Xóa
-                                            </button>
-                                        </li>
+                                        <span class="mx-1">·</span>
+                                        <button class="btn btn-link btn-sm p-0 text-muted"
+                                               onclick="deleteComment({{ comment.id }})">
+                                            Xóa
+                                        </button>
                                         {% endif %}
-                                    </ul>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="text-muted small">
-                                {{ comment.created_at|timesince }} trước
                             </div>
                         </div>
                         {% endfor %}
@@ -222,7 +228,8 @@
                     <form action="{% url 'posts:comment' post.id %}" 
                           method="post" 
                           class="mt-3 add-comment-form" 
-                          data-post-id="{{ post.id }}">
+                          data-post-id="{{ post.id }}"
+                          onsubmit="event.preventDefault(); handleSubmitComment({{ post.id }});">
                         {% csrf_token %}
                         <div class="input-group">
                             <input type="text" 
@@ -234,7 +241,12 @@
                             <button class="btn btn-primary" type="submit">Gửi</button>
                         </div>
                         <div class="reply-info d-none">
-                            <small>Trả lời: <span class="reply-to-username"></span></small>
+                            <small>
+                                Trả lời: <span class="reply-to-username"></span>
+                                <button type="button" class="btn btn-link btn-sm p-0 text-muted cancel-reply" data-post-id="{{ post.id }}">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </small>
                         </div>
                     </form>
                 </div>
@@ -251,6 +263,144 @@
     function displayFileNames(input) {
         const fileNames = Array.from(input.files).map(file => file.name).join(', ');
         document.getElementById('selectedFiles').textContent = fileNames;
+    }
+    
+    // Hàm xử lý submit comment
+    function handleSubmitComment(postId) {
+        const form = document.querySelector(`form[data-post-id="${postId}"]`);
+        const inputField = form.querySelector('input[name="text"]');
+        const text = inputField.value.trim();
+        const replyInfo = form.querySelector('.reply-info');
+        const parentId = form.getAttribute('data-parent-id');
+        
+        if (!text) return;
+        
+        // Tạo form data và thêm parent_id nếu có
+        const formData = new FormData(form);
+        if (parentId) {
+            formData.append('parent_id', parentId);
+        }
+        
+        fetch(form.action, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: new URLSearchParams(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Tạo phần tử comment mới
+            const isReply = !!parentId;
+            const commentHtml = `
+                <div class="comment mb-2 ${isReply ? 'ms-4' : ''}" id="comment-${data.id}" ${isReply ? `data-parent-id="${parentId}"` : ''}>
+                    <div class="d-flex">
+                        <div class="flex-grow-1">
+                            <a href="/users/${data.author.username}/" class="text-dark text-decoration-none fw-bold">
+                                ${data.author.username}
+                            </a>
+                            ${isReply ? `<span class="text-muted mx-1">trả lời</span>` : ''}
+                            ${data.text}
+                            
+                            <div class="text-muted small d-flex align-items-center mt-1">
+                                <span>bây giờ</span>
+                                <span class="mx-1">·</span>
+                                <button class="btn btn-link btn-sm p-0 text-muted comment-like-button"
+                                        data-comment-id="${data.id}"
+                                        onclick="likeComment(${data.id})">
+                                    <span>Thích</span>
+                                </button>
+                                <span class="mx-1">·</span>
+                                <button class="btn btn-link btn-sm p-0 text-muted reply-button"
+                                        data-username="${data.author.username}"
+                                        data-post-id="${postId}">
+                                    Trả lời
+                                </button>
+                                <span class="mx-1">·</span>
+                                <button class="btn btn-link btn-sm p-0 text-muted"
+                                       onclick="deleteComment(${data.id})">
+                                    Xóa
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Xử lý thêm comment
+            if (isReply) {
+                // Nếu là trả lời, thêm vào sau comment cha
+                const parentComment = document.getElementById(`comment-${parentId}`);
+                if (parentComment) {
+                    const parentReplies = parentComment.nextElementSibling && parentComment.nextElementSibling.hasAttribute('data-parent-id') 
+                        ? parentComment.nextElementSibling
+                        : null;
+                    
+                    if (parentReplies) {
+                        // Chèn vào sau phần trả lời cuối cùng
+                        parentComment.parentNode.insertBefore(document.createRange().createContextualFragment(commentHtml), parentReplies.nextSibling);
+                    } else {
+                        // Chèn ngay sau comment cha
+                        parentComment.insertAdjacentHTML('afterend', commentHtml);
+                    }
+                }
+            } else {
+                // Nếu là comment gốc
+                let commentsSection = document.querySelector(`#post-${postId} .comments-section`);
+                
+                // Nếu không có section comments, tạo mới
+                if (!commentsSection) {
+                    commentsSection = document.createElement('div');
+                    commentsSection.className = 'comments-section';
+                    const cardBody = document.querySelector(`#post-${postId} .card-body:last-child`);
+                    const commentForm = cardBody.querySelector('form');
+                    cardBody.insertBefore(commentsSection, commentForm);
+                }
+                
+                // Thêm comment vào đầu danh sách
+                commentsSection.insertAdjacentHTML('afterbegin', commentHtml);
+            }
+            
+            // Cập nhật số lượng comment
+            const commentCountElement = document.querySelector(`#post-${postId} .comment-button span`);
+            if (commentCountElement) {
+                const currentCount = parseInt(commentCountElement.textContent) || 0;
+                commentCountElement.textContent = currentCount + 1;
+            }
+            
+            // Thêm event listener cho comment mới
+            const newComment = document.getElementById(`comment-${data.id}`);
+            if (newComment) {
+                const newReplyButton = newComment.querySelector('.reply-button');
+                if (newReplyButton) {
+                    newReplyButton.addEventListener('click', function() {
+                        const username = this.getAttribute('data-username');
+                        const postId = this.getAttribute('data-post-id');
+                        const commentId = data.id;
+                        handleReplyComment(username, postId, commentId);
+                    });
+                }
+                
+                const newLikeButton = newComment.querySelector('.comment-like-button');
+                if (newLikeButton) {
+                    newLikeButton.addEventListener('click', function() {
+                        const commentId = this.getAttribute('data-comment-id');
+                        likeComment(commentId);
+                    });
+                }
+            }
+            
+            // Reset form
+            inputField.value = '';
+            if (replyInfo) {
+                replyInfo.classList.add('d-none');
+                form.removeAttribute('data-parent-id');
+            }
+        })
+        .catch(error => {
+            console.error('Lỗi khi thêm bình luận:', error);
+        });
     }
 
     function likePost(postId) {
@@ -353,6 +503,175 @@
             case 'error': return 'danger';
             case 'warning': return 'warning';
             default: return 'info';
+    }
+    
+    // Hàm lấy CSRF token từ cookie
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    // Hàm thích bình luận
+    function likeComment(commentId) {
+        fetch(`/posts/comments/${commentId}/like/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(errorData => {
+                    throw new Error(errorData.message || 'Không thể thực hiện thao tác');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            const likeButton = document.querySelector(`.comment-like-button[data-comment-id="${commentId}"]`);
+            if (likeButton) {
+                const likeText = likeButton.querySelector('span');
+                if (data.status === 'liked') {
+                    likeText.textContent = 'Đã thích';
+                    likeButton.classList.add('text-primary');
+                } else {
+                    likeText.textContent = 'Thích';
+                    likeButton.classList.remove('text-primary');
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Lỗi khi thích bình luận:', error);
+            showNotification('Có lỗi xảy ra khi thích bình luận', 'error');
+        });
+    }
+    
+    // Hàm xử lý trả lời bình luận
+    function handleReplyComment(username, postId, commentId) {
+        const form = document.querySelector(`form[data-post-id="${postId}"]`);
+        if (!form) {
+            console.error(`Không tìm thấy form cho bài viết ${postId}`);
+            return;
+        }
+        
+        const inputField = form.querySelector('.comment-input');
+        const replyInfo = form.querySelector('.reply-info');
+        const replyUsername = replyInfo.querySelector('.reply-to-username');
+        
+        // Hiển thị thông tin trả lời
+        replyUsername.textContent = username;
+        replyInfo.classList.remove('d-none');
+        
+        // Lưu id của comment cha để gửi khi submit
+        form.setAttribute('data-parent-id', commentId);
+        
+        // Focus vào input
+        inputField.focus();
+    }
+    
+    // Thêm event listener cho các nút reply
+    document.addEventListener('DOMContentLoaded', function() {
+        // Thêm event cho nút reply có sẵn
+        document.querySelectorAll('.reply-button').forEach(button => {
+            button.addEventListener('click', function() {
+                const username = this.getAttribute('data-username');
+                const postId = this.getAttribute('data-post-id');
+                const commentId = this.closest('.comment').id.replace('comment-', '');
+                handleReplyComment(username, postId, commentId);
+            });
+        });
+        
+        // Thêm event cho nút huỷ trả lời
+        document.querySelectorAll('.cancel-reply').forEach(button => {
+            button.addEventListener('click', function() {
+                const postId = this.getAttribute('data-post-id');
+                const form = document.querySelector(`form[data-post-id="${postId}"]`);
+                const replyInfo = form.querySelector('.reply-info');
+                replyInfo.classList.add('d-none');
+                form.removeAttribute('data-parent-id');
+            });
+        });
+        
+        // Thêm event cho nút like
+        document.querySelectorAll('.like-button').forEach(button => {
+            button.addEventListener('click', function() {
+                const postId = this.getAttribute('data-post-id');
+                likePost(postId);
+            });
+        });
+    });
+    
+    // Hàm xóa bình luận
+    function deleteComment(commentId) {
+        if (!confirm('Bạn có chắc chắn muốn xóa bình luận này?')) {
+            return;
+        }
+        
+        // Tìm thông tin post ID từ element comment
+        const comment = document.getElementById(`comment-${commentId}`);
+        let postId = null;
+        
+        if (comment) {
+            const postElement = comment.closest('.card[id^="post-"]');
+            if (postElement) {
+                postId = postElement.id.replace('post-', '');
+            }
+        }
+        
+        if (!postId) {
+            showNotification('Không thể xác định bài viết', 'error');
+            return;
+        }
+        
+        fetch(`/posts/${postId}/comment/${commentId}/delete/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(errorData => {
+                    throw new Error(errorData.message || 'Không thể xóa bình luận');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Xóa comment khỏi DOM
+            const comment = document.getElementById(`comment-${commentId}`);
+            if (comment) {
+                comment.remove();
+                
+                // Giảm số lượng comment
+                const postId = comment.closest('.card').id.replace('post-', '');
+                const commentCountElement = document.querySelector(`#post-${postId} .comment-button span`);
+                if (commentCountElement) {
+                    const currentCount = parseInt(commentCountElement.textContent) || 0;
+                    if (currentCount > 0) {
+                        commentCountElement.textContent = currentCount - 1;
+                    }
+                }
+                
+                showNotification('Bình luận đã được xóa', 'success');
+            }
+        })
+        .catch(error => {
+            console.error('Lỗi khi xóa bình luận:', error);
+            showNotification('Có lỗi xảy ra khi xóa bình luận', 'error');
+        });
     }
 }
 </script>

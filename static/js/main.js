@@ -634,58 +634,88 @@ function debugLogComment(comment, postId, isReply, parentId) {
 // Ghi đè hàm addCommentToDOM để thêm debug
 function addCommentToDOM(comment, postId, isReply, parentId) {
     // Debug log
-    debugLogComment(comment, postId, isReply, parentId);
+    console.group('Thêm Comment Mới');
+    console.log('Comment:', comment);
+    console.log('Post ID:', postId);
     
-    // Phần code cũ của hàm addCommentToDOM
-    const postElement = document.querySelector(`.card[data-post-id="${postId}"]`);
+    // Chuẩn hóa dữ liệu comment từ API
+    const normalizedComment = {
+        id: comment.id,
+        text: comment.text,
+        created_at: comment.created_at,
+        author: {
+            username: comment.author ? comment.author.username : comment.author_username,
+            avatar: comment.author ? comment.author.avatar : comment.author_avatar
+        }
+    };
     
-    if (!postElement) {
-        console.error(`Không tìm thấy bài viết với ID ${postId}`);
+    console.log('Normalized Comment:', normalizedComment);
+    
+    // Tìm card chứa bài viết
+    const postCard = document.querySelector(`.card[id="post-${postId}"]`);
+    if (!postCard) {
+        console.error(`Không tìm thấy bài viết với ID ${postId}`, document.querySelectorAll('.card'));
         return;
     }
     
-    // Phần còn lại của hàm không thay đổi
+    // Tạo HTML cho comment mới
     const commentHTML = `
-        <div class="comment mb-2" id="comment-${comment.id}">
-            <div class="d-flex">
-                <img src="${comment.author.avatar || '/static/images/default-avatar.png'}" 
-                     class="rounded-circle me-2" 
-                     style="width: 32px; height: 32px;">
-                <div class="flex-grow-1">
-                    <div>
-                        <a href="/users/${comment.author.username}/" 
-                           class="fw-bold text-dark text-decoration-none">
-                            ${comment.author.username}
-                        </a>
-                        ${parentId ? `<span class="text-muted mx-1">trả lời</span>` : ''}
-                        <span class="text-muted ms-2">${comment.text}</span>
-                    </div>
-                    <div class="mt-1">
-                        <small class="text-muted">${new Date(comment.created_at).toLocaleString()}</small>
-                        <button class="btn btn-link btn-sm p-0 text-muted reply-button ms-2" 
-                                data-username="${comment.author.username}"
-                                data-post-id="${postId}"
-                                data-comment-id="${comment.id}">
-                            <i class="fas fa-reply"></i> Trả lời
-                        </button>
-                    </div>
+        <div class="comment mb-2" id="comment-${normalizedComment.id}">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <a href="/users/${normalizedComment.author.username}/" 
+                       class="text-dark text-decoration-none fw-bold">
+                        ${normalizedComment.author.username}
+                    </a>
+                    ${normalizedComment.text}
                 </div>
+                <div class="dropdown">
+                    <button class="btn btn-link btn-sm p-0 text-muted dropdown-toggle" 
+                            type="button" 
+                            data-bs-toggle="dropdown" 
+                            aria-expanded="false">
+                        <i class="fas fa-ellipsis-h"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <button class="dropdown-item reply-button" 
+                                    data-username="${normalizedComment.author.username}"
+                                    data-post-id="${postId}">
+                                <i class="fas fa-reply me-2"></i>Trả lời
+                            </button>
+                        </li>
+                        <li>
+                            <button class="dropdown-item text-danger" 
+                                   onclick="deleteComment(${normalizedComment.id})">
+                                <i class="fas fa-trash-alt me-2"></i>Xóa
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="text-muted small">
+                ${new Date(normalizedComment.created_at).toLocaleString()} trước
             </div>
         </div>
     `;
     
-    // Tìm section comments
-    let commentsSection = postElement.querySelector('.comments-section');
+    // Tìm section comments hoặc tạo mới nếu chưa có
+    let commentsSection = postCard.querySelector('.comments-section');
     
-    // Nếu chưa có section comments, tạo mới
     if (!commentsSection) {
+        // Nếu chưa có section comments, tạo mới
         commentsSection = document.createElement('div');
         commentsSection.className = 'comments-section';
         
-        // Tìm card body cuối cùng để chèn
-        const cardBody = postElement.querySelector('.card-body:last-child');
-        if (cardBody) {
-            cardBody.insertBefore(commentsSection, cardBody.lastElementChild);
+        // Tìm vị trí để chèn section comments: trước form comment
+        const cardBody = postCard.querySelector('.card-body:last-child');
+        const commentForm = cardBody.querySelector('form');
+        
+        if (cardBody && commentForm) {
+            cardBody.insertBefore(commentsSection, commentForm);
+        } else {
+            console.error('Không tìm thấy vị trí để chèn comment');
+            return;
         }
     }
     
@@ -693,11 +723,13 @@ function addCommentToDOM(comment, postId, isReply, parentId) {
     commentsSection.insertAdjacentHTML('afterbegin', commentHTML);
     
     // Cập nhật số lượng comment
-    const commentCountElement = postElement.querySelector('.comment-button span');
+    const commentCountElement = postCard.querySelector('.comment-button span');
     if (commentCountElement) {
         const currentCount = parseInt(commentCountElement.textContent) || 0;
         commentCountElement.textContent = currentCount + 1;
     }
+    
+    console.groupEnd();
 }
 
 // Hiển thị thông tin bài viết đã lưu
@@ -773,7 +805,7 @@ function getCurrentUserId() {
 
 // Like comment
 function likeComment(commentId) {
-    fetch(`/api/comments/${commentId}/like/`, {
+    fetch(`/api/posts/comments/${commentId}/like/`, {
         method: 'POST',
         headers: {
             'X-CSRFToken': getCookie('csrftoken'),

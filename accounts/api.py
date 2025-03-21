@@ -1,11 +1,11 @@
 from rest_framework import viewsets, generics, status
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 
-from .models import Device, DataDownloadRequest
+from .models import Device, DataDownloadRequest, UserFollowing
 from .serializers import (
     UserSerializer,
     DeviceSerializer,
@@ -52,6 +52,65 @@ class UserViewSet(viewsets.ModelViewSet):
             user.save()
             return Response({'status': 'Mật khẩu đã được thay đổi'})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['post'])
+    def follow(self, request, pk=None):
+        user_to_follow = self.get_object()
+        
+        # Không cho phép follow chính mình
+        if user_to_follow == request.user:
+            return Response(
+                {'error': 'Bạn không thể theo dõi chính mình'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        # Kiểm tra xem đã follow chưa
+        follow_relationship, created = UserFollowing.objects.get_or_create(
+            user=request.user,
+            following_user=user_to_follow
+        )
+        
+        if not created:
+            # Đã follow trước đó, xóa mối quan hệ (unfollow)
+            follow_relationship.delete()
+            return Response({'status': 'unfollowed'})
+            
+        # Cập nhật số lượng follower
+        return Response({'status': 'following'})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def follow_user(request, username, *args, **kwargs):
+    """API endpoint để theo dõi người dùng khác"""
+    try:
+        user_to_follow = User.objects.get(username=username)
+        
+        # Không cho phép follow chính mình
+        if user_to_follow == request.user:
+            return Response(
+                {'error': 'Bạn không thể theo dõi chính mình'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        # Kiểm tra xem đã follow chưa
+        follow_relationship, created = UserFollowing.objects.get_or_create(
+            user=request.user,
+            following_user=user_to_follow
+        )
+        
+        if not created:
+            # Đã follow trước đó, xóa mối quan hệ (unfollow)
+            follow_relationship.delete()
+            return Response({'status': 'unfollowed'})
+            
+        # Đã follow thành công
+        return Response({'status': 'following'})
+        
+    except User.DoesNotExist:
+        return Response(
+            {'error': 'Không tìm thấy người dùng'}, 
+            status=status.HTTP_404_NOT_FOUND
+        )
 
 class DeviceViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = DeviceSerializer

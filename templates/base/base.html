@@ -19,6 +19,10 @@
     <!-- Custom CSS -->
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
     
+    {% if user.is_authenticated %}
+    <meta name="user-id" content="{{ user.id }}">
+    {% endif %}
+    
     {% block extra_css %}{% endblock %}
 </head>
 <body class="bg-light">

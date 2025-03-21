@@ -145,6 +145,24 @@
     .hover-overlay:hover {
         opacity: 1 !important;
     }
+    
+    /* Kiểu dáng cho danh sách người dùng trong modal */
+    .user-list {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    
+    .user-item {
+        transition: background-color 0.2s ease;
+    }
+    
+    .user-item:hover {
+        background-color: rgba(0, 0, 0, 0.03);
+    }
+    
+    .user-item:last-child {
+        border-bottom: none !important;
+    }
 </style>
 {% endblock %}
 
@@ -165,10 +183,17 @@
                     <div class="d-flex align-items-center mb-3">
                         <h2 class="me-3 mb-0">{{ profile_user.username }}</h2>
                         {% if user.is_authenticated and user != profile_user %}
-                            <button class="btn {% if is_following %}btn-secondary{% else %}btn-primary{% endif %} me-2 follow-button"
-                                    data-username="{{ profile_user.username }}">
-                                {% if is_following %}Đang theo dõi{% else %}Theo dõi{% endif %}
-                            </button>
+                            {% if is_following %}
+                                <button class="btn btn-secondary me-2 unfollow-button"
+                                        data-username="{{ profile_user.username }}">
+                                    Đang theo dõi
+                                </button>
+                            {% else %}
+                                <button class="btn btn-primary me-2 follow-button"
+                                        data-username="{{ profile_user.username }}">
+                                    Theo dõi
+                                </button>
+                            {% endif %}
                             <a href="{% url 'chat:room_list' %}" class="btn btn-outline-primary">
                                 <i class="far fa-envelope"></i>
                             </a>
@@ -201,12 +226,16 @@
                             <div class="stat-label">Bài viết</div>
                         </div>
                         <div class="stat-item">
-                            <div class="stat-value">{{ followers_count }}</div>
-                            <div class="stat-label">Người theo dõi</div>
+                            <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#followersModal">
+                                <div class="stat-value" id="followers-count">{{ followers_count }}</div>
+                                <div class="stat-label">Người theo dõi</div>
+                            </a>
                         </div>
                         <div class="stat-item">
-                            <div class="stat-value">{{ following_count }}</div>
-                            <div class="stat-label">Đang theo dõi</div>
+                            <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#followingModal">
+                                <div class="stat-value" id="following-count">{{ following_count }}</div>
+                                <div class="stat-label">Đang theo dõi</div>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -259,6 +288,46 @@
             {% endif %}
         </div>
     </div>
+</div>
+
+<!-- Modal người theo dõi -->
+<div class="modal fade" id="followersModal" tabindex="-1" aria-labelledby="followersModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="followersModalLabel">Người theo dõi</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="d-flex justify-content-center mb-3">
+          <div class="spinner-border text-primary" role="status" id="followers-spinner">
+            <span class="visually-hidden">Đang tải...</span>
+          </div>
+        </div>
+        <div id="followers-list" class="user-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal đang theo dõi -->
+<div class="modal fade" id="followingModal" tabindex="-1" aria-labelledby="followingModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="followingModalLabel">Đang theo dõi</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="d-flex justify-content-center mb-3">
+          <div class="spinner-border text-primary" role="status" id="following-spinner">
+            <span class="visually-hidden">Đang tải...</span>
+          </div>
+        </div>
+        <div id="following-list" class="user-list"></div>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}
 
@@ -379,31 +448,114 @@ document.addEventListener('click', function(e) {
         const button = e.target.closest('.follow-button');
         const username = button.dataset.username;
         
-        fetch(`/api/users/${username}/follow/`, {
+        // Hiển thị trạng thái loading
+        button.disabled = true;
+        button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Đang xử lý...';
+        
+        fetch(`/api/accounts/follow/${username}/`, {
             method: 'POST',
             headers: {
                 'X-CSRFToken': getCookie('csrftoken')
             }
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'following') {
-                button.textContent = 'Đang theo dõi';
-                button.classList.remove('btn-primary');
-                button.classList.add('btn-secondary');
-            } else {
-                button.textContent = 'Theo dõi';
-                button.classList.remove('btn-secondary');
-                button.classList.add('btn-primary');
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    // Nếu là lỗi "đã follow rồi" thì reload lại trang để cập nhật giao diện
+                    if (data.status === 'already_following') {
+                        window.location.reload();
+                        return;
+                    }
+                    throw new Error(data.error || 'Lỗi kết nối tới máy chủ. Vui lòng thử lại sau.');
+                });
             }
+            return response.json();
+        })
+        .then(data => {
+            // Bỏ trạng thái loading và thay đổi nút
+            button.disabled = false;
+            
+            // Thay đổi nút thành "Đang theo dõi"
+            button.classList.remove('follow-button');
+            button.classList.remove('btn-primary');
+            button.classList.add('unfollow-button');
+            button.classList.add('btn-secondary');
+            button.textContent = 'Đang theo dõi';
             
             // Cập nhật số lượng người theo dõi
-            const followersElement = document.querySelector('.profile-stats .stat-item:nth-child(2) .stat-value');
+            const followersElement = document.getElementById('followers-count');
             if (followersElement) {
-                const currentCount = parseInt(followersElement.textContent);
-                followersElement.textContent = data.status === 'following' ? currentCount + 1 : Math.max(0, currentCount - 1);
+                followersElement.textContent = data.followers_count;
             }
+        })
+        .catch(error => {
+            // Khôi phục trạng thái nút khi có lỗi
+            button.disabled = false;
+            button.textContent = 'Theo dõi';
+            
+            console.error('Lỗi:', error);
+            alert(error.message || 'Đã xảy ra lỗi khi thực hiện thao tác. Vui lòng thử lại sau.');
         });
+    }
+});
+
+// Unfollow button functionality
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('unfollow-button') || e.target.closest('.unfollow-button')) {
+        const button = e.target.closest('.unfollow-button');
+        const username = button.dataset.username;
+        
+        // Xác nhận hủy theo dõi
+        if (confirm(`Bạn có chắc chắn muốn hủy theo dõi ${username}?`)) {
+            // Hiển thị trạng thái loading
+            button.disabled = true;
+            button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Đang xử lý...';
+            
+            fetch(`/api/accounts/unfollow/${username}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        // Nếu là lỗi "chưa follow" thì reload lại trang để cập nhật giao diện
+                        if (data.status === 'not_following') {
+                            window.location.reload();
+                            return;
+                        }
+                        throw new Error(data.error || 'Lỗi kết nối tới máy chủ. Vui lòng thử lại sau.');
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Bỏ trạng thái loading và thay đổi nút
+                button.disabled = false;
+                
+                // Thay đổi nút thành "Theo dõi"
+                button.classList.remove('unfollow-button');
+                button.classList.remove('btn-secondary');
+                button.classList.add('follow-button');
+                button.classList.add('btn-primary');
+                button.textContent = 'Theo dõi';
+                
+                // Cập nhật số lượng người theo dõi
+                const followersElement = document.getElementById('followers-count');
+                if (followersElement) {
+                    followersElement.textContent = data.followers_count;
+                }
+            })
+            .catch(error => {
+                // Khôi phục trạng thái nút khi có lỗi
+                button.disabled = false;
+                button.textContent = 'Đang theo dõi';
+                
+                console.error('Lỗi:', error);
+                alert(error.message || 'Đã xảy ra lỗi khi thực hiện thao tác. Vui lòng thử lại sau.');
+            });
+        }
     }
 });
 
@@ -464,6 +616,109 @@ function getCookie(name) {
         }
     }
     return cookieValue;
+}
+
+// Xử lý tải danh sách người theo dõi
+document.getElementById('followersModal').addEventListener('show.bs.modal', function (event) {
+    const username = "{{ profile_user.username }}";
+    const followersSpinner = document.getElementById('followers-spinner');
+    const followersList = document.getElementById('followers-list');
+    
+    // Reset danh sách và hiển thị spinner
+    followersList.innerHTML = '';
+    followersSpinner.classList.remove('d-none');
+    
+    // Gọi API để lấy danh sách người theo dõi
+    fetch(`/api/accounts/users/${username}/followers/`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Lỗi khi tải danh sách người theo dõi');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Ẩn spinner sau khi tải xong
+            followersSpinner.classList.add('d-none');
+            
+            // Hiển thị danh sách người theo dõi
+            if (data.followers && data.followers.length > 0) {
+                data.followers.forEach(follower => {
+                    const userItem = createUserListItem(follower);
+                    followersList.appendChild(userItem);
+                });
+            } else {
+                followersList.innerHTML = '<p class="text-center text-muted">Chưa có người theo dõi nào.</p>';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            followersSpinner.classList.add('d-none');
+            followersList.innerHTML = '<p class="text-center text-danger">Có lỗi xảy ra khi tải danh sách người theo dõi.</p>';
+        });
+});
+
+// Xử lý tải danh sách đang theo dõi
+document.getElementById('followingModal').addEventListener('show.bs.modal', function (event) {
+    const username = "{{ profile_user.username }}";
+    const followingSpinner = document.getElementById('following-spinner');
+    const followingList = document.getElementById('following-list');
+    
+    // Reset danh sách và hiển thị spinner
+    followingList.innerHTML = '';
+    followingSpinner.classList.remove('d-none');
+    
+    // Gọi API để lấy danh sách đang theo dõi
+    fetch(`/api/accounts/users/${username}/following/`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Lỗi khi tải danh sách đang theo dõi');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Ẩn spinner sau khi tải xong
+            followingSpinner.classList.add('d-none');
+            
+            // Hiển thị danh sách đang theo dõi
+            if (data.following && data.following.length > 0) {
+                data.following.forEach(following => {
+                    const userItem = createUserListItem(following);
+                    followingList.appendChild(userItem);
+                });
+            } else {
+                followingList.innerHTML = '<p class="text-center text-muted">Chưa theo dõi ai.</p>';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            followingSpinner.classList.add('d-none');
+            followingList.innerHTML = '<p class="text-center text-danger">Có lỗi xảy ra khi tải danh sách đang theo dõi.</p>';
+        });
+});
+
+// Hàm tạo phần tử hiển thị người dùng trong danh sách
+function createUserListItem(user) {
+    const userItem = document.createElement('div');
+    userItem.className = 'user-item d-flex align-items-center p-2 border-bottom';
+    
+    // Tạo HTML cho mục người dùng
+    userItem.innerHTML = `
+        <a href="/users/${user.username}/" class="d-flex align-items-center text-decoration-none flex-grow-1">
+            <img src="${user.avatar || '/static/img/default-avatar.png'}" alt="${user.username}" 
+                 class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;">
+            <div>
+                <div class="fw-bold text-dark">${user.username}</div>
+                <div class="text-muted small">${user.name || ''}</div>
+            </div>
+        </a>
+        ${user.username !== "{{ user.username }}" ? 
+            `<button class="btn btn-sm ${user.is_following ? 'btn-secondary unfollow-button' : 'btn-primary follow-button'}"
+                    data-username="${user.username}">
+                ${user.is_following ? 'Đang theo dõi' : 'Theo dõi'}
+            </button>` : ''}
+    `;
+    
+    return userItem;
 }
 </script>
 {% endblock %} 
