@@ -1,0 +1,182 @@
+{% load static %}
+<div class="card mb-4">
+    <!-- Post Header -->
+    <div class="card-header bg-white border-0 py-3">
+        <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center">
+                <img src="{{ post.author.get_avatar_url }}" 
+                     class="rounded-circle me-2" 
+                     width="32" 
+                     height="32"
+                     alt="{{ post.author.username }}"
+                >
+                <div>
+                    <a href="{% url 'accounts:profile' username=post.author.username %}" 
+                       class="text-dark text-decoration-none fw-bold">
+                        {{ post.author.username }}
+                    </a>
+                    {% if post.location %}
+                    <div class="text-muted small">
+                        {{ post.location }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="text-muted small">
+                {{ post.created_at|timesince }} trước
+            </div>
+        </div>
+    </div>
+
+    <!-- Caption -->
+    {% if post.caption %}
+    <div class="card-body py-2">
+        <p class="card-text mb-0">
+            {{ post.caption }}
+        </p>
+    </div>
+    {% endif %}
+
+    <!-- Post Media -->
+    {% if post.media.exists %}
+    <div id="carousel-{{ post.id }}" class="carousel slide" data-bs-ride="false">
+        {% if post.media.count > 1 %}
+        <div class="carousel-indicators">
+            {% for media in post.media.all %}
+            <button type="button" 
+                    data-bs-target="#carousel-{{ post.id }}" 
+                    data-bs-slide-to="{{ forloop.counter0 }}"
+                    {% if forloop.first %}class="active"{% endif %}
+                    aria-current="true" 
+                    aria-label="Slide {{ forloop.counter }}">
+            </button>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <div class="carousel-inner">
+            {% for media in post.media.all %}
+            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                {% if media.media_type == 'image' %}
+                <img src="{{ media.file.url }}" 
+                     class="d-block w-100" 
+                     alt="Post image">
+                {% else %}
+                <video class="d-block w-100" controls>
+                    <source src="{{ media.file.url }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        
+        {% if post.media.count > 1 %}
+        <button class="carousel-control-prev" 
+                type="button" 
+                data-bs-target="#carousel-{{ post.id }}" 
+                data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" 
+                type="button" 
+                data-bs-target="#carousel-{{ post.id }}" 
+                data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Post Actions -->
+    <div class="card-body">
+        <div class="d-flex mb-2">
+            <button class="btn btn-link text-dark p-0 me-3 like-button" 
+                    data-post-id="{{ post.id }}">
+                <i class="{% if request.user in post.post_likes.all %}fas{% else %}far{% endif %} fa-heart"></i>
+                <span class="likes-count">{{ post.likes_count }}</span>
+            </button>
+            <button class="btn btn-link text-dark p-0 me-3 comment-button"
+                    onclick="window.location.href='{% url 'posts:post_detail' post_id=post.id %}'">
+                <i class="far fa-comment"></i>
+                <span>{{ post.comments_count }}</span>
+            </button>
+            <button class="btn btn-link text-dark p-0 save-button" 
+                    data-post-id="{{ post.id }}">
+                <i class="{% if request.user in post.saved_by.all %}fas{% else %}far{% endif %} fa-bookmark"></i>
+            </button>
+        </div>
+
+        <p class="mb-2 likes-count-display">
+            <a href="#" class="text-dark text-decoration-none fw-bold">
+                {{ post.likes_count }} lượt thích
+            </a>
+        </p>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Like button functionality
+    document.querySelectorAll('.like-button').forEach(button => {
+        button.addEventListener('click', function() {
+            const postId = this.dataset.postId;
+            const likeIcon = this.querySelector('i');
+            const likeCountSpan = this.querySelector('.likes-count');
+
+            fetch(`/posts/${postId}/like/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.liked) {
+                    likeIcon.classList.remove('far');
+                    likeIcon.classList.add('fas');
+                } else {
+                    likeIcon.classList.remove('fas');
+                    likeIcon.classList.add('far');
+                }
+                likeCountSpan.textContent = data.likes_count;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    });
+
+    // Save button functionality
+    document.querySelectorAll('.save-button').forEach(button => {
+        button.addEventListener('click', function() {
+            const postId = this.dataset.postId;
+            const saveIcon = this.querySelector('i');
+
+            fetch(`/posts/${postId}/save/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.saved) {
+                    saveIcon.classList.remove('far');
+                    saveIcon.classList.add('fas');
+                } else {
+                    saveIcon.classList.remove('fas');
+                    saveIcon.classList.add('far');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    });
+});
+</script> 

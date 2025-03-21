@@ -1,0 +1,69 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}Đăng ký - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h1 class="h3 mb-4 text-center">Đăng ký tài khoản</h1>
+                    
+                    <form method="post" class="mb-4">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="terms" required>
+                            <label class="form-check-label" for="terms">
+                                Tôi đồng ý với <a href="{% url 'terms' %}" target="_blank">Điều khoản sử dụng</a>
+                                và <a href="{% url 'privacy' %}" target="_blank">Chính sách bảo mật</a>
+                            </label>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-user-plus me-2"></i>Đăng ký
+                            </button>
+                        </div>
+                        
+                        {% if redirect_field_value %}
+                            <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+                        {% endif %}
+                    </form>
+                    
+                    <div class="divider d-flex align-items-center my-4">
+                        <p class="text-center fw-bold mx-3 mb-0">Hoặc</p>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <a href="{% provider_login_url 'google' %}" class="btn btn-outline-dark">
+                            <i class="fab fa-google me-2"></i>Đăng ký với Google
+                        </a>
+                        <a href="{% provider_login_url 'facebook' %}" class="btn btn-outline-primary">
+                            <i class="fab fa-facebook-f me-2"></i>Đăng ký với Facebook
+                        </a>
+                        <a href="{% provider_login_url 'apple' %}" class="btn btn-outline-secondary">
+                            <i class="fab fa-apple me-2"></i>Đăng ký với Apple
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-3 shadow-sm">
+                <div class="card-body text-center">
+                    <p class="mb-0">
+                        Đã có tài khoản? 
+                        <a href="{% url 'account_login' %}" class="text-decoration-none">
+                            Đăng nhập
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

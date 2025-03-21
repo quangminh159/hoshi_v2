@@ -1,0 +1,59 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Thông báo - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h3 class="mb-4">Thông báo</h3>
+            
+            {% if notifications %}
+                <div class="list-group">
+                    {% for notification in notifications %}
+                        <div class="list-group-item list-group-item-action 
+                            {% if not notification.is_read %}bg-light{% endif %}"
+                             id="notification-{{ notification.id }}">
+                            <div class="d-flex w-100 justify-content-between">
+                                <div>
+                                    <img src="{% if notification.sender.avatar and notification.sender.avatar.url %}{{ notification.sender.avatar.url }}{% else %}/static/images/default-avatar.png{% endif %}" 
+                                         class="rounded-circle me-2" 
+                                         width="40" 
+                                         height="40"
+                                         alt="{{ notification.sender.username }}">
+                                    <strong>{{ notification.sender.username }}</strong>
+                                    {{ notification.text }}
+                                </div>
+                                <small class="text-muted">{{ notification.created_at|timesince }} trước</small>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                {% if is_paginated %}
+                    <nav aria-label="Phân trang thông báo" class="mt-3">
+                        <ul class="pagination justify-content-center">
+                            {% if notifications.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ notifications.previous_page_number }}">Trang trước</a>
+                                </li>
+                            {% endif %}
+                            
+                            {% if notifications.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ notifications.next_page_number }}">Trang sau</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+            {% else %}
+                <div class="alert alert-info">
+                    Bạn không có thông báo nào.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

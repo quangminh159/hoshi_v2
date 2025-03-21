@@ -1,0 +1,469 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{{ profile_user.username }} - Hoshi{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-header {
+        background: white;
+        border-bottom: 1px solid #dee2e6;
+        padding: 2rem 0;
+    }
+    
+    .profile-avatar {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    
+    .profile-stats {
+        display: flex;
+        gap: 2rem;
+        margin: 1rem 0;
+    }
+    
+    .stat-item {
+        text-align: center;
+    }
+    
+    .stat-value {
+        font-size: 1.25rem;
+        font-weight: bold;
+    }
+    
+    .stat-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+    
+    .profile-bio {
+        white-space: pre-line;
+    }
+    
+    .post-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2px;
+    }
+    
+    .post-item {
+        position: relative;
+        aspect-ratio: 1;
+        overflow: hidden;
+    }
+    
+    .post-item img,
+    .post-item video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .post-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+    
+    .post-item:hover .post-overlay {
+        opacity: 1;
+    }
+    
+    .post-stats {
+        color: white;
+        font-size: 0.9rem;
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .post-stats i {
+        margin-right: 0.5rem;
+    }
+    
+    .post-type {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        color: white;
+        text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+    }
+    
+    .post-actions {
+        position: absolute;
+        top: 0.5rem;
+        left: 0.5rem;
+        z-index: 10;
+        display: none;
+    }
+    
+    .post-item:hover .post-actions {
+        display: flex;
+        gap: 0.25rem;
+    }
+    
+    .post-actions .btn {
+        background-color: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(2px);
+    }
+    
+    @media (max-width: 768px) {
+        .post-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .profile-stats {
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .post-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+        }
+    }
+    
+    .hover-overlay {
+        transition: opacity 0.3s ease;
+    }
+    .hover-overlay:hover {
+        opacity: 1 !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <!-- Phần thông tin profile -->
+        <div class="col-12">
+            <!-- Profile Header -->
+            <div class="row mb-5">
+                <div class="col-md-4 text-center">
+                    <img src="{{ profile_user.get_avatar_url }}"
+                         alt="{{ profile_user.username }}"
+                         class="rounded-circle img-fluid mb-3"
+                         style="width: 150px; height: 150px; object-fit: cover;">
+                </div>
+                <div class="col-md-8">
+                    <div class="d-flex align-items-center mb-3">
+                        <h2 class="me-3 mb-0">{{ profile_user.username }}</h2>
+                        {% if user.is_authenticated and user != profile_user %}
+                            <button class="btn {% if is_following %}btn-secondary{% else %}btn-primary{% endif %} me-2 follow-button"
+                                    data-username="{{ profile_user.username }}">
+                                {% if is_following %}Đang theo dõi{% else %}Theo dõi{% endif %}
+                            </button>
+                            <a href="{% url 'chat:room_list' %}" class="btn btn-outline-primary">
+                                <i class="far fa-envelope"></i>
+                            </a>
+                        {% elif user == profile_user %}
+                            <a href="{% url 'accounts:settings' %}" class="btn btn-outline-secondary me-2">Chỉnh sửa hồ sơ</a>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {% if profile_user.first_name or profile_user.last_name %}
+                        <h5 class="mb-1">{{ profile_user.first_name }} {{ profile_user.last_name }}</h5>
+                        {% endif %}
+                        
+                        {% if profile_user.bio %}
+                        <p class="text-muted profile-bio">{{ profile_user.bio }}</p>
+                        {% endif %}
+                        
+                        {% if profile_user.website %}
+                        <p>
+                            <a href="{{ profile_user.website }}" target="_blank" class="text-decoration-none">
+                                <i class="fas fa-link"></i> {{ profile_user.website|slice:":30" }}{% if profile_user.website|length > 30 %}...{% endif %}
+                            </a>
+                        </p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">{{ posts_count }}</div>
+                            <div class="stat-label">Bài viết</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">{{ followers_count }}</div>
+                            <div class="stat-label">Người theo dõi</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">{{ following_count }}</div>
+                            <div class="stat-label">Đang theo dõi</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab điều hướng -->
+        <div class="col-12">
+            <div class="profile-tabs">
+                <a href="{% url 'accounts:profile' username=profile_user.username %}" 
+                   class="tab {% if not is_saved_posts %}active{% endif %}">Bài viết</a>
+                {% if is_own_profile %}
+                <a href="{% url 'accounts:profile' username=profile_user.username %}?tab=saved" 
+                   class="tab {% if is_saved_posts %}active{% endif %}">Đã lưu</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Hiển thị bài viết -->
+        <div class="col-12">
+            {% if posts %}
+                <div class="feed-container" id="feed-container">
+                    {% for post in posts %}
+                        {% include 'posts/post_card.html' with post=post %}
+                    {% endfor %}
+                </div>
+
+                <!-- Phân trang -->
+                {% if is_paginated %}
+                    <div class="pagination">
+                        {% if page_obj.has_previous %}
+                            <a href="?page={{ page_obj.previous_page_number }}{% if is_saved_posts %}&tab=saved{% endif %}">Trang trước</a>
+                        {% endif %}
+                        
+                        <span>Trang {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+                        
+                        {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}{% if is_saved_posts %}&tab=saved{% endif %}">Trang sau</a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="no-posts text-center">
+                    {% if is_saved_posts and is_own_profile %}
+                        <p>Bạn chưa lưu bài viết nào.</p>
+                    {% else %}
+                        <p>Chưa có bài viết nào.</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Variables for infinite scrolling
+let currentPage = 1;
+let isLoading = false;
+let hasMoreContent = true;
+let profileUsername = "{{ profile_user.username }}";
+
+// Function to load more posts
+function loadMorePosts() {
+    if (isLoading || !hasMoreContent) return;
+    
+    isLoading = true;
+    document.getElementById('loading-indicator').classList.remove('d-none');
+    
+    // Increment page counter
+    currentPage++;
+    
+    // Fetch posts data - sửa đường dẫn để phù hợp với URL pattern đã đăng ký
+    fetch(`/users/api/${profileUsername}/posts/?page=${currentPage}`)
+        .then(response => response.json())
+        .then(data => {
+            // Update hasMoreContent flag
+            hasMoreContent = data.has_next;
+            
+            if (!hasMoreContent) {
+                document.getElementById('end-of-content').classList.remove('d-none');
+            }
+            
+            // Append posts to grid
+            const postsContainer = document.getElementById('post-grid');
+            
+            data.posts.forEach(post => {
+                // Create post HTML
+                const postElement = createPostElement(post);
+                postsContainer.appendChild(postElement);
+            });
+            
+            isLoading = false;
+            document.getElementById('loading-indicator').classList.add('d-none');
+        })
+        .catch(error => {
+            console.error('Error loading more posts:', error);
+            isLoading = false;
+            document.getElementById('loading-indicator').classList.add('d-none');
+        });
+}
+
+// Create HTML for a post
+function createPostElement(post) {
+    const postElement = document.createElement('div');
+    postElement.className = 'post-item';
+    
+    // Lấy media đầu tiên của bài viết
+    const firstMedia = post.media && post.media.length > 0 ? post.media[0] : null;
+    
+    let mediaHtml = '';
+    if (firstMedia) {
+        if (firstMedia.media_type === 'image') {
+            mediaHtml = `<img src="${firstMedia.file_url}" alt="Post image">`;
+        } else {
+            mediaHtml = `<video src="${firstMedia.file_url}" muted></video>`;
+        }
+    }
+    
+    // Post type indicators
+    let postTypeHtml = '<div class="post-type">';
+    if (firstMedia && firstMedia.media_type === 'video') {
+        postTypeHtml += '<i class="fas fa-play"></i>';
+    }
+    if (post.media && post.media.length > 1) {
+        postTypeHtml += '<i class="fas fa-layer-group"></i>';
+    }
+    postTypeHtml += '</div>';
+    
+    // Overlay with stats
+    const overlayHtml = `
+        <a href="/posts/${post.id}/" class="post-overlay hover-overlay opacity-0">
+            <div class="post-stats">
+                <span><i class="fas fa-heart"></i> ${post.likes_count}</span>
+                <span><i class="fas fa-comment"></i> ${post.comments_count}</span>
+            </div>
+        </a>
+    `;
+    
+    // Actions buttons - chỉ hiển thị trên trang cá nhân của người dùng
+    let actionsHtml = '';
+    if (profileUsername === "{{ user.username }}") {
+        actionsHtml = `
+            <div class="post-actions">
+                <a href="/posts/${post.id}/edit/" class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-edit"></i>
+                </a>
+                <button class="btn btn-sm btn-outline-danger delete-post-btn" data-post-id="${post.id}">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        `;
+    }
+    
+    postElement.innerHTML = mediaHtml + overlayHtml + postTypeHtml + actionsHtml;
+    return postElement;
+}
+
+// Add scroll event listener for infinite scrolling
+window.addEventListener('scroll', function() {
+    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500) {
+        loadMorePosts();
+    }
+});
+
+// Follow button functionality
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('follow-button') || e.target.closest('.follow-button')) {
+        const button = e.target.closest('.follow-button');
+        const username = button.dataset.username;
+        
+        fetch(`/api/users/${username}/follow/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'following') {
+                button.textContent = 'Đang theo dõi';
+                button.classList.remove('btn-primary');
+                button.classList.add('btn-secondary');
+            } else {
+                button.textContent = 'Theo dõi';
+                button.classList.remove('btn-secondary');
+                button.classList.add('btn-primary');
+            }
+            
+            // Cập nhật số lượng người theo dõi
+            const followersElement = document.querySelector('.profile-stats .stat-item:nth-child(2) .stat-value');
+            if (followersElement) {
+                const currentCount = parseInt(followersElement.textContent);
+                followersElement.textContent = data.status === 'following' ? currentCount + 1 : Math.max(0, currentCount - 1);
+            }
+        });
+    }
+});
+
+// Thêm chức năng xoá bài viết
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('delete-post-btn') || e.target.closest('.delete-post-btn')) {
+        const button = e.target.closest('.delete-post-btn');
+        const postId = button.dataset.postId;
+        
+        if (confirm('Bạn có chắc chắn muốn xoá bài viết này không?')) {
+            fetch(`/posts/${postId}/delete/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Xoá phần tử bài viết khỏi DOM
+                    const postElement = button.closest('.post-item');
+                    postElement.remove();
+                    
+                    // Cập nhật số lượng bài viết
+                    const postsCountElement = document.querySelector('.profile-stats .stat-item:first-child .stat-value');
+                    if (postsCountElement) {
+                        const currentCount = parseInt(postsCountElement.textContent);
+                        postsCountElement.textContent = Math.max(0, currentCount - 1);
+                    }
+                    
+                    // Hiển thị thông báo thành công
+                    alert(data.message);
+                } else {
+                    // Hiển thị thông báo lỗi
+                    alert(data.message || 'Có lỗi xảy ra khi xoá bài viết.');
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting post:', error);
+                alert('Có lỗi xảy ra khi xoá bài viết.');
+            });
+        }
+    }
+});
+
+// Get CSRF token from cookies
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %} 

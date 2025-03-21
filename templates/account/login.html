@@ -1,0 +1,146 @@
+{% extends 'base/auth_base.html' %}
+{% load i18n %}
+{% load static %}
+{% load account socialaccount %}
+
+{% block title %}Đăng nhập - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-5">
+                <div class="auth-card">
+                    <div class="card-body">
+                        <div class="text-center mb-4">
+                            <img src="{% static 'images/logo.svg' %}" alt="Logo" class="auth-logo">
+                            <h1 class="auth-title">Chào mừng trở lại!</h1>
+                            <p class="auth-subtitle">Đăng nhập để tiếp tục với Hoshi</p>
+                        </div>
+
+                        {% if form.errors %}
+                            <div class="alert alert-danger d-flex align-items-center mb-4">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                <div>
+                                    {% for error in form.non_field_errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} d-flex align-items-center mb-4">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <div>{{ message }}</div>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <form method="post" action="{% url 'account_login' %}" class="auth-form">
+                            {% csrf_token %}
+                            
+                            <div class="mb-4">
+                                <label for="id_login" class="form-label">Tên người dùng</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-user"></i>
+                                    </span>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="id_login" 
+                                           name="login" 
+                                           placeholder="Nhập tên người dùng của bạn"
+                                           required>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="id_password" class="form-label">Mật khẩu</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-lock"></i>
+                                    </span>
+                                    <input type="password" 
+                                           class="form-control" 
+                                           id="id_password" 
+                                           name="password" 
+                                           placeholder="Nhập mật khẩu của bạn"
+                                           required>
+                                    <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="id_remember" name="remember">
+                                    <label class="form-check-label" for="id_remember">
+                                        Ghi nhớ đăng nhập
+                                    </label>
+                                </div>
+                                <a href="{% url 'account_reset_password' %}">Quên mật khẩu?</a>
+                            </div>
+
+                            {% if redirect_field_value %}
+                                <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+                            {% endif %}
+
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-sign-in-alt me-2"></i>Đăng nhập
+                            </button>
+                        </form>
+
+                        <div class="auth-separator">
+                            <span>hoặc tiếp tục với</span>
+                        </div>
+
+                        <div class="social-login">
+                            {% get_providers as socialaccount_providers %}
+                            {% for provider in socialaccount_providers %}
+                                {% if provider.id == 'google' %}
+                                    <a href="{% provider_login_url provider.id %}" class="social-btn google">
+                                        <i class="fab fa-google"></i>
+                                        <span>Đăng nhập với Google</span>
+                                    </a>
+                                {% elif provider.id == 'facebook' %}
+                                    <a href="{% provider_login_url provider.id %}" class="social-btn facebook">
+                                        <i class="fab fa-facebook"></i>
+                                        <span>Đăng nhập với Facebook</span>
+                                    </a>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+
+                        <div class="auth-footer">
+                            <p>Chưa có tài khoản? <a href="{% url 'account_signup' %}">Đăng ký ngay</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+document.getElementById('togglePassword').addEventListener('click', function() {
+    const password = document.getElementById('id_password');
+    const icon = this.querySelector('i');
+    
+    if (password.type === 'password') {
+        password.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        password.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,168 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Tạo bài viết mới - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
+<link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
+<link href="https://unpkg.com/filepond-plugin-image-edit/dist/filepond-plugin-image-edit.css" rel="stylesheet">
+<style>
+    .filepond--root {
+        max-height: 400px;
+    }
+    .filepond--panel-root {
+        background-color: #f8f9fa;
+        border: 2px dashed #dee2e6;
+    }
+    .location-suggestions {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 0.25rem;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+    .location-suggestion {
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+    }
+    .location-suggestion:hover {
+        background-color: #f8f9fa;
+    }
+    .preview-container {
+        position: relative;
+        width: 100%;
+        padding-bottom: 100%;
+    }
+    .preview-container img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Tạo bài viết mới</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <!-- Media Upload -->
+                        <div class="mb-3">
+                            <label for="media" class="form-label">Ảnh/Video</label>
+                            <input type="file" 
+                                   id="media" 
+                                   name="media" 
+                                   class="form-control" 
+                                   accept="image/*,video/*" 
+                                   multiple>
+                            <div class="form-text">Có thể chọn nhiều file. Tối đa 1GB mỗi file.</div>
+                        </div>
+                        
+                        <!-- Preview Container -->
+                        <div class="preview-container mb-3">
+                            <!-- Media preview will be populated here -->
+                        </div>
+                        
+                        <!-- Caption -->
+                        <div class="mb-3">
+                            <label for="caption" class="form-label">Nội dung</label>
+                            <textarea id="caption" 
+                                      name="caption" 
+                                      class="form-control" 
+                                      rows="3" 
+                                      placeholder="Viết gì đó..."></textarea>
+                            <div class="form-text">
+                                Sử dụng # để thêm hashtag và @ để gắn thẻ người dùng khác
+                            </div>
+                        </div>
+                        
+                        <!-- Location -->
+                        <div class="mb-3">
+                            <label for="location" class="form-label">Địa điểm</label>
+                            <input type="text" 
+                                   id="location" 
+                                   name="location" 
+                                   class="form-control" 
+                                   placeholder="Thêm địa điểm">
+                        </div>
+                        
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-2"></i>Đăng bài
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Preview uploaded files
+const mediaInput = document.getElementById('media');
+const previewContainer = document.querySelector('.preview-container');
+
+mediaInput.addEventListener('change', function() {
+    previewContainer.innerHTML = '';
+    
+    for (const file of this.files) {
+        const reader = new FileReader();
+        const preview = document.createElement('div');
+        preview.className = 'position-relative mb-2';
+        
+        reader.onload = function(e) {
+            if (file.type.startsWith('image/')) {
+                preview.innerHTML = `
+                    <img src="${e.target.result}" 
+                         class="img-thumbnail" 
+                         style="max-height: 200px;">
+                `;
+            } else if (file.type.startsWith('video/')) {
+                preview.innerHTML = `
+                    <video src="${e.target.result}" 
+                           class="img-thumbnail" 
+                           style="max-height: 200px;"
+                           controls></video>
+                `;
+            }
+        }
+        
+        reader.readAsDataURL(file);
+        previewContainer.appendChild(preview);
+    }
+});
+
+// Handle hashtags and mentions in caption
+const captionInput = document.getElementById('caption');
+captionInput.addEventListener('input', function() {
+    const text = this.value;
+    const lastWord = text.split(' ').pop();
+    
+    if (lastWord.startsWith('#')) {
+        // TODO: Show hashtag suggestions
+    } else if (lastWord.startsWith('@')) {
+        // TODO: Show user suggestions
+    }
+});
+</script>
+{% endblock %} 
