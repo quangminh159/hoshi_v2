@@ -1,0 +1,165 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Chỉnh sửa bài viết - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
+<link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
+<link href="https://unpkg.com/filepond-plugin-file-poster/dist/filepond-plugin-file-poster.css" rel="stylesheet">
+<style>
+    .location-suggestions {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 0.25rem;
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 1000;
+    }
+    
+    .location-suggestion {
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+    }
+    
+    .location-suggestion:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .mention-suggestions {
+        position: absolute;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 0.25rem;
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 1000;
+    }
+    
+    .mention-suggestion {
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .mention-suggestion:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .mention-suggestion img {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Chỉnh sửa bài viết</h4>
+                </div>
+                <div class="card-body">
+                    <form action="{% url 'posts:edit' post.id %}" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <!-- Caption -->
+                        <div class="mb-3">
+                            <label for="caption" class="form-label">Nội dung bài viết</label>
+                            <textarea 
+                                name="caption" 
+                                id="caption" 
+                                class="form-control" 
+                                rows="4"
+                                placeholder="Nhập nội dung bài viết..."
+                            >{{ post.caption }}</textarea>
+                        </div>
+                        
+                        <!-- Location -->
+                        <div class="mb-3">
+                            <label for="location" class="form-label">Địa điểm</label>
+                            <input 
+                                type="text" 
+                                name="location" 
+                                id="location" 
+                                class="form-control" 
+                                value="{{ post.location }}"
+                                placeholder="Nhập địa điểm (tùy chọn)"
+                            >
+                        </div>
+                        
+                        <!-- Media -->
+                        <div class="mb-3">
+                            <label for="mediaFiles" class="form-label">Ảnh/Video</label>
+                            <div class="input-group">
+                                <input 
+                                    type="file" 
+                                    class="form-control" 
+                                    id="mediaFiles" 
+                                    name="media" 
+                                    multiple 
+                                    accept="image/*,video/*"
+                                    onchange="displayFileNames(this)"
+                                >
+                            </div>
+                            <small id="selectedFiles" class="text-muted"></small>
+                            
+                            <!-- Hiển thị media hiện tại -->
+                            {% if media_files %}
+                            <div class="mt-2">
+                                <p class="text-muted">Ảnh/Video hiện tại:</p>
+                                <div class="d-flex flex-wrap">
+                                    {% for media in media_files %}
+                                    <div class="me-2 mb-2 position-relative">
+                                        {% if media.media_type == 'image' %}
+                                        <img src="{{ media.file.url }}" 
+                                             class="img-thumbnail" 
+                                             style="max-width: 100px; max-height: 100px; object-fit: cover;"
+                                             alt="Media">
+                                        {% else %}
+                                        <video 
+                                            class="img-thumbnail" 
+                                            style="max-width: 100px; max-height: 100px; object-fit: cover;"
+                                        >
+                                            <source src="{{ media.file.url }}" type="video/mp4">
+                                        </video>
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Nút submit -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'posts:post_detail' post.id %}" class="btn btn-secondary">Hủy</a>
+                            <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function displayFileNames(input) {
+        const fileNames = Array.from(input.files).map(file => file.name).join(', ');
+        document.getElementById('selectedFiles').textContent = fileNames;
+    }
+</script>
+{% endblock %} 

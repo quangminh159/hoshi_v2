@@ -1,0 +1,100 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}Thiết lập xác thực hai yếu tố{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    <h4 class="card-title text-center mb-4">Thiết lập xác thực hai yếu tố</h4>
+                    
+                    <div class="text-center mb-4">
+                        <p>Quét mã QR bên dưới bằng ứng dụng xác thực (như Google Authenticator) hoặc nhập mã bí mật thủ công.</p>
+                        <div class="qr-code-container mb-3">
+                            <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code" class="img-fluid">
+                        </div>
+                        <div class="secret-key mb-4">
+                            <p class="mb-2">Mã bí mật:</p>
+                            <code class="fs-5">{{ secret_key }}</code>
+                        </div>
+                    </div>
+                    
+                    <form method="post" action="{% url 'accounts:verify_two_factor' %}">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label for="code" class="form-label">Nhập mã xác thực từ ứng dụng</label>
+                            <input type="text" class="form-control form-control-lg text-center" 
+                                   id="code" name="code" maxlength="6" required
+                                   pattern="[0-9]{6}" placeholder="000000">
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">Xác nhận</button>
+                            <a href="{% url 'accounts:settings' %}" class="btn btn-outline-secondary">Hủy</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card mt-4 shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Hướng dẫn</h5>
+                    <ol class="mb-0">
+                        <li>Tải ứng dụng xác thực như Google Authenticator hoặc Authy.</li>
+                        <li>Mở ứng dụng và quét mã QR hoặc nhập mã bí mật thủ công.</li>
+                        <li>Nhập mã 6 số hiển thị trên ứng dụng vào ô bên trên.</li>
+                        <li>Nhấn "Xác nhận" để hoàn tất thiết lập.</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.qr-code-container {
+    background: #fff;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    display: inline-block;
+}
+
+.secret-key {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.5rem;
+}
+
+.secret-key code {
+    letter-spacing: 0.25rem;
+    background: none;
+    color: #212529;
+}
+
+input[type="text"] {
+    letter-spacing: 0.5rem;
+    font-family: monospace;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const codeInput = document.getElementById('code');
+    
+    // Chỉ cho phép nhập số
+    codeInput.addEventListener('input', function(e) {
+        this.value = this.value.replace(/[^0-9]/g, '');
+    });
+    
+    // Tự động submit khi đủ 6 số
+    codeInput.addEventListener('input', function(e) {
+        if (this.value.length === 6) {
+            this.form.submit();
+        }
+    });
+});
+</script>
+{% endblock %} 

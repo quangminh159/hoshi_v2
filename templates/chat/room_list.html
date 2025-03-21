@@ -1,0 +1,107 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Tin nhắn - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Tin nhắn</h5>
+                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#newRoomModal">
+                        <i class="fas fa-plus me-1"></i>Cuộc trò chuyện mới
+                    </button>
+                </div>
+                <div class="list-group list-group-flush">
+                    {% if rooms %}
+                        {% for room in rooms %}
+                            <a href="{% url 'chat:room_detail' room.id %}" class="list-group-item list-group-item-action">
+                                <div class="d-flex align-items-center">
+                                    {% if room.room_type == 'direct' %}
+                                        {% with other_user=room.participants.exclude.id=request.user.id.first %}
+                                            {% if other_user.avatar %}
+                                                <img src="{{ other_user.avatar.url }}" alt="{{ other_user.username }}" class="rounded-circle me-3" style="width: 48px; height: 48px;">
+                                            {% else %}
+                                                <div class="rounded-circle bg-secondary me-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                                    <i class="fas fa-user text-white"></i>
+                                                </div>
+                                            {% endif %}
+                                            <div>
+                                                <h6 class="mb-1">{{ other_user.username }}</h6>
+                                                {% with last_message=room.messages.first %}
+                                                    {% if last_message %}
+                                                        <p class="mb-1 text-muted small">{{ last_message.content|truncatechars:50 }}</p>
+                                                        <small class="text-muted">{{ last_message.created_at|timesince }} trước</small>
+                                                    {% else %}
+                                                        <p class="mb-0 text-muted small">Chưa có tin nhắn</p>
+                                                    {% endif %}
+                                                {% endwith %}
+                                            </div>
+                                        {% endwith %}
+                                    {% else %}
+                                        {% if room.avatar %}
+                                            <img src="{{ room.avatar.url }}" alt="{{ room.name }}" class="rounded-circle me-3" style="width: 48px; height: 48px;">
+                                        {% else %}
+                                            <div class="rounded-circle bg-primary me-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                                <i class="fas fa-users text-white"></i>
+                                            </div>
+                                        {% endif %}
+                                        <div>
+                                            <h6 class="mb-1">{{ room.name }}</h6>
+                                            {% with last_message=room.messages.first %}
+                                                {% if last_message %}
+                                                    <p class="mb-1 text-muted small">{{ last_message.sender.username }}: {{ last_message.content|truncatechars:50 }}</p>
+                                                    <small class="text-muted">{{ last_message.created_at|timesince }} trước</small>
+                                                {% else %}
+                                                    <p class="mb-0 text-muted small">Chưa có tin nhắn</p>
+                                                {% endif %}
+                                            {% endwith %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </a>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Bạn chưa có cuộc trò chuyện nào</p>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newRoomModal">
+                                Bắt đầu cuộc trò chuyện
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal tạo cuộc trò chuyện mới -->
+<div class="modal fade" id="newRoomModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Tạo cuộc trò chuyện mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{% url 'chat:create_room' %}" method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="user" class="form-label">Chọn người dùng</label>
+                        <select class="form-select" id="user" name="user_id" required>
+                            <option value="">Chọn người dùng...</option>
+                            {% for user in users %}
+                                <option value="{{ user.id }}">{{ user.username }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Bắt đầu trò chuyện</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

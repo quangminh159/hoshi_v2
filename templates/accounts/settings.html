@@ -1,0 +1,748 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Cài đặt tài khoản - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .settings-container {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+    
+    .settings-sidebar {
+        width: 240px;
+        position: sticky;
+        top: 1rem;
+    }
+    
+    .settings-main {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .settings-nav .nav-link {
+        color: #495057;
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+    }
+    
+    .settings-nav .nav-link:hover {
+        background: #f8f9fa;
+    }
+    
+    .settings-nav .nav-link.active {
+        background: #e9ecef;
+        color: #0d6efd;
+        font-weight: 500;
+    }
+    
+    .settings-nav .nav-link i {
+        width: 1.5rem;
+    }
+    
+    .settings-section:not(:last-child) {
+        margin-bottom: 3rem;
+    }
+    
+    .avatar-upload {
+        position: relative;
+        width: 150px;
+        height: 150px;
+        margin: 0 auto;
+    }
+    
+    .avatar-upload img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    
+    .avatar-upload .upload-button {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #0d6efd;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    
+    .avatar-upload .upload-button:hover {
+        background: #0b5ed7;
+    }
+    
+    .device-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        border: 1px solid #dee2e6;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .device-icon {
+        width: 48px;
+        height: 48px;
+        background: #e9ecef;
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+    }
+    
+    .device-info {
+        flex: 1;
+    }
+    
+    .device-current {
+        font-size: 0.875rem;
+        color: #198754;
+        margin-left: 1rem;
+    }
+    
+    .notification-item {
+        padding: 1rem;
+        border: 1px solid #dee2e6;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .notification-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+    }
+    
+    .notification-title {
+        font-weight: 500;
+        margin: 0;
+    }
+    
+    .notification-description {
+        color: #6c757d;
+        margin: 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="settings-container">
+    <div class="row g-4">
+        <!-- Sidebar -->
+        <div class="col-md-4 col-lg-3">
+            <div class="settings-sidebar">
+                <nav class="settings-nav nav flex-column">
+                    <a class="nav-link {% if active_tab == 'profile' %}active{% endif %}" 
+                       href="#profile">
+                        <i class="fas fa-user me-2"></i>Chỉnh sửa hồ sơ
+                    </a>
+                    <a class="nav-link {% if active_tab == 'password' %}active{% endif %}" 
+                       href="#password">
+                        <i class="fas fa-lock me-2"></i>Đổi mật khẩu
+                    </a>
+                    <a class="nav-link {% if active_tab == 'notifications' %}active{% endif %}" 
+                       href="#notifications">
+                        <i class="fas fa-bell me-2"></i>Thông báo
+                    </a>
+                    <a class="nav-link {% if active_tab == 'privacy' %}active{% endif %}" 
+                       href="#privacy">
+                        <i class="fas fa-shield-alt me-2"></i>Quyền riêng tư
+                    </a>
+                    <a class="nav-link {% if active_tab == 'security' %}active{% endif %}" 
+                       href="#security">
+                        <i class="fas fa-fingerprint me-2"></i>Bảo mật
+                    </a>
+                    <a class="nav-link {% if active_tab == 'devices' %}active{% endif %}" 
+                       href="#devices">
+                        <i class="fas fa-mobile-alt me-2"></i>Thiết bị đăng nhập
+                    </a>
+                    <a class="nav-link {% if active_tab == 'data' %}active{% endif %}" 
+                       href="#data">
+                        <i class="fas fa-download me-2"></i>Tải xuống dữ liệu
+                    </a>
+                    <a class="nav-link text-danger {% if active_tab == 'delete' %}active{% endif %}" 
+                       href="#delete">
+                        <i class="fas fa-trash-alt me-2"></i>Xóa tài khoản
+                    </a>
+                </nav>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-md-8 col-lg-9">
+            <div class="settings-main">
+                <!-- Profile Section -->
+                <div class="settings-section" id="profile">
+                    <h4 class="mb-4">Chỉnh sửa hồ sơ</h4>
+                    
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" name="update_profile" value="1">
+                        
+                        <div class="mb-4">
+                            <div class="avatar-upload">
+                                {% if user.get_avatar_url %}
+                                    <img src="{{ user.get_avatar_url }}" alt="{{ user.username }}">
+                                {% else %}
+                                    <img src="{% static 'img/default-avatar.png' %}" alt="{{ user.username }}">
+                                {% endif %}
+                                <label class="upload-button" for="avatar">
+                                    <i class="fas fa-camera"></i>
+                                </label>
+                                <input type="file" 
+                                       id="avatar" 
+                                       name="avatar" 
+                                       class="d-none"
+                                       accept="image/*">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="form-check">
+                                {{ profile_form.remove_avatar }}
+                                <label class="form-check-label" for="id_remove_avatar">
+                                    Xóa ảnh đại diện hiện tại
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ profile_form.first_name|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ profile_form.last_name|as_crispy_field }}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ profile_form.username|as_crispy_field }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ profile_form.email|as_crispy_field }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ profile_form.bio|as_crispy_field }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ profile_form.website|as_crispy_field }}
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Lưu thay đổi
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Password Section -->
+                <div class="settings-section" id="password">
+                    <h4 class="mb-4">Đổi mật khẩu</h4>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            {{ password_form.old_password|as_crispy_field }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ password_form.new_password1|as_crispy_field }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ password_form.new_password2|as_crispy_field }}
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-key me-2"></i>Đổi mật khẩu
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Notifications Section -->
+                <div class="settings-section" id="notifications">
+                    <h4 class="mb-4">Cài đặt thông báo</h4>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="notification-item">
+                            <div class="notification-header">
+                                <h5 class="notification-title">Thông báo đẩy</h5>
+                                <div class="form-check form-switch">
+                                    <input type="checkbox" 
+                                           class="form-check-input" 
+                                           id="pushNotifications"
+                                           name="push_notifications"
+                                           {% if notifications.push %}checked{% endif %}>
+                                </div>
+                            </div>
+                            <p class="notification-description">
+                                Nhận thông báo ngay cả khi không mở ứng dụng
+                            </p>
+                        </div>
+                        
+                        <div class="notification-item">
+                            <div class="notification-header">
+                                <h5 class="notification-title">Thông báo qua email</h5>
+                                <div class="form-check form-switch">
+                                    <input type="checkbox" 
+                                           class="form-check-input" 
+                                           id="emailNotifications"
+                                           name="email_notifications"
+                                           {% if notifications.email %}checked{% endif %}>
+                                </div>
+                            </div>
+                            <p class="notification-description">
+                                Nhận thông báo qua email
+                            </p>
+                        </div>
+                        
+                        <h5 class="mb-3 mt-4">Loại thông báo</h5>
+                        
+                        <div class="notification-item">
+                            <div class="notification-header">
+                                <h5 class="notification-title">Lượt thích</h5>
+                                <div class="form-check form-switch">
+                                    <input type="checkbox" 
+                                           class="form-check-input" 
+                                           id="likeNotifications"
+                                           name="like_notifications"
+                                           {% if notifications.likes %}checked{% endif %}>
+                                </div>
+                            </div>
+                            <p class="notification-description">
+                                Khi có người thích bài viết của bạn
+                            </p>
+                        </div>
+                        
+                        <div class="notification-item">
+                            <div class="notification-header">
+                                <h5 class="notification-title">Bình luận</h5>
+                                <div class="form-check form-switch">
+                                    <input type="checkbox" 
+                                           class="form-check-input" 
+                                           id="commentNotifications"
+                                           name="comment_notifications"
+                                           {% if notifications.comments %}checked{% endif %}>
+                                </div>
+                            </div>
+                            <p class="notification-description">
+                                Khi có người bình luận bài viết của bạn
+                            </p>
+                        </div>
+                        
+                        <div class="notification-item">
+                            <div class="notification-header">
+                                <h5 class="notification-title">Theo dõi</h5>
+                                <div class="form-check form-switch">
+                                    <input type="checkbox" 
+                                           class="form-check-input" 
+                                           id="followNotifications"
+                                           name="follow_notifications"
+                                           {% if notifications.follows %}checked{% endif %}>
+                                </div>
+                            </div>
+                            <p class="notification-description">
+                                Khi có người theo dõi bạn
+                            </p>
+                        </div>
+                        
+                        <div class="notification-item">
+                            <div class="notification-header">
+                                <h5 class="notification-title">Nhắc đến</h5>
+                                <div class="form-check form-switch">
+                                    <input type="checkbox" 
+                                           class="form-check-input" 
+                                           id="mentionNotifications"
+                                           name="mention_notifications"
+                                           {% if notifications.mentions %}checked{% endif %}>
+                                </div>
+                            </div>
+                            <p class="notification-description">
+                                Khi có người nhắc đến bạn trong bài viết hoặc bình luận
+                            </p>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Lưu thay đổi
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Privacy Section -->
+                <div class="settings-section" id="privacy">
+                    <h4 class="mb-4">Cài đặt quyền riêng tư</h4>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="notification-item">
+                            <div class="notification-header">
+                                <h5 class="notification-title">Tài khoản riêng tư</h5>
+                                <div class="form-check form-switch">
+                                    <input type="checkbox" 
+                                           class="form-check-input" 
+                                           id="privateAccount"
+                                           name="private_account"
+                                           {% if privacy.private_account %}checked{% endif %}>
+                                </div>
+                            </div>
+                            <p class="notification-description">
+                                Chỉ những người theo dõi mới có thể xem bài viết của bạn
+                            </p>
+                        </div>
+                        
+                        <div class="notification-item">
+                            <div class="notification-header">
+                                <h5 class="notification-title">Ẩn trạng thái hoạt động</h5>
+                                <div class="form-check form-switch">
+                                    <input type="checkbox" 
+                                           class="form-check-input" 
+                                           id="hideActivity"
+                                           name="hide_activity"
+                                           {% if privacy.hide_activity %}checked{% endif %}>
+                                </div>
+                            </div>
+                            <p class="notification-description">
+                                Không hiển thị trạng thái hoạt động của bạn
+                            </p>
+                        </div>
+                        
+                        <div class="notification-item">
+                            <div class="notification-header">
+                                <h5 class="notification-title">Chặn tin nhắn</h5>
+                                <div class="form-check form-switch">
+                                    <input type="checkbox" 
+                                           class="form-check-input" 
+                                           id="blockMessages"
+                                           name="block_messages"
+                                           {% if privacy.block_messages %}checked{% endif %}>
+                                </div>
+                            </div>
+                            <p class="notification-description">
+                                Chỉ nhận tin nhắn từ người bạn theo dõi
+                            </p>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Lưu thay đổi
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Security Section -->
+                <div class="settings-section" id="security">
+                    <h4 class="mb-4">Cài đặt bảo mật</h4>
+                    
+                    <div class="notification-item">
+                        <div class="notification-header">
+                            <h5 class="notification-title">Xác thực hai yếu tố</h5>
+                            <div class="form-check form-switch">
+                                <input type="checkbox" 
+                                       class="form-check-input" 
+                                       id="twoFactor"
+                                       name="two_factor"
+                                       {% if security.two_factor %}checked{% endif %}>
+                            </div>
+                        </div>
+                        <p class="notification-description">
+                            Bảo vệ tài khoản bằng mã xác thực
+                        </p>
+                        {% if not security.two_factor %}
+                            <button type="button" 
+                                    class="btn btn-outline-primary btn-sm"
+                                    onclick="setupTwoFactor()">
+                                <i class="fas fa-shield-alt me-2"></i>Thiết lập
+                            </button>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="notification-item">
+                        <div class="notification-header">
+                            <h5 class="notification-title">Đăng nhập bằng mạng xã hội</h5>
+                        </div>
+                        <div class="mt-3">
+                            <button type="button" 
+                                    class="btn btn-outline-danger btn-sm me-2"
+                                    onclick="unlinkSocial('google')">
+                                <i class="fab fa-google me-2"></i>Hủy liên kết Google
+                            </button>
+                            <button type="button" 
+                                    class="btn btn-outline-primary btn-sm me-2"
+                                    onclick="unlinkSocial('facebook')">
+                                <i class="fab fa-facebook me-2"></i>Hủy liên kết Facebook
+                            </button>
+                            <button type="button" 
+                                    class="btn btn-outline-dark btn-sm"
+                                    onclick="unlinkSocial('apple')">
+                                <i class="fab fa-apple me-2"></i>Hủy liên kết Apple
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Devices Section -->
+                <div class="settings-section" id="devices">
+                    <h4 class="mb-4">Thiết bị đăng nhập</h4>
+                    
+                    {% for device in devices %}
+                        <div class="device-item">
+                            <div class="device-icon">
+                                <i class="fas {% if device.type == 'mobile' %}fa-mobile-alt{% else %}fa-laptop{% endif %} fa-lg"></i>
+                            </div>
+                            <div class="device-info">
+                                <h5 class="mb-1">{{ device.name }}</h5>
+                                <p class="text-muted mb-0">
+                                    <small>
+                                        <i class="fas fa-map-marker-alt me-1"></i>{{ device.location }}
+                                        <span class="mx-2">•</span>
+                                        <i class="fas fa-clock me-1"></i>{{ device.last_active|timesince }} trước
+                                    </small>
+                                </p>
+                            </div>
+                            {% if device.is_current %}
+                                <span class="device-current">
+                                    <i class="fas fa-circle me-1"></i>Hiện tại
+                                </span>
+                            {% else %}
+                                <button type="button" 
+                                        class="btn btn-outline-danger btn-sm"
+                                        onclick="revokeDevice('{{ device.id }}')">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                </button>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Data Section -->
+                <div class="settings-section" id="data">
+                    <h4 class="mb-4">Tải xuống dữ liệu</h4>
+                    
+                    <p class="text-muted">
+                        Tải xuống bản sao dữ liệu của bạn, bao gồm bài viết, bình luận, và thông tin cá nhân.
+                    </p>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input type="checkbox" 
+                                       class="form-check-input" 
+                                       id="includeMedia"
+                                       name="include_media">
+                                <label class="form-check-label" for="includeMedia">
+                                    Bao gồm hình ảnh và video
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-download me-2"></i>Yêu cầu tải xuống
+                        </button>
+                        
+                        {% if data_requests %}
+                            <div class="mt-4">
+                                <h5 class="mb-3">Yêu cầu gần đây</h5>
+                                {% for request in data_requests %}
+                                    <div class="notification-item">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="mb-1">{{ request.created_at|date }}</h6>
+                                                <p class="text-muted mb-0">
+                                                    <small>
+                                                        {% if request.status == 'pending' %}
+                                                            <span class="text-warning">
+                                                                <i class="fas fa-clock me-1"></i>Đang xử lý
+                                                            </span>
+                                                        {% elif request.status == 'ready' %}
+                                                            <span class="text-success">
+                                                                <i class="fas fa-check me-1"></i>Sẵn sàng tải xuống
+                                                            </span>
+                                                        {% else %}
+                                                            <span class="text-danger">
+                                                                <i class="fas fa-times me-1"></i>Đã hết hạn
+                                                            </span>
+                                                        {% endif %}
+                                                    </small>
+                                                </p>
+                                            </div>
+                                            {% if request.status == 'ready' %}
+                                                <a href="{{ request.download_url }}" 
+                                                   class="btn btn-outline-primary btn-sm">
+                                                    <i class="fas fa-download me-2"></i>Tải xuống
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </form>
+                </div>
+                
+                <!-- Delete Account Section -->
+                <div class="settings-section" id="delete">
+                    <h4 class="mb-4">Xóa tài khoản</h4>
+                    
+                    <div class="alert alert-danger">
+                        <h5 class="alert-heading">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Cảnh báo
+                        </h5>
+                        <p class="mb-0">
+                            Việc xóa tài khoản là không thể hoàn tác. Tất cả dữ liệu của bạn sẽ bị xóa vĩnh viễn.
+                        </p>
+                    </div>
+                    
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="deleteReason" class="form-label">
+                                Lý do xóa tài khoản
+                            </label>
+                            <select class="form-select" 
+                                    id="deleteReason" 
+                                    name="delete_reason"
+                                    required>
+                                <option value="">Chọn lý do...</option>
+                                <option value="privacy">Lo ngại về quyền riêng tư</option>
+                                <option value="another_account">Có tài khoản khác</option>
+                                <option value="not_useful">Không thấy hữu ích</option>
+                                <option value="other">Lý do khác</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="deletePassword" class="form-label">
+                                Nhập mật khẩu để xác nhận
+                            </label>
+                            <input type="password" 
+                                   class="form-control" 
+                                   id="deletePassword"
+                                   name="password"
+                                   required>
+                        </div>
+                        
+                        <div class="form-check mb-3">
+                            <input type="checkbox" 
+                                   class="form-check-input" 
+                                   id="confirmDelete"
+                                   required>
+                            <label class="form-check-label" for="confirmDelete">
+                                Tôi hiểu rằng việc xóa tài khoản là không thể hoàn tác
+                            </label>
+                        </div>
+                        
+                        <button type="submit" 
+                                class="btn btn-danger"
+                                onclick="return confirm('Bạn có chắc chắn muốn xóa tài khoản?')">
+                            <i class="fas fa-trash-alt me-2"></i>Xóa tài khoản
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Avatar preview
+document.getElementById('avatar').addEventListener('change', function() {
+    const file = this.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.querySelector('.avatar-upload img').src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+    }
+});
+
+// Form validation
+document.querySelectorAll('.needs-validation').forEach(form => {
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+});
+
+// Two-factor setup
+function setupTwoFactor() {
+    // Show QR code modal and setup process
+}
+
+// Unlink social accounts
+function unlinkSocial(provider) {
+    if (confirm(`Bạn có chắc chắn muốn hủy liên kết với ${provider}?`)) {
+        // Handle unlinking
+    }
+}
+
+// Revoke device access
+function revokeDevice(deviceId) {
+    if (confirm('Bạn có chắc chắn muốn đăng xuất khỏi thiết bị này?')) {
+        fetch(`/accounts/devices/${deviceId}/revoke/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        }).then(response => {
+            if (response.ok) {
+                location.reload();
+            }
+        });
+    }
+}
+
+// Scroll to active section
+const hash = window.location.hash;
+if (hash) {
+    document.querySelector(hash).scrollIntoView();
+}
+
+// Update active tab on scroll
+window.addEventListener('scroll', function() {
+    const sections = document.querySelectorAll('.settings-section');
+    let currentSection = '';
+    
+    sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        const sectionHeight = section.clientHeight;
+        if (window.pageYOffset >= sectionTop - 100) {
+            currentSection = '#' + section.id;
+        }
+    });
+    
+    document.querySelectorAll('.settings-nav .nav-link').forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === currentSection) {
+            link.classList.add('active');
+        }
+    });
+});
+</script>
+{% endblock %} 

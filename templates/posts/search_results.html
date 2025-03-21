@@ -1,0 +1,338 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Kết quả tìm kiếm: {{ query }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container py-4 mt-5">
+    <div class="row">
+        <div class="col-12">
+            <h4 class="mb-4">Kết quả tìm kiếm: "{{ query }}"</h4>
+            
+            {% if not query %}
+                <div class="text-center py-5">
+                    <i class="fas fa-search fa-3x mb-3 text-muted"></i>
+                    <h5>Nhập từ khóa để tìm kiếm</h5>
+                    <p class="text-muted">Tìm kiếm người dùng, bài viết hoặc hashtag</p>
+                </div>
+            {% else %}
+                <!-- Nav Tabs -->
+                <ul class="nav nav-tabs mb-4" id="searchTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" 
+                                type="button" role="tab" aria-controls="users" aria-selected="true">
+                            Người dùng ({{ users.paginator.count }})
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="posts-tab" data-bs-toggle="tab" data-bs-target="#posts" 
+                                type="button" role="tab" aria-controls="posts" aria-selected="false">
+                            Bài viết ({{ posts.paginator.count }})
+                        </button>
+                    </li>
+                </ul>
+                
+                <!-- Tab Content -->
+                <div class="tab-content" id="searchTabContent">
+                    <!-- Users Tab -->
+                    <div class="tab-pane fade show active" id="users" role="tabpanel" aria-labelledby="users-tab">
+                        {% if users %}
+                            <div class="row">
+                                {% for user in users %}
+                                <div class="col-md-4 col-lg-3 mb-4">
+                                    <div class="card h-100">
+                                        <div class="card-body text-center">
+                                            {% if user.avatar %}
+                                                <img src="{{ user.avatar.url }}" 
+                                                     class="rounded-circle mb-3" 
+                                                     width="80" height="80" 
+                                                     alt="{{ user.username }}">
+                                            {% else %}
+                                                <img src="/static/images/default-avatar.png" 
+                                                     class="rounded-circle mb-3" 
+                                                     width="80" height="80" 
+                                                     alt="{{ user.username }}">
+                                            {% endif %}
+                                            <h5 class="card-title mb-1">
+                                                <a href="{% url 'accounts:profile' username=user.username %}" class="text-decoration-none">
+                                                    {{ user.username }}
+                                                </a>
+                                            </h5>
+                                            {% if user.first_name or user.last_name %}
+                                            <p class="card-text text-muted small">
+                                                {{ user.first_name }} {{ user.last_name }}
+                                            </p>
+                                            {% endif %}
+                                            <a href="{% url 'accounts:profile' username=user.username %}" class="btn btn-sm btn-outline-primary mt-2">
+                                                Xem trang cá nhân
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            
+                            <!-- Pagination for Users -->
+                            {% if users.has_other_pages %}
+                            <nav aria-label="User pagination" class="mt-4">
+                                <ul class="pagination justify-content-center">
+                                    {% if users.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?q={{ query }}&user_page={{ users.previous_page_number }}" tabindex="-1">
+                                            <i class="fas fa-chevron-left"></i>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                    
+                                    {% for i in users.paginator.page_range %}
+                                    <li class="page-item {% if users.number == i %}active{% endif %}">
+                                        <a class="page-link" href="?q={{ query }}&user_page={{ i }}">{{ i }}</a>
+                                    </li>
+                                    {% endfor %}
+                                    
+                                    {% if users.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?q={{ query }}&user_page={{ users.next_page_number }}">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                            {% endif %}
+                            
+                        {% else %}
+                            <div class="text-center py-5">
+                                <p class="mb-0">Không tìm thấy người dùng nào phù hợp với từ khóa "{{ query }}"</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Posts Tab -->
+                    <div class="tab-pane fade" id="posts" role="tabpanel" aria-labelledby="posts-tab">
+                        {% if posts %}
+                            <div class="row">
+                                {% for post in posts %}
+                                <div class="col-md-6 col-lg-4 mb-4">
+                                    <div class="card h-100">
+                                        <div class="card-header bg-white py-3">
+                                            <div class="d-flex align-items-center">
+                                                {% if post.author.avatar %}
+                                                    <img src="{{ post.author.avatar.url }}" 
+                                                         class="rounded-circle me-2" 
+                                                         width="32" height="32"
+                                                         alt="{{ post.author.username }}">
+                                                {% else %}
+                                                    <img src="/static/images/default-avatar.png" 
+                                                         class="rounded-circle me-2" 
+                                                         width="32" height="32"
+                                                         alt="{{ post.author.username }}">
+                                                {% endif %}
+                                                <div>
+                                                    <a href="{% url 'accounts:profile' username=post.author.username %}" 
+                                                       class="text-dark text-decoration-none fw-bold">
+                                                        {{ post.author.username }}
+                                                    </a>
+                                                    {% if post.location %}
+                                                    <div class="text-muted small">
+                                                        {{ post.location }}
+                                                    </div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        {% if post.media.exists %}
+                                        <a href="{% url 'posts:post_detail' post_id=post.id %}">
+                                            {% with first_media=post.media.first %}
+                                            {% if first_media.media_type == 'image' %}
+                                            <img src="{{ first_media.file.url }}" 
+                                                 class="card-img-top" 
+                                                 style="height: 250px; object-fit: cover;"
+                                                 alt="Post image">
+                                            {% else %}
+                                            <video class="card-img-top" 
+                                                   style="height: 250px; object-fit: cover;">
+                                                <source src="{{ first_media.file.url }}" type="video/mp4">
+                                                Your browser does not support the video tag.
+                                            </video>
+                                            {% endif %}
+                                            {% endwith %}
+                                            
+                                            {% if post.media.count > 1 %}
+                                            <div class="position-absolute top-0 end-0 m-2">
+                                                <span class="badge bg-dark">
+                                                    <i class="fas fa-layer-group"></i>
+                                                </span>
+                                            </div>
+                                            {% endif %}
+                                        </a>
+                                        {% endif %}
+                                        
+                                        <div class="card-body">
+                                            <div class="d-flex mb-2">
+                                                <button class="btn btn-link text-dark p-0 me-3 like-button" 
+                                                        data-post-id="{{ post.id }}">
+                                                    <i class="{% if request.user in post.likes.all %}fas text-danger{% else %}far{% endif %} fa-heart"></i>
+                                                    <span class="likes-count" data-post-id="{{ post.id }}">{{ post.likes_count }}</span>
+                                                </button>
+                                                <a href="{% url 'posts:post_detail' post_id=post.id %}" class="btn btn-link text-dark p-0 me-3">
+                                                    <i class="far fa-comment"></i>
+                                                    <span>{{ post.comments_count }}</span>
+                                                </a>
+                                            </div>
+                                            
+                                            {% if post.caption %}
+                                            <p class="card-text">
+                                                {{ post.caption|truncatechars:100 }}
+                                                {% if post.caption|length > 100 %}
+                                                <a href="{% url 'posts:post_detail' post_id=post.id %}" class="text-decoration-none">
+                                                    xem thêm
+                                                </a>
+                                                {% endif %}
+                                            </p>
+                                            {% endif %}
+                                            
+                                            <p class="card-text text-muted small">
+                                                {{ post.created_at|timesince }} trước
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            
+                            <!-- Pagination for Posts -->
+                            {% if posts.has_other_pages %}
+                            <nav aria-label="Post pagination" class="mt-4">
+                                <ul class="pagination justify-content-center">
+                                    {% if posts.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?q={{ query }}&post_page={{ posts.previous_page_number }}" tabindex="-1">
+                                            <i class="fas fa-chevron-left"></i>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                    
+                                    {% for i in posts.paginator.page_range %}
+                                    <li class="page-item {% if posts.number == i %}active{% endif %}">
+                                        <a class="page-link" href="?q={{ query }}&post_page={{ i }}">{{ i }}</a>
+                                    </li>
+                                    {% endfor %}
+                                    
+                                    {% if posts.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?q={{ query }}&post_page={{ posts.next_page_number }}">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                            {% endif %}
+                            
+                        {% else %}
+                            <div class="text-center py-5">
+                                <p class="mb-0">Không tìm thấy bài viết nào phù hợp với từ khóa "{{ query }}"</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Lưu trạng thái tab khi chuyển trang hoặc tải lại trang
+document.addEventListener('DOMContentLoaded', function() {
+    const tabElements = document.querySelectorAll('button[data-bs-toggle="tab"]');
+    
+    // Bắt sự kiện khi tab được hiển thị
+    tabElements.forEach(function(tabElement) {
+        tabElement.addEventListener('shown.bs.tab', function(event) {
+            localStorage.setItem('activeSearchTab', event.target.id);
+        });
+    });
+    
+    // Khôi phục tab đã chọn
+    const activeTab = localStorage.getItem('activeSearchTab');
+    if (activeTab) {
+        const tab = document.querySelector('#' + activeTab);
+        if (tab) {
+            const bsTab = new bootstrap.Tab(tab);
+            bsTab.show();
+        }
+    }
+});
+
+// Xử lý like bài viết
+document.querySelectorAll('.like-button').forEach(button => {
+    button.addEventListener('click', function() {
+        const postId = this.getAttribute('data-post-id');
+        likePost(postId);
+    });
+});
+
+// Get CSRF token from cookies
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function likePost(postId) {
+    fetch(`/posts/${postId}/like/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Tìm tất cả các nút like cho bài post này
+        const likeButtons = document.querySelectorAll(`.like-button[data-post-id="${postId}"]`);
+        const likeCountElements = document.querySelectorAll(`.likes-count[data-post-id="${postId}"]`);
+        const likeCountDisplays = document.querySelectorAll(`.likes-count-display a[data-post-id="${postId}"]`);
+        
+        likeButtons.forEach(likeButton => {
+            const heartIcon = likeButton.querySelector('i');
+            if (data.status === 'liked') {
+                // Thêm hiệu ứng like (có thể thêm animation)
+                heartIcon.classList.remove('far');
+                heartIcon.classList.add('fas', 'text-danger');
+            } else if (data.status === 'unliked') {
+                heartIcon.classList.remove('fas', 'text-danger');
+                heartIcon.classList.add('far');
+            }
+        });
+
+        // Cập nhật số lượng like
+        likeCountElements.forEach(likeCount => {
+            likeCount.textContent = data.likes_count;
+        });
+
+        // Cập nhật văn bản hiển thị số like
+        //likeCountDisplays.forEach(likeCountDisplay => {
+            //likeCountDisplay.textContent = `${data.likes_count} lượt thích`;
+        //});
+    })
+    .catch(error => {
+        console.error('Lỗi khi like bài viết:', error);
+        alert('Có lỗi xảy ra khi thích bài viết');
+    });
+}
+</script>
+{% endblock %} 

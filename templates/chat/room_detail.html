@@ -1,0 +1,165 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if room.room_type == 'direct' %}
+        Trò chuyện với {{ room.participants.exclude.id=request.user.id.first.username }}
+    {% else %}
+        {{ room.name }}
+    {% endif %} 
+    - {{ block.super }}
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <div class="d-flex align-items-center">
+                        <a href="{% url 'chat:room_list' %}" class="me-3">
+                            <i class="fas fa-arrow-left"></i>
+                        </a>
+                        {% if room.room_type == 'direct' %}
+                            {% with other_user=room.participants.exclude.id=request.user.id.first %}
+                                {% if other_user.avatar %}
+                                    <img src="{{ other_user.avatar.url }}" alt="{{ other_user.username }}" class="rounded-circle me-2" style="width: 40px; height: 40px;">
+                                {% else %}
+                                    <div class="rounded-circle bg-secondary me-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                        <i class="fas fa-user text-white"></i>
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <h6 class="mb-0">{{ other_user.username }}</h6>
+                                    <small class="text-muted">
+                                        {% if other_user.is_online %}
+                                            <span class="text-success">
+                                                <i class="fas fa-circle fa-xs"></i> Đang hoạt động
+                                            </span>
+                                        {% else %}
+                                            Hoạt động {{ other_user.last_seen|timesince }} trước
+                                        {% endif %}
+                                    </small>
+                                </div>
+                            {% endwith %}
+                        {% else %}
+                            {% if room.avatar %}
+                                <img src="{{ room.avatar.url }}" alt="{{ room.name }}" class="rounded-circle me-2" style="width: 40px; height: 40px;">
+                            {% else %}
+                                <div class="rounded-circle bg-primary me-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                    <i class="fas fa-users text-white"></i>
+                                </div>
+                            {% endif %}
+                            <div>
+                                <h6 class="mb-0">{{ room.name }}</h6>
+                                <small class="text-muted">{{ room.participants.count }} thành viên</small>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-body chat-messages" style="height: 400px; overflow-y: auto;">
+                    <div id="messages">
+                        {% for message in messages %}
+                            <div class="message {% if message.sender == request.user %}message-sent{% else %}message-received{% endif %} mb-3">
+                                <div class="message-content">
+                                    {{ message.content }}
+                                </div>
+                                <small class="text-muted">{{ message.created_at|time:"H:i" }}</small>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="card-footer bg-white">
+                    <form id="messageForm" method="post" action="{% url 'chat:send_message' room.id %}">
+                        {% csrf_token %}
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="content" placeholder="Nhập tin nhắn..." required>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.chat-messages {
+    display: flex;
+    flex-direction: column-reverse;
+}
+
+.message {
+    max-width: 70%;
+    margin-bottom: 1rem;
+}
+
+.message-sent {
+    align-self: flex-end;
+}
+
+.message-received {
+    align-self: flex-start;
+}
+
+.message-content {
+    padding: 0.75rem 1rem;
+    border-radius: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.message-sent .message-content {
+    background-color: #007bff;
+    color: white;
+    border-bottom-right-radius: 0.25rem;
+}
+
+.message-received .message-content {
+    background-color: #f1f1f1;
+    border-bottom-left-radius: 0.25rem;
+}
+
+.message-sent small {
+    float: right;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('messageForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const form = this;
+    const formData = new FormData(form);
+    
+    fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            const message = data.message;
+            const messageHtml = `
+                <div class="message message-sent mb-3">
+                    <div class="message-content">
+                        ${message.content}
+                    </div>
+                    <small class="text-muted">${new Date(message.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>
+                </div>
+            `;
+            document.getElementById('messages').insertAdjacentHTML('afterbegin', messageHtml);
+            form.reset();
+        }
+    });
+});
+</script>
+{% endblock %} 

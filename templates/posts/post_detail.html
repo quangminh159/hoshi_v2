@@ -1,0 +1,891 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{{ post.author.username }} - {{ post.caption|truncatechars:50 }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="row g-0">
+                    <!-- Post Media -->
+                    <div class="col-md-8">
+                        {% if post.media.exists %}
+                        <div id="carousel-{{ post.id }}" class="carousel slide h-100" data-bs-ride="false">
+                            {% if post.media.count > 1 %}
+                            <div class="carousel-indicators">
+                                {% for media in post.media.all %}
+                                <button type="button" 
+                                        data-bs-target="#carousel-{{ post.id }}" 
+                                        data-bs-slide-to="{{ forloop.counter0 }}"
+                                        {% if forloop.first %}class="active"{% endif %}
+                                        aria-current="true" 
+                                        aria-label="Slide {{ forloop.counter }}">
+                                </button>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            
+                            <div class="carousel-inner h-100">
+                                {% for media in post.media.all %}
+                                <div class="carousel-item h-100 {% if forloop.first %}active{% endif %}">
+                                    {% if media.media_type == 'image' %}
+                                    <img src="{{ media.file.url }}" 
+                                         class="d-block w-100 h-100" 
+                                         style="object-fit: cover;"
+                                         alt="Post image">
+                                    {% else %}
+                                    <video class="d-block w-100 h-100" style="object-fit: cover;" controls>
+                                        <source src="{{ media.file.url }}" type="video/mp4">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            </div>
+                            
+                            {% if post.media.count > 1 %}
+                            <button class="carousel-control-prev" 
+                                    type="button" 
+                                    data-bs-target="#carousel-{{ post.id }}" 
+                                    data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Previous</span>
+                            </button>
+                            <button class="carousel-control-next" 
+                                    type="button" 
+                                    data-bs-target="#carousel-{{ post.id }}" 
+                                    data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Next</span>
+                            </button>
+                            {% endif %}
+                        </div>
+                        {% else %}
+                        <div class="d-flex align-items-center justify-content-center bg-light h-100" style="min-height: 400px;">
+                            <p class="text-muted">Không có hình ảnh/video</p>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Post Info and Comments -->
+                    <div class="col-md-4">
+                        <div class="card-body h-100 d-flex flex-column">
+                            <!-- Post Header -->
+                            <div class="border-bottom pb-2 mb-3">
+                                <div class="d-flex align-items-center mb-3">
+                                    <img src="{{ post.author.avatar.url|default:'/static/images/default-avatar.png' }}" 
+                                         class="rounded-circle me-2" 
+                                         width="32" 
+                                         height="32"
+                                         alt="{{ post.author.username }}">
+                                    <div>
+                                        <a href="{% url 'accounts:profile' username=post.author.username %}" 
+                                           class="text-dark text-decoration-none fw-bold">
+                                            {{ post.author.username }}
+                                        </a>
+                                        {% if post.location %}
+                                        <div class="text-muted small">
+                                            {{ post.location }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                {% if post.caption %}
+                                <p class="card-text">
+                                    {{ post.caption }}
+                                </p>
+                                {% endif %}
+                                
+                                <p class="card-text text-muted small">
+                                    {{ post.created_at|date:"d/m/Y H:i" }}
+                                </p>
+                            </div>
+                            
+                            <!-- Post Actions -->
+                            <div class="border-bottom pb-2 mb-3">
+                                <div class="d-flex mb-2">
+                                    <button class="btn btn-link text-dark p-0 me-3 like-button" 
+                                            data-post-id="{{ post.id }}">
+                                        <i class="{% if request.user in post.post_likes.all %}fas{% else %}far{% endif %} fa-heart"></i>
+                                        <span class="likes-count" data-post-id="{{ post.id }}">{{ post.likes_count }}</span>
+                                    </button>
+                                    <button class="btn btn-link text-dark p-0 me-3">
+                                        <i class="far fa-comment"></i>
+                                        <span>{{ post.comments_count }}</span>
+                                    </button>
+                                    <button class="btn btn-link text-dark p-0 save-button" 
+                                            data-post-id="{{ post.id }}">
+                                        <i class="{% if request.user in post.saved_by.all %}fas{% else %}far{% endif %} fa-bookmark"></i>
+                                    </button>
+                                </div>
+                                
+                                <p class="mb-2 likes-count-display">
+                                    <a href="#" class="text-dark text-decoration-none fw-bold show-likes-button" data-post-id="{{ post.id }}">
+                                        {{ post.likes_count }} lượt thích
+                                    </a>
+                                </p>
+                            </div>
+
+                            <!-- Comments -->
+                            <div class="overflow-auto flex-grow-1 mb-3" style="max-height: 300px;">
+                                {% for comment_item in comments_data %}
+                                {% with comment=comment_item.comment %}
+                                <div class="d-flex mb-3 comment" id="comment-{{ comment.id }}">
+                                    <img src="{{ comment.author.avatar.url|default:'/static/images/default-avatar.png' }}" 
+                                         class="rounded-circle me-2" 
+                                         width="32" 
+                                         height="32"
+                                         alt="{{ comment.author.username }}">
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <a href="{% url 'accounts:profile' username=comment.author.username %}" 
+                                                   class="text-dark text-decoration-none fw-bold">
+                                                    {{ comment.author.username }}
+                                                </a>
+                                                {{ comment.text }}
+                                            </div>
+                                            <div class="dropdown">
+                                                <button class="btn btn-link btn-sm p-0 text-muted dropdown-toggle" 
+                                                        type="button" 
+                                                        data-bs-toggle="dropdown" 
+                                                        aria-expanded="false">
+                                                    <i class="fas fa-ellipsis-h"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                    <li>
+                                                        <button class="dropdown-item reply-button" 
+                                                                data-username="{{ comment.author.username }}"
+                                                                data-post-id="{{ post.id }}">
+                                                            <i class="fas fa-reply me-2"></i>Trả lời
+                                                        </button>
+                                                    </li>
+                                                    {% if request.user == comment.author or request.user == post.author %}
+                                                    <li>
+                                                        <a class="dropdown-item text-danger" 
+                                                           href="{% url 'posts:comment_delete' post_id=post.id comment_id=comment.id %}"
+                                                           onclick="return confirm('Bạn có chắc chắn muốn xóa bình luận này?')">
+                                                            <i class="fas fa-trash-alt me-2"></i>Xóa
+                                                        </a>
+                                                    </li>
+                                                    {% endif %}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div class="text-muted small">
+                                            {{ comment.created_at|timesince }} trước · 
+                                            <button class="btn btn-link btn-sm p-0 text-muted like-comment-button" 
+                                                    data-comment-id="{{ comment.id }}">
+                                                {% if request.user in comment.likes.all %}
+                                                <span class="text-primary">Đã thích</span>
+                                                {% else %}
+                                                <span>Thích</span>
+                                                {% endif %}
+                                            </button>
+                                            <span class="ms-1">·</span>
+                                            <button class="btn btn-link btn-sm p-0 text-muted reply-button ms-1" 
+                                                    data-username="{{ comment.author.username }}"
+                                                    data-post-id="{{ post.id }}">
+                                                Trả lời
+                                            </button>
+                                            {% if comment.likes_count > 0 %}
+                                            <span class="ms-2">
+                                                <i class="fas fa-heart text-danger small"></i>
+                                                <span class="comment-likes-count" data-comment-id="{{ comment.id }}">{{ comment.likes_count }}</span>
+                                            </span>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <!-- Replies -->
+                                        {% if comment_item.replies %}
+                                        <div class="comment-replies ps-4 mt-2">
+                                            {% for reply in comment_item.replies %}
+                                            <div class="reply-comment mb-2" id="comment-{{ reply.id }}">
+                                                <div class="d-flex justify-content-between">
+                                                    <div>
+                                                        <a href="{% url 'accounts:profile' username=reply.author.username %}" 
+                                                           class="text-dark text-decoration-none fw-bold">
+                                                            {{ reply.author.username }}
+                                                        </a>
+                                                        <span class="text-muted small me-1">đã trả lời</span>
+                                                        <a href="#comment-{{ comment.id }}" class="text-dark fw-bold small">@{{ comment.author.username }}</a>:
+                                                        {{ reply.text }}
+                                                    </div>
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-link btn-sm p-0 text-muted dropdown-toggle" 
+                                                                type="button" 
+                                                                data-bs-toggle="dropdown" 
+                                                                aria-expanded="false">
+                                                            <i class="fas fa-ellipsis-h"></i>
+                                                        </button>
+                                                        <ul class="dropdown-menu dropdown-menu-end">
+                                                            <li>
+                                                                <button class="dropdown-item reply-button" 
+                                                                        data-username="{{ reply.author.username }}"
+                                                                        data-post-id="{{ post.id }}">
+                                                                    <i class="fas fa-reply me-2"></i>Trả lời
+                                                                </button>
+                                                            </li>
+                                                            {% if request.user == reply.author or request.user == post.author %}
+                                                            <li>
+                                                                <a class="dropdown-item text-danger" 
+                                                                   href="{% url 'posts:comment_delete' post_id=post.id comment_id=reply.id %}"
+                                                                   onclick="return confirm('Bạn có chắc chắn muốn xóa bình luận này?')">
+                                                                    <i class="fas fa-trash-alt me-2"></i>Xóa
+                                                                </a>
+                                                            </li>
+                                                            {% endif %}
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <div class="text-muted small">
+                                                    {{ reply.created_at|timesince }} trước · 
+                                                    <button class="btn btn-link btn-sm p-0 text-muted like-comment-button" 
+                                                            data-comment-id="{{ reply.id }}">
+                                                        {% if request.user in reply.likes.all %}
+                                                        <span class="text-primary">Đã thích</span>
+                                                        {% else %}
+                                                        <span>Thích</span>
+                                                        {% endif %}
+                                                    </button>
+                                                    <span class="ms-1">·</span>
+                                                    <button class="btn btn-link btn-sm p-0 text-muted reply-button ms-1" 
+                                                            data-username="{{ reply.author.username }}"
+                                                            data-post-id="{{ post.id }}">
+                                                        Trả lời
+                                                    </button>
+                                                    {% if reply.likes_count > 0 %}
+                                                    <span class="ms-2">
+                                                        <i class="fas fa-heart text-danger small"></i>
+                                                        <span class="comment-likes-count" data-comment-id="{{ reply.id }}">{{ reply.likes_count }}</span>
+                                                    </span>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endwith %}
+                                {% empty %}
+                                <p class="text-muted text-center">Chưa có bình luận nào.</p>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Add Comment -->
+                            {% if not post.disable_comments %}
+                            <form class="add-comment-form" data-post-id="{{ post.id }}">
+                                <div class="input-group">
+                                    <input type="text" 
+                                           class="form-control" 
+                                           placeholder="Thêm bình luận..." 
+                                           name="text"
+                                           id="comment-input">
+                                    <button class="btn btn-outline-primary" type="submit">Gửi</button>
+                                </div>
+                                <div class="reply-info d-none mt-1 mb-2">
+                                    <small class="text-muted">
+                                        Đang trả lời: <span class="reply-to-username fw-bold"></span>
+                                        <button type="button" class="btn btn-link btn-sm p-0 text-danger cancel-reply">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </small>
+                                </div>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if request.user == post.author %}
+<div class="dropdown position-absolute top-0 end-0 m-2">
+    <button class="btn btn-link text-dark p-0" 
+            type="button" 
+            data-bs-toggle="dropdown" 
+            aria-expanded="false">
+        <i class="fas fa-ellipsis-h"></i>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end">
+        <li>
+            <a href="{% url 'posts:edit' post.id %}" class="dropdown-item">
+                <i class="fas fa-edit me-2"></i>Chỉnh sửa
+            </a>
+        </li>
+        <li>
+            <button class="dropdown-item text-danger" onclick="deletePost({{ post.id }})">
+                <i class="fas fa-trash-alt me-2"></i>Xóa bài viết
+            </button>
+        </li>
+    </ul>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Like post
+document.querySelectorAll('.like-button').forEach(button => {
+    button.addEventListener('click', function() {
+        const postId = this.dataset.postId;
+        fetch(`/posts/${postId}/like/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            const icon = this.querySelector('i');
+            const count = this.querySelector('.likes-count');
+            const likesText = document.querySelector('p strong');
+            
+            if (data.status === 'liked') {
+                icon.classList.replace('far', 'fas');
+            } else {
+                icon.classList.replace('fas', 'far');
+            }
+            count.textContent = data.likes_count;
+            likesText.textContent = `${data.likes_count} lượt thích`;
+        });
+    });
+});
+
+// Show likes modal
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('show-likes-button') || e.target.closest('.show-likes-button')) {
+        e.preventDefault();
+        const button = e.target.closest('.show-likes-button');
+        const postId = button.dataset.postId;
+        
+        // Hiển thị modal danh sách người đã thích
+        const modal = new bootstrap.Modal(document.getElementById('likesModal') || createLikesModal());
+        
+        // Tải danh sách người đã thích
+        fetch(`/posts/${postId}/likes/`)
+            .then(response => response.json())
+            .then(data => {
+                const likesListElement = document.getElementById('likesList');
+                likesListElement.innerHTML = '';
+                
+                data.likes.forEach(like => {
+                    const likeElement = document.createElement('div');
+                    likeElement.className = 'd-flex align-items-center justify-content-between mb-3';
+                    likeElement.innerHTML = `
+                        <div class="d-flex align-items-center">
+                            <img src="${like.user.avatar || '/static/images/default-avatar.png'}" class="rounded-circle me-2" width="32" height="32">
+                            <div>
+                                <a href="/users/${like.user.username}/" class="text-dark text-decoration-none fw-bold">${like.user.username}</a>
+                                <div class="text-muted small">${like.user.full_name || ''}</div>
+                            </div>
+                        </div>
+                        <button class="btn btn-sm btn-outline-primary follow-button" data-user-id="${like.user.id}">
+                            ${like.user.is_following ? 'Đang theo dõi' : 'Theo dõi'}
+                        </button>
+                    `;
+                    likesListElement.appendChild(likeElement);
+                });
+                
+                // Hiển thị modal
+                modal.show();
+            });
+    }
+});
+
+// Tạo modal likes nếu chưa có
+function createLikesModal() {
+    const modalElement = document.createElement('div');
+    modalElement.className = 'modal fade';
+    modalElement.id = 'likesModal';
+    modalElement.tabIndex = '-1';
+    modalElement.innerHTML = `
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Lượt thích</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="likesList"></div>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modalElement);
+    return modalElement;
+}
+
+// Save post
+document.querySelectorAll('.save-button').forEach(button => {
+    button.addEventListener('click', function() {
+        const postId = this.dataset.postId;
+        fetch(`/posts/${postId}/save/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            const icon = this.querySelector('i');
+            if (data.status === 'saved') {
+                icon.classList.replace('far', 'fas');
+            } else {
+                icon.classList.replace('fas', 'far');
+            }
+        });
+    });
+});
+
+// Like comment 
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('like-comment-button') || e.target.closest('.like-comment-button')) {
+        const button = e.target.closest('.like-comment-button');
+        const commentId = button.dataset.commentId;
+        
+        fetch(`/posts/comments/${commentId}/like/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            const textElement = button.querySelector('span');
+            const likesCountElement = button.closest('.comment, .reply-comment').querySelector('.comment-likes-count');
+            
+            if (data.status === 'liked') {
+                textElement.textContent = 'Đã thích';
+                textElement.classList.add('text-primary');
+            } else {
+                textElement.textContent = 'Thích';
+                textElement.classList.remove('text-primary');
+            }
+            
+            if (likesCountElement) {
+                likesCountElement.textContent = data.likes_count;
+                if (data.likes_count <= 0) {
+                    likesCountElement.parentElement.classList.add('d-none');
+                } else {
+                    likesCountElement.parentElement.classList.remove('d-none');
+                }
+            } else if (data.likes_count > 0) {
+                const heartIcon = document.createElement('span');
+                heartIcon.innerHTML = `
+                    <i class="fas fa-heart text-danger small"></i>
+                    <span class="comment-likes-count" data-comment-id="${commentId}">${data.likes_count}</span>
+                `;
+                heartIcon.className = 'ms-2';
+                button.parentElement.appendChild(heartIcon);
+            }
+        });
+    }
+});
+
+// Reply to comment
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('reply-button') || e.target.closest('.reply-button')) {
+        const button = e.target.closest('.reply-button');
+        const username = button.dataset.username;
+        const postId = button.dataset.postId;
+        const form = document.querySelector(`.add-comment-form[data-post-id="${postId}"]`);
+        const input = form.querySelector('input[name="text"]');
+        const replyInfo = form.querySelector('.reply-info');
+        const replyToUsername = replyInfo.querySelector('.reply-to-username');
+        
+        input.value = `@${username} `;
+        input.focus();
+        replyInfo.classList.remove('d-none');
+        replyToUsername.textContent = username;
+        
+        // Lưu username để sử dụng khi gửi bình luận
+        form.dataset.replyTo = username;
+    }
+});
+
+// Cancel reply
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('cancel-reply') || e.target.closest('.cancel-reply')) {
+        const button = e.target.closest('.cancel-reply');
+        const replyInfo = button.closest('.reply-info');
+        const form = replyInfo.closest('.add-comment-form');
+        const input = form.querySelector('input[name="text"]');
+        
+        input.value = input.value.replace(/^@\w+\s/, '');
+        replyInfo.classList.add('d-none');
+        delete form.dataset.replyTo;
+    }
+});
+
+// Add comment
+document.querySelector('.add-comment-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const postId = this.dataset.postId;
+    const input = this.querySelector('input[name="text"]');
+    const text = input.value.trim();
+    const replyInfo = this.querySelector('.reply-info');
+    const isReply = !replyInfo.classList.contains('d-none');
+    let parentId = null;
+    const submitButton = this.querySelector('button[type="submit"]');
+    
+    if (!text) return;
+    
+    // Disable submit button to prevent double submission
+    submitButton.disabled = true;
+    
+    // Nếu là trả lời, tìm parent_id
+    if (isReply) {
+        const username = replyInfo.querySelector('.reply-to-username').textContent;
+        // Tìm comment gần nhất của username này
+        const comments = document.querySelectorAll('.comment');
+        
+        for (const comment of comments) {
+            const authorLink = comment.querySelector('a.fw-bold');
+            if (authorLink && authorLink.textContent.trim() === username) {
+                parentId = comment.id.replace('comment-', '');
+                break;
+            }
+        }
+    }
+    
+    // Sử dụng API mới
+    fetch('/posts/api/comments/add/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            post_id: postId,
+            text: text,
+            parent_id: parentId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Re-enable the submit button
+        submitButton.disabled = false;
+        
+        // Clear the input field after successful submission
+        input.value = '';
+        
+        // Reset reply state
+        if (isReply) {
+            replyInfo.classList.add('d-none');
+            delete this.dataset.replyTo;
+        }
+        
+        if (data.comment) {
+            const comment = data.comment;
+            
+            // Thêm bình luận mới vào DOM
+            if (parentId) {
+                // Nếu là trả lời, thêm vào phần replies của comment cha
+                const parentComment = document.getElementById(`comment-${parentId}`);
+                if (parentComment) {
+                    let repliesContainer = parentComment.querySelector('.comment-replies');
+                    
+                    // Nếu chưa có container replies, tạo mới
+                    if (!repliesContainer) {
+                        repliesContainer = document.createElement('div');
+                        repliesContainer.className = 'comment-replies ps-4 mt-2';
+                        parentComment.querySelector('.flex-grow-1').appendChild(repliesContainer);
+                    }
+                    
+                    // Thêm reply vào container
+                    const replyHtml = `
+                        <div class="reply-comment mb-2" id="comment-${comment.id}">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <a href="/users/${comment.author_username}/" 
+                                       class="text-dark text-decoration-none fw-bold">
+                                        ${comment.author_username}
+                                    </a>
+                                    <span class="text-muted small me-1">đã trả lời</span>
+                                    <a href="#comment-${parentId}" class="text-dark fw-bold small">@${comment.reply_to}</a>:
+                                    ${comment.text}
+                                </div>
+                                <div class="dropdown">
+                                    <button class="btn btn-link btn-sm p-0 text-muted dropdown-toggle" 
+                                            type="button" 
+                                            data-bs-toggle="dropdown" 
+                                            aria-expanded="false">
+                                        <i class="fas fa-ellipsis-h"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <button class="dropdown-item reply-button" 
+                                                    data-username="${comment.author_username}"
+                                                    data-post-id="${postId}">
+                                                <i class="fas fa-reply me-2"></i>Trả lời
+                                            </button>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item text-danger" 
+                                               href="/posts/${postId}/comment/${comment.id}/delete/"
+                                               onclick="return confirm('Bạn có chắc chắn muốn xóa bình luận này?')">
+                                                <i class="fas fa-trash-alt me-2"></i>Xóa
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="text-muted small">
+                                ${comment.created_at} · 
+                                <button class="btn btn-link btn-sm p-0 text-muted like-comment-button" 
+                                        data-comment-id="${comment.id}">
+                                    <span>Thích</span>
+                                </button>
+                                <span class="ms-1">·</span>
+                                <button class="btn btn-link btn-sm p-0 text-muted reply-button ms-1" 
+                                        data-username="${comment.author_username}"
+                                        data-post-id="${postId}">
+                                    Trả lời
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    repliesContainer.insertAdjacentHTML('beforeend', replyHtml);
+                    
+                    // Thêm event listener cho nút mới
+                    const newLikeButton = repliesContainer.querySelector(`#comment-${comment.id} .like-comment-button`);
+                    if (newLikeButton) {
+                        newLikeButton.addEventListener('click', function() {
+                            likeComment(comment.id);
+                        });
+                    }
+                    
+                    // Thêm event listener cho nút reply mới
+                    const newReplyButton = repliesContainer.querySelector(`#comment-${comment.id} .reply-button`);
+                    if (newReplyButton) {
+                        newReplyButton.addEventListener('click', function() {
+                            const username = this.dataset.username;
+                            const form = document.querySelector(`.add-comment-form[data-post-id="${postId}"]`);
+                            const input = form.querySelector('input[name="text"]');
+                            const replyInfo = form.querySelector('.reply-info');
+                            const replyToUsername = replyInfo.querySelector('.reply-to-username');
+                            
+                            replyInfo.classList.remove('d-none');
+                            replyToUsername.textContent = username;
+                            
+                            if (!input.value.startsWith(`@${username} `)) {
+                                input.value = `@${username} ${input.value}`;
+                            }
+                            
+                            input.focus();
+                        });
+                    }
+                }
+            } else {
+                // Nếu là bình luận thường, thêm vào container comments
+                const commentsContainer = document.querySelector('.overflow-auto');
+                const commentHtml = `
+                    <div class="d-flex mb-3 comment" id="comment-${comment.id}">
+                        <img src="${comment.author_avatar || '/static/images/default-avatar.png'}" 
+                             class="rounded-circle me-2" 
+                             width="32" 
+                             height="32"
+                             alt="${comment.author_username}">
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <a href="/users/${comment.author_username}/" 
+                                       class="text-dark text-decoration-none fw-bold">
+                                        ${comment.author_username}
+                                    </a>
+                                    ${comment.text}
+                                </div>
+                                <div class="dropdown">
+                                    <button class="btn btn-link btn-sm p-0 text-muted dropdown-toggle" 
+                                            type="button" 
+                                            data-bs-toggle="dropdown" 
+                                            aria-expanded="false">
+                                        <i class="fas fa-ellipsis-h"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <button class="dropdown-item reply-button" 
+                                                    data-username="${comment.author_username}"
+                                                    data-post-id="${postId}">
+                                                <i class="fas fa-reply me-2"></i>Trả lời
+                                            </button>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item text-danger" 
+                                               href="/posts/${postId}/comment/${comment.id}/delete/"
+                                               onclick="return confirm('Bạn có chắc chắn muốn xóa bình luận này?')">
+                                                <i class="fas fa-trash-alt me-2"></i>Xóa
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="text-muted small">
+                                ${comment.created_at} · 
+                                <button class="btn btn-link btn-sm p-0 text-muted like-comment-button" 
+                                        data-comment-id="${comment.id}">
+                                    <span>Thích</span>
+                                </button>
+                                <span class="ms-1">·</span>
+                                <button class="btn btn-link btn-sm p-0 text-muted reply-button ms-1" 
+                                        data-username="${comment.author_username}"
+                                        data-post-id="${postId}">
+                                    Trả lời
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                if (commentsContainer.querySelector('p.text-muted.text-center')) {
+                    commentsContainer.innerHTML = commentHtml;
+                } else {
+                    commentsContainer.insertAdjacentHTML('afterbegin', commentHtml);
+                }
+                
+                // Thêm event listener cho nút mới
+                const newLikeButton = commentsContainer.querySelector(`#comment-${comment.id} .like-comment-button`);
+                if (newLikeButton) {
+                    newLikeButton.addEventListener('click', function() {
+                        likeComment(comment.id);
+                    });
+                }
+                
+                // Thêm event listener cho nút reply mới
+                const newReplyButton = commentsContainer.querySelector(`#comment-${comment.id} .reply-button`);
+                if (newReplyButton) {
+                    newReplyButton.addEventListener('click', function() {
+                        const username = this.dataset.username;
+                        const form = document.querySelector(`.add-comment-form[data-post-id="${postId}"]`);
+                        const input = form.querySelector('input[name="text"]');
+                        const replyInfo = form.querySelector('.reply-info');
+                        const replyToUsername = replyInfo.querySelector('.reply-to-username');
+                        
+                        replyInfo.classList.remove('d-none');
+                        replyToUsername.textContent = username;
+                        
+                        if (!input.value.startsWith(`@${username} `)) {
+                            input.value = `@${username} ${input.value}`;
+                        }
+                        
+                        input.focus();
+                    });
+                }
+            }
+            
+            // Cập nhật số lượng bình luận
+            const commentCountElement = document.querySelector('.d-flex.mb-2 span:not(.likes-count)');
+            if (commentCountElement) {
+                commentCountElement.textContent = parseInt(commentCountElement.textContent) + 1;
+            }
+        } else {
+            alert(data.error || 'Có lỗi xảy ra khi thêm bình luận');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Có lỗi xảy ra khi thêm bình luận');
+    });
+});
+
+// Hàm like comment
+function likeComment(commentId) {
+    fetch(`/posts/comments/${commentId}/like/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        const button = document.querySelector(`.like-comment-button[data-comment-id="${commentId}"]`);
+        if (!button) return;
+        
+        const textElement = button.querySelector('span');
+        const comment = button.closest('.comment, .reply-comment');
+        const likesCountElement = comment.querySelector('.comment-likes-count');
+        
+        if (data.status === 'liked') {
+            textElement.textContent = 'Đã thích';
+            textElement.classList.add('text-primary');
+        } else {
+            textElement.textContent = 'Thích';
+            textElement.classList.remove('text-primary');
+        }
+        
+        if (likesCountElement) {
+            likesCountElement.textContent = data.likes_count;
+            const parentSpan = likesCountElement.parentElement;
+            if (data.likes_count <= 0 && parentSpan) {
+                parentSpan.classList.add('d-none');
+            } else if (parentSpan) {
+                parentSpan.classList.remove('d-none');
+            }
+        } else if (data.likes_count > 0) {
+            const newElement = document.createElement('span');
+            newElement.className = 'ms-2';
+            newElement.innerHTML = `
+                <i class="fas fa-heart text-danger small"></i>
+                <span class="comment-likes-count" data-comment-id="${commentId}">${data.likes_count}</span>
+            `;
+            button.parentElement.appendChild(newElement);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+// Get CSRF token from cookies
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function deletePost(postId) {
+    if (confirm('Bạn có chắc chắn muốn xóa bài viết này không?')) {
+        fetch(`/posts/${postId}/delete/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Hiển thị thông báo thành công
+                alert(data.message);
+                // Chuyển hướng về trang chủ
+                window.location.href = '/';
+            } else {
+                // Hiển thị thông báo lỗi
+                alert(data.message || 'Có lỗi xảy ra khi xóa bài viết.');
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting post:', error);
+            alert('Có lỗi xảy ra khi xóa bài viết.');
+        });
+    }
+}
+</script>
+{% endblock %} 

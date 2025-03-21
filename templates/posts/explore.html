@@ -1,0 +1,312 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}Khám phá - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .post-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2px;
+    }
+    
+    .post-item {
+        position: relative;
+        aspect-ratio: 1;
+        overflow: hidden;
+    }
+    
+    .post-item img,
+    .post-item video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .post-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+    
+    .post-item:hover .post-overlay {
+        opacity: 1;
+    }
+    
+    .post-stats {
+        color: white;
+        font-size: 0.9rem;
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .post-stats i {
+        margin-right: 0.5rem;
+    }
+    
+    .post-type {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        color: white;
+        text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+    }
+    
+    @media (max-width: 768px) {
+        .post-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .post-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    .tag-cloud {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .tag-item {
+        background: #f8f9fa;
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.9rem;
+        color: #6c757d;
+        text-decoration: none;
+        transition: background-color 0.2s;
+    }
+    
+    .tag-item:hover {
+        background: #e9ecef;
+        color: #495057;
+    }
+    
+    .tag-item.active {
+        background: #0d6efd;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Search -->
+    <div class="row mb-4">
+        <div class="col-md-8 mx-auto">
+            <form method="get" class="d-flex gap-2">
+                <input type="text" 
+                       class="form-control" 
+                       name="q" 
+                       value="{{ request.GET.q }}"
+                       placeholder="Tìm kiếm bài viết...">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Popular Tags -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h5 class="mb-3">Hashtag phổ biến</h5>
+            <div class="tag-cloud">
+                {% for tag in popular_tags %}
+                    <a href="?tag={{ tag.name }}" 
+                       class="tag-item {% if tag.name == request.GET.tag %}active{% endif %}">
+                        #{{ tag.name }}
+                        <small class="ms-1">({{ tag.count }})</small>
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="btn-group">
+                <button type="button" 
+                        class="btn btn-outline-primary {% if sort == 'popular' %}active{% endif %}"
+                        onclick="window.location.href='?sort=popular'">
+                    <i class="fas fa-fire-alt me-1"></i>Phổ biến
+                </button>
+                <button type="button" 
+                        class="btn btn-outline-primary {% if sort == 'recent' %}active{% endif %}"
+                        onclick="window.location.href='?sort=recent'">
+                    <i class="fas fa-clock me-1"></i>Mới nhất
+                </button>
+            </div>
+            
+            <div class="btn-group ms-2">
+                <button type="button" 
+                        class="btn btn-outline-primary {% if media_type == 'all' %}active{% endif %}"
+                        onclick="window.location.href='?media_type=all'">
+                    <i class="fas fa-th me-1"></i>Tất cả
+                </button>
+                <button type="button" 
+                        class="btn btn-outline-primary {% if media_type == 'image' %}active{% endif %}"
+                        onclick="window.location.href='?media_type=image'">
+                    <i class="fas fa-image me-1"></i>Ảnh
+                </button>
+                <button type="button" 
+                        class="btn btn-outline-primary {% if media_type == 'video' %}active{% endif %}"
+                        onclick="window.location.href='?media_type=video'">
+                    <i class="fas fa-video me-1"></i>Video
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Posts Grid -->
+    <div class="post-grid">
+        {% for post in posts %}
+            <a href="{% url 'posts:detail' post.id %}" class="post-item">
+                {% with media=post.media.first %}
+                    {% if media.type == 'image' %}
+                        <img src="{{ media.file.url }}" alt="Post image">
+                    {% else %}
+                        <video src="{{ media.file.url }}" muted loop></video>
+                    {% endif %}
+                    
+                    <div class="post-type">
+                        {% if media.type == 'image' %}
+                            {% if post.media.count > 1 %}
+                                <i class="fas fa-clone"></i>
+                            {% endif %}
+                        {% else %}
+                            <i class="fas fa-play"></i>
+                        {% endif %}
+                    </div>
+                {% endwith %}
+                
+                <div class="post-overlay">
+                    <div class="post-stats">
+                        {% if not post.hide_likes %}
+                            <span>
+                                <i class="fas fa-heart"></i>{{ post.likes_count }}
+                            </span>
+                        {% endif %}
+                        {% if not post.disable_comments %}
+                            <span>
+                                <i class="fas fa-comment"></i>{{ post.comments_count }}
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+        {% empty %}
+            <div class="col-12 text-center py-5">
+                <div class="text-muted">
+                    <i class="fas fa-search fa-3x mb-3"></i>
+                    <h5>Không tìm thấy bài viết nào</h5>
+                    <p>Hãy thử tìm kiếm với từ khóa khác</p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if posts.has_other_pages %}
+        <nav class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if posts.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ posts.previous_page_number }}">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                {% endif %}
+                
+                {% for i in posts.paginator.page_range %}
+                    {% if posts.number == i %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ i }}</span>
+                        </li>
+                    {% elif i > posts.number|add:'-3' and i < posts.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if posts.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ posts.next_page_number }}">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+</div>
+
+<!-- Preview Modal -->
+<div class="modal fade" id="previewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-body p-0">
+                <button type="button" class="btn-close position-absolute top-0 end-0 m-2" data-bs-dismiss="modal"></button>
+                <div id="previewContent"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Play/pause videos on hover
+document.querySelectorAll('.post-item video').forEach(video => {
+    video.addEventListener('mouseenter', () => {
+        video.play();
+    });
+    
+    video.addEventListener('mouseleave', () => {
+        video.pause();
+        video.currentTime = 0;
+    });
+});
+
+// Quick preview
+const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
+const previewContent = document.getElementById('previewContent');
+
+document.querySelectorAll('.post-item').forEach(item => {
+    item.addEventListener('click', async (e) => {
+        e.preventDefault();
+        
+        const url = item.href;
+        try {
+            const response = await fetch(url);
+            const html = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const content = doc.querySelector('.post-content').innerHTML;
+            
+            previewContent.innerHTML = content;
+            previewModal.show();
+        } catch (error) {
+            console.error('Error:', error);
+            window.location.href = url;
+        }
+    });
+});
+</script>
+{% endblock %} 
