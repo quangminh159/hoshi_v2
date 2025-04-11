@@ -39,16 +39,16 @@ INSTALLED_APPS = [
     'django_cleanup.apps.CleanupConfig',
     'imagekit',
     'rest_framework',
-    'channels',
     'taggit',
     'simple_history',
     'phonenumber_field',
+    'channels',
     
     # Local apps
     'accounts.apps.AccountsConfig',
-    'chat.apps.ChatConfig',
     'posts.apps.PostsConfig',
     'notifications.apps.NotificationsConfig',
+    'chat.apps.ChatConfig',
 ]
 
 MIDDLEWARE = [
@@ -83,7 +83,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'config.wsgi.application'
-ASGI_APPLICATION = 'config.asgi.application'
+ASGI_APPLICATION = 'myproject.asgi.application'
 
 # Database
 DATABASES = {
@@ -175,17 +175,33 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10,
 }
 
-# Channels
+# Channels Configuration
 CHANNEL_LAYERS = {
     'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer'
-    }
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [env('REDIS_URL', default='redis://localhost:6379/0')],
+        },
+    },
 }
+
+# Fallback to In-Memory Channel Layer if Redis is not available
+if DEBUG:
+    try:
+        import redis
+        redis_client = redis.Redis.from_url(env('REDIS_URL', default='redis://localhost:6379/0'))
+        redis_client.ping()
+    except:
+        CHANNEL_LAYERS = {
+            'default': {
+                'BACKEND': 'channels.layers.InMemoryChannelLayer'
+            }
+        }
 
 # Custom settings
 POSTS_PER_PAGE = 10
-MESSAGES_PER_PAGE = 20
 NOTIFICATIONS_PER_PAGE = 15
+MESSAGES_PER_PAGE = 20
 
 # File upload settings
 MAX_UPLOAD_SIZE = 1024 * 1024 * 1024  # 1GB 

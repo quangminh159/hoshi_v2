@@ -211,7 +211,7 @@
                                     Theo dõi
                                 </button>
                             {% endif %}
-                            <a href="{% url 'chat:room_list' %}" class="btn btn-outline-primary">
+                            <a href="{% url 'chat:conversation_list' %}" class="btn btn-outline-primary">
                                 <i class="far fa-envelope"></i>
                             </a>
                         {% elif user == profile_user %}
@@ -358,9 +358,28 @@ let isLoading = false;
 let hasMoreContent = true;
 let profileUsername = "{{ profile_user.username }}";
 
+// Thêm kiểm tra để đảm bảo profileUsername luôn có giá trị
+if (!profileUsername || profileUsername === 'undefined') {
+    profileUsername = "{{ profile_user.username }}";
+    if (!profileUsername) {
+        // Nếu vẫn không có giá trị, lấy từ URL hiện tại
+        const urlPath = window.location.pathname;
+        const matches = urlPath.match(/\/users\/([^\/]+)\//);
+        if (matches && matches[1]) {
+            profileUsername = matches[1];
+        }
+    }
+}
+
 // Function to load more posts
 function loadMorePosts() {
     if (isLoading || !hasMoreContent) return;
+    
+    // Kiểm tra profileUsername trước khi gọi API
+    if (!profileUsername || profileUsername === 'undefined') {
+        console.error('profileUsername không hợp lệ:', profileUsername);
+        return;
+    }
     
     isLoading = true;
     document.getElementById('loading-indicator').classList.remove('d-none');
@@ -368,7 +387,7 @@ function loadMorePosts() {
     // Increment page counter
     currentPage++;
     
-    // Fetch posts data - sửa đường dẫn để phù hợp với URL pattern đã đăng ký
+    // Sửa đường dẫn API cho đúng với URL pattern trong accounts/urls.py
     fetch(`/users/api/${profileUsername}/posts/?page=${currentPage}`)
         .then(response => response.json())
         .then(data => {
@@ -478,9 +497,14 @@ function createUserListItem(user) {
     const name = user.name || '';
     const isFollowing = !!user.is_following;
     
-    // Tạo HTML cho mục người dùng
+    // Tạo HTML cho mục người dùng - đảm bảo username hợp lệ trước khi tạo URL
+    let profileUrl = '#';
+    if (username && username !== 'undefined') {
+        profileUrl = `/users/${username}/`;
+    }
+    
     userItem.innerHTML = `
-        <a href="/users/${username}/" class="d-flex align-items-center text-decoration-none flex-grow-1">
+        <a href="${profileUrl}" class="d-flex align-items-center text-decoration-none flex-grow-1">
             <img src="${avatar}" alt="${username}" 
                  class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;">
             <div>
@@ -727,6 +751,13 @@ document.getElementById('followersModal').addEventListener('show.bs.modal', func
     const followersSpinner = document.getElementById('followers-spinner');
     const followersList = document.getElementById('followers-list');
     
+    // Kiểm tra username hợp lệ
+    if (!username || username === 'undefined') {
+        followersSpinner.classList.add('d-none');
+        followersList.innerHTML = '<p class="text-center text-danger">Tên người dùng không hợp lệ</p>';
+        return;
+    }
+    
     // Reset danh sách và hiển thị spinner
     followersList.innerHTML = '';
     followersSpinner.classList.remove('d-none');
@@ -765,6 +796,13 @@ document.getElementById('followingModal').addEventListener('show.bs.modal', func
     const username = "{{ profile_user.username }}";
     const followingSpinner = document.getElementById('following-spinner');
     const followingList = document.getElementById('following-list');
+    
+    // Kiểm tra username hợp lệ
+    if (!username || username === 'undefined') {
+        followingSpinner.classList.add('d-none');
+        followingList.innerHTML = '<p class="text-center text-danger">Tên người dùng không hợp lệ</p>';
+        return;
+    }
     
     // Reset danh sách và hiển thị spinner
     followingList.innerHTML = '';

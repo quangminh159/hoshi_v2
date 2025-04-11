@@ -16,7 +16,7 @@ from .forms import (
     SecuritySettingsForm,
     DeleteAccountForm
 )
-from .models import Device, DataDownloadRequest, UserFollowing
+from .models import Device, DataDownloadRequest, UserFollowing, UserBlock
 import pyotp
 import qrcode
 from posts.models import SavedPost, Post, Comment
@@ -29,8 +29,19 @@ def profile(request, username):
     is_saved_posts = request.GET.get('tab') == 'saved'
     is_following = False
     
-    # Kiểm tra trạng thái theo dõi nếu người dùng đã đăng nhập và không phải trang cá nhân của mình
+    # Kiểm tra xem người dùng có bị chặn không
     if request.user.is_authenticated and not is_own_profile:
+        # Kiểm tra xem người dùng hiện tại có bị chủ tài khoản chặn không
+        is_blocked = UserBlock.objects.filter(
+            blocker=user,
+            blocked=request.user
+        ).exists()
+        
+        if is_blocked:
+            messages.error(request, f'Bạn không thể xem trang cá nhân của {username}.')
+            return redirect('home')
+        
+        # Kiểm tra trạng thái theo dõi
         is_following = UserFollowing.objects.filter(
             user=request.user,
             following_user=user
@@ -147,6 +158,9 @@ def settings(request):
         user=request.user
     ).order_by('-created_at')[:5]
     
+    # Lấy danh sách người dùng đã bị chặn
+    blocked_users = UserBlock.objects.filter(blocker=request.user).select_related('blocked').order_by('-created_at')
+    
     context = {
         'active_tab': active_tab,
         'profile_form': profile_form,
@@ -157,6 +171,7 @@ def settings(request):
         'delete_form': delete_form,
         'devices': devices,
         'data_requests': data_requests,
+        'blocked_users': blocked_users,
         'notifications': {
             'push': request.user.notification_settings.push_enabled if hasattr(request.user, 'notification_settings') else False,
             'email': request.user.notification_settings.email_enabled if hasattr(request.user, 'notification_settings') else False,
@@ -300,6 +315,15 @@ def api_load_profile_posts(request, username):
     # Lấy thông tin người dùng
     user = get_object_or_404(User, username=username)
     
+    # Kiểm tra xem người dùng hiện tại có bị chặn không
+    if UserBlock.objects.filter(blocker=user, blocked=request.user).exists():
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Bạn không thể xem bài viết từ người dùng này.',
+            'posts': [],
+            'has_next': False
+        })
+    
     # Lấy bài viết của người dùng
     posts = user.posts.all().order_by('-created_at')
     
@@ -342,3 +366,121 @@ def api_load_profile_posts(request, username):
         'posts': posts_data,
         'has_next': page_obj.has_next()
     })
+
+@login_required
+def block_user(request, user_id):
+    """Chặn một người dùng khác"""
+    if request.method == 'POST':
+        try:
+            user_to_block = User.objects.get(id=user_id)
+            delete_chat = request.POST.get('delete_chat', 'false')
+            
+            # Không thể tự chặn chính mình
+            if user_to_block == request.user:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Bạn không thể chặn chính mình.'
+                })
+            
+            # Kiểm tra xem đã chặn người dùng này chưa
+            if request.user.has_blocked(user_to_block):
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Bạn đã chặn người dùng này rồi.'
+                })
+            
+            # Tạo bản ghi chặn
+            UserBlock.objects.create(
+                blocker=request.user,
+                blocked=user_to_block
+            )
+            
+            # Nếu đang theo dõi người dùng này, hủy theo dõi
+            UserFollowing.objects.filter(
+                user=request.user,
+                following_user=user_to_block
+            ).delete()
+            
+            # Nếu người dùng này đang theo dõi mình, xóa theo dõi
+            UserFollowing.objects.filter(
+                user=user_to_block,
+                following_user=request.user
+            ).delete()
+            
+            # Xử lý phòng chat tùy theo lựa chọn của người dùng
+            from chat.models import ChatRoom
+            one_to_one_rooms = ChatRoom.objects.filter(
+                is_group=False,
+                participants=request.user
+            ).filter(
+                participants=user_to_block
+            )
+            
+            if delete_chat.lower() == 'true':
+                # Xóa tất cả các phòng chat 1-1 giữa hai người dùng
+                for room in one_to_one_rooms:
+                    room.delete()
+            
+            return JsonResponse({
+                'status': 'success',
+                'message': f'Đã chặn {user_to_block.username} thành công.'
+            })
+            
+        except User.DoesNotExist:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Không tìm thấy người dùng.'
+            })
+    
+    return JsonResponse({
+        'status': 'error',
+        'message': 'Phương thức không được hỗ trợ.'
+    })
+
+@login_required
+def unblock_user(request, user_id):
+    """Bỏ chặn một người dùng"""
+    if request.method == 'POST':
+        try:
+            user_to_unblock = User.objects.get(id=user_id)
+            
+            # Kiểm tra xem có đang chặn người dùng này không
+            block_record = UserBlock.objects.filter(
+                blocker=request.user,
+                blocked=user_to_unblock
+            ).first()
+            
+            if not block_record:
+                if 'HTTP_X_REQUESTED_WITH' in request.META and request.META['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'status': 'error',
+                        'message': 'Bạn chưa chặn người dùng này.'
+                    })
+                else:
+                    messages.error(request, 'Bạn chưa chặn người dùng này.')
+                    return redirect('accounts:settings')
+            
+            # Xóa bản ghi chặn
+            block_record.delete()
+            
+            if 'HTTP_X_REQUESTED_WITH' in request.META and request.META['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest':
+                return JsonResponse({
+                    'status': 'success',
+                    'message': f'Đã bỏ chặn {user_to_unblock.username} thành công.'
+                })
+            else:
+                messages.success(request, f'Đã bỏ chặn {user_to_unblock.username} thành công.')
+                return redirect('accounts:settings')
+            
+        except User.DoesNotExist:
+            if 'HTTP_X_REQUESTED_WITH' in request.META and request.META['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest':
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Không tìm thấy người dùng.'
+                })
+            else:
+                messages.error(request, 'Không tìm thấy người dùng.')
+                return redirect('accounts:settings')
+    
+    # Xử lý GET request hoặc các method khác
+    return redirect('accounts:settings')

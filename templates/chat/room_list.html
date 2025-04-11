@@ -20,14 +20,8 @@
                             <a href="{% url 'chat:room_detail' room.id %}" class="list-group-item list-group-item-action">
                                 <div class="d-flex align-items-center">
                                     {% if room.room_type == 'direct' %}
-                                        {% with other_user=room.participants.exclude|first %}
-                                            {% if other_user.avatar %}
-                                                <img src="{{ other_user.avatar.url }}" alt="{{ other_user.username }}" class="rounded-circle me-3" style="width: 48px; height: 48px;">
-                                            {% else %}
-                                                <div class="rounded-circle bg-secondary me-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
-                                                    <i class="fas fa-user text-white"></i>
-                                                </div>
-                                            {% endif %}
+                                        {% with other_user=room.participants.exclude.id=request.user.id.first %}
+                                            <img src="{{ other_user.get_avatar_url }}" alt="{{ other_user.username }}" class="rounded-circle me-3" style="width: 48px; height: 48px;">
                                             <div>
                                                 <h6 class="mb-1">{{ other_user.username }}</h6>
                                                 {% with last_message=room.messages.first %}

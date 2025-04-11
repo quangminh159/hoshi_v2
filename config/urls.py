@@ -12,14 +12,13 @@ urlpatterns = [
     # App URLs
     path('posts/', include('posts.urls')),
     path('users/', include('accounts.urls')),
-    path('chat/', include('chat.urls')),
     path('notifications/', include('notifications.urls')),
     path('accounts/', include('allauth.urls')),
+    path('chat/', include('chat.urls')),
     
     # API URLs
     path('api/posts/', include('posts.api_urls')),
     path('api/accounts/', include('accounts.api_urls')),
-    path('api/chat/', include('chat.api_urls')),
     path('api/notifications/', include('notifications.api_urls')),
     
     # Redirects for old endpoints

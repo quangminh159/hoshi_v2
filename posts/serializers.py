@@ -1,10 +1,12 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from .models import Post, Media, Comment, Like, SavedPost, Hashtag, Mention
+from .models import Post, Media, Comment, Like, SavedPost, Hashtag, Mention, CommentLike
 
 User = get_user_model()
 
 class UserBasicSerializer(serializers.ModelSerializer):
+    is_verified = serializers.BooleanField(read_only=True)
+    
     class Meta:
         model = User
         fields = ['id', 'username', 'avatar', 'is_verified']
@@ -33,12 +35,15 @@ class CommentSerializer(serializers.ModelSerializer):
         return obj.replies.count()
     
     def get_likes_count(self, obj):
-        return obj.likes.count()
+        return obj.comment_likes.count()
     
     def get_is_liked(self, obj):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
-            return obj.likes.filter(id=request.user.id).exists()
+            return CommentLike.objects.filter(
+                user=request.user,
+                comment=obj
+            ).exists()
         return False
 
 class HashtagSerializer(serializers.ModelSerializer):

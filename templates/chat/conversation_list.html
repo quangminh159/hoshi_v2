@@ -1,0 +1,282 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Tin nhắn | {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .chat-container {
+        height: calc(100vh - 150px);
+        max-height: 800px;
+    }
+    
+    .chat-list {
+        height: 100%;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: #cfd8dc #f8f9fa;
+    }
+    
+    .chat-list::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .chat-list::-webkit-scrollbar-track {
+        background: #f8f9fa;
+    }
+    
+    .chat-list::-webkit-scrollbar-thumb {
+        background-color: #cfd8dc;
+        border-radius: 6px;
+    }
+    
+    .chat-item {
+        transition: all 0.3s ease;
+        border-left: 3px solid transparent;
+    }
+    
+    .chat-item:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .chat-item.active {
+        background-color: #e9f2ff;
+        border-left: 3px solid #0d6efd;
+    }
+    
+    .avatar-sm {
+        width: 48px;
+        height: 48px;
+        object-fit: cover;
+    }
+    
+    .last-message {
+        color: #6c757d;
+        font-size: 0.875rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 200px;
+    }
+    
+    .message-time {
+        font-size: 0.75rem;
+        color: #adb5bd;
+    }
+    
+    .unread-badge {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.5rem;
+    }
+    
+    .search-box {
+        position: relative;
+    }
+    
+    .search-box .form-control {
+        padding-left: 40px;
+        border-radius: 20px;
+    }
+    
+    .search-box .search-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #adb5bd;
+    }
+    
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem 1rem;
+    }
+    
+    .empty-state img {
+        max-width: 200px;
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Hiệu ứng khi danh sách được tải */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .chat-item {
+        animation: fadeInUp 0.4s ease-out;
+        animation-fill-mode: both;
+    }
+    
+    .chat-item:nth-child(1) { animation-delay: 0.1s; }
+    .chat-item:nth-child(2) { animation-delay: 0.2s; }
+    .chat-item:nth-child(3) { animation-delay: 0.3s; }
+    .chat-item:nth-child(4) { animation-delay: 0.4s; }
+    .chat-item:nth-child(5) { animation-delay: 0.5s; }
+    .chat-item:nth-child(n+6) { animation-delay: 0.6s; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 rounded-3 h-100">
+                <div class="card-header bg-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold">Tin nhắn</h5>
+                        <button class="btn btn-primary btn-sm rounded-circle" data-bs-toggle="modal" data-bs-target="#newMessageModal">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                    <div class="search-box mt-3">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" class="form-control" placeholder="Tìm kiếm cuộc trò chuyện...">
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="chat-list">
+                        {% for conversation in conversations %}
+                        <a href="{% url 'chat:conversation_detail' conversation.id %}" class="text-decoration-none text-dark">
+                            <div class="chat-item p-3 border-bottom {% if conversation.id == active_conversation.id %}active{% endif %}">
+                                <div class="d-flex align-items-center">
+                                    <div class="position-relative">
+                                        {% if conversation.other_user.get_avatar_url %}
+                                            <img src="{{ conversation.other_user.get_avatar_url }}" 
+                                                 alt="{{ conversation.other_user.username }}" 
+                                                 class="rounded-circle avatar-sm">
+                                        {% else %}
+                                            <img src="{% static 'img/default-avatar.png' %}" 
+                                                 alt="{{ conversation.other_user.username }}" 
+                                                 class="rounded-circle avatar-sm">
+                                        {% endif %}
+                                        {% if conversation.other_user.is_online %}
+                                            <span class="position-absolute bottom-0 end-0 bg-success rounded-circle p-1 border border-white"></span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="ms-3 flex-grow-1">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h6 class="mb-0 fw-bold">{{ conversation.other_user.get_full_name|default:conversation.other_user.username }}</h6>
+                                            <small class="message-time">{{ conversation.last_message.created_at|timesince }}</small>
+                                        </div>
+                                        <p class="last-message mb-0">
+                                            {% if conversation.last_message %}
+                                                {% if conversation.last_message.sender == request.user %}
+                                                    <i class="fas fa-reply text-muted me-1"></i>
+                                                {% endif %}
+                                                {{ conversation.last_message.content }}
+                                            {% else %}
+                                                <span class="text-muted">Chưa có tin nhắn</span>
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                    {% if conversation.unread_count %}
+                                        <span class="badge bg-primary rounded-pill unread-badge">{{ conversation.unread_count }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </a>
+                        {% empty %}
+                        <div class="empty-state">
+                            <img src="{% static 'img/empty-chat.svg' %}" alt="Chưa có cuộc trò chuyện" class="img-fluid">
+                            <h5 class="text-muted mb-2">Chưa có cuộc trò chuyện nào</h5>
+                            <p class="text-muted mb-4">Hãy bắt đầu trò chuyện với bạn bè của bạn</p>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newMessageModal">
+                                <i class="fas fa-edit me-2"></i>Bắt đầu trò chuyện
+                            </button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            {% if active_conversation %}
+                {% include 'chat/conversation_detail.html' %}
+            {% else %}
+                <div class="card shadow-sm border-0 rounded-3 h-100">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                        <img src="{% static 'img/select-chat.svg' %}" alt="Chọn cuộc trò chuyện" class="img-fluid mb-4" style="max-width: 250px;">
+                        <h4 class="text-muted mb-2">Chọn một cuộc trò chuyện</h4>
+                        <p class="text-muted text-center">Chọn một cuộc trò chuyện từ danh sách bên trái hoặc tạo cuộc trò chuyện mới</p>
+                        <button class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#newMessageModal">
+                            <i class="fas fa-edit me-2"></i>Tạo cuộc trò chuyện mới
+                        </button>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal tạo tin nhắn mới -->
+<div class="modal fade" id="newMessageModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Tin nhắn mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="newMessageForm" action="{% url 'chat:start_conversation' %}" method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label fw-medium">Gửi đến:</label>
+                        <input type="text" class="form-control" name="username" placeholder="Nhập tên người dùng..." required>
+                        <div class="form-text">Nhập tên người dùng bạn muốn nhắn tin</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-medium">Tin nhắn:</label>
+                        <textarea class="form-control" name="message" rows="3" placeholder="Nhập tin nhắn của bạn..." required></textarea>
+                    </div>
+                    <div class="text-end">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-1"></i>Gửi
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Cuộn đến cuộc trò chuyện đang active
+    document.addEventListener('DOMContentLoaded', function() {
+        const activeChat = document.querySelector('.chat-item.active');
+        if (activeChat) {
+            activeChat.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+        // Tìm kiếm cuộc trò chuyện
+        const searchInput = document.querySelector('.search-box input');
+        const chatItems = document.querySelectorAll('.chat-item');
+        
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase().trim();
+            
+            chatItems.forEach(item => {
+                const username = item.querySelector('h6').textContent.toLowerCase();
+                const lastMessage = item.querySelector('.last-message').textContent.toLowerCase();
+                
+                if (username.includes(searchTerm) || lastMessage.includes(searchTerm)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>
+{% endblock %} 

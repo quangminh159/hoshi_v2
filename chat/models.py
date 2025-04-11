@@ -1,103 +1,153 @@
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from imagekit.models import ProcessedImageField
-from imagekit.processors import ResizeToFit
 
-class ChatRoom(models.Model):
-    ROOM_TYPES = (
-        ('direct', 'Direct Message'),
-        ('group', 'Group Chat'),
+class Conversation(models.Model):
+    """
+    Mô hình đại diện cho một cuộc trò chuyện giữa các người dùng.
+    Có thể là cuộc trò chuyện 1-1 hoặc nhóm.
+    """
+    name = models.CharField(_('tên nhóm chat'), max_length=255, blank=True, null=True)
+    creator = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.SET_NULL, 
+        related_name='created_conversations',
+        null=True
     )
-    
-    name = models.CharField(max_length=255, blank=True)
-    room_type = models.CharField(max_length=10, choices=ROOM_TYPES, default='direct')
-    participants = models.ManyToManyField(settings.AUTH_USER_MODEL, through='ChatRoomParticipant')
+    participants = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name='conversations',
+        through='ConversationParticipant'
+    )
+    is_group = models.BooleanField(_('nhóm chat'), default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    avatar = models.ImageField(upload_to='chat/avatars/', null=True, blank=True)
-    is_vanish_mode = models.BooleanField(default=False, help_text=_("Tin nhắn sẽ biến mất sau khi xem"))
     
     class Meta:
         ordering = ['-updated_at']
+        verbose_name = _('cuộc trò chuyện')
+        verbose_name_plural = _('cuộc trò chuyện')
     
     def __str__(self):
-        if self.room_type == 'direct':
-            participants = self.participants.all()
-            return f'Chat between {" and ".join(user.username for user in participants)}'
-        return self.name or f'Group Chat {self.id}'
+        if self.is_group and self.name:
+            return self.name
+        participants_names = ", ".join([user.username for user in self.participants.all()[:3]])
+        if self.participants.count() > 3:
+            participants_names += f" và {self.participants.count() - 3} người khác"
+        return participants_names
 
-class ChatRoomParticipant(models.Model):
-    room = models.ForeignKey(ChatRoom, on_delete=models.CASCADE)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    is_admin = models.BooleanField(default=False)
+    @classmethod
+    def get_or_create_for_users(cls, user1, user2):
+        """
+        Lấy hoặc tạo cuộc trò chuyện giữa hai người dùng
+        """
+        # Tìm kiếm cuộc trò chuyện có cả hai người dùng
+        conversations = cls.objects.filter(is_group=False)
+        conversations = conversations.filter(participants=user1).filter(participants=user2)
+        
+        if conversations.exists():
+            return conversations.first()
+        
+        # Tạo cuộc trò chuyện mới
+        conversation = cls.objects.create(is_group=False, creator=user1)
+        ConversationParticipant.objects.create(conversation=conversation, user=user1)
+        ConversationParticipant.objects.create(conversation=conversation, user=user2)
+        
+        return conversation
+
+class ConversationParticipant(models.Model):
+    """
+    Mô hình liên kết giữa người dùng và cuộc trò chuyện,
+    lưu trữ thông tin về vai trò, trạng thái, v.v.
+    """
+    conversation = models.ForeignKey(
+        Conversation, 
+        on_delete=models.CASCADE,
+        related_name='conversation_participants'
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='user_conversations'
+    )
+    is_admin = models.BooleanField(_('quản trị viên'), default=False)
+    muted = models.BooleanField(_('đã tắt tiếng'), default=False)
     joined_at = models.DateTimeField(auto_now_add=True)
-    is_accepted = models.BooleanField(default=True, help_text=_("Đã chấp nhận lời mời trò chuyện"))
-    is_muted = models.BooleanField(default=False, help_text=_("Tắt thông báo"))
+    left_at = models.DateTimeField(null=True, blank=True)
     
     class Meta:
-        unique_together = ('room', 'user')
+        unique_together = ('conversation', 'user')
+        verbose_name = _('thành viên')
+        verbose_name_plural = _('thành viên')
+    
+    def __str__(self):
+        return f"{self.user.username} trong {self.conversation}"
 
 class Message(models.Model):
-    MESSAGE_TYPES = [
-        ('text', 'Text'),
-        ('image', 'Image'),
-        ('video', 'Video'),
-        ('audio', 'Audio'),
-        ('file', 'File'),
-        ('reaction', 'Reaction'),
-        ('story_reply', 'Story Reply'),
-        ('voice', 'Voice Message')
-    ]
-    
-    room = models.ForeignKey(ChatRoom, related_name='messages', on_delete=models.CASCADE)
-    sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    content = models.TextField(max_length=5000)
-    media = models.FileField(upload_to='chat_media/', null=True, blank=True)
-    media_type = models.CharField(max_length=20, choices=MESSAGE_TYPES, default='text')
-    is_read = models.BooleanField(default=False)
-    is_deleted = models.BooleanField(default=False, help_text=_("Tin nhắn đã xóa"))
-    is_vanished = models.BooleanField(default=False, help_text=_("Tin nhắn đã biến mất (vanish mode)"))
-    replied_to = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL, related_name='replies')
+    """
+    Mô hình đại diện cho một tin nhắn trong cuộc trò chuyện
+    """
+    conversation = models.ForeignKey(
+        Conversation,
+        on_delete=models.CASCADE,
+        related_name='messages'
+    )
+    sender = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        related_name='sent_messages',
+        null=True
+    )
+    content = models.TextField(_('nội dung'))
+    attachment = models.FileField(
+        _('tệp đính kèm'),
+        upload_to='chat_attachments/',
+        null=True,
+        blank=True
+    )
+    is_read = models.BooleanField(_('đã đọc'), default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    deleted_at = models.DateTimeField(null=True, blank=True)
     
     class Meta:
-        ordering = ['-created_at']
+        ordering = ['created_at']
+        verbose_name = _('tin nhắn')
+        verbose_name_plural = _('tin nhắn')
     
     def __str__(self):
-        return f'{self.sender.username}: {self.content[:50]}'
-
-    def mark_as_read(self):
-        """Đánh dấu tin nhắn đã đọc"""
-        if not self.is_read:
-            self.is_read = True
-            self.save()
+        return f"Tin nhắn từ {self.sender.username} lúc {self.created_at.strftime('%H:%M:%S %d/%m/%Y')}"
+    
+    def soft_delete(self):
+        """Xóa mềm tin nhắn"""
+        self.deleted_at = timezone.now()
+        self.save()
+    
+    @property
+    def is_deleted(self):
+        return self.deleted_at is not None
 
 class MessageRead(models.Model):
-    message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name='read_by')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    """
+    Mô hình theo dõi trạng thái đọc tin nhắn của từng người dùng
+    """
+    message = models.ForeignKey(
+        Message,
+        on_delete=models.CASCADE,
+        related_name='read_receipts'
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='message_receipts'
+    )
     read_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
-        unique_together = ['message', 'user']
-        ordering = ['-read_at']
-
-class MessageReaction(models.Model):
-    REACTION_TYPES = [
-        ('like', '❤️'),
-        ('laugh', '😂'),
-        ('sad', '😢'),
-        ('angry', '😡'),
-        ('wow', '😮'),
-        ('thumbs_up', '👍'),
-        ('thumbs_down', '👎')
-    ]
+        unique_together = ('message', 'user')
+        verbose_name = _('trạng thái đọc')
+        verbose_name_plural = _('trạng thái đọc')
     
-    message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name='reactions')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    reaction = models.CharField(max_length=20, choices=REACTION_TYPES)
-    created_at = models.DateTimeField(auto_now_add=True)
-    
-    class Meta:
-        unique_together = ['message', 'user']
+    def __str__(self):
+        return f"{self.user.username} đã đọc tin nhắn {self.message.id} lúc {self.read_at.strftime('%H:%M:%S %d/%m/%Y')}" 

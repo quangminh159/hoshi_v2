@@ -2,6 +2,7 @@ Django==5.0.1
 django-allauth==0.60.1
 django-cors-headers==4.3.1
 django-crispy-forms==2.1
+crispy-bootstrap4==2022.1
 django-environ==0.11.2
 django-filter==23.5
 django-imagekit==5.0.0
@@ -14,6 +15,7 @@ redis==5.0.1
 requests==2.31.0
 channels==4.0.0
 channels-redis==4.2.0
+daphne==4.0.0
 celery==5.3.6
 gunicorn==21.2.0
 whitenoise==6.6.0
@@ -46,3 +48,4 @@ django-user-agents==0.4.0
 django-widget-tweaks==1.5.0
 django-tinymce==3.7.1
 django-summernote==0.8.20.0
+django-taggit==5.0.1

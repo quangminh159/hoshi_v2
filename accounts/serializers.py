@@ -10,6 +10,7 @@ class UserSerializer(serializers.ModelSerializer):
     posts_count = serializers.SerializerMethodField()
     is_following = serializers.SerializerMethodField()
     name = serializers.SerializerMethodField()
+    is_verified = serializers.BooleanField(read_only=True)
     
     class Meta:
         model = User

@@ -441,6 +441,40 @@
                             </p>
                         </div>
                         
+                        <!-- Danh sách người dùng đã bị chặn -->
+                        <div class="notification-item">
+                            <div class="notification-header">
+                                <h5 class="notification-title">Người dùng đã bị chặn</h5>
+                            </div>
+                            <p class="notification-description">
+                                Quản lý danh sách người dùng mà bạn đã chặn
+                            </p>
+                            
+                            {% if blocked_users %}
+                                <div class="list-group mt-3">
+                                    {% for blocked_user in blocked_users %}
+                                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                                        <div class="d-flex align-items-center">
+                                            <img src="{{ blocked_user.blocked.get_avatar_url }}" alt="{{ blocked_user.blocked.username }}" 
+                                                 class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">
+                                            <div>
+                                                <h6 class="mb-0">{{ blocked_user.blocked.username }}</h6>
+                                                <small class="text-muted">Bị chặn từ {{ blocked_user.created_at|date:"d/m/Y" }}</small>
+                                            </div>
+                                        </div>
+                                        <a href="#" onclick="unblockUser({{ blocked_user.blocked.id }}, '{{ blocked_user.blocked.username }}'); return false;" class="btn btn-sm btn-outline-danger">
+                                            <i class="fas fa-user-times me-1"></i> Bỏ chặn
+                                        </a>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="alert alert-info mt-3">
+                                    Bạn chưa chặn người dùng nào.
+                                </div>
+                            {% endif %}
+                        </div>
+                        
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-save me-2"></i>Lưu thay đổi
                         </button>
@@ -667,82 +701,133 @@
 
 {% block extra_js %}
 <script>
-// Avatar preview
-document.getElementById('avatar').addEventListener('change', function() {
-    const file = this.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            document.querySelector('.avatar-upload img').src = e.target.result;
+    // Xử lý upload avatar
+    document.getElementById('avatar').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const avatarImg = document.querySelector('.avatar-upload img');
+                avatarImg.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
         }
-        reader.readAsDataURL(file);
-    }
-});
-
-// Form validation
-document.querySelectorAll('.needs-validation').forEach(form => {
-    form.addEventListener('submit', function(event) {
-        if (!form.checkValidity()) {
-            event.preventDefault();
-            event.stopPropagation();
-        }
-        form.classList.add('was-validated');
     });
-});
-
-// Two-factor setup
-function setupTwoFactor() {
-    // Show QR code modal and setup process
-}
-
-// Unlink social accounts
-function unlinkSocial(provider) {
-    if (confirm(`Bạn có chắc chắn muốn hủy liên kết với ${provider}?`)) {
-        // Handle unlinking
+    
+    // Xử lý xóa thiết bị
+    function revokeDevice(deviceId) {
+        if (confirm('Bạn có chắc chắn muốn đăng xuất khỏi thiết bị này?')) {
+            fetch(`/users/settings/revoke-device/${deviceId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Xóa phần tử thiết bị từ DOM
+                    const deviceElement = document.querySelector(`[data-device-id="${deviceId}"]`);
+                    if (deviceElement) {
+                        deviceElement.remove();
+                    }
+                } else {
+                    alert(data.message || 'Đã xảy ra lỗi khi đăng xuất thiết bị.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Đã xảy ra lỗi khi đăng xuất thiết bị.');
+            });
+        }
     }
-}
-
-// Revoke device access
-function revokeDevice(deviceId) {
-    if (confirm('Bạn có chắc chắn muốn đăng xuất khỏi thiết bị này?')) {
-        fetch(`/accounts/devices/${deviceId}/revoke/`, {
+    
+    // Xử lý yêu cầu tải xuống dữ liệu
+    function requestData() {
+        const includeMedia = document.getElementById('includeMedia').checked;
+        
+        fetch('/users/settings/request-data/', {
             method: 'POST',
             headers: {
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: `include_media=${includeMedia}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Hiển thị thông báo thành công
+                alert(data.message || 'Yêu cầu của bạn đã được ghi nhận.');
+                
+                // Tải lại trang để cập nhật danh sách yêu cầu
+                window.location.reload();
+            } else {
+                alert(data.message || 'Đã xảy ra lỗi khi gửi yêu cầu.');
             }
-        }).then(response => {
-            if (response.ok) {
-                location.reload();
-            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Đã xảy ra lỗi khi gửi yêu cầu.');
         });
     }
-}
-
-// Scroll to active section
-const hash = window.location.hash;
-if (hash) {
-    document.querySelector(hash).scrollIntoView();
-}
-
-// Update active tab on scroll
-window.addEventListener('scroll', function() {
-    const sections = document.querySelectorAll('.settings-section');
-    let currentSection = '';
     
-    sections.forEach(section => {
-        const sectionTop = section.offsetTop;
-        const sectionHeight = section.clientHeight;
-        if (window.pageYOffset >= sectionTop - 100) {
-            currentSection = '#' + section.id;
-        }
-    });
+    // Setup two-factor auth
+    function setupTwoFactor() {
+        window.location.href = '/users/settings/setup-2fa/';
+    }
     
-    document.querySelectorAll('.settings-nav .nav-link').forEach(link => {
-        link.classList.remove('active');
-        if (link.getAttribute('href') === currentSection) {
-            link.classList.add('active');
+    // Hủy liên kết mạng xã hội
+    function unlinkSocial(provider) {
+        if (confirm(`Bạn có chắc chắn muốn hủy liên kết với ${provider}?`)) {
+            window.location.href = `/users/settings/unlink-social/${provider}/`;
         }
-    });
-});
+    }
+    
+    // Xử lý bỏ chặn người dùng
+    function unblockUser(userId, username) {
+        if (confirm(`Bạn có chắc chắn muốn bỏ chặn ${username}?`)) {
+            fetch(`/users/unblock/${userId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Tìm phần tử người dùng và xóa khỏi danh sách
+                    const userItem = document.querySelector(`[onclick*="${userId}"]`).closest('.list-group-item');
+                    if (userItem) {
+                        userItem.remove();
+                    }
+                    
+                    // Hiển thị thông báo
+                    alert(`Đã bỏ chặn ${username} thành công.`);
+                    
+                    // Kiểm tra nếu không còn người dùng bị chặn thì hiển thị thông báo
+                    const remainingItems = document.querySelectorAll('.list-group-item').length;
+                    if (remainingItems === 0) {
+                        const listGroup = document.querySelector('.list-group');
+                        if (listGroup) {
+                            listGroup.innerHTML = `
+                                <div class="alert alert-info mt-3">
+                                    Bạn chưa chặn người dùng nào.
+                                </div>
+                            `;
+                        }
+                    }
+                } else {
+                    alert('Đã xảy ra lỗi khi bỏ chặn người dùng.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Đã xảy ra lỗi khi bỏ chặn người dùng.');
+            });
+        }
+    }
 </script>
 {% endblock %} 

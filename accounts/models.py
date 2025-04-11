@@ -7,6 +7,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 from django.conf import settings
 from django.utils import timezone
 from simple_history.models import HistoricalRecords
+from functools import partial
 
 class User(AbstractUser):
     email = models.EmailField(_('email address'), unique=True)
@@ -26,7 +27,7 @@ class User(AbstractUser):
         ('O', _('Other')),
     ], blank=True)
     is_private = models.BooleanField(_('private account'), default=False)
-    is_verified = models.BooleanField(_('verified account'), default=False)
+    _is_verified = models.BooleanField(_('verified account'), default=False, db_column='is_verified')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -57,9 +58,28 @@ class User(AbstractUser):
                                      through='UserFollowing',
                                      related_name='following',
                                      symmetrical=False)
+    blocked_users = models.ManyToManyField('self',
+                                     through='UserBlock',
+                                     related_name='blocked_by',
+                                     symmetrical=False)
     
     # Add historical records
     history = HistoricalRecords()
+    
+    @property
+    def is_verified(self):
+        """Ensure is_verified always returns a boolean value"""
+        if isinstance(self._is_verified, bool):
+            return self._is_verified
+        return False
+        
+    @is_verified.setter
+    def is_verified(self, value):
+        """Ensure is_verified is always stored as a boolean value"""
+        if isinstance(value, bool):
+            self._is_verified = value
+        else:
+            self._is_verified = False
     
     class Meta:
         verbose_name = _('user')
@@ -93,6 +113,14 @@ class User(AbstractUser):
         
         # Nếu không có giới tính, trả về avatar mặc định chung
         return '/static/img/default-avatar.png'
+        
+    def is_blocked(self, user):
+        """Kiểm tra xem người dùng hiện tại có bị chặn bởi user không"""
+        return UserBlock.objects.filter(blocker=user, blocked=self).exists()
+        
+    def has_blocked(self, user):
+        """Kiểm tra xem người dùng hiện tại có chặn user không"""
+        return UserBlock.objects.filter(blocker=self, blocked=user).exists()
 
 class UserFollowing(models.Model):
     user = models.ForeignKey(User,
@@ -111,6 +139,25 @@ class UserFollowing(models.Model):
     
     def __str__(self):
         return f"{self.user} follows {self.following_user}"
+
+class UserBlock(models.Model):
+    blocker = models.ForeignKey(User,
+                             related_name='blocking_relationships',
+                             on_delete=models.CASCADE)
+    blocked = models.ForeignKey(User,
+                             related_name='blocked_relationships',
+                             on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    reason = models.TextField(_('reason'), blank=True, null=True)
+    
+    class Meta:
+        unique_together = ('blocker', 'blocked')
+        ordering = ['-created_at']
+        verbose_name = _('block')
+        verbose_name_plural = _('blocks')
+    
+    def __str__(self):
+        return f"{self.blocker} blocked {self.blocked}"
 
 class Device(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

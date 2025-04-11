@@ -7,7 +7,7 @@ from .models import Notification
 from django.db.models import Count
 
 @login_required
-def notifications_list(request):
+def notification_list(request):
     notifications = Notification.objects.filter(recipient=request.user)
     
     # Sắp xếp và phân trang

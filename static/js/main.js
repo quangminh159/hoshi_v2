@@ -1,5 +1,117 @@
-// Initialize Bootstrap tooltips and popovers
+// Biến để giám sát quá trình xử lý event
+window.Hoshi = window.Hoshi || {};
+window.Hoshi.processedEvents = new Set();
+window.Hoshi.processedRequests = new Set();
+window.Hoshi.processedComments = new Set(); // Lưu trữ ID của các comments đã hiển thị
+window.Hoshi.debug = true;
+
+// Hàm debounce - chỉ xử lý sau một khoảng thời gian kể từ lần cuối cùng được gọi
+function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+        const context = this;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(context, args), wait);
+    };
+}
+
+// Hàm throttle - chỉ xử lý một lần trong khoảng thời gian xác định
+function throttle(func, limit) {
+    let inThrottle;
+    return function(...args) {
+        const context = this;
+        if (!inThrottle) {
+            func.apply(context, args);
+            inThrottle = true;
+            setTimeout(() => inThrottle = false, limit);
+        }
+    };
+}
+
+// Hàm bọc để tránh đăng ký trùng lặp event listeners
+function safeAddEventListener(element, eventType, handler, handlerId) {
+    if (!element || !eventType || !handler) return;
+    
+    // Tạo ID duy nhất cho handler
+    const uniqueId = handlerId || `${eventType}-${Math.random().toString(36).substr(2, 9)}`;
+    
+    // Nếu event listener này đã được đăng ký cho element, bỏ qua
+    if (window.Hoshi.processedEvents.has(uniqueId)) {
+        if (window.Hoshi.debug) console.log(`Bỏ qua event listener đã tồn tại: ${uniqueId}`);
+        return;
+    }
+    
+    // Đánh dấu đã xử lý
+    window.Hoshi.processedEvents.add(uniqueId);
+    
+    // Đăng ký event listener
+    element.addEventListener(eventType, handler);
+    if (window.Hoshi.debug) console.log(`Đã đăng ký event listener: ${uniqueId}`);
+}
+
+// Override XMLHttpRequest để debug requests
+(function() {
+    const originalOpen = XMLHttpRequest.prototype.open;
+    const originalSend = XMLHttpRequest.prototype.send;
+    
+    XMLHttpRequest.prototype.open = function(method, url) {
+        this._requestMethod = method;
+        this._requestUrl = url;
+        return originalOpen.apply(this, arguments);
+    };
+    
+    XMLHttpRequest.prototype.send = function(data) {
+        if (window.Hoshi.debug && this._requestUrl && this._requestUrl.includes('/api/posts/comments/add')) {
+            console.log(`XHR ${this._requestMethod} to ${this._requestUrl}`);
+            console.log('Request data:', data);
+        }
+        return originalSend.apply(this, arguments);
+    };
+})();
+
+// Override fetch API để debug requests
+(function() {
+    const originalFetch = window.fetch;
+    
+    window.fetch = function(url, options) {
+        if (window.Hoshi.debug && url && url.includes('/api/posts/comments/add')) {
+            console.log(`Fetch to ${url}`, options);
+            if (options && options.body) {
+                console.log('Request data:', options.body);
+            }
+        }
+        return originalFetch.apply(this, arguments);
+    };
+})();
+
+// Override jQuery.ajax để debug requests
+if (typeof jQuery !== 'undefined') {
+    (function($) {
+        const originalAjax = $.ajax;
+        
+        $.ajax = function(options) {
+            if (window.Hoshi.debug && options && options.url && options.url.includes('/api/posts/comments/add')) {
+                console.log('jQuery AJAX to ' + options.url, options);
+            }
+            return originalAjax.apply(this, arguments);
+        };
+    })(jQuery);
+}
+
+// Khoá các DOM elements đã được xử lý
 document.addEventListener('DOMContentLoaded', function() {
+    // Tự động khoá các form comment
+    if (window.Hoshi.debug) console.log('DOMContentLoaded - Khoá các form comment');
+    
+    // Nếu đã có DOMContentLoaded trước đó, vẫn tiếp tục nhưng chỉ chạy một số tác vụ cần thiết
+    if (window.Hoshi.domLoaded) {
+        if (window.Hoshi.debug) console.log('DOMContentLoaded đã chạy trước đó, chỉ cập nhật các phần tử mới');
+        return;
+    }
+    
+    window.Hoshi.domLoaded = true;
+
+    // Initialize Bootstrap tooltips and popovers
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
@@ -8,6 +120,42 @@ document.addEventListener('DOMContentLoaded', function() {
     var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
     var popoverList = popoverTriggerList.map(function(popoverTriggerEl) {
         return new bootstrap.Popover(popoverTriggerEl);
+    });
+
+    // Load initial unread notifications count
+    if ($('#unread-notifications').length) {
+        loadUnreadNotificationsCount();
+        // Refresh count every minute
+        setInterval(loadUnreadNotificationsCount, 60000);
+    }
+
+    // Handle alert dismissal
+    $('.alert').alert();
+
+    // Thêm event listener cho nút like post
+    document.querySelectorAll('.like-button').forEach(button => {
+        button.addEventListener('click', function() {
+            const postId = this.getAttribute('data-post-id');
+            likePost(postId);
+        });
+    });
+    
+    // Xử lý nút like comment
+    document.querySelectorAll('.like-comment-button').forEach(button => {
+        button.addEventListener('click', function() {
+            const commentId = this.getAttribute('data-comment-id');
+            if (commentId) {
+                likeComment(commentId);
+            }
+        });
+    });
+
+    // Xử lý nút save post
+    document.querySelectorAll('.save-button').forEach(button => {
+        button.addEventListener('click', function() {
+            const postId = this.getAttribute('data-post-id');
+            savePost(postId);
+        });
     });
 });
 
@@ -111,56 +259,9 @@ function savePost(postId) {
 
 // Submit comment
 function submitComment(postId) {
-    const form = document.querySelector(`.add-comment-form[data-post-id="${postId}"]`);
-    if (!form) {
-        console.error(`Không tìm thấy form comment cho bài viết ${postId}`);
-        return;
-    }
-
-    const commentInput = form.querySelector('.comment-input');
-    const text = commentInput.value.trim();
-    const replyInfo = form.querySelector('.reply-info');
-    const parentId = form.getAttribute('data-parent-id');
-    
-    if (text) {
-        fetch('/api/posts/comments/add/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: JSON.stringify({
-                post_id: postId,
-                text: text,
-                parent_id: parentId || null
-            })
-        })
-        .then(response => {
-            if (!response.ok) {
-                return response.json().then(errorData => {
-                    throw new Error(errorData.error || 'Lỗi không xác định');
-                });
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.comment) {
-                // Thêm comment mới vào DOM
-                addCommentToDOM(data.comment, postId, !!parentId, parentId);
-                
-                // Xóa nội dung input và ẩn thông tin trả lời
-                commentInput.value = '';
-                if (replyInfo) replyInfo.classList.add('d-none');
-                form.removeAttribute('data-parent-id');
-            } else {
-                alert(data.error || 'Có lỗi xảy ra khi thêm bình luận');
-            }
-        })
-        .catch(error => {
-            console.error('Lỗi khi thêm bình luận:', error);
-            alert(error.message || 'Có lỗi xảy ra khi thêm bình luận');
-        });
-    }
+    // Không thực hiện bất kỳ hành động nào, vì form submit đã được xử lý trong initializeCommentForms
+    console.log("submitComment được gọi, nhưng không thực hiện hành động gì vì đã có xử lý trong initializeCommentForms");
+    return false;
 }
 
 // Delete post
@@ -257,38 +358,102 @@ let page = 1;
 
 window.addEventListener('scroll', function() {
     if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 1000) {
-        loadMoreContent();
+        // Xác định loại trang đang hiển thị
+        const isProfilePage = window.location.pathname.startsWith('/users/');
+        
+        if (isProfilePage) {
+            loadMoreProfilePosts();
+        } else {
+            loadMoreContent();
+        }
     }
 });
 
-function loadMoreContent() {
+function loadMoreProfilePosts() {
     if (loading) return;
-    
     loading = true;
-    const loadingIndicator = document.querySelector('.loading-indicator');
-    if (loadingIndicator) loadingIndicator.style.display = 'block';
     
-    fetch(`/api/posts/?page=${page + 1}`, {
+    // Lấy username từ URL path
+    const pathSegments = window.location.pathname.split('/');
+    const username = pathSegments[2]; // users/{username}/
+    
+    const loadMoreButton = document.querySelector('#load-more-button');
+    if (!loadMoreButton) return;
+    
+    const currentPage = parseInt(loadMoreButton.getAttribute('data-current-page')) || 1;
+    const nextPage = currentPage + 1;
+    
+    fetch(`/api/posts/list/?page=${nextPage}&username=${username}`, {
+        method: 'GET',
         headers: {
-            'X-Requested-With': 'XMLHttpRequest'
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
         }
     })
     .then(response => response.json())
     .then(data => {
-        if (data.posts.length > 0) {
+        if (data.posts && data.posts.length > 0) {
+            const postsContainer = document.querySelector('#posts-container');
             data.posts.forEach(post => {
                 const postElement = createPostElement(post);
-                document.querySelector('.posts-container').appendChild(postElement);
+                postsContainer.appendChild(postElement);
             });
-            page += 1;
+            
+            loadMoreButton.setAttribute('data-current-page', nextPage);
+            
+            if (!data.has_next) {
+                loadMoreButton.style.display = 'none';
+            }
+        } else {
+            loadMoreButton.style.display = 'none';
         }
         loading = false;
-        if (loadingIndicator) loadingIndicator.style.display = 'none';
     })
     .catch(error => {
-        console.error('Error:', error);
+        console.error('Error loading more profile posts:', error);
         loading = false;
-        if (loadingIndicator) loadingIndicator.style.display = 'none';
+    });
+}
+
+function loadMoreContent() {
+    if (loading) return;
+    loading = true;
+    
+    const loadMoreButton = document.querySelector('#load-more-button');
+    if (!loadMoreButton) return;
+    
+    const currentPage = parseInt(loadMoreButton.getAttribute('data-current-page')) || 1;
+    const nextPage = currentPage + 1;
+    
+    fetch(`/api/posts/list/?page=${nextPage}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.posts && data.posts.length > 0) {
+            const postsContainer = document.querySelector('#posts-container');
+            data.posts.forEach(post => {
+                const postElement = createPostElement(post);
+                postsContainer.appendChild(postElement);
+            });
+            
+            loadMoreButton.setAttribute('data-current-page', nextPage);
+            
+            if (!data.has_next) {
+                loadMoreButton.style.display = 'none';
+            }
+        } else {
+            loadMoreButton.style.display = 'none';
+        }
+        loading = false;
+    })
+    .catch(error => {
+        console.error('Error loading more posts:', error);
+        loading = false;
     });
 }
 
@@ -430,149 +595,158 @@ function loadUnreadNotificationsCount() {
     });
 }
 
-// Initialize components when document is ready
-$(document).ready(function() {
-    // Initialize tooltips
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
-    });
+// Biến để kiểm tra xem đã khởi tạo comment forms hay chưa
+let commentFormsInitialized = false;
 
-    // Initialize popovers
-    var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
-    popoverTriggerList.map(function (popoverTriggerEl) {
-        return new bootstrap.Popover(popoverTriggerEl);
+// Xử lý form bình luận - Cải tiến để chỉ chạy một lần
+document.addEventListener('DOMContentLoaded', function() {
+    // Gỡ bỏ tất cả các event listener đã được gắn trước đó
+    document.querySelectorAll('.add-comment-form').forEach(form => {
+        // Tạo một bản sao mới của form để xóa tất cả event listeners
+        const newForm = form.cloneNode(true);
+        form.parentNode.replaceChild(newForm, form);
     });
-
-    // Load initial unread notifications count
-    if ($('#unread-notifications').length) {
-        loadUnreadNotificationsCount();
-        // Refresh count every minute
-        setInterval(loadUnreadNotificationsCount, 60000);
+    
+    // Kiểm tra xem đã khởi tạo chưa
+    if (commentFormsInitialized) {
+        console.log("DOMContentLoaded đã được xử lý trước đó, bỏ qua");
+        return;
     }
-
-    // Handle alert dismissal
-    $('.alert').alert();
-
-    // Thêm event listener cho nút like post
-    document.querySelectorAll('.like-button').forEach(button => {
-        button.addEventListener('click', function() {
-            const postId = this.getAttribute('data-post-id');
-            likePost(postId);
-        });
-    });
     
-    // Xử lý nút like comment
-    document.querySelectorAll('.like-comment-button').forEach(button => {
-        button.addEventListener('click', function() {
-            const commentId = this.getAttribute('data-comment-id');
-            if (commentId) {
-                likeComment(commentId);
-            }
-        });
+    console.log("Bắt đầu xử lý DOMContentLoaded");
+    commentFormsInitialized = true;
+    
+    // Xử lý các form bình luận
+    initializeCommentForms();
+    
+    // Xử lý nút reply
+    initializeReplyButtons();
+    
+    // Xử lý nút cancel reply
+    initializeCancelReplyButtons();
+    
+    console.log("Xử lý DOMContentLoaded hoàn tất");
+});
+
+// Để debug các event listener đã được đăng ký
+function logEventListeners(element) {
+    console.log('Element:', element);
+    console.log('ID:', element.id);
+    console.log('Classes:', element.className);
+    console.log('Data attributes:', element.dataset);
+}
+
+// Hàm khởi tạo form bình luận
+function initializeCommentForms() {
+    console.log("Bắt đầu khởi tạo form bình luận...");
+    
+    // Xóa tất cả các event listener đã đăng ký trước đó
+    document.querySelectorAll('.add-comment-form').forEach(form => {
+        // Clone form để xóa tất cả event listeners
+        const formClone = form.cloneNode(true);
+        if (form.parentNode) {
+            form.parentNode.replaceChild(formClone, form);
+        }
     });
 
-    // Xử lý nút reply comment
-    document.querySelectorAll('.reply-button').forEach(button => {
-        button.addEventListener('click', function() {
-            const username = this.getAttribute('data-username');
-            const postId = this.getAttribute('data-post-id');
-            if (username && postId) {
-                showReplyForm(postId, username, this.getAttribute('data-comment-id'));
-            }
-        });
-    });
-    
-    // Xử lý nút save post
-    document.querySelectorAll('.save-button').forEach(button => {
-        button.addEventListener('click', function() {
-            const postId = this.getAttribute('data-post-id');
-            savePost(postId);
-        });
-    });
-
-    // Thêm event listener cho các form comment
-    const commentForms = document.querySelectorAll('.add-comment-form');
-    
-    commentForms.forEach(form => {
-        form.addEventListener('submit', function(e) {
+    // Đăng ký lại event listener mới
+    document.querySelectorAll('.add-comment-form').forEach(form => {
+        // QUAN TRỌNG: Không xử lý form đã được đánh dấu data-no-auto
+        if (form.getAttribute('data-no-auto') === 'true') {
+            console.log(`Form với data-no-auto, sẽ được xử lý bởi script khác.`);
+            return;
+        }
+        
+        // Tạo ID duy nhất cho form
+        const formId = form.getAttribute('data-post-id') || Math.random().toString(36).substr(2, 9);
+        const uniqueFormId = `comment-form-${formId}`;
+        
+        // Kiểm tra xem form đã được khởi tạo chưa
+        if (form.getAttribute('data-initialized') === 'true' || window.Hoshi.processedEvents.has(uniqueFormId)) {
+            console.log(`Form với post-id=${formId} đã được khởi tạo trước đó.`);
+            return;
+        }
+        
+        // Đánh dấu form đã được khởi tạo
+        form.setAttribute('data-initialized', 'true');
+        window.Hoshi.processedEvents.add(uniqueFormId);
+        
+        console.log(`Đăng ký event submit cho form với post-id=${formId}`);
+        
+        // Xử lý sự kiện submit với throttle để tránh trigger nhiều lần
+        const handleSubmit = throttle(function(e) {
+            console.log(`Form submit được kích hoạt cho post-id=${this.getAttribute('data-post-id')}`);
             e.preventDefault();
-            const postId = this.getAttribute('data-post-id');
-            submitComment(postId);
-        });
-    });
-});
-
-// Xử lý nút trả lời bình luận
-document.querySelectorAll('.reply-button').forEach(button => {
-    button.addEventListener('click', function() {
-        const username = this.getAttribute('data-username');
-        const postId = this.getAttribute('data-post-id');
-        const commentForm = document.querySelector(`.add-comment-form[data-post-id="${postId}"]`);
-        const commentInput = commentForm.querySelector('input[name="text"]');
-        const replyInfo = commentForm.querySelector('.reply-info');
-        const replyToUsername = replyInfo.querySelector('.reply-to-username');
-        
-        // Hiển thị thông tin đang trả lời
-        replyInfo.classList.remove('d-none');
-        replyToUsername.textContent = username;
-        
-        // Thêm @username vào input nếu chưa có
-        if (!commentInput.value.startsWith(`@${username} `)) {
-            commentInput.value = `@${username} ${commentInput.value}`;
-        }
-        
-        // Focus vào input
-        commentInput.focus();
-        
-        // Đặt con trỏ ở cuối text
-        const inputLength = commentInput.value.length;
-        commentInput.setSelectionRange(inputLength, inputLength);
-    });
-});
-
-// Xử lý nút hủy trả lời
-document.querySelectorAll('.cancel-reply').forEach(button => {
-    button.addEventListener('click', function() {
-        const replyInfo = this.closest('.reply-info');
-        const commentForm = this.closest('.add-comment-form');
-        const commentInput = commentForm.querySelector('input[name="text"]');
-        const username = replyInfo.querySelector('.reply-to-username').textContent;
-        
-        // Ẩn thông tin đang trả lời
-        replyInfo.classList.add('d-none');
-        
-        // Xóa @username khỏi input
-        commentInput.value = commentInput.value.replace(`@${username} `, '');
-        
-        // Focus vào input
-        commentInput.focus();
-    });
-});
-
-// Xử lý form bình luận
-document.querySelectorAll('.add-comment-form').forEach(form => {
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const postId = this.getAttribute('data-post-id');
-        const commentInput = this.querySelector('input[name="text"]');
-        const text = commentInput.value.trim();
-        const replyInfo = this.querySelector('.reply-info');
-        const isReply = !replyInfo.classList.contains('d-none');
-        let parentId = null;
-        
-        // Nếu là trả lời, lấy id của comment cha
-        if (isReply) {
-            const username = replyInfo.querySelector('.reply-to-username').textContent;
-            // Lấy comment-id từ nút reply được click
-            const replyButton = document.querySelector('.reply-button[data-username="' + username + '"][data-comment-id]');
-            if (replyButton) {
-                parentId = replyButton.getAttribute('data-comment-id');
+            
+            // NGHIÊM TRỌ̣NG: Kiểm tra thuộc tính này để đảm bảo hàm không bị gọi 2 lần
+            const lastProcessed = parseInt(this.getAttribute('data-last-processed') || '0');
+            const now = Date.now();
+            if (now - lastProcessed < 2000) {
+                console.log('Có một yêu cầu được xử lý trong 2 giây vừa qua, bỏ qua để tránh trùng lặp');
+                return;
             }
-        }
-        
-        if (text) {
+            this.setAttribute('data-last-processed', now.toString());
+            
+            const postId = this.getAttribute('data-post-id');
+            const commentInput = this.querySelector('input[name="text"]');
+            const text = commentInput.value.trim();
+            const replyInfo = this.querySelector('.reply-info');
+            const isReply = replyInfo && !replyInfo.classList.contains('d-none');
+            let parentId = this.getAttribute('data-parent-id');
+            
+            if (!text) return;
+            
+            // Tạo một khóa duy nhất cho yêu cầu này
+            const requestKey = `${postId}-${text}-${parentId || ''}`;
+            
+            // Biến để chặn gửi nhiều lần
+            if (this.getAttribute('data-submitting') === 'true') {
+                console.log('Đã có một yêu cầu đang được xử lý, bỏ qua');
+                return;
+            }
+            
+            // Kiểm tra xem yêu cầu này đã được gửi trong 5 giây qua chưa
+            if (window.Hoshi.processedRequests && window.Hoshi.processedRequests.has(requestKey)) {
+                console.log('Request đã được gửi gần đây, bỏ qua để tránh trùng lặp');
+                
+                // Thông báo cho người dùng biết
+                const commentInput = this.querySelector('input[name="text"]');
+                commentInput.classList.add('is-invalid');
+                
+                // Xóa thông báo lỗi sau 2 giây
+                setTimeout(() => {
+                    commentInput.classList.remove('is-invalid');
+                }, 2000);
+                
+                return;
+            }
+            
+            // Đánh dấu đang submit
+            this.setAttribute('data-submitting', 'true');
+            // Thêm data-processing để phòng chặn triệt để
+            this.setAttribute('data-processing', Date.now().toString());
+            
+            // Hiển thị loading
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalText = submitButton.innerHTML;
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Đang gửi...';
+            
+            // Vô hiệu hóa input để ngăn người dùng thay đổi
+            commentInput.disabled = true;
+            
+            // Tạo timestamp và request_id duy nhất
+            const timestamp = Date.now();
+            const requestId = `comment-${postId}-${timestamp}-${Math.random().toString(36).substring(2, 10)}`;
+            
+            // Ghi nhớ request ID này đã được gửi
+            if (!window.Hoshi.sentCommentRequests) window.Hoshi.sentCommentRequests = new Set();
+            window.Hoshi.sentCommentRequests.add(requestId);
+            
+            // Đánh dấu request này đã được gửi và lưu trong 5 giây
+            if (!window.Hoshi.processedRequests) window.Hoshi.processedRequests = new Set();
+            window.Hoshi.processedRequests.add(requestKey);
+            
             // Gửi bình luận lên server
             fetch('/api/posts/comments/add/', {
                 method: 'POST',
@@ -583,35 +757,164 @@ document.querySelectorAll('.add-comment-form').forEach(form => {
                 body: JSON.stringify({
                     post_id: postId,
                     text: text,
-                    parent_id: parentId
+                    parent_id: parentId || null,
+                    timestamp: timestamp,
+                    request_id: requestId
                 })
             })
             .then(response => response.json())
             .then(data => {
+                // Bỏ đánh dấu đang submit
+                this.removeAttribute('data-submitting');
+                
+                // Sau 3 giây, xóa request ID khỏi danh sách đã xử lý để cho phép submit lại
+                setTimeout(() => {
+                    if (window.Hoshi.processedRequests.has(requestKey)) {
+                        window.Hoshi.processedRequests.delete(requestKey);
+                        console.log(`Đã xóa requestKey ${requestKey} khỏi danh sách đã xử lý`);
+                    }
+                }, 5000);
+                
+                // Khôi phục nút submit và input
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalText;
+                commentInput.disabled = false;
+                
                 if (data.comment) {
-                    // Thêm bình luận mới vào DOM
-                    addCommentToDOM(data.comment, postId, isReply, parentId);
+                    // Kiểm tra xem đã có comment với ID này trong DOM chưa
+                    const existingComment = document.querySelector(`[data-comment-id="${data.comment.id}"]`);
                     
-                    // Cập nhật số lượng bình luận
-                    const commentCountElement = document.querySelector(`.comment-button[onclick*="comment-input-${postId}"] span`);
-                    if (commentCountElement) {
-                        commentCountElement.textContent = parseInt(commentCountElement.textContent) + 1;
+                    // Chỉ xử lý khi không phải bình luận trùng lặp hoặc comment chưa hiển thị trong DOM
+                    if (!data.comment.is_duplicate && !existingComment) {
+                        // Thêm bình luận mới vào DOM
+                        addCommentToDOM(data.comment, postId, isReply, parentId);
+                        
+                        // Cập nhật số lượng bình luận
+                        updateCommentCount(postId);
+                    } else {
+                        console.log('Bình luận này đã tồn tại hoặc là bản trùng lặp, không hiển thị lại');
                     }
                     
                     // Xóa nội dung input và ẩn thông tin trả lời
                     commentInput.value = '';
-                    replyInfo.classList.add('d-none');
+                    if (replyInfo) replyInfo.classList.add('d-none');
+                    form.removeAttribute('data-parent-id');
                 } else {
                     alert(data.error || 'Có lỗi xảy ra khi thêm bình luận');
                 }
             })
             .catch(error => {
+                // Bỏ đánh dấu đang submit
+                this.removeAttribute('data-submitting');
+                
+                // Xóa request ID khỏi danh sách đã xử lý để cho phép submit lại
+                if (window.Hoshi.processedRequests.has(requestKey)) {
+                    window.Hoshi.processedRequests.delete(requestKey);
+                }
+                
+                // Khôi phục nút submit và input
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalText;
+                commentInput.disabled = false;
+                
                 console.error('Error:', error);
                 alert('Có lỗi xảy ra khi thêm bình luận');
             });
+        }, 1000); // 1000ms throttle time để ngăn double-click submit
+        
+        // Sử dụng safeAddEventListener thay vì addEventListener trực tiếp
+        safeAddEventListener(form, 'submit', handleSubmit, uniqueFormId);
+    });
+    
+    console.log("Khởi tạo form bình luận hoàn tất");
+}
+
+// Hàm cập nhật số lượng bình luận
+function updateCommentCount(postId) {
+    const commentCountElements = document.querySelectorAll(`.comment-button[data-post-id="${postId}"] span, .comment-count[data-post-id="${postId}"]`);
+    commentCountElements.forEach(element => {
+        if (element) {
+            const currentCount = parseInt(element.textContent) || 0;
+            element.textContent = currentCount + 1;
         }
     });
-});
+}
+
+// Hàm khởi tạo nút reply
+function initializeReplyButtons() {
+    document.querySelectorAll('.reply-button').forEach(button => {
+        // Tạo ID duy nhất cho button dựa trên data và vị trí
+        const username = button.getAttribute('data-username') || '';
+        const postId = button.getAttribute('data-post-id') || '';
+        const commentId = button.getAttribute('data-comment-id') || '';
+        const buttonId = `reply-button-${postId}-${username}-${commentId}`;
+        
+        // Kiểm tra xem đã xử lý chưa
+        if (window.Hoshi.processedEvents.has(buttonId)) {
+            return;
+        }
+        
+        // Xử lý sự kiện click
+        const handleClick = function() {
+            const username = this.getAttribute('data-username');
+            const postId = this.getAttribute('data-post-id');
+            const commentId = this.closest('.comment, .reply-comment')?.id?.replace('comment-', '') || 
+                            this.getAttribute('data-comment-id');
+            
+            if (!username || !postId) return;
+            
+            const form = document.querySelector(`.add-comment-form[data-post-id="${postId}"]`);
+            if (!form) {
+                console.error(`Không tìm thấy form cho post ID ${postId}`);
+                return;
+            }
+            
+            const replyInfo = form.querySelector('.reply-info');
+            if (!replyInfo) {
+                console.error(`Không tìm thấy reply-info trong form cho post ID ${postId}`);
+                return;
+            }
+            
+            const replyUsername = replyInfo.querySelector('.reply-to-username');
+            
+            // Hiển thị thông tin đang trả lời
+            replyInfo.classList.remove('d-none');
+            replyUsername.textContent = username;
+            
+            // Lưu ID của comment cha
+            if (commentId) {
+                form.setAttribute('data-parent-id', commentId);
+            }
+            
+            // Focus vào input
+            const input = form.querySelector('input[name="text"]');
+            if (input) input.focus();
+        };
+        
+        // Sử dụng safeAddEventListener
+        safeAddEventListener(button, 'click', handleClick, buttonId);
+    });
+}
+
+// Hàm khởi tạo nút cancel reply
+function initializeCancelReplyButtons() {
+    document.querySelectorAll('.cancel-reply').forEach(button => {
+        button.addEventListener('click', function() {
+            const replyInfo = this.closest('.reply-info');
+            const form = replyInfo.closest('.add-comment-form');
+            const input = form.querySelector('input[name="text"]');
+            
+            // Ẩn thông tin trả lời
+            replyInfo.classList.add('d-none');
+            
+            // Xóa reference đến comment cha
+            form.removeAttribute('data-parent-id');
+            
+            // Focus vào input
+            input.focus();
+        });
+    });
+}
 
 // Debug: Log thông tin comment khi thêm
 function debugLogComment(comment, postId, isReply, parentId) {
@@ -633,10 +936,59 @@ function debugLogComment(comment, postId, isReply, parentId) {
 
 // Ghi đè hàm addCommentToDOM để thêm debug
 function addCommentToDOM(comment, postId, isReply, parentId) {
-    // Debug log
-    console.group('Thêm Comment Mới');
-    console.log('Comment:', comment);
-    console.log('Post ID:', postId);
+    console.log('addCommentToDOM được gọi với comment ID:', comment.id);
+    
+    // Kiểm tra xem comment có thuộc tính is_duplicate không
+    if (comment.is_duplicate) {
+        console.log(`Comment với ID ${comment.id} là bản trùng lặp được đánh dấu bởi server, bỏ qua.`);
+        return;
+    }
+    
+    // Kiểm tra trong danh sách đã xử lý toàn cục
+    if (window.Hoshi.processedComments.has(comment.id.toString())) {
+        console.log(`Comment với ID ${comment.id} đã được xử lý trước đó (processedComments), bỏ qua.`);
+        return;
+    }
+    
+    // Thêm vào danh sách đã xử lý toàn cục
+    window.Hoshi.processedComments.add(comment.id.toString());
+    
+    // KIỂM TRA NGHIÊM NGẶT HƠN
+    // 1. Tìm theo data-comment-id
+    const existingCommentById = document.querySelector(`[data-comment-id="${comment.id}"]`);
+    if (existingCommentById) {
+        console.log(`Comment với ID ${comment.id} đã tồn tại trong DOM theo data-comment-id, bỏ qua.`);
+        return;
+    }
+    
+    // 2. Tìm theo id của phần tử
+    const existingCommentByElementId = document.getElementById(`comment-${comment.id}`);
+    if (existingCommentByElementId) {
+        console.log(`Comment với ID ${comment.id} đã tồn tại trong DOM theo element id, bỏ qua.`);
+        return;
+    }
+    
+    // 3. Tìm theo tác giả + nội dung + thời gian gần đây (2 giây)
+    const author = comment.author ? comment.author.username : comment.author_username;
+    const text = comment.text;
+    
+    const similarComments = Array.from(document.querySelectorAll('.comment, .reply-comment')).filter(el => {
+        const authorEl = el.querySelector('a.text-dark.text-decoration-none.fw-bold');
+        const textEl = el.querySelector('div:first-child div:first-child');
+        
+        return authorEl && 
+               authorEl.textContent.trim() === author && 
+               textEl && 
+               textEl.textContent.includes(text) &&
+               // Kiểm tra thời gian tạo trong vòng 5 giây qua
+               (!el.getAttribute('data-created-at') || 
+                Date.now() - parseInt(el.getAttribute('data-created-at')) < 5000);
+    });
+    
+    if (similarComments.length > 0) {
+        console.log(`Đã tìm thấy comment tương tự (cùng tác giả + nội dung) trong 5 giây qua, bỏ qua để tránh trùng lặp`);
+        return;
+    }
     
     // Chuẩn hóa dữ liệu comment từ API
     const normalizedComment = {
@@ -652,15 +1004,15 @@ function addCommentToDOM(comment, postId, isReply, parentId) {
     console.log('Normalized Comment:', normalizedComment);
     
     // Tìm card chứa bài viết
-    const postCard = document.querySelector(`.card[id="post-${postId}"]`);
+    const postCard = document.querySelector(`#post-${postId}, .card[id="post-${postId}"]`);
     if (!postCard) {
-        console.error(`Không tìm thấy bài viết với ID ${postId}`, document.querySelectorAll('.card'));
+        console.error(`Không tìm thấy bài viết với ID ${postId}`);
         return;
     }
     
     // Tạo HTML cho comment mới
     const commentHTML = `
-        <div class="comment mb-2" id="comment-${normalizedComment.id}">
+        <div class="comment mb-2" id="comment-${normalizedComment.id}" data-comment-id="${normalizedComment.id}" data-created-at="${Date.now()}">
             <div class="d-flex justify-content-between">
                 <div>
                     <a href="/users/${normalizedComment.author.username}/" 
@@ -680,7 +1032,8 @@ function addCommentToDOM(comment, postId, isReply, parentId) {
                         <li>
                             <button class="dropdown-item reply-button" 
                                     data-username="${normalizedComment.author.username}"
-                                    data-post-id="${postId}">
+                                    data-post-id="${postId}"
+                                    data-comment-id="${normalizedComment.id}">
                                 <i class="fas fa-reply me-2"></i>Trả lời
                             </button>
                         </li>
@@ -694,42 +1047,162 @@ function addCommentToDOM(comment, postId, isReply, parentId) {
                 </div>
             </div>
             <div class="text-muted small">
-                ${new Date(normalizedComment.created_at).toLocaleString()} trước
+                vừa xong · 
+                <button class="btn btn-link btn-sm p-0 text-muted like-comment-button" 
+                        data-comment-id="${normalizedComment.id}">
+                    <span>Thích</span>
+                </button>
+                <span class="ms-1">·</span>
+                <button class="btn btn-link btn-sm p-0 text-muted reply-button ms-1" 
+                        data-username="${normalizedComment.author.username}"
+                        data-post-id="${postId}"
+                        data-comment-id="${normalizedComment.id}">
+                    Trả lời
+                </button>
             </div>
         </div>
     `;
     
-    // Tìm section comments hoặc tạo mới nếu chưa có
-    let commentsSection = postCard.querySelector('.comments-section');
+    // Tìm section comments
+    let commentsSection = postCard.querySelector('.overflow-auto');
     
     if (!commentsSection) {
-        // Nếu chưa có section comments, tạo mới
-        commentsSection = document.createElement('div');
-        commentsSection.className = 'comments-section';
+        console.error('Không tìm thấy phần hiển thị comments trong bài viết');
+        return;
+    }
+    
+    // Tìm vị trí chèn bình luận dựa vào parent
+    if (isReply && parentId) {
+        // Tìm vị trí để thêm reply
+        const parentComment = document.getElementById(`comment-${parentId}`);
         
-        // Tìm vị trí để chèn section comments: trước form comment
-        const cardBody = postCard.querySelector('.card-body:last-child');
-        const commentForm = cardBody.querySelector('form');
-        
-        if (cardBody && commentForm) {
-            cardBody.insertBefore(commentsSection, commentForm);
+        if (parentComment) {
+            let repliesSection = parentComment.querySelector('.comment-replies');
+            if (!repliesSection) {
+                // Tạo section replies nếu chưa có
+                repliesSection = document.createElement('div');
+                repliesSection.className = 'comment-replies ps-4 mt-2';
+                parentComment.appendChild(repliesSection);
+            }
+            
+            // Thêm reply vào cuối danh sách replies
+            repliesSection.insertAdjacentHTML('beforeend', commentHTML.replace('comment mb-2', 'reply-comment mb-2'));
         } else {
-            console.error('Không tìm thấy vị trí để chèn comment');
-            return;
+            // Nếu không tìm thấy comment cha, thêm như comment thông thường
+            insertCommentIntoMainSection(commentsSection, commentHTML);
         }
+    } else {
+        // Thêm comment mới vào phần comments chính
+        insertCommentIntoMainSection(commentsSection, commentHTML);
     }
     
-    // Thêm comment vào đầu danh sách
-    commentsSection.insertAdjacentHTML('afterbegin', commentHTML);
-    
-    // Cập nhật số lượng comment
-    const commentCountElement = postCard.querySelector('.comment-button span');
-    if (commentCountElement) {
-        const currentCount = parseInt(commentCountElement.textContent) || 0;
-        commentCountElement.textContent = currentCount + 1;
+    // Khởi tạo các event handlers cho comment mới
+    const newComment = document.getElementById(`comment-${normalizedComment.id}`);
+    if (newComment) {
+        initializeNewCommentButtons(newComment);
+    } else {
+        console.error(`Không thể tìm thấy comment đã thêm với ID ${normalizedComment.id}`);
     }
+}
+
+// Hàm thêm comment vào phần comments chính
+function insertCommentIntoMainSection(commentsSection, commentHTML) {
+    // Tìm danh sách comments
+    const commentsList = commentsSection.querySelector('.comments-section');
     
-    console.groupEnd();
+    if (commentsList) {
+        // Nếu tìm thấy danh sách, thêm vào đầu
+        commentsList.insertAdjacentHTML('afterbegin', commentHTML);
+    } else {
+        // Nếu không tìm thấy danh sách, thêm trực tiếp vào phần comments
+        // Kiểm tra xem có thông báo "Chưa có bình luận nào" không
+        const emptyMessage = commentsSection.querySelector('p.text-muted.text-center');
+        if (emptyMessage) {
+            // Thay thế thông báo bằng comment
+            emptyMessage.remove();
+        }
+        
+        // Thêm vào đầu danh sách
+        commentsSection.insertAdjacentHTML('afterbegin', commentHTML);
+    }
+}
+
+// Hàm khởi tạo các nút cho comment mới
+function initializeNewCommentButtons(commentElement) {
+    // Khởi tạo nút Reply
+    const replyButtons = commentElement.querySelectorAll('.reply-button');
+    replyButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const username = this.getAttribute('data-username');
+            const postId = this.getAttribute('data-post-id');
+            const commentId = this.getAttribute('data-comment-id') || 
+                              this.closest('.comment, .reply-comment')?.getAttribute('data-comment-id');
+            
+            if (!username || !postId) return;
+            
+            const form = document.querySelector(`.add-comment-form[data-post-id="${postId}"]`);
+            const replyInfo = form.querySelector('.reply-info');
+            const replyUsername = replyInfo.querySelector('.reply-to-username');
+            
+            replyInfo.classList.remove('d-none');
+            replyUsername.textContent = username;
+            
+            if (commentId) {
+                form.setAttribute('data-parent-id', commentId);
+            }
+            
+            const input = form.querySelector('input[name="text"]');
+            input.focus();
+        });
+    });
+    
+    // Khởi tạo nút Like
+    const likeButtons = commentElement.querySelectorAll('.like-comment-button');
+    likeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const commentId = this.getAttribute('data-comment-id');
+            if (!commentId) return;
+            
+            fetch(`/api/posts/comments/${commentId}/like/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const textElement = button.querySelector('span');
+                
+                if (data.status === 'liked') {
+                    textElement.textContent = 'Đã thích';
+                    textElement.classList.add('text-primary');
+                } else {
+                    textElement.textContent = 'Thích';
+                    textElement.classList.remove('text-primary');
+                }
+                
+                // Cập nhật số lượng likes nếu có
+                if (data.likes_count > 0) {
+                    let likesCountElement = commentElement.querySelector('.comment-likes-count');
+                    if (!likesCountElement) {
+                        const likesCountHTML = `
+                            <span class="ms-2">
+                                <i class="fas fa-heart text-danger small"></i>
+                                <span class="comment-likes-count" data-comment-id="${commentId}">${data.likes_count}</span>
+                            </span>
+                        `;
+                        button.closest('.text-muted.small').insertAdjacentHTML('beforeend', likesCountHTML);
+                    } else {
+                        likesCountElement.textContent = data.likes_count;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Lỗi khi thích bình luận:', error);
+            });
+        });
+    });
 }
 
 // Hiển thị thông tin bài viết đã lưu

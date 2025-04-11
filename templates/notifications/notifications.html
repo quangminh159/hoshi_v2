@@ -17,7 +17,7 @@
                              id="notification-{{ notification.id }}">
                             <div class="d-flex w-100 justify-content-between">
                                 <div>
-                                    <img src="{% if notification.sender.avatar and notification.sender.avatar.url %}{{ notification.sender.avatar.url }}{% else %}/static/images/default-avatar.png{% endif %}" 
+                                    <img src="{{ notification.sender.get_avatar_url }}" 
                                          class="rounded-circle me-2" 
                                          width="40" 
                                          height="40"

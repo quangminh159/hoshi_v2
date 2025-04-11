@@ -1,5 +1,5 @@
 {% load static %}
-<div class="card mb-4">
+<div class="card mb-4" data-post-id="{{ post.id }}">
     <!-- Post Header -->
     <div class="card-header bg-white border-0 py-3">
         <div class="d-flex align-items-center justify-content-between">
@@ -22,8 +22,37 @@
                     {% endif %}
                 </div>
             </div>
-            <div class="text-muted small">
-                {{ post.created_at|timesince }} trước
+            <div class="d-flex align-items-center">
+                <div class="text-muted small me-3">
+                    {{ post.created_at|timesince }} trước
+                </div>
+                {% if request.user == post.author %}
+                <div class="dropdown">
+                    <button class="btn btn-link text-dark p-0" 
+                            type="button" 
+                            data-bs-toggle="dropdown" 
+                            aria-expanded="false">
+                        <i class="fas fa-ellipsis-h"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a href="/posts/{{ post.id }}/" class="dropdown-item">
+                                <i class="fas fa-eye me-2"></i>Xem chi tiết
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="dropdown-item edit-post-btn" data-post-id="{{ post.id }}" data-bs-toggle="modal" data-bs-target="#editPostModal-{{ post.id }}">
+                                <i class="fas fa-edit me-2"></i>Chỉnh sửa
+                            </a>
+                        </li>
+                        <li>
+                            <button class="dropdown-item text-danger" onclick="deletePost({{ post.id }})">
+                                <i class="fas fa-trash-alt me-2"></i>Xóa bài viết
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -178,5 +207,321 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     });
+    
+    // Xử lý xóa phương tiện
+    document.querySelectorAll('.delete-media-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const mediaId = this.dataset.mediaId;
+            const mediaItem = this.closest('.media-item');
+            
+            if (confirm('Bạn có chắc chắn muốn xóa phương tiện này không?')) {
+                mediaItem.classList.add('opacity-50');
+                mediaItem.dataset.deleted = 'true';
+            }
+        });
+    });
+    
+    // Preview phương tiện mới
+    document.querySelectorAll('input[id^="edit-new-media-"]').forEach(input => {
+        input.addEventListener('change', function() {
+            const files = this.files;
+            const previewContainer = this.parentNode.querySelector('.new-media-preview');
+            
+            // Xóa preview cũ
+            previewContainer.innerHTML = '';
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const mediaPreview = document.createElement('div');
+                    mediaPreview.className = 'position-relative';
+                    mediaPreview.style.width = '100px';
+                    mediaPreview.style.height = '100px';
+                    
+                    if (file.type.startsWith('image/')) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.style.width = '100px';
+                        img.style.height = '100px';
+                        img.style.objectFit = 'cover';
+                        mediaPreview.appendChild(img);
+                    } else if (file.type.startsWith('video/')) {
+                        const video = document.createElement('video');
+                        video.style.width = '100px';
+                        video.style.height = '100px';
+                        video.style.objectFit = 'cover';
+                        
+                        const source = document.createElement('source');
+                        source.src = e.target.result;
+                        source.type = file.type;
+                        video.appendChild(source);
+                        mediaPreview.appendChild(video);
+                    }
+                    
+                    const removeButton = document.createElement('button');
+                    removeButton.className = 'btn btn-sm btn-danger position-absolute top-0 end-0';
+                    removeButton.innerHTML = '<i class="fas fa-times"></i>';
+                    removeButton.addEventListener('click', function() {
+                        mediaPreview.remove();
+                    });
+                    
+                    mediaPreview.appendChild(removeButton);
+                    previewContainer.appendChild(mediaPreview);
+                }
+                
+                reader.readAsDataURL(file);
+            }
+        });
+    });
+    
+    // Edit post functionality - Save changes button
+    document.querySelectorAll('.save-post-changes').forEach(button => {
+        button.addEventListener('click', function() {
+            const postId = this.dataset.postId;
+            
+            // Disable button to prevent multiple submissions
+            this.disabled = true;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Đang lưu...';
+            
+            // Tạo FormData để hỗ trợ tải file
+            const formData = new FormData();
+            
+            // Thêm dữ liệu cơ bản
+            const caption = document.getElementById(`edit-caption-${postId}`).value;
+            const location = document.getElementById(`edit-location-${postId}`).value;
+            const disableComments = document.getElementById(`edit-disable-comments-${postId}`).checked;
+            const hideLikes = document.getElementById(`edit-hide-likes-${postId}`).checked;
+            
+            formData.append('caption', caption);
+            formData.append('location', location);
+            formData.append('disable_comments', disableComments);
+            formData.append('hide_likes', hideLikes);
+            
+            // Thêm danh sách media cần xóa
+            const deletedMedia = [];
+            document.querySelectorAll(`#editPostModal-${postId} .media-item[data-deleted="true"]`).forEach(item => {
+                deletedMedia.push(item.dataset.mediaId);
+            });
+            formData.append('deleted_media', JSON.stringify(deletedMedia));
+            
+            // Thêm các file mới
+            const fileInput = document.getElementById(`edit-new-media-${postId}`);
+            if (fileInput.files.length > 0) {
+                for (let i = 0; i < fileInput.files.length; i++) {
+                    formData.append('new_media', fileInput.files[i]);
+                }
+            }
+            
+            // Send data to server
+            fetch(`/posts/${postId}/edit/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if (response.status === 403) {
+                        throw new Error('Bạn không có quyền chỉnh sửa bài viết này.');
+                    } else {
+                        throw new Error('Có lỗi xảy ra khi cập nhật bài viết.');
+                    }
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Restore button state
+                this.disabled = false;
+                this.innerHTML = 'Lưu thay đổi';
+                
+                if (data.status === 'success') {
+                    // Update post content in the UI
+                    const cardElement = document.querySelector(`.card[data-post-id="${postId}"]`);
+                    const captionElement = cardElement.querySelector('.card-text');
+                    const locationElement = cardElement.querySelector('.text-muted.small:not(.me-3)');
+                    
+                    if (captionElement) {
+                        captionElement.textContent = caption;
+                    }
+                    
+                    if (locationElement) {
+                        locationElement.textContent = location || '';
+                    }
+                    
+                    // Thông báo thành công
+                    alert('Đã cập nhật bài viết thành công!');
+                    
+                    // Tải lại trang để hiển thị các thay đổi về media
+                    window.location.reload();
+                } else {
+                    alert(data.message || 'Có lỗi xảy ra khi cập nhật bài viết.');
+                }
+            })
+            .catch(error => {
+                console.error('Error updating post:', error);
+                
+                // Restore button state
+                this.disabled = false;
+                this.innerHTML = 'Lưu thay đổi';
+                
+                alert(error.message || 'Có lỗi xảy ra khi cập nhật bài viết.');
+            });
+        });
+    });
 });
-</script> 
+
+// Function to delete post
+function deletePost(postId) {
+    if (confirm('Bạn có chắc chắn muốn xóa bài viết này không?')) {
+        // Hiển thị trạng thái loading
+        const postCard = document.querySelector(`.card[data-post-id="${postId}"]`);
+        if (postCard) {
+            postCard.style.opacity = '0.5';
+        }
+        
+        fetch(`/posts/${postId}/delete/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                if (response.status === 403) {
+                    throw new Error('Bạn không có quyền xóa bài viết này.');
+                } else if (response.status === 404) {
+                    throw new Error('Không tìm thấy bài viết.');
+                } else {
+                    throw new Error('Có lỗi xảy ra khi xóa bài viết.');
+                }
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.status === 'success') {
+                // Xóa bài viết khỏi DOM
+                if (postCard) {
+                    postCard.remove();
+                } else {
+                    // Nếu không tìm thấy element để xóa, tải lại trang
+                    window.location.reload();
+                }
+                
+                // Hiển thị thông báo thành công
+                alert(data.message || 'Đã xóa bài viết thành công!');
+            } else {
+                // Khôi phục trạng thái card
+                if (postCard) {
+                    postCard.style.opacity = '1';
+                }
+                
+                // Hiển thị thông báo lỗi
+                alert(data.message || 'Có lỗi xảy ra khi xóa bài viết.');
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting post:', error);
+            
+            // Khôi phục trạng thái card
+            if (postCard) {
+                postCard.style.opacity = '1';
+            }
+            
+            alert(error.message || 'Có lỗi xảy ra khi xóa bài viết.');
+        });
+    }
+}
+
+// Get CSRF token from cookies
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+
+<!-- Modal Chỉnh sửa bài viết -->
+<div class="modal fade" id="editPostModal-{{ post.id }}" tabindex="-1" aria-labelledby="editPostModalLabel-{{ post.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editPostModalLabel-{{ post.id }}">Chỉnh sửa bài viết</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editPostForm-{{ post.id }}" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="edit-caption-{{ post.id }}" class="form-label">Nội dung</label>
+                        <textarea class="form-control" id="edit-caption-{{ post.id }}" rows="5">{{ post.caption }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-location-{{ post.id }}" class="form-label">Địa điểm</label>
+                        <input type="text" class="form-control" id="edit-location-{{ post.id }}" value="{{ post.location }}">
+                    </div>
+                    
+                    <!-- Hiển thị media hiện tại -->
+                    <div class="mb-3">
+                        <label class="form-label">Phương tiện hiện tại</label>
+                        <div class="current-media-container d-flex flex-wrap gap-2">
+                            {% for media in post.media.all %}
+                            <div class="media-item position-relative" data-media-id="{{ media.id }}">
+                                {% if media.media_type == 'image' %}
+                                <img src="{{ media.file.url }}" alt="Post media" style="width: 100px; height: 100px; object-fit: cover;">
+                                {% else %}
+                                <video style="width: 100px; height: 100px; object-fit: cover;">
+                                    <source src="{{ media.file.url }}" type="video/mp4">
+                                </video>
+                                {% endif %}
+                                <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 delete-media-btn" data-media-id="{{ media.id }}">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Thêm media mới -->
+                    <div class="mb-3">
+                        <label for="edit-new-media-{{ post.id }}" class="form-label">Thêm ảnh/video mới</label>
+                        <input type="file" class="form-control" id="edit-new-media-{{ post.id }}" multiple accept="image/*,video/*">
+                        <div class="form-text">Bạn có thể chọn nhiều ảnh hoặc video cùng lúc.</div>
+                        
+                        <!-- Preview media mới -->
+                        <div class="new-media-preview d-flex flex-wrap gap-2 mt-2"></div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="edit-disable-comments-{{ post.id }}" {% if post.disable_comments %}checked{% endif %}>
+                            <label class="form-check-label" for="edit-disable-comments-{{ post.id }}">Tắt bình luận</label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="edit-hide-likes-{{ post.id }}" {% if post.hide_likes %}checked{% endif %}>
+                            <label class="form-check-label" for="edit-hide-likes-{{ post.id }}">Ẩn lượt thích</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary save-post-changes" data-post-id="{{ post.id }}">Lưu thay đổi</button>
+            </div>
+        </div>
+    </div>
+</div> 

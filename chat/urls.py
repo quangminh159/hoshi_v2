@@ -1,22 +1,22 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from . import api
 from . import views
+
+router = DefaultRouter()
+router.register(r'conversations', api.ConversationViewSet, basename='conversation')
+router.register(r'messages', api.MessageViewSet, basename='message')
 
 app_name = 'chat'
 
 urlpatterns = [
-    path('', views.room_list, name='room_list'),
-    path('<int:room_id>/', views.room_detail, name='room_detail'),
-    path('create/', views.create_room, name='create_room'),
-    path('<int:room_id>/send/', views.send_message, name='send_message'),
-    path('message/<int:message_id>/delete/', views.delete_message, name='delete_message'),
-    path('search/', views.search_users, name='search_users'),
+    # API endpoints
+    path('api/', include(router.urls)),
     
-    # Chức năng mới
-    path('<int:room_id>/vanish-mode/toggle/', views.toggle_vanish_mode, name='toggle_vanish_mode'),
-    path('message/<int:message_id>/read/', views.mark_message_as_read, name='mark_message_as_read'),
-    path('message/<int:message_id>/react/', views.react_to_message, name='react_to_message'),
-    path('<int:room_id>/accept/', views.accept_chat_request, name='accept_chat_request'),
-    path('<int:room_id>/decline/', views.decline_chat_request, name='decline_chat_request'),
-    path('<int:room_id>/mute/toggle/', views.toggle_mute, name='toggle_mute'),
-    path('<int:room_id>/messages/', views.get_new_messages, name='get_new_messages'),
+    # Chat UI views
+    path('', views.chat_home, name='home'),
+    path('conversations/', views.conversation_list, name='conversation_list'),
+    path('conversations/<int:conversation_id>/', views.conversation_detail, name='conversation_detail'),
+    path('direct/<str:username>/', views.direct_chat, name='direct_chat'),
+    path('start-conversation/', views.start_conversation, name='start_conversation'),
 ] 

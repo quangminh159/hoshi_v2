@@ -4,10 +4,15 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.db.models import Count
 from django.contrib.auth import get_user_model
-from .models import Post, Comment, Like, SavedPost, Hashtag, CommentLike
+from django.core.paginator import Paginator
+from .models import Post, Comment, Like, SavedPost, Hashtag, CommentLike, PostMedia, Notification
 from .serializers import PostSerializer, CommentSerializer, HashtagSerializer
+from django.conf import settings
 import json
 from django.utils import timezone
+from django.core.cache import cache
+import time
+import hashlib
 
 User = get_user_model()
 
@@ -118,8 +123,26 @@ class HashtagViewSet(viewsets.ReadOnlyModelViewSet):
 @permission_classes([IsAuthenticated])
 def post_list(request):
     posts = Post.objects.all().order_by('-created_at')
-    serializer = PostSerializer(posts, many=True)
-    return Response(serializer.data)
+    
+    # Lọc theo username nếu có
+    username = request.GET.get('username')
+    if username:
+        posts = posts.filter(author__username=username)
+        
+    page_number = request.GET.get('page', 1)
+    
+    # Phân trang
+    paginator = Paginator(posts, settings.POSTS_PER_PAGE if hasattr(settings, 'POSTS_PER_PAGE') else 10)
+    page_obj = paginator.get_page(page_number)
+    
+    serializer = PostSerializer(page_obj.object_list, many=True)
+    
+    return Response({
+        'posts': serializer.data,
+        'has_next': page_obj.has_next(),
+        'total_pages': paginator.num_pages,
+        'current_page': page_obj.number
+    })
 
 @api_view(['GET', 'DELETE'])
 @permission_classes([IsAuthenticated])
@@ -200,48 +223,143 @@ def add_comment(request):
         post_id = data.get('post_id')
         text = data.get('text')
         parent_id = data.get('parent_id')
+        request_id = data.get('request_id', '')
         
+        # Log để debug
+        print(f"Processing comment request: post_id={post_id}, text={text[:20]}..., parent_id={parent_id}, request_id={request_id}")
+        
+        # Kiểm tra các tham số bắt buộc
         if not post_id or not text:
             return Response({'error': 'Missing required fields'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Tạo cache key an toàn bằng cách hash nội dung
+        comment_content_hash = hashlib.md5(f"{request.user.id}:{post_id}:{text}:{parent_id or ''}".encode()).hexdigest()
+        cache_key = f"comment:{comment_content_hash}"
+        
+        # Kiểm tra xem request_id này đã được xử lý chưa
+        if request_id:
+            request_cache_key = f"request:{request_id}"
+            if cache.get(request_cache_key):
+                print(f"Detected duplicate request with request_id={request_id}")
+                # Tìm comment gần đây nhất của user có nội dung này
+                post = Post.objects.get(id=post_id)
+                recent_comment = Comment.objects.filter(
+                    post=post,
+                    author=request.user,
+                    text=text,
+                    parent_id=parent_id
+                ).order_by('-created_at').first()
+                
+                if recent_comment:
+                    # Trả về comment để tránh client hiển thị lỗi
+                    parent_data = None
+                    if recent_comment.parent:
+                        parent_data = {
+                            'id': recent_comment.parent.id,
+                            'author_username': recent_comment.parent.author.username
+                        }
+                    
+                    comment_data = {
+                        'id': recent_comment.id,
+                        'text': recent_comment.text,
+                        'author_id': recent_comment.author.id,
+                        'author_username': recent_comment.author.username,
+                        'author_avatar': recent_comment.author.avatar.url if recent_comment.author.avatar else None,
+                        'created_at': recent_comment.created_at.strftime('%d/%m/%Y %H:%M'),
+                        'likes_count': recent_comment.likes_count,
+                        'parent': parent_data,
+                        'post_id': post_id,
+                        'is_duplicate': True
+                    }
+                    
+                    return Response({'comment': comment_data, 'message': 'Duplicate request detected'})
+            
+            # Đánh dấu request_id này đã được xử lý
+            cache.set(request_cache_key, True, 300)  # 5 phút
+        
+        # Kiểm tra xem nội dung comment này đã được gửi gần đây chưa
+        if cache.get(cache_key):
+            print(f"Detected duplicate comment content via cache: {cache_key}")
+            # Tìm comment gần đây nhất của user có nội dung này
+            post = Post.objects.get(id=post_id)
+            recent_comment = Comment.objects.filter(
+                post=post,
+                author=request.user,
+                text=text,
+                parent_id=parent_id
+            ).order_by('-created_at').first()
+            
+            if recent_comment:
+                # Trả về comment để tránh client hiển thị lỗi
+                parent_data = None
+                if recent_comment.parent:
+                    parent_data = {
+                        'id': recent_comment.parent.id,
+                        'author_username': recent_comment.parent.author.username
+                    }
+                
+                comment_data = {
+                    'id': recent_comment.id,
+                    'text': recent_comment.text,
+                    'author_id': recent_comment.author.id,
+                    'author_username': recent_comment.author.username,
+                    'author_avatar': recent_comment.author.avatar.url if recent_comment.author.avatar else None,
+                    'created_at': recent_comment.created_at.strftime('%d/%m/%Y %H:%M'),
+                    'likes_count': recent_comment.likes_count,
+                    'parent': parent_data,
+                    'post_id': post_id,
+                    'is_duplicate': True
+                }
+                
+                return Response({'comment': comment_data, 'message': 'Duplicate content detected'})
+        
+        # Đánh dấu nội dung comment này đã được xử lý
+        cache.set(cache_key, True, 30)  # Lưu 30 giây
         
         post = Post.objects.get(id=post_id)
         
         if post.disable_comments:
             return Response({'error': 'Comments are disabled for this post'}, status=status.HTTP_400_BAD_REQUEST)
         
-        # Kiểm tra bình luận trùng lặp
-        # Tìm bình luận gần nhất của người dùng trong bài viết
-        recent_comment = Comment.objects.filter(
+        # Kiểm tra bình luận trùng lặp trong database
+        # Lấy bình luận gần đây nhất của người dùng trong bài viết này
+        recent_comments = Comment.objects.filter(
             post=post,
             author=request.user,
             text=text,
             parent_id=parent_id
-        ).order_by('-created_at').first()
+        ).order_by('-created_at')
         
-        # Nếu đã có bình luận giống hệt được tạo trong 5 giây qua, không tạo mới
-        if recent_comment and (timezone.now() - recent_comment.created_at).total_seconds() < 5:
-            # Lấy parent data nếu có
-            parent_data = None
-            if recent_comment.parent:
-                parent_data = {
-                    'id': recent_comment.parent.id,
-                    'author_username': recent_comment.parent.author.username
+        # Nếu đã có bình luận giống hệt trong vòng 30 giây qua, không tạo mới
+        if recent_comments.exists():
+            recent_comment = recent_comments.first()
+            time_diff = (timezone.now() - recent_comment.created_at).total_seconds()
+            
+            if time_diff < 30:  # Kiểm tra 30 giây gần nhất
+                print(f"Detected duplicate comment within {time_diff} seconds")
+                # Lấy parent data nếu có
+                parent_data = None
+                if recent_comment.parent:
+                    parent_data = {
+                        'id': recent_comment.parent.id,
+                        'author_username': recent_comment.parent.author.username
+                    }
+                    
+                # Trả về bình luận hiện có thay vì tạo mới
+                comment_data = {
+                    'id': recent_comment.id,
+                    'text': recent_comment.text,
+                    'author_id': recent_comment.author.id,
+                    'author_username': recent_comment.author.username,
+                    'author_avatar': recent_comment.author.avatar.url if recent_comment.author.avatar else None,
+                    'created_at': recent_comment.created_at.strftime('%d/%m/%Y %H:%M'),
+                    'likes_count': recent_comment.likes_count,
+                    'parent': parent_data,
+                    'post_id': post_id,
+                    'is_duplicate': True  # Đánh dấu là bình luận trùng lặp
                 }
                 
-            # Trả về bình luận hiện có thay vì tạo mới
-            comment_data = {
-                'id': recent_comment.id,
-                'text': recent_comment.text,
-                'author_id': recent_comment.author.id,
-                'author_username': recent_comment.author.username,
-                'author_avatar': recent_comment.author.avatar.url if recent_comment.author.avatar else None,
-                'created_at': recent_comment.created_at.strftime('%d/%m/%Y %H:%M'),
-                'likes_count': recent_comment.likes_count,
-                'parent': parent_data,
-                'post_id': post_id
-            }
-            
-            return Response({'comment': comment_data})
+                return Response({'comment': comment_data})
         
         # Create the comment
         comment = Comment.objects.create(
@@ -267,25 +385,58 @@ def add_comment(request):
             except Comment.DoesNotExist:
                 pass
         
-        # Return comment data
+        # Trả về dữ liệu comment
         comment_data = {
             'id': comment.id,
             'text': comment.text,
-            'author_id': comment.author.id,
-            'author_username': comment.author.username,
-            'author_avatar': comment.author.avatar.url if comment.author.avatar else None,
+            'author_id': request.user.id,
+            'author_username': request.user.username,
+            'author_avatar': request.user.avatar.url if request.user.avatar else None,
             'created_at': comment.created_at.strftime('%d/%m/%Y %H:%M'),
             'likes_count': 0,
             'parent': parent_data,
-            'post_id': post_id
+            'post_id': post_id,
+            'is_duplicate': False
         }
         
-        return Response({'comment': comment_data})
+        # Tạo thông báo nếu là reply
+        if parent_id:
+            try:
+                parent_comment = Comment.objects.get(id=parent_id)
+                
+                # Nếu author của comment gốc không phải current user
+                if parent_comment.author != request.user:
+                    Notification.objects.create(
+                        recipient=parent_comment.author,
+                        sender=request.user,
+                        notification_type='comment_reply',
+                        text=f"{request.user.username} đã trả lời bình luận của bạn",
+                        post=post,
+                        comment=comment
+                    )
+            except Comment.DoesNotExist:
+                pass
+        # Nếu không phải reply, tạo thông báo cho author của post
+        elif post.author != request.user:
+            Notification.objects.create(
+                recipient=post.author,
+                sender=request.user,
+                notification_type='comment',
+                text=f"{request.user.username} đã bình luận về bài viết của bạn",
+                post=post,
+                comment=comment
+            )
         
-    except Post.DoesNotExist:
-        return Response({'error': 'Post not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({
+            'comment': comment_data
+        })
     except Exception as e:
-        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        print(f"Error in add_comment: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return Response({
+            'error': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['POST', 'DELETE'])
 @permission_classes([IsAuthenticated])
@@ -345,4 +496,141 @@ def like_comment(request, pk):
     except Comment.DoesNotExist:
         return Response({'error': 'Không tìm thấy bình luận'}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
-        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST) 
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def edit_post(request, post_id):
+    """API endpoint để chỉnh sửa bài viết"""
+    try:
+        post = Post.objects.get(pk=post_id)
+    except Post.DoesNotExist:
+        return Response({'status': 'error', 'message': 'Không tìm thấy bài viết'}, status=status.HTTP_404_NOT_FOUND)
+    
+    # Kiểm tra quyền sở hữu
+    if post.author != request.user:
+        return Response({'status': 'error', 'message': 'Bạn không có quyền chỉnh sửa bài viết này'}, 
+                        status=status.HTTP_403_FORBIDDEN)
+    
+    try:
+        # Cập nhật thông tin cơ bản của bài viết
+        if 'caption' in request.data:
+            post.caption = request.data['caption']
+        
+        if 'location' in request.data:
+            post.location = request.data['location']
+        
+        if 'disable_comments' in request.data:
+            post.disable_comments = request.data['disable_comments'] == 'true'
+        
+        if 'hide_likes' in request.data:
+            post.hide_likes = request.data['hide_likes'] == 'true'
+        
+        # Lưu thay đổi
+        post.save()
+        
+        # Xử lý xóa phương tiện
+        if 'deleted_media' in request.data:
+            deleted_media_ids = json.loads(request.data['deleted_media'])
+            if deleted_media_ids:
+                PostMedia.objects.filter(id__in=deleted_media_ids, post=post).delete()
+        
+        # Xử lý thêm phương tiện mới
+        if 'new_media' in request.FILES:
+            new_media_files = request.FILES.getlist('new_media')
+            for index, file in enumerate(new_media_files):
+                # Kiểm tra kích thước file
+                if file.size > settings.MAX_UPLOAD_SIZE:
+                    return Response({
+                        'status': 'error',
+                        'message': f'Kích thước file không được vượt quá {settings.MAX_UPLOAD_SIZE/1024/1024:.2f}MB'
+                    }, status=status.HTTP_400_BAD_REQUEST)
+                
+                # Xác định loại media
+                media_type = 'video' if file.content_type.startswith('video') else 'image'
+                
+                # Tính order là index cuối cùng hiện tại + index mới
+                last_order = PostMedia.objects.filter(post=post).count()
+                
+                # Tạo media object mới
+                PostMedia.objects.create(
+                    post=post,
+                    file=file,
+                    media_type=media_type,
+                    order=last_order + index
+                )
+        
+        # Xử lý hashtags
+        if 'caption' in request.data:
+            # Xóa tất cả hashtag cũ
+            post.hashtags.clear()
+            
+            # Tìm và thêm hashtags mới
+            hashtags = [word[1:] for word in post.caption.split() if word.startswith('#')]
+            for tag_name in hashtags:
+                hashtag, _ = Hashtag.objects.get_or_create(name=tag_name)
+                hashtag.posts.add(post)
+        
+        return Response({
+            'status': 'success',
+            'message': 'Đã cập nhật bài viết thành công',
+            'post': {
+                'id': post.id,
+                'caption': post.caption,
+                'location': post.location,
+                'disable_comments': post.disable_comments,
+                'hide_likes': post.hide_likes
+            }
+        })
+    
+    except Exception as e:
+        return Response({
+            'status': 'error',
+            'message': f'Có lỗi xảy ra: {str(e)}'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def delete_post(request, post_id):
+    """API endpoint để xóa bài viết"""
+    try:
+        post = Post.objects.get(pk=post_id)
+    except Post.DoesNotExist:
+        return Response({'status': 'error', 'message': 'Không tìm thấy bài viết'}, 
+                        status=status.HTTP_404_NOT_FOUND)
+    
+    # Kiểm tra quyền sở hữu
+    if post.author != request.user:
+        return Response({'status': 'error', 'message': 'Bạn không có quyền xóa bài viết này'}, 
+                        status=status.HTTP_403_FORBIDDEN)
+    
+    try:
+        # Xóa các đối tượng liên quan trước
+        # 1. Xóa media
+        post.post_media.all().delete()
+        
+        # 2. Xóa comments
+        post.comments.all().delete()
+        
+        # 3. Xóa likes
+        post.post_likes.all().delete()
+        
+        # 4. Xóa saved posts
+        post.saved_by.all().delete()
+        
+        # 5. Xóa hashtags
+        post.hashtags.clear()
+        
+        # Cuối cùng xóa bài viết
+        post.delete()
+        
+        return Response({
+            'status': 'success',
+            'message': 'Đã xóa bài viết thành công'
+        })
+    
+    except Exception as e:
+        return Response({
+            'status': 'error',
+            'message': f'Có lỗi xảy ra: {str(e)}'
+        }, status=status.HTTP_400_BAD_REQUEST) 

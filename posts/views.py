@@ -4,6 +4,7 @@ from django.http import JsonResponse, HttpResponseRedirect
 from django.db.models import Count, Q
 from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator, EmptyPage
+from django.views.decorators.http import require_POST
 from .models import Post, Comment, Like, SavedPost, Hashtag, Media, Mention, PostReport, PostMedia, CommentLike, Notification
 from django.conf import settings
 from django.urls import reverse
@@ -13,12 +14,19 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 import logging
 import traceback
+from accounts.models import UserBlock
+from django.contrib.contenttypes.models import ContentType
+import re
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
 
 @login_required
 def home(request):
+    # Nếu người dùng chưa đăng nhập, chuyển hướng đến trang đăng nhập
+    if not request.user.is_authenticated:
+        return redirect('account_login')
+        
     logger.info(f"Bắt đầu xử lý trang chủ")
     logger.info(f"Người dùng: {request.user}")
     logger.info(f"Người dùng đã xác thực: {request.user.is_authenticated}")
@@ -26,6 +34,12 @@ def home(request):
     # Lấy tất cả bài viết, sắp xếp theo thời gian tạo mới nhất
     posts = Post.objects.all().order_by('-created_at')
     logger.info(f"Tổng số bài viết ban đầu: {posts.count()}")
+    
+    # Lấy danh sách người đã chặn người dùng hiện tại
+    blocked_by_users = UserBlock.objects.filter(blocked=request.user).values_list('blocker_id', flat=True)
+    
+    # Loại bỏ bài viết từ những người đã chặn người dùng hiện tại
+    posts = posts.exclude(author_id__in=blocked_by_users)
     
     # Nếu người dùng đã xác thực
     if request.user.is_authenticated:
@@ -100,6 +114,12 @@ def home(request):
 def feed(request):
     # Lấy tất cả bài viết, sắp xếp theo thời gian tạo mới nhất
     posts = Post.objects.all().order_by('-created_at')
+    
+    # Lấy danh sách người đã chặn người dùng hiện tại
+    blocked_by_users = UserBlock.objects.filter(blocked=request.user).values_list('blocker_id', flat=True)
+    
+    # Loại bỏ bài viết từ những người đã chặn người dùng hiện tại
+    posts = posts.exclude(author_id__in=blocked_by_users)
     
     # Nếu người dùng đã xác thực
     if request.user.is_authenticated:
@@ -177,6 +197,11 @@ def feed(request):
 def post_detail(request, post_id):
     """Hiển thị chi tiết bài viết"""
     post = get_object_or_404(Post, id=post_id)
+    
+    # Kiểm tra xem tác giả bài viết có chặn người dùng hiện tại không
+    if UserBlock.objects.filter(blocker=post.author, blocked=request.user).exists():
+        messages.error(request, 'Bạn không thể xem bài viết này vì tác giả đã chặn bạn.')
+        return redirect('posts:feed')
     
     # Lấy tất cả comments của bài viết và phân loại
     root_comments = Comment.objects.filter(post=post, parent=None).order_by('created_at')
@@ -425,33 +450,52 @@ def delete_post(request, post_id):
         return JsonResponse({'status': 'error', 'message': f'Có lỗi xảy ra khi xóa bài viết: {str(e)}'}, status=500)
 
 @login_required
+@require_POST
 def like_post(request, post_id):
-    if request.method != 'POST':
-        return JsonResponse({'error': 'Method not allowed'}, status=405)
-    
-    post = get_object_or_404(Post, id=post_id)
-    
-    # Kiểm tra xem người dùng đã thích bài viết chưa
-    like, created = Like.objects.get_or_create(
-        user=request.user,
-        post=post
-    )
-    
-    if not created:
-        # Nếu đã thích, xóa like
-        like.delete()
-        status = 'unliked'
-    else:
-        status = 'liked'
-    
-    # Cập nhật số lượng like
-    post.likes_count = post.post_likes.count()
-    post.save()
-    
-    return JsonResponse({
-        'status': status,
-        'likes_count': post.likes_count
-    })
+    """Thích hoặc bỏ thích bài viết"""
+    try:
+        post = get_object_or_404(Post, id=post_id)
+        
+        # Kiểm tra xem người dùng có bị chặn không
+        if UserBlock.objects.filter(blocker=post.author, blocked=request.user).exists():
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Bạn không thể thích bài viết này.'
+            })
+            
+        if post.likes.filter(id=request.user.id).exists():
+            # Nếu người dùng đã thích, bỏ thích
+            post.likes.remove(request.user)
+            liked = False
+        else:
+            # Nếu người dùng chưa thích, thêm thích
+            post.likes.add(request.user)
+            liked = True
+            
+            # Gửi thông báo cho người viết bài nếu không phải chính họ
+            if post.author != request.user:
+                Notification.objects.create(
+                    recipient=post.author,
+                    sender=request.user,
+                    content_type=ContentType.objects.get_for_model(Post),
+                    object_id=post.id,
+                    notification_type='like',
+                    text=f"{request.user.username} đã thích bài viết của bạn."
+                )
+        
+        # Trả về số lượt thích mới
+        likes_count = post.likes.count()
+        
+        return JsonResponse({
+            'status': 'success',
+            'liked': liked,
+            'likes_count': likes_count
+        })
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        })
 
 @login_required
 def save_post(request, post_id):
@@ -473,120 +517,105 @@ def save_post(request, post_id):
     return JsonResponse({'status': action})
 
 @login_required
+@require_POST
 def add_comment(request, post_id):
-    """Thêm bình luận mới cho bài viết"""
-    if request.method != 'POST':
-        return JsonResponse({'error': 'Method not allowed'}, status=405)
-    
+    """Thêm bình luận mới"""
     post = get_object_or_404(Post, id=post_id)
     
-    if post.disable_comments:
-        return JsonResponse(
-            {'error': 'Comments are disabled for this post'},
-            status=400
-        )
-    
-    text = request.POST.get('text')
-    reply_to = request.POST.get('reply_to')  # Username của người được trả lời
-    
-    if not text:
-        return JsonResponse(
-            {'error': 'Comment text is required'},
-            status=400
-        )
-    
-    # Kiểm tra bình luận trùng lặp
-    # Tìm bình luận gần nhất của người dùng trong bài viết
-    recent_comment = Comment.objects.filter(
-        post=post,
-        author=request.user,
-        text=text
-    ).order_by('-created_at').first()
-    
-    # Nếu đã có bình luận giống hệt được tạo trong 5 giây qua, không tạo mới
-    if recent_comment and (timezone.now() - recent_comment.created_at).total_seconds() < 5:
-        # Trả về bình luận hiện có thay vì tạo mới
-        response_data = {
-            'id': recent_comment.id,
-            'text': recent_comment.text,
-            'author': {
-                'id': recent_comment.author.id,
-                'username': recent_comment.author.username,
-                'avatar': recent_comment.author.avatar.url if recent_comment.author.avatar else None
-            },
-            'created_at': recent_comment.created_at.isoformat(),
-            'is_reply': recent_comment.parent_id is not None
-        }
+    # Kiểm tra xem người dùng có bị chặn không
+    if UserBlock.objects.filter(blocker=post.author, blocked=request.user).exists():
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Bạn không thể bình luận vào bài viết này.'
+        })
         
-        # Thêm thông tin về parent nếu có
-        if recent_comment.parent:
-            response_data['parent'] = {
-                'id': recent_comment.parent.id,
-                'author': {
-                    'username': recent_comment.parent.author.username
-                }
-            }
-        
-        return JsonResponse(response_data)
+    parent_id = request.POST.get('parent_id')
+    content = request.POST.get('content', '').strip()
     
-    # Xác định parent_id nếu đây là phản hồi cho một bình luận
-    parent_id = None
+    if not content:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Nội dung bình luận không được để trống.'
+        })
+    
+    # Xử lý parent_id
     parent = None
-    if reply_to:
+    if parent_id:
         try:
-            # Tìm bình luận gần nhất của người dùng này trong bài viết
-            parent = Comment.objects.filter(
-                post=post,
-                author__username=reply_to
-            ).latest('created_at')
-            parent_id = parent.id
+            parent = Comment.objects.get(id=parent_id, post=post)
         except Comment.DoesNotExist:
-            pass
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Bình luận mẹ không tồn tại.'
+            })
     
+    # Tạo comment mới
     comment = Comment.objects.create(
         post=post,
         author=request.user,
-        text=text,
-        parent_id=parent_id
+        text=content,
+        parent=parent
     )
     
-    # Cập nhật số lượng comment
-    post.comments_count = post.comments.count()
-    post.save()
+    # Gửi thông báo
+    if parent:
+        # Thông báo trả lời comment
+        if parent.author != request.user:
+            Notification.objects.create(
+                recipient=parent.author,
+                sender=request.user,
+                content_type=ContentType.objects.get_for_model(Comment),
+                object_id=comment.id,
+                notification_type='reply',
+                text=f"{request.user.username} đã trả lời bình luận của bạn."
+            )
+    else:
+        # Thông báo bình luận bài viết
+        if post.author != request.user:
+            Notification.objects.create(
+                recipient=post.author,
+                sender=request.user,
+                content_type=ContentType.objects.get_for_model(Comment),
+                object_id=comment.id,
+                notification_type='comment',
+                text=f"{request.user.username} đã bình luận về bài viết của bạn."
+            )
     
-    # Thông báo cho người được trả lời
-    if parent and parent.author != request.user:
-        Notification.objects.get_or_create(
-            recipient=parent.author,
-            sender=request.user,
-            verb="đã trả lời bình luận của",
-            content_object=comment,
-            action_object=comment
-        )
-    
+    # Xử lý mentions
+    mentions = re.findall(r'@(\w+)', content)
+    for username in mentions:
+        try:
+            mentioned_user = User.objects.get(username=username)
+            # Không thông báo nếu là chính mình
+            if mentioned_user != request.user:
+                Notification.objects.create(
+                    recipient=mentioned_user,
+                    sender=request.user,
+                    content_type=ContentType.objects.get_for_model(Comment),
+                    object_id=comment.id,
+                    notification_type='mention',
+                    text=f"{request.user.username} đã nhắc đến bạn trong một bình luận."
+                )
+        except User.DoesNotExist:
+            pass
+            
     # Chuẩn bị dữ liệu trả về
-    response_data = {
+    data = {
         'id': comment.id,
         'text': comment.text,
         'author': {
-            'id': comment.author.id,
-            'username': comment.author.username,
-            'avatar': comment.author.avatar.url if comment.author.avatar else None
+            'id': request.user.id,
+            'username': request.user.username,
+            'avatar': request.user.get_avatar_url(),
         },
         'created_at': comment.created_at.isoformat(),
-        'is_reply': parent_id is not None
+        'parent_id': parent_id,
     }
     
-    # Thêm thông tin về parent nếu có
-    if parent:
-        response_data['parent'] = {
-            'id': parent.id,
-            'author': {
-                'username': parent.author.username
-            }
-        }
-    
-    return JsonResponse(response_data)
+    return JsonResponse({
+        'status': 'success',
+        'comment': data
+    })
 
 @login_required
 def delete_comment(request, post_id, comment_id):
@@ -759,6 +788,10 @@ def search(request):
     posts = Post.objects.filter(caption__icontains=query) | Post.objects.filter(hashtags__name__icontains=query)
     posts = posts.distinct().order_by('-created_at')
     
+    # Lọc bỏ bài viết của những người đã chặn người dùng hiện tại
+    blocked_by_users = UserBlock.objects.filter(blocked=request.user).values_list('blocker_id', flat=True)
+    posts = posts.exclude(author_id__in=blocked_by_users)
+    
     # Tìm kiếm người dùng theo username, first_name, last_name
     users = User.objects.filter(
         username__icontains=query
@@ -767,6 +800,10 @@ def search(request):
     ) | User.objects.filter(
         last_name__icontains=query
     )
+    
+    # Loại bỏ những người đã chặn người dùng hiện tại
+    users = users.exclude(id__in=blocked_by_users)
+    
     users = users.distinct()
     
     # Phân trang cho bài viết
@@ -796,6 +833,12 @@ def api_load_posts(request):
     
     # Lấy tất cả bài viết, sắp xếp theo thời gian tạo mới nhất
     posts = Post.objects.all().order_by('-created_at')
+    
+    # Lấy danh sách người đã chặn người dùng hiện tại
+    blocked_by_users = UserBlock.objects.filter(blocked=request.user).values_list('blocker_id', flat=True)
+    
+    # Loại bỏ bài viết từ những người đã chặn người dùng hiện tại
+    posts = posts.exclude(author_id__in=blocked_by_users)
     
     # Kiểm tra và xử lý avatar
     for post in posts:

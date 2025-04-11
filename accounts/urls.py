@@ -12,6 +12,10 @@ urlpatterns = [
     path('settings/setup-2fa/', views.setup_two_factor, name='setup_two_factor'),
     path('settings/verify-2fa/', views.verify_two_factor, name='verify_two_factor'),
     
+    # Block/Unblock URLs
+    path('block/<int:user_id>/', views.block_user, name='block_user'),
+    path('unblock/<int:user_id>/', views.unblock_user, name='unblock_user'),
+    
     # API URLs
     path('suggestions/', views.get_suggestions, name='get_suggestions'),
     path('api/<str:username>/posts/', views.api_load_profile_posts, name='api_load_profile_posts'),

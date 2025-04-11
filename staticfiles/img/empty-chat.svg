@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e9f2ff" />
+      <stop offset="100%" stop-color="#c5d8ff" />
+    </linearGradient>
+    <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d6efd" />
+      <stop offset="100%" stop-color="#0a58ca" />
+    </linearGradient>
+  </defs>
+  <circle cx="256" cy="256" r="200" fill="url(#gradient1)" opacity="0.7" />
+  <g transform="translate(100, 120)">
+    <!-- Hộp thoại trò chuyện -->
+    <rect x="20" y="40" width="280" height="200" rx="15" ry="15" fill="white" stroke="#ddd" stroke-width="2" />
+    
+    <!-- Đầu hộp thoại -->
+    <rect x="20" y="40" width="280" height="40" rx="15" ry="15" fill="#f8f9fa" stroke="#ddd" stroke-width="2" />
+    
+    <!-- Tiêu đề -->
+    <circle cx="50" cy="60" r="10" fill="#0d6efd" />
+    <rect x="70" y="55" width="80" height="10" rx="5" ry="5" fill="#adb5bd" />
+    
+    <!-- Nội dung trống -->
+    <rect x="40" y="100" width="240" height="10" rx="5" ry="5" fill="#e9ecef" />
+    <rect x="40" y="120" width="180" height="10" rx="5" ry="5" fill="#e9ecef" />
+    <rect x="40" y="140" width="220" height="10" rx="5" ry="5" fill="#e9ecef" />
+    <rect x="40" y="160" width="200" height="10" rx="5" ry="5" fill="#e9ecef" />
+    
+    <!-- Biểu tượng tin nhắn -->
+    <circle cx="150" cy="210" r="20" fill="url(#gradient2)" />
+    <path d="M145 210 L155 210 M150 205 L150 215" stroke="white" stroke-width="3" stroke-linecap="round" />
+  </g>
+  
+  <!-- Biểu tượng tin nhắn bay -->
+  <g transform="translate(256, 150)">
+    <path d="M0 0 L40 -20 L30 0 L40 20 Z" fill="url(#gradient2)" />
+  </g>
+  
+  <!-- Đường tròn trang trí -->
+  <circle cx="150" cy="150" r="10" fill="#0d6efd" opacity="0.3" />
+  <circle cx="380" cy="200" r="15" fill="#0d6efd" opacity="0.3" />
+  <circle cx="200" cy="350" r="12" fill="#0d6efd" opacity="0.3" />
+  <circle cx="320" cy="380" r="8" fill="#0d6efd" opacity="0.3" />
+</svg> 
