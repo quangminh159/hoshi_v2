@@ -607,7 +607,7 @@ def delete_post(request, post_id):
     try:
         # Xóa các đối tượng liên quan trước
         # 1. Xóa media
-        post.post_media.all().delete()
+        post.media.all().delete()
         
         # 2. Xóa comments
         post.comments.all().delete()

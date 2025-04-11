@@ -9,29 +9,99 @@
 <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
 <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
 <link href="https://unpkg.com/filepond-plugin-file-poster/dist/filepond-plugin-file-poster.css" rel="stylesheet">
+<link href="https://unpkg.com/filepond-plugin-media-preview/dist/filepond-plugin-media-preview.css" rel="stylesheet">
 <style>
+    .filepond--root {
+        max-height: none;
+    }
+    .filepond--panel-root {
+        background-color: #f8f9fa;
+        border: 2px dashed #dee2e6;
+    }
+    .filepond--item {
+        margin-bottom: 8px;
+    }
     .location-suggestions {
         position: absolute;
         top: 100%;
         left: 0;
         right: 0;
+        z-index: 1000;
         background: white;
-        border: 1px solid #ddd;
+        border: 1px solid #dee2e6;
         border-radius: 0.25rem;
         max-height: 200px;
         overflow-y: auto;
-        z-index: 1000;
     }
-    
     .location-suggestion {
         padding: 0.5rem 1rem;
         cursor: pointer;
     }
-    
     .location-suggestion:hover {
         background-color: #f8f9fa;
     }
-    
+    .media-type-selector {
+        display: flex;
+        margin-bottom: 1rem;
+        border-bottom: 1px solid #dee2e6;
+    }
+    .media-type-selector .type-btn {
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        border: none;
+        background: none;
+        font-weight: 500;
+        position: relative;
+    }
+    .media-type-selector .type-btn.active {
+        color: #0d6efd;
+    }
+    .media-type-selector .type-btn.active::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background-color: #0d6efd;
+    }
+    .media-previews {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 10px;
+        margin-top: 15px;
+    }
+    .media-preview-item {
+        position: relative;
+        border-radius: 8px;
+        overflow: hidden;
+        aspect-ratio: 1;
+    }
+    .media-preview-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .media-preview-item video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .remove-media {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: rgba(0,0,0,0.5);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
     .mention-suggestions {
         position: absolute;
         background: white;
@@ -41,7 +111,6 @@
         overflow-y: auto;
         z-index: 1000;
     }
-    
     .mention-suggestion {
         padding: 0.5rem 1rem;
         cursor: pointer;
@@ -49,11 +118,9 @@
         align-items: center;
         gap: 0.5rem;
     }
-    
     .mention-suggestion:hover {
         background-color: #f8f9fa;
     }
-    
     .mention-suggestion img {
         width: 32px;
         height: 32px;
@@ -65,87 +132,70 @@
 {% block content %}
 <div class="container py-4">
     <div class="row justify-content-center">
-        <div class="col-md-6">
+        <div class="col-md-8">
             <div class="card">
                 <div class="card-header">
-                    <h4 class="mb-0">Chỉnh sửa bài viết</h4>
+                    <h5 class="card-title mb-0">Chỉnh sửa bài viết</h5>
                 </div>
                 <div class="card-body">
-                    <form action="{% url 'posts:edit' post.id %}" method="post" enctype="multipart/form-data">
+                    <form action="{% url 'posts:edit' post.id %}" method="post" enctype="multipart/form-data" id="postForm">
                         {% csrf_token %}
+                        
+                        <!-- Media Type Selector -->
+                        <div class="media-type-selector">
+                            <button type="button" class="type-btn active" data-type="all">Tất cả</button>
+                            <button type="button" class="type-btn" data-type="image">Ảnh</button>
+                            <button type="button" class="type-btn" data-type="video">Video</button>
+                        </div>
+                        
+                        <!-- Media Upload -->
+                        <div class="mb-3">
+                            <input type="file" 
+                                   id="media" 
+                                   name="media" 
+                                   class="filepond"
+                                   multiple
+                                   data-allow-reorder="true">
+                            <div class="form-text mt-1">
+                                Kích thước tối đa: 1GB cho mỗi file. Định dạng: JPEG, PNG, GIF, MP4, MOV, MKV.
+                            </div>
+                        </div>
+                        
+                        <!-- Media Previews -->
+                        <div class="media-previews mb-3">
+                            <!-- Previews will be added here -->
+                        </div>
                         
                         <!-- Caption -->
                         <div class="mb-3">
-                            <label for="caption" class="form-label">Nội dung bài viết</label>
-                            <textarea 
-                                name="caption" 
-                                id="caption" 
-                                class="form-control" 
-                                rows="4"
-                                placeholder="Nhập nội dung bài viết..."
-                            >{{ post.caption }}</textarea>
+                            <label for="caption" class="form-label">Nội dung</label>
+                            <textarea id="caption" 
+                                      name="caption" 
+                                      class="form-control" 
+                                      rows="3" 
+                                      placeholder="Viết gì đó...">{{ post.caption }}</textarea>
+                            <div class="form-text">
+                                Sử dụng # để thêm hashtag và @ để gắn thẻ người dùng khác
+                            </div>
                         </div>
                         
                         <!-- Location -->
                         <div class="mb-3">
                             <label for="location" class="form-label">Địa điểm</label>
-                            <input 
-                                type="text" 
-                                name="location" 
-                                id="location" 
-                                class="form-control" 
-                                value="{{ post.location }}"
-                                placeholder="Nhập địa điểm (tùy chọn)"
-                            >
+                            <input type="text" 
+                                   id="location" 
+                                   name="location" 
+                                   class="form-control" 
+                                   value="{{ post.location }}"
+                                   placeholder="Thêm địa điểm">
                         </div>
                         
-                        <!-- Media -->
-                        <div class="mb-3">
-                            <label for="mediaFiles" class="form-label">Ảnh/Video</label>
-                            <div class="input-group">
-                                <input 
-                                    type="file" 
-                                    class="form-control" 
-                                    id="mediaFiles" 
-                                    name="media" 
-                                    multiple 
-                                    accept="image/*,video/*"
-                                    onchange="displayFileNames(this)"
-                                >
-                            </div>
-                            <small id="selectedFiles" class="text-muted"></small>
-                            
-                            <!-- Hiển thị media hiện tại -->
-                            {% if media_files %}
-                            <div class="mt-2">
-                                <p class="text-muted">Ảnh/Video hiện tại:</p>
-                                <div class="d-flex flex-wrap">
-                                    {% for media in media_files %}
-                                    <div class="me-2 mb-2 position-relative">
-                                        {% if media.media_type == 'image' %}
-                                        <img src="{{ media.file.url }}" 
-                                             class="img-thumbnail" 
-                                             style="max-width: 100px; max-height: 100px; object-fit: cover;"
-                                             alt="Media">
-                                        {% else %}
-                                        <video 
-                                            class="img-thumbnail" 
-                                            style="max-width: 100px; max-height: 100px; object-fit: cover;"
-                                        >
-                                            <source src="{{ media.file.url }}" type="video/mp4">
-                                        </video>
-                                        {% endif %}
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            {% endif %}
-                        </div>
-                        
-                        <!-- Nút submit -->
+                        <!-- Submit Button -->
                         <div class="d-flex justify-content-between">
                             <a href="{% url 'posts:post_detail' post.id %}" class="btn btn-secondary">Hủy</a>
-                            <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Lưu thay đổi
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -155,11 +205,245 @@
 </div>
 {% endblock %}
 
-{% block scripts %}
+{% block extra_js %}
+<!-- FilePond and its plugins -->
+<script src="https://unpkg.com/filepond-plugin-file-encode/dist/filepond-plugin-file-encode.js"></script>
+<!-- Loại bỏ plugin validate size -->
+<!-- <script src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.js"></script> -->
+<script src="https://unpkg.com/filepond-plugin-image-exif-orientation/dist/filepond-plugin-image-exif-orientation.js"></script>
+<script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
+<script src="https://unpkg.com/filepond-plugin-file-poster/dist/filepond-plugin-file-poster.js"></script>
+<script src="https://unpkg.com/filepond-plugin-media-preview/dist/filepond-plugin-media-preview.js"></script>
+<script src="https://unpkg.com/filepond/dist/filepond.js"></script>
+
 <script>
-    function displayFileNames(input) {
-        const fileNames = Array.from(input.files).map(file => file.name).join(', ');
-        document.getElementById('selectedFiles').textContent = fileNames;
+document.addEventListener('DOMContentLoaded', function() {
+    // Register FilePond plugins (bỏ plugin FileValidateSize)
+    FilePond.registerPlugin(
+        FilePondPluginFileEncode,
+        // FilePondPluginFileValidateSize,
+        FilePondPluginImageExifOrientation,
+        FilePondPluginImagePreview,
+        FilePondPluginFilePoster,
+        FilePondPluginMediaPreview
+    );
+    
+    // Set allowed file types based on selected media type
+    let acceptedFileTypes = ['image/png', 'image/jpeg', 'image/gif', 'video/mp4', 'video/quicktime', 'video/x-matroska'];
+    
+    // Set up FilePond
+    const pond = FilePond.create(document.querySelector('input.filepond'), {
+        allowMultiple: true,
+        allowReorder: true,
+        maxFiles: 10,
+        acceptedFileTypes: acceptedFileTypes,
+        labelIdle: 'Kéo & thả ảnh hoặc video của bạn ở đây hoặc <span class="filepond--label-action">Tìm</span>',
+        labelFileTypeNotAllowed: 'Loại file không được hỗ trợ',
+        fileValidateTypeLabelExpectedTypes: 'Chỉ chấp nhận ảnh và video',
+        stylePanelLayout: 'compact',
+        styleItemPanelAspectRatio: 1,
+        imageCropAspectRatio: '1:1',
+        onaddfile: (error, file) => {
+            if (error) {
+                console.error('Error adding file:', error);
+                return;
+            }
+            updateMediaPreviews();
+        },
+        onremovefile: () => {
+            updateMediaPreviews();
+        },
+        onreorderfiles: () => {
+            updateMediaPreviews();
+        }
+    });
+    
+    // Hiển thị media hiện có
+    loadExistingMedia();
+    
+    // Media type selector handlers
+    const typeButtons = document.querySelectorAll('.type-btn');
+    typeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Remove active class from all buttons
+            typeButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            // Handle file type filtering
+            const type = this.getAttribute('data-type');
+            
+            if (type === 'image') {
+                pond.acceptedFileTypes = ['image/png', 'image/jpeg', 'image/gif'];
+            } else if (type === 'video') {
+                pond.acceptedFileTypes = ['video/mp4', 'video/quicktime', 'video/x-matroska'];
+            } else {
+                pond.acceptedFileTypes = acceptedFileTypes;
+            }
+        });
+    });
+    
+    // Function to load existing media files
+    function loadExistingMedia() {
+        const previewContainer = document.querySelector('.media-previews');
+        previewContainer.innerHTML = '';
+        
+        {% for media in post.media.all %}
+        const previewItem = document.createElement('div');
+        previewItem.className = 'media-preview-item';
+        
+        {% if media.media_type == 'image' %}
+        previewItem.innerHTML = `
+            <img src="{{ media.file.url }}" alt="Existing image">
+            <button class="remove-media" data-id="{{ media.id }}">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        {% else %}
+        previewItem.innerHTML = `
+            <video src="{{ media.file.url }}" muted>
+                Your browser does not support video.
+            </video>
+            <div class="video-indicator">
+                <i class="fas fa-play-circle"></i>
+            </div>
+            <button class="remove-media" data-id="{{ media.id }}">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        {% endif %}
+        
+        previewContainer.appendChild(previewItem);
+        {% endfor %}
     }
+    
+    // Function to update media previews
+    function updateMediaPreviews() {
+        const previewContainer = document.querySelector('.media-previews');
+        
+        // Clear all new file previews
+        const newPreviews = Array.from(previewContainer.querySelectorAll('.new-media-preview'));
+        newPreviews.forEach(preview => preview.remove());
+        
+        if (!pond.getFiles().length) return;
+        
+        pond.getFiles().forEach((fileItem, index) => {
+            const file = fileItem.file;
+            if (!file) return;
+            
+            const preview = document.createElement('div');
+            preview.className = 'media-preview-item new-media-preview';
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'remove-media';
+            removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+            removeBtn.addEventListener('click', () => {
+                pond.removeFile(fileItem);
+            });
+            
+            if (file.type.startsWith('image/')) {
+                // For images
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                    preview.appendChild(removeBtn);
+                };
+                reader.readAsDataURL(file);
+            } else if (file.type.startsWith('video/')) {
+                // For videos
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `
+                        <video src="${e.target.result}" muted>
+                            Your browser does not support the video tag.
+                        </video>
+                        <div class="video-indicator">
+                            <i class="fas fa-play-circle"></i>
+                        </div>
+                    `;
+                    preview.appendChild(removeBtn);
+                };
+                reader.readAsDataURL(file);
+            }
+            
+            previewContainer.appendChild(preview);
+        });
+    }
+    
+    // Handle hashtags and mentions in caption
+    const captionInput = document.getElementById('caption');
+    captionInput.addEventListener('input', function() {
+        const text = this.value;
+        const lastWord = text.split(' ').pop();
+        
+        if (lastWord.startsWith('#')) {
+            // TODO: Show hashtag suggestions
+        } else if (lastWord.startsWith('@')) {
+            // TODO: Show user suggestions
+        }
+    });
+    
+    // Form submission handler
+    document.getElementById('postForm').addEventListener('submit', function(e) {
+        // Kiểm tra kích thước file (tối đa 1GB)
+        const MAX_FILE_SIZE = 1 * 1024 * 1024 * 1024; // 1GB
+        const oversizedFiles = [];
+        
+        for (let i = 0; i < pond.getFiles().length; i++) {
+            const file = pond.getFiles()[i].file;
+            if (file && file.size > MAX_FILE_SIZE) {
+                oversizedFiles.push(file.name);
+            }
+        }
+        
+        if (oversizedFiles.length > 0) {
+            e.preventDefault();
+            alert(`Các file sau vượt quá kích thước cho phép (1GB): ${oversizedFiles.join(', ')}`);
+            return;
+        }
+        
+        // Convert FilePond files to FormData
+        e.preventDefault();
+        
+        // Lấy form data
+        const formData = new FormData(this);
+        
+        // Thêm files từ FilePond vào formData
+        if (pond.getFiles().length > 0) {
+            pond.getFiles().forEach((fileItem, i) => {
+                if (fileItem.file) {
+                    formData.append('media', fileItem.file);
+                }
+            });
+        }
+        
+        // Gửi form bằng fetch API
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => {
+            if (response.redirected) {
+                window.location.href = response.url;
+            } else {
+                return response.json();
+            }
+        })
+        .then(data => {
+            if (data && data.error) {
+                alert(data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            window.location.href = '{% url "posts:post_detail" post.id %}';
+        });
+    });
+});
 </script>
 {% endblock %} 

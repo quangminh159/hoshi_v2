@@ -103,6 +103,18 @@ def home(request):
         logger.info(f"Following users: {list(following_users) if 'following_users' in locals() else 'None'}")
     logger.info(f"Total posts after filtering: {posts.count()}")
     
+    # Thêm debug để kiểm tra media
+    for post in page_obj:
+        logger.info(f"Post ID: {post.id} has {post.media.count()} media files")
+        for media in post.media.all():
+            logger.info(f"   - Media: {media.id}, Type: {media.media_type}, File: {media.file}")
+    
+    # Debug posts_with_data
+    logger.info("Debug - Post data structure:")
+    for post_data in posts_with_comments:
+        post = post_data['post']
+        logger.info(f"Post data - ID: {post.id}, Media count: {post.media.count()}")
+    
     # Kiểm tra điều kiện lọc bài viết
     context = {
         'posts_with_data': posts_with_comments,
@@ -139,9 +151,17 @@ def feed(request):
     # Nếu không có bài viết của người theo dõi, sử dụng tất cả bài viết
     logger.info(f"Total posts: {posts.count()}")
     
+    # Prefetch related data để tối ưu truy vấn
+    posts = posts.select_related('author').prefetch_related(
+        'media', 'comments', 'post_likes', 'saved_by'
+    )
+    
     # Log chi tiết về từng bài viết
     for post in posts[:10]:  # Log 10 bài viết đầu tiên
         logger.info(f"Post ID: {post.id}, Author: {post.author.username}, Created At: {post.created_at}")
+        logger.info(f"Media count: {post.media.count()}")
+        for media in post.media.all():
+            logger.info(f"Media: {media.id}, Type: {media.media_type}, URL: {media.file.url}")
     
     # Kiểm tra và xử lý avatar
     for post in posts:
@@ -166,7 +186,7 @@ def feed(request):
             comments_with_replies.append({
                 'comment': comment,
                 'replies': replies,
-                'replies_count': Comment.objects.filter(parent=comment).count()
+                'replies_count': replies.count()
             })
         
         posts_with_comments.append({
@@ -185,6 +205,18 @@ def feed(request):
     if request.user.is_authenticated:
         logger.info(f"Following users: {list(following_users) if 'following_users' in locals() else 'None'}")
     logger.info(f"Total posts after filtering: {posts.count()}")
+    
+    # Thêm debug để kiểm tra media
+    for post in page_obj:
+        logger.info(f"Post ID: {post.id} has {post.media.count()} media files")
+        for media in post.media.all():
+            logger.info(f"   - Media: {media.id}, Type: {media.media_type}, File: {media.file}")
+    
+    # Debug posts_with_data
+    logger.info("Debug - Post data structure:")
+    for post_data in posts_with_comments:
+        post = post_data['post']
+        logger.info(f"Post data - ID: {post.id}, Media count: {post.media.count()}")
     
     # Kiểm tra điều kiện lọc bài viết
     context = {
@@ -227,10 +259,34 @@ def post_detail(request, post_id):
 def create_post(request):
     if request.method == 'POST':
         try:
+            # Log request data for debugging
+            logger.info("POST request received with the following data:")
+            logger.info(f"Request POST: {request.POST}")
+            logger.info(f"Request FILES keys: {list(request.FILES.keys())}")
+            
             caption = request.POST.get('caption', '').strip()
             location = request.POST.get('location', '').strip()
-            media_files = request.FILES.getlist('media')
             
+            # Lấy các file media từ request
+            media_files = []
+            
+            # Kiểm tra các cách khác nhau mà files có thể được gửi đến
+            if 'media[]' in request.FILES:
+                media_files = request.FILES.getlist('media[]')
+                logger.info(f"Found {len(media_files)} files in media[]")
+            elif 'media' in request.FILES:
+                media_files = request.FILES.getlist('media')
+                logger.info(f"Found {len(media_files)} files in media")
+            else:
+                # Kiểm tra nếu không phải là multipart form
+                for key in request.FILES.keys():
+                    if key.startswith('media'):
+                        media_files = request.FILES.getlist(key)
+                        logger.info(f"Found {len(media_files)} files in {key}")
+                        break
+                else:
+                    logger.warning(f"No media files found. Available fields: {list(request.FILES.keys())}")
+                
             # Tạo post
             post = Post.objects.create(
                 author=request.user,
@@ -258,12 +314,13 @@ def create_post(request):
                         media_type = 'video' if file.content_type.startswith('video') else 'image'
                         
                         # Tạo media object
-                        PostMedia.objects.create(
+                        media = PostMedia.objects.create(
                             post=post,
                             file=file,
                             media_type=media_type,
                             order=index
                         )
+                        logger.info(f"Created media {media.id} for post {post.id}, type: {media_type}, file: {file.name}")
                     except Exception as e:
                         # Nếu có lỗi khi tạo media, xóa post và trả về lỗi
                         post.delete()
@@ -319,7 +376,15 @@ def edit_post(request, post_id):
             post.location = request.POST.get('location', '').strip()
             
             # Xử lý media mới (nếu có)
-            new_media_files = request.FILES.getlist('media')
+            new_media_files = []
+            
+            # Xử lý media từ FilePond
+            if 'media[]' in request.FILES:
+                new_media_files = request.FILES.getlist('media[]')
+            # Fallback cho trường hợp form thông thường
+            elif 'media' in request.FILES:
+                new_media_files = request.FILES.getlist('media')
+                
             if new_media_files:
                 # Xóa media cũ
                 PostMedia.objects.filter(post=post).delete()
@@ -339,12 +404,13 @@ def edit_post(request, post_id):
                     media_type = 'video' if file.content_type.startswith('video') else 'image'
                     
                     # Tạo media object
-                    PostMedia.objects.create(
+                    media = PostMedia.objects.create(
                         post=post,
                         file=file,
                         media_type=media_type,
                         order=index
                     )
+                    logger.info(f"Created media {media.id} for post {post.id}, type: {media_type}, file: {file.name}")
             
             # Lưu bài viết
             post.save()
@@ -369,7 +435,7 @@ def edit_post(request, post_id):
     # Nếu là GET request, hiển thị form chỉnh sửa
     return render(request, 'posts/edit_post.html', {
         'post': post,
-        'media_files': post.post_media.all()
+        'media_files': post.media.all()
     })
 
 @login_required
@@ -395,8 +461,8 @@ def delete_post(request, post_id):
         
         # Xóa các đối tượng liên quan một cách chi tiết
         # 1. Xóa media
-        media_count = post.post_media.count()
-        post.post_media.all().delete()
+        media_count = post.media.count()
+        post.media.all().delete()
         logger.info(f"Đã xóa {media_count} media files")
         
         # 2. Xóa comments
@@ -894,7 +960,7 @@ def api_load_posts(request):
         
         # Lấy thông tin về media của bài viết
         media_files = []
-        for media in post.post_media.all():
+        for media in post.media.all():
             media_files.append({
                 'id': media.id,
                 'file_url': media.file.url,

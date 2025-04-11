@@ -342,7 +342,7 @@ def api_load_profile_posts(request, username):
     for post in page_obj.object_list:
         # Lấy thông tin về media của bài viết
         media_files = []
-        for media in post.post_media.all():
+        for media in post.media.all():
             media_files.append({
                 'id': media.id,
                 'file_url': media.file.url,

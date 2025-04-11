@@ -5261,3 +5261,2134 @@ INFO 2025-04-11 17:25:16,573 autoreload 19792 2096 C:\hoshi_v2\posts\api.py chan
 INFO 2025-04-11 17:25:17,762 autoreload 5244 9896 Watching for file changes with StatReloader
 INFO 2025-04-11 17:25:21,852 autoreload 5244 9896 C:\hoshi_v2\posts\api.py changed, reloading.
 INFO 2025-04-11 17:25:23,568 autoreload 12700 1224 Watching for file changes with StatReloader
+INFO 2025-04-11 17:25:59,648 views 12700 17488 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:25:59,649 views 12700 17488 Người dùng: admin_hoshi
+INFO 2025-04-11 17:25:59,651 views 12700 17488 Người dùng đã xác thực: True
+INFO 2025-04-11 17:25:59,655 views 12700 17488 Tổng số bài viết ban đầu: 2
+INFO 2025-04-11 17:25:59,664 views 12700 17488 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:25:59,670 views 12700 17488 Số bài viết của những người đang theo dõi: 2
+INFO 2025-04-11 17:25:59,675 views 12700 17488 Tổng số bài viết sau khi lọc: 2
+INFO 2025-04-11 17:25:59,696 views 12700 17488 Debug - Post Authors:
+INFO 2025-04-11 17:25:59,696 views 12700 17488 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:25:59,696 views 12700 17488 Post ID: 6, Author Username: quynhchan
+INFO 2025-04-11 17:25:59,697 views 12700 17488 Total posts before filtering: 2
+INFO 2025-04-11 17:25:59,697 views 12700 17488 Following users: [2]
+INFO 2025-04-11 17:25:59,697 views 12700 17488 Total posts after filtering: 2
+INFO 2025-04-11 17:25:59,791 basehttp 12700 17488 "GET / HTTP/1.1" 200 31626
+INFO 2025-04-11 17:26:02,141 basehttp 12700 17488 "GET /api/posts/?page=2 HTTP/1.1" 200 5554
+INFO 2025-04-11 17:26:02,204 basehttp 12700 17488 "GET /api/posts/?page=2 HTTP/1.1" 200 5554
+INFO 2025-04-11 17:26:02,256 basehttp 12700 17488 "GET /api/posts/?page=2 HTTP/1.1" 200 5554
+INFO 2025-04-11 17:26:04,124 basehttp 12700 17488 "POST /api/posts/comments/add/ HTTP/1.1" 200 230
+INFO 2025-04-11 17:26:04,156 basehttp 12700 5076 "POST /api/posts/comments/add/ HTTP/1.1" 200 230
+INFO 2025-04-11 17:26:06,761 views 12700 17488 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:26:06,761 views 12700 17488 Người dùng: admin_hoshi
+INFO 2025-04-11 17:26:06,762 views 12700 17488 Người dùng đã xác thực: True
+INFO 2025-04-11 17:26:06,763 views 12700 17488 Tổng số bài viết ban đầu: 2
+INFO 2025-04-11 17:26:06,764 views 12700 17488 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:26:06,765 views 12700 17488 Số bài viết của những người đang theo dõi: 2
+INFO 2025-04-11 17:26:06,766 views 12700 17488 Tổng số bài viết sau khi lọc: 2
+INFO 2025-04-11 17:26:06,789 views 12700 17488 Debug - Post Authors:
+INFO 2025-04-11 17:26:06,792 views 12700 17488 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:26:06,792 views 12700 17488 Post ID: 6, Author Username: quynhchan
+INFO 2025-04-11 17:26:06,793 views 12700 17488 Total posts before filtering: 2
+INFO 2025-04-11 17:26:06,793 views 12700 17488 Following users: [2]
+INFO 2025-04-11 17:26:06,794 views 12700 17488 Total posts after filtering: 2
+INFO 2025-04-11 17:26:06,843 basehttp 12700 17488 "GET / HTTP/1.1" 200 31626
+INFO 2025-04-11 17:26:07,152 basehttp 12700 17488 "GET /api/posts/?page=2 HTTP/1.1" 200 6158
+INFO 2025-04-11 17:26:12,384 basehttp 12700 5076 "POST /api/posts/comments/add/ HTTP/1.1" 200 237
+INFO 2025-04-11 17:26:12,403 basehttp 12700 17488 "POST /api/posts/comments/add/ HTTP/1.1" 200 237
+INFO 2025-04-11 17:26:14,519 views 12700 17488 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:26:14,519 views 12700 17488 Người dùng: admin_hoshi
+INFO 2025-04-11 17:26:14,520 views 12700 17488 Người dùng đã xác thực: True
+INFO 2025-04-11 17:26:14,520 views 12700 17488 Tổng số bài viết ban đầu: 2
+INFO 2025-04-11 17:26:14,521 views 12700 17488 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:26:14,522 views 12700 17488 Số bài viết của những người đang theo dõi: 2
+INFO 2025-04-11 17:26:14,524 views 12700 17488 Tổng số bài viết sau khi lọc: 2
+INFO 2025-04-11 17:26:14,537 views 12700 17488 Debug - Post Authors:
+INFO 2025-04-11 17:26:14,538 views 12700 17488 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:26:14,538 views 12700 17488 Post ID: 6, Author Username: quynhchan
+INFO 2025-04-11 17:26:14,538 views 12700 17488 Total posts before filtering: 2
+INFO 2025-04-11 17:26:14,538 views 12700 17488 Following users: [2]
+INFO 2025-04-11 17:26:14,539 views 12700 17488 Total posts after filtering: 2
+INFO 2025-04-11 17:26:14,563 basehttp 12700 17488 "GET / HTTP/1.1" 200 31626
+INFO 2025-04-11 17:26:14,810 basehttp 12700 17488 "GET /api/posts/?page=2 HTTP/1.1" 200 6776
+INFO 2025-04-11 17:26:15,615 basehttp 12700 17488 "GET /posts/11/ HTTP/1.1" 200 115407
+INFO 2025-04-11 17:26:23,945 basehttp 12700 17488 "POST /api/posts/comments/93/delete/ HTTP/1.1" 200 51
+INFO 2025-04-11 17:26:27,238 basehttp 12700 17488 "POST /api/posts/comments/94/delete/ HTTP/1.1" 200 51
+INFO 2025-04-11 17:26:31,941 views 12700 17488 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:26:31,941 views 12700 17488 Người dùng: admin_hoshi
+INFO 2025-04-11 17:26:31,942 views 12700 17488 Người dùng đã xác thực: True
+INFO 2025-04-11 17:26:31,942 views 12700 17488 Tổng số bài viết ban đầu: 2
+INFO 2025-04-11 17:26:31,943 views 12700 17488 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:26:31,945 views 12700 17488 Số bài viết của những người đang theo dõi: 2
+INFO 2025-04-11 17:26:31,946 views 12700 17488 Tổng số bài viết sau khi lọc: 2
+INFO 2025-04-11 17:26:31,959 views 12700 17488 Debug - Post Authors:
+INFO 2025-04-11 17:26:31,960 views 12700 17488 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:26:31,960 views 12700 17488 Post ID: 6, Author Username: quynhchan
+INFO 2025-04-11 17:26:31,960 views 12700 17488 Total posts before filtering: 2
+INFO 2025-04-11 17:26:31,961 views 12700 17488 Following users: [2]
+INFO 2025-04-11 17:26:31,961 views 12700 17488 Total posts after filtering: 2
+INFO 2025-04-11 17:26:31,988 basehttp 12700 17488 "GET / HTTP/1.1" 200 31626
+INFO 2025-04-11 17:26:35,420 basehttp 12700 17488 "GET /api/posts/?page=2 HTTP/1.1" 200 6158
+INFO 2025-04-11 17:26:35,482 basehttp 12700 17488 "GET /api/posts/?page=2 HTTP/1.1" 200 6158
+INFO 2025-04-11 17:26:35,634 basehttp 12700 17488 "GET /api/posts/?page=2 HTTP/1.1" 200 6158
+INFO 2025-04-11 17:26:35,701 basehttp 12700 17488 "GET /api/posts/?page=2 HTTP/1.1" 200 6158
+INFO 2025-04-11 17:26:35,767 basehttp 12700 17488 "GET /api/posts/?page=2 HTTP/1.1" 200 6158
+INFO 2025-04-11 17:26:37,803 basehttp 12700 17488 "GET /posts/6/ HTTP/1.1" 200 66410
+INFO 2025-04-11 17:26:39,986 basehttp 12700 5076 "POST /api/posts/6/like/ HTTP/1.1" 200 36
+INFO 2025-04-11 17:26:40,001 basehttp 12700 17488 "POST /posts/6/like/ HTTP/1.1" 200 72
+INFO 2025-04-11 17:26:40,883 basehttp 12700 17488 "POST /posts/6/like/ HTTP/1.1" 200 72
+INFO 2025-04-11 17:26:40,900 basehttp 12700 5076 "POST /api/posts/6/like/ HTTP/1.1" 200 34
+INFO 2025-04-11 17:26:42,493 views 12700 17488 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:26:42,494 views 12700 17488 Người dùng: admin_hoshi
+INFO 2025-04-11 17:26:42,494 views 12700 17488 Người dùng đã xác thực: True
+INFO 2025-04-11 17:26:42,495 views 12700 17488 Tổng số bài viết ban đầu: 2
+INFO 2025-04-11 17:26:42,496 views 12700 17488 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:26:42,497 views 12700 17488 Số bài viết của những người đang theo dõi: 2
+INFO 2025-04-11 17:26:42,498 views 12700 17488 Tổng số bài viết sau khi lọc: 2
+INFO 2025-04-11 17:26:42,510 views 12700 17488 Debug - Post Authors:
+INFO 2025-04-11 17:26:42,510 views 12700 17488 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:26:42,510 views 12700 17488 Post ID: 6, Author Username: quynhchan
+INFO 2025-04-11 17:26:42,510 views 12700 17488 Total posts before filtering: 2
+INFO 2025-04-11 17:26:42,511 views 12700 17488 Following users: [2]
+INFO 2025-04-11 17:26:42,511 views 12700 17488 Total posts after filtering: 2
+INFO 2025-04-11 17:26:42,537 basehttp 12700 17488 "GET / HTTP/1.1" 200 31628
+INFO 2025-04-11 17:29:21,416 basehttp 12700 13124 "GET /posts/create/ HTTP/1.1" 200 17816
+INFO 2025-04-11 17:29:39,665 autoreload 12700 1224 C:\hoshi_v2\posts\views.py changed, reloading.
+INFO 2025-04-11 17:29:41,940 autoreload 21428 18604 Watching for file changes with StatReloader
+INFO 2025-04-11 17:29:46,259 basehttp 21428 10312 "GET /api/posts/?page=2 HTTP/1.1" 200 6158
+INFO 2025-04-11 17:29:46,588 basehttp 21428 10312 "GET /api/posts/?page=2 HTTP/1.1" 200 6158
+INFO 2025-04-11 17:29:46,682 basehttp 21428 10312 "GET /api/posts/?page=2 HTTP/1.1" 200 6158
+INFO 2025-04-11 17:29:47,203 basehttp 21428 10312 "GET /api/posts/?page=2 HTTP/1.1" 200 6158
+INFO 2025-04-11 17:29:47,299 basehttp 21428 10312 "GET /api/posts/?page=2 HTTP/1.1" 200 6158
+INFO 2025-04-11 17:29:47,362 basehttp 21428 10312 "GET /api/posts/?page=2 HTTP/1.1" 200 6158
+INFO 2025-04-11 17:29:49,174 basehttp 21428 10312 "GET /api/posts/?page=2 HTTP/1.1" 200 6158
+INFO 2025-04-11 17:29:49,255 basehttp 21428 10312 "GET /api/posts/?page=2 HTTP/1.1" 200 6158
+INFO 2025-04-11 17:29:49,452 basehttp 21428 10312 "GET /api/posts/?page=2 HTTP/1.1" 200 6158
+INFO 2025-04-11 17:29:49,532 basehttp 21428 10312 "GET /api/posts/?page=2 HTTP/1.1" 200 6158
+INFO 2025-04-11 17:29:49,731 basehttp 21428 10312 "GET /api/posts/?page=2 HTTP/1.1" 200 6158
+INFO 2025-04-11 17:29:49,812 basehttp 21428 10312 "GET /api/posts/?page=2 HTTP/1.1" 200 6158
+INFO 2025-04-11 17:29:51,246 basehttp 21428 10312 "POST /posts/create/ HTTP/1.1" 302 0
+INFO 2025-04-11 17:29:51,265 views 21428 10312 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:29:51,266 views 21428 10312 Người dùng: admin_hoshi
+INFO 2025-04-11 17:29:51,266 views 21428 10312 Người dùng đã xác thực: True
+INFO 2025-04-11 17:29:51,268 views 21428 10312 Tổng số bài viết ban đầu: 3
+INFO 2025-04-11 17:29:51,271 views 21428 10312 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:29:51,274 views 21428 10312 Số bài viết của những người đang theo dõi: 3
+INFO 2025-04-11 17:29:51,277 views 21428 10312 Tổng số bài viết sau khi lọc: 3
+INFO 2025-04-11 17:29:51,299 views 21428 10312 Debug - Post Authors:
+INFO 2025-04-11 17:29:51,299 views 21428 10312 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 17:29:51,299 views 21428 10312 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:29:51,299 views 21428 10312 Post ID: 6, Author Username: quynhchan
+INFO 2025-04-11 17:29:51,300 views 21428 10312 Total posts before filtering: 3
+INFO 2025-04-11 17:29:51,300 views 21428 10312 Following users: [2]
+INFO 2025-04-11 17:29:51,300 views 21428 10312 Total posts after filtering: 3
+INFO 2025-04-11 17:29:51,374 basehttp 21428 10312 "GET / HTTP/1.1" 200 36128
+INFO 2025-04-11 17:29:55,393 views 21428 10312 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:29:55,393 views 21428 10312 Người dùng: admin_hoshi
+INFO 2025-04-11 17:29:55,394 views 21428 10312 Người dùng đã xác thực: True
+INFO 2025-04-11 17:29:55,395 views 21428 10312 Tổng số bài viết ban đầu: 3
+INFO 2025-04-11 17:29:55,396 views 21428 10312 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:29:55,398 views 21428 10312 Số bài viết của những người đang theo dõi: 3
+INFO 2025-04-11 17:29:55,399 views 21428 10312 Tổng số bài viết sau khi lọc: 3
+INFO 2025-04-11 17:29:55,410 views 21428 10312 Debug - Post Authors:
+INFO 2025-04-11 17:29:55,410 views 21428 10312 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 17:29:55,411 views 21428 10312 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:29:55,411 views 21428 10312 Post ID: 6, Author Username: quynhchan
+INFO 2025-04-11 17:29:55,411 views 21428 10312 Total posts before filtering: 3
+INFO 2025-04-11 17:29:55,411 views 21428 10312 Following users: [2]
+INFO 2025-04-11 17:29:55,411 views 21428 10312 Total posts after filtering: 3
+INFO 2025-04-11 17:29:55,440 basehttp 21428 10312 "GET / HTTP/1.1" 200 35820
+INFO 2025-04-11 17:29:57,162 basehttp 21428 10312 "GET /posts/create/ HTTP/1.1" 200 17816
+INFO 2025-04-11 17:30:00,216 autoreload 21428 18604 C:\hoshi_v2\posts\views.py changed, reloading.
+INFO 2025-04-11 17:30:01,217 autoreload 13436 14448 Watching for file changes with StatReloader
+INFO 2025-04-11 17:31:25,372 basehttp 13436 12152 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:31:37,386 basehttp 13436 12152 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:34:25,489 basehttp 13436 1948 "GET /posts/create/ HTTP/1.1" 200 18058
+INFO 2025-04-11 17:34:27,561 basehttp 13436 1948 "GET /posts/create/ HTTP/1.1" 200 18058
+INFO 2025-04-11 17:34:36,945 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:34:37,014 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:34:37,268 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:34:37,336 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:34:37,783 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:34:37,846 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:34:37,912 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:34:40,554 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:34:40,640 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:34:40,715 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:34:44,370 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:34:44,443 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:34:44,533 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:34:45,053 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:34:45,130 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:34:45,203 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:34:45,426 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:34:45,492 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:34:45,560 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:34:46,119 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:34:46,184 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:34:46,250 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:34:46,400 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:34:46,667 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:34:46,743 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:34:46,814 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:34:46,873 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:35:01,042 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:35:01,471 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:35:01,556 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:35:02,926 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:35:03,005 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:35:03,069 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:35:03,490 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:35:03,560 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:35:03,631 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:35:03,825 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:35:03,959 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:35:04,108 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:35:04,192 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:35:09,261 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:35:09,431 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:35:09,974 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:35:10,032 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:35:10,092 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:35:10,603 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:35:10,663 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:35:10,724 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:35:12,182 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:35:12,256 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:35:12,558 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:35:12,789 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:35:12,854 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:35:12,916 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:35:13,202 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:35:13,270 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:35:13,346 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:35:14,348 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:35:14,412 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:35:14,727 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:35:15,239 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:35:15,319 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:35:15,525 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:35:15,605 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:35:20,993 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:35:21,180 basehttp 13436 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:36:29,402 basehttp 13436 1948 "GET /posts/create/ HTTP/1.1" 200 18745
+INFO 2025-04-11 17:36:30,620 basehttp 13436 1948 - Broken pipe from ('127.0.0.1', 64035)
+INFO 2025-04-11 17:37:43,181 basehttp 13436 16680 "GET /posts/create/ HTTP/1.1" 200 19578
+INFO 2025-04-11 17:38:05,761 autoreload 14456 15456 Watching for file changes with StatReloader
+INFO 2025-04-11 17:38:07,706 views 14456 21464 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:38:07,708 views 14456 21464 Người dùng: admin_hoshi
+INFO 2025-04-11 17:38:07,708 views 14456 21464 Người dùng đã xác thực: True
+INFO 2025-04-11 17:38:07,716 views 14456 21464 Tổng số bài viết ban đầu: 3
+INFO 2025-04-11 17:38:07,730 views 14456 21464 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:38:07,735 views 14456 21464 Số bài viết của những người đang theo dõi: 3
+INFO 2025-04-11 17:38:07,741 views 14456 21464 Tổng số bài viết sau khi lọc: 3
+INFO 2025-04-11 17:38:07,770 views 14456 21464 Debug - Post Authors:
+INFO 2025-04-11 17:38:07,771 views 14456 21464 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 17:38:07,771 views 14456 21464 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:38:07,772 views 14456 21464 Post ID: 6, Author Username: quynhchan
+INFO 2025-04-11 17:38:07,772 views 14456 21464 Total posts before filtering: 3
+INFO 2025-04-11 17:38:07,772 views 14456 21464 Following users: [2]
+INFO 2025-04-11 17:38:07,772 views 14456 21464 Total posts after filtering: 3
+INFO 2025-04-11 17:38:07,897 basehttp 14456 21464 "GET / HTTP/1.1" 200 35820
+INFO 2025-04-11 17:38:08,386 basehttp 14456 21464 - Broken pipe from ('127.0.0.1', 64302)
+INFO 2025-04-11 17:38:11,380 basehttp 14456 592 "GET /posts/create/ HTTP/1.1" 200 19578
+INFO 2025-04-11 17:38:17,598 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:38:17,678 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:38:19,936 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:38:19,998 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:38:20,056 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:38:20,217 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:38:20,290 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:38:23,209 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:38:23,311 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:38:23,383 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:38:23,456 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:38:23,524 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:38:23,583 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 17:38:25,743 basehttp 14456 592 "POST /posts/create/ HTTP/1.1" 302 0
+INFO 2025-04-11 17:38:25,755 views 14456 592 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:38:25,756 views 14456 592 Người dùng: admin_hoshi
+INFO 2025-04-11 17:38:25,756 views 14456 592 Người dùng đã xác thực: True
+INFO 2025-04-11 17:38:25,757 views 14456 592 Tổng số bài viết ban đầu: 4
+INFO 2025-04-11 17:38:25,759 views 14456 592 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:38:25,763 views 14456 592 Số bài viết của những người đang theo dõi: 4
+INFO 2025-04-11 17:38:25,764 views 14456 592 Tổng số bài viết sau khi lọc: 4
+INFO 2025-04-11 17:38:25,792 views 14456 592 Debug - Post Authors:
+INFO 2025-04-11 17:38:25,793 views 14456 592 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 17:38:25,793 views 14456 592 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 17:38:25,793 views 14456 592 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:38:25,794 views 14456 592 Post ID: 6, Author Username: quynhchan
+INFO 2025-04-11 17:38:25,794 views 14456 592 Total posts before filtering: 4
+INFO 2025-04-11 17:38:25,795 views 14456 592 Following users: [2]
+INFO 2025-04-11 17:38:25,796 views 14456 592 Total posts after filtering: 4
+INFO 2025-04-11 17:38:25,839 basehttp 14456 592 "GET / HTTP/1.1" 200 40503
+INFO 2025-04-11 17:38:31,809 basehttp 14456 592 "POST /posts/create/ HTTP/1.1" 302 0
+INFO 2025-04-11 17:38:31,817 views 14456 592 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:38:31,818 views 14456 592 Người dùng: admin_hoshi
+INFO 2025-04-11 17:38:31,818 views 14456 592 Người dùng đã xác thực: True
+INFO 2025-04-11 17:38:31,818 views 14456 592 Tổng số bài viết ban đầu: 5
+INFO 2025-04-11 17:38:31,820 views 14456 592 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:38:31,822 views 14456 592 Số bài viết của những người đang theo dõi: 5
+INFO 2025-04-11 17:38:31,824 views 14456 592 Tổng số bài viết sau khi lọc: 5
+INFO 2025-04-11 17:38:31,841 views 14456 592 Debug - Post Authors:
+INFO 2025-04-11 17:38:31,843 views 14456 592 Post ID: 14, Author Username: admin_hoshi
+INFO 2025-04-11 17:38:31,843 views 14456 592 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 17:38:31,843 views 14456 592 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 17:38:31,844 views 14456 592 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:38:31,844 views 14456 592 Post ID: 6, Author Username: quynhchan
+INFO 2025-04-11 17:38:31,844 views 14456 592 Total posts before filtering: 5
+INFO 2025-04-11 17:38:31,844 views 14456 592 Following users: [2]
+INFO 2025-04-11 17:38:31,844 views 14456 592 Total posts after filtering: 5
+INFO 2025-04-11 17:38:31,886 basehttp 14456 592 "GET / HTTP/1.1" 200 45354
+INFO 2025-04-11 17:38:31,952 basehttp 14456 592 "GET /media/posts/graves_Q3JewNI.jpg HTTP/1.1" 200 1836025
+INFO 2025-04-11 17:38:43,795 basehttp 14456 592 "POST /posts/create/ HTTP/1.1" 302 0
+INFO 2025-04-11 17:38:43,808 views 14456 592 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:38:43,809 views 14456 592 Người dùng: admin_hoshi
+INFO 2025-04-11 17:38:43,810 views 14456 592 Người dùng đã xác thực: True
+INFO 2025-04-11 17:38:43,811 views 14456 592 Tổng số bài viết ban đầu: 6
+INFO 2025-04-11 17:38:43,812 views 14456 592 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:38:43,815 views 14456 592 Số bài viết của những người đang theo dõi: 6
+INFO 2025-04-11 17:38:43,817 views 14456 592 Tổng số bài viết sau khi lọc: 6
+INFO 2025-04-11 17:38:43,839 views 14456 592 Debug - Post Authors:
+INFO 2025-04-11 17:38:43,840 views 14456 592 Post ID: 15, Author Username: admin_hoshi
+INFO 2025-04-11 17:38:43,840 views 14456 592 Post ID: 14, Author Username: admin_hoshi
+INFO 2025-04-11 17:38:43,840 views 14456 592 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 17:38:43,840 views 14456 592 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 17:38:43,841 views 14456 592 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:38:43,841 views 14456 592 Post ID: 6, Author Username: quynhchan
+INFO 2025-04-11 17:38:43,841 views 14456 592 Total posts before filtering: 6
+INFO 2025-04-11 17:38:43,841 views 14456 592 Following users: [2]
+INFO 2025-04-11 17:38:43,842 views 14456 592 Total posts after filtering: 6
+INFO 2025-04-11 17:38:43,893 basehttp 14456 592 "GET / HTTP/1.1" 200 50203
+INFO 2025-04-11 17:38:44,116 basehttp 14456 592 "GET /media/posts/shen_K1gTHFr.jpg HTTP/1.1" 200 4075944
+INFO 2025-04-11 17:38:44,122 basehttp 14456 19888 "GET /media/posts/graves_Q3JewNI.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 17:38:55,411 basehttp 14456 592 "GET /posts/create/ HTTP/1.1" 200 19578
+INFO 2025-04-11 17:38:57,288 basehttp 14456 592 "GET /posts/create/ HTTP/1.1" 200 19578
+INFO 2025-04-11 17:39:11,990 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+INFO 2025-04-11 17:39:12,333 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+INFO 2025-04-11 17:39:12,506 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+INFO 2025-04-11 17:39:12,681 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+INFO 2025-04-11 17:39:12,909 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+INFO 2025-04-11 17:39:13,010 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+INFO 2025-04-11 17:39:13,228 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+INFO 2025-04-11 17:39:13,332 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+INFO 2025-04-11 17:39:13,682 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+INFO 2025-04-11 17:39:13,776 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+INFO 2025-04-11 17:40:54,393 basehttp 14456 592 "GET /posts/create/ HTTP/1.1" 200 18593
+INFO 2025-04-11 17:40:55,991 basehttp 14456 592 "GET /posts/create/ HTTP/1.1" 200 18593
+INFO 2025-04-11 17:41:02,834 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+INFO 2025-04-11 17:41:03,122 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+INFO 2025-04-11 17:41:04,081 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+INFO 2025-04-11 17:41:04,156 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+INFO 2025-04-11 17:41:04,229 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+INFO 2025-04-11 17:41:05,748 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+INFO 2025-04-11 17:41:05,896 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+INFO 2025-04-11 17:41:06,641 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+INFO 2025-04-11 17:41:06,710 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+INFO 2025-04-11 17:41:06,782 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+INFO 2025-04-11 17:41:06,967 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+INFO 2025-04-11 17:41:07,058 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+INFO 2025-04-11 17:41:07,279 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+INFO 2025-04-11 17:41:07,359 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+INFO 2025-04-11 17:41:07,424 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+INFO 2025-04-11 17:41:28,790 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+INFO 2025-04-11 17:41:32,580 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+INFO 2025-04-11 17:41:32,669 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+INFO 2025-04-11 17:41:32,750 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+INFO 2025-04-11 17:41:33,644 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+INFO 2025-04-11 17:41:33,725 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+INFO 2025-04-11 17:41:33,796 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+INFO 2025-04-11 17:41:57,999 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+INFO 2025-04-11 17:41:58,256 basehttp 14456 592 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+INFO 2025-04-11 17:41:58,784 basehttp 14456 592 "POST /posts/create/ HTTP/1.1" 302 0
+INFO 2025-04-11 17:41:58,806 views 14456 592 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:41:58,807 views 14456 592 Người dùng: admin_hoshi
+INFO 2025-04-11 17:41:58,808 views 14456 592 Người dùng đã xác thực: True
+INFO 2025-04-11 17:41:58,809 views 14456 592 Tổng số bài viết ban đầu: 7
+INFO 2025-04-11 17:41:58,812 views 14456 592 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:41:58,815 views 14456 592 Số bài viết của những người đang theo dõi: 7
+INFO 2025-04-11 17:41:58,820 views 14456 592 Tổng số bài viết sau khi lọc: 7
+INFO 2025-04-11 17:41:58,844 views 14456 592 Debug - Post Authors:
+INFO 2025-04-11 17:41:58,844 views 14456 592 Post ID: 16, Author Username: admin_hoshi
+INFO 2025-04-11 17:41:58,845 views 14456 592 Post ID: 15, Author Username: admin_hoshi
+INFO 2025-04-11 17:41:58,845 views 14456 592 Post ID: 14, Author Username: admin_hoshi
+INFO 2025-04-11 17:41:58,845 views 14456 592 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 17:41:58,845 views 14456 592 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 17:41:58,845 views 14456 592 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:41:58,847 views 14456 592 Post ID: 6, Author Username: quynhchan
+INFO 2025-04-11 17:41:58,847 views 14456 592 Total posts before filtering: 7
+INFO 2025-04-11 17:41:58,847 views 14456 592 Following users: [2]
+INFO 2025-04-11 17:41:58,847 views 14456 592 Total posts after filtering: 7
+INFO 2025-04-11 17:41:58,903 basehttp 14456 592 "GET / HTTP/1.1" 200 54778
+INFO 2025-04-11 17:41:59,224 basehttp 14456 592 "GET /media/posts/shen_K1gTHFr.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 17:41:59,236 basehttp 14456 12872 "GET /media/posts/graves_Q3JewNI.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 17:42:02,642 views 14456 592 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:42:02,643 views 14456 592 Người dùng: admin_hoshi
+INFO 2025-04-11 17:42:02,643 views 14456 592 Người dùng đã xác thực: True
+INFO 2025-04-11 17:42:02,644 views 14456 592 Tổng số bài viết ban đầu: 7
+INFO 2025-04-11 17:42:02,645 views 14456 592 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:42:02,646 views 14456 592 Số bài viết của những người đang theo dõi: 7
+INFO 2025-04-11 17:42:02,648 views 14456 592 Tổng số bài viết sau khi lọc: 7
+INFO 2025-04-11 17:42:02,666 views 14456 592 Debug - Post Authors:
+INFO 2025-04-11 17:42:02,666 views 14456 592 Post ID: 16, Author Username: admin_hoshi
+INFO 2025-04-11 17:42:02,666 views 14456 592 Post ID: 15, Author Username: admin_hoshi
+INFO 2025-04-11 17:42:02,667 views 14456 592 Post ID: 14, Author Username: admin_hoshi
+INFO 2025-04-11 17:42:02,667 views 14456 592 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 17:42:02,667 views 14456 592 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 17:42:02,667 views 14456 592 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:42:02,667 views 14456 592 Post ID: 6, Author Username: quynhchan
+INFO 2025-04-11 17:42:02,667 views 14456 592 Total posts before filtering: 7
+INFO 2025-04-11 17:42:02,668 views 14456 592 Following users: [2]
+INFO 2025-04-11 17:42:02,668 views 14456 592 Total posts after filtering: 7
+INFO 2025-04-11 17:42:02,709 basehttp 14456 592 "GET / HTTP/1.1" 200 54470
+INFO 2025-04-11 17:44:04,933 views 14456 20136 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:44:04,937 views 14456 20136 Người dùng: admin_hoshi
+INFO 2025-04-11 17:44:04,939 views 14456 20136 Người dùng đã xác thực: True
+INFO 2025-04-11 17:44:04,946 views 14456 20136 Tổng số bài viết ban đầu: 7
+INFO 2025-04-11 17:44:04,952 views 14456 20136 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:44:04,961 views 14456 20136 Số bài viết của những người đang theo dõi: 7
+INFO 2025-04-11 17:44:04,966 views 14456 20136 Tổng số bài viết sau khi lọc: 7
+INFO 2025-04-11 17:44:04,992 views 14456 20136 Debug - Post Authors:
+INFO 2025-04-11 17:44:04,992 views 14456 20136 Post ID: 16, Author Username: admin_hoshi
+INFO 2025-04-11 17:44:04,992 views 14456 20136 Post ID: 15, Author Username: admin_hoshi
+INFO 2025-04-11 17:44:04,992 views 14456 20136 Post ID: 14, Author Username: admin_hoshi
+INFO 2025-04-11 17:44:04,993 views 14456 20136 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 17:44:04,993 views 14456 20136 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 17:44:04,993 views 14456 20136 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:44:04,994 views 14456 20136 Post ID: 6, Author Username: quynhchan
+INFO 2025-04-11 17:44:04,994 views 14456 20136 Total posts before filtering: 7
+INFO 2025-04-11 17:44:04,994 views 14456 20136 Following users: [2]
+INFO 2025-04-11 17:44:04,994 views 14456 20136 Total posts after filtering: 7
+INFO 2025-04-11 17:44:05,060 basehttp 14456 20136 "GET / HTTP/1.1" 200 52481
+INFO 2025-04-11 17:44:07,176 views 14456 20136 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:44:07,178 views 14456 20136 Người dùng: admin_hoshi
+INFO 2025-04-11 17:44:07,178 views 14456 20136 Người dùng đã xác thực: True
+INFO 2025-04-11 17:44:07,179 views 14456 20136 Tổng số bài viết ban đầu: 7
+INFO 2025-04-11 17:44:07,180 views 14456 20136 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:44:07,182 views 14456 20136 Số bài viết của những người đang theo dõi: 7
+INFO 2025-04-11 17:44:07,184 views 14456 20136 Tổng số bài viết sau khi lọc: 7
+INFO 2025-04-11 17:44:07,203 views 14456 20136 Debug - Post Authors:
+INFO 2025-04-11 17:44:07,203 views 14456 20136 Post ID: 16, Author Username: admin_hoshi
+INFO 2025-04-11 17:44:07,204 views 14456 20136 Post ID: 15, Author Username: admin_hoshi
+INFO 2025-04-11 17:44:07,204 views 14456 20136 Post ID: 14, Author Username: admin_hoshi
+INFO 2025-04-11 17:44:07,204 views 14456 20136 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 17:44:07,204 views 14456 20136 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 17:44:07,205 views 14456 20136 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:44:07,205 views 14456 20136 Post ID: 6, Author Username: quynhchan
+INFO 2025-04-11 17:44:07,205 views 14456 20136 Total posts before filtering: 7
+INFO 2025-04-11 17:44:07,206 views 14456 20136 Following users: [2]
+INFO 2025-04-11 17:44:07,206 views 14456 20136 Total posts after filtering: 7
+INFO 2025-04-11 17:44:07,240 basehttp 14456 20136 "GET / HTTP/1.1" 200 52481
+INFO 2025-04-11 17:44:13,865 views 14456 20136 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:44:13,866 views 14456 20136 Người dùng: admin_hoshi
+INFO 2025-04-11 17:44:13,866 views 14456 20136 Người dùng đã xác thực: True
+INFO 2025-04-11 17:44:13,866 views 14456 20136 Tổng số bài viết ban đầu: 7
+INFO 2025-04-11 17:44:13,869 views 14456 20136 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:44:13,871 views 14456 20136 Số bài viết của những người đang theo dõi: 7
+INFO 2025-04-11 17:44:13,873 views 14456 20136 Tổng số bài viết sau khi lọc: 7
+INFO 2025-04-11 17:44:13,892 views 14456 20136 Debug - Post Authors:
+INFO 2025-04-11 17:44:13,893 views 14456 20136 Post ID: 16, Author Username: admin_hoshi
+INFO 2025-04-11 17:44:13,893 views 14456 20136 Post ID: 15, Author Username: admin_hoshi
+INFO 2025-04-11 17:44:13,894 views 14456 20136 Post ID: 14, Author Username: admin_hoshi
+INFO 2025-04-11 17:44:13,894 views 14456 20136 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 17:44:13,894 views 14456 20136 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 17:44:13,894 views 14456 20136 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:44:13,894 views 14456 20136 Post ID: 6, Author Username: quynhchan
+INFO 2025-04-11 17:44:13,895 views 14456 20136 Total posts before filtering: 7
+INFO 2025-04-11 17:44:13,895 views 14456 20136 Following users: [2]
+INFO 2025-04-11 17:44:13,895 views 14456 20136 Total posts after filtering: 7
+INFO 2025-04-11 17:44:13,932 basehttp 14456 20136 "GET / HTTP/1.1" 200 52481
+INFO 2025-04-11 17:44:15,336 basehttp 14456 20136 "GET /posts/create/ HTTP/1.1" 200 18593
+INFO 2025-04-11 17:44:29,255 basehttp 14456 20136 "GET /api/posts/?page=2 HTTP/1.1" 200 8357
+INFO 2025-04-11 17:44:30,174 basehttp 14456 20136 "GET /api/posts/?page=2 HTTP/1.1" 200 8357
+INFO 2025-04-11 17:44:30,788 basehttp 14456 20136 "GET /api/posts/?page=2 HTTP/1.1" 200 8357
+INFO 2025-04-11 17:44:41,440 basehttp 14456 20136 "POST /posts/create/ HTTP/1.1" 302 0
+INFO 2025-04-11 17:44:41,461 views 14456 20136 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:44:41,463 views 14456 20136 Người dùng: admin_hoshi
+INFO 2025-04-11 17:44:41,464 views 14456 20136 Người dùng đã xác thực: True
+INFO 2025-04-11 17:44:41,465 views 14456 20136 Tổng số bài viết ban đầu: 8
+INFO 2025-04-11 17:44:41,468 views 14456 20136 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:44:41,471 views 14456 20136 Số bài viết của những người đang theo dõi: 8
+INFO 2025-04-11 17:44:41,474 views 14456 20136 Tổng số bài viết sau khi lọc: 8
+INFO 2025-04-11 17:44:41,499 views 14456 20136 Debug - Post Authors:
+INFO 2025-04-11 17:44:41,499 views 14456 20136 Post ID: 17, Author Username: admin_hoshi
+INFO 2025-04-11 17:44:41,499 views 14456 20136 Post ID: 16, Author Username: admin_hoshi
+INFO 2025-04-11 17:44:41,500 views 14456 20136 Post ID: 15, Author Username: admin_hoshi
+INFO 2025-04-11 17:44:41,500 views 14456 20136 Post ID: 14, Author Username: admin_hoshi
+INFO 2025-04-11 17:44:41,500 views 14456 20136 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 17:44:41,500 views 14456 20136 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 17:44:41,501 views 14456 20136 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:44:41,501 views 14456 20136 Post ID: 6, Author Username: quynhchan
+INFO 2025-04-11 17:44:41,501 views 14456 20136 Total posts before filtering: 8
+INFO 2025-04-11 17:44:41,501 views 14456 20136 Following users: [2]
+INFO 2025-04-11 17:44:41,501 views 14456 20136 Total posts after filtering: 8
+INFO 2025-04-11 17:44:41,608 basehttp 14456 20136 "GET / HTTP/1.1" 200 57177
+INFO 2025-04-11 17:44:50,020 views 14456 20136 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:44:50,021 views 14456 20136 Người dùng: admin_hoshi
+INFO 2025-04-11 17:44:50,021 views 14456 20136 Người dùng đã xác thực: True
+INFO 2025-04-11 17:44:50,022 views 14456 20136 Tổng số bài viết ban đầu: 8
+INFO 2025-04-11 17:44:50,023 views 14456 20136 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:44:50,025 views 14456 20136 Số bài viết của những người đang theo dõi: 8
+INFO 2025-04-11 17:44:50,026 views 14456 20136 Tổng số bài viết sau khi lọc: 8
+INFO 2025-04-11 17:44:50,053 views 14456 20136 Debug - Post Authors:
+INFO 2025-04-11 17:44:50,054 views 14456 20136 Post ID: 17, Author Username: admin_hoshi
+INFO 2025-04-11 17:44:50,054 views 14456 20136 Post ID: 16, Author Username: admin_hoshi
+INFO 2025-04-11 17:44:50,055 views 14456 20136 Post ID: 15, Author Username: admin_hoshi
+INFO 2025-04-11 17:44:50,055 views 14456 20136 Post ID: 14, Author Username: admin_hoshi
+INFO 2025-04-11 17:44:50,055 views 14456 20136 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 17:44:50,055 views 14456 20136 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 17:44:50,056 views 14456 20136 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:44:50,056 views 14456 20136 Post ID: 6, Author Username: quynhchan
+INFO 2025-04-11 17:44:50,056 views 14456 20136 Total posts before filtering: 8
+INFO 2025-04-11 17:44:50,056 views 14456 20136 Following users: [2]
+INFO 2025-04-11 17:44:50,057 views 14456 20136 Total posts after filtering: 8
+INFO 2025-04-11 17:44:50,095 basehttp 14456 20136 "GET / HTTP/1.1" 200 56869
+INFO 2025-04-11 17:44:51,043 views 14456 20136 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:44:51,044 views 14456 20136 Người dùng: admin_hoshi
+INFO 2025-04-11 17:44:51,044 views 14456 20136 Người dùng đã xác thực: True
+INFO 2025-04-11 17:44:51,046 views 14456 20136 Tổng số bài viết ban đầu: 8
+INFO 2025-04-11 17:44:51,048 views 14456 20136 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:44:51,053 views 14456 20136 Số bài viết của những người đang theo dõi: 8
+INFO 2025-04-11 17:44:51,058 views 14456 20136 Tổng số bài viết sau khi lọc: 8
+INFO 2025-04-11 17:44:51,108 views 14456 20136 Debug - Post Authors:
+INFO 2025-04-11 17:44:51,109 views 14456 20136 Post ID: 17, Author Username: admin_hoshi
+INFO 2025-04-11 17:44:51,109 views 14456 20136 Post ID: 16, Author Username: admin_hoshi
+INFO 2025-04-11 17:44:51,109 views 14456 20136 Post ID: 15, Author Username: admin_hoshi
+INFO 2025-04-11 17:44:51,109 views 14456 20136 Post ID: 14, Author Username: admin_hoshi
+INFO 2025-04-11 17:44:51,109 views 14456 20136 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 17:44:51,110 views 14456 20136 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 17:44:51,110 views 14456 20136 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:44:51,110 views 14456 20136 Post ID: 6, Author Username: quynhchan
+INFO 2025-04-11 17:44:51,110 views 14456 20136 Total posts before filtering: 8
+INFO 2025-04-11 17:44:51,111 views 14456 20136 Following users: [2]
+INFO 2025-04-11 17:44:51,111 views 14456 20136 Total posts after filtering: 8
+INFO 2025-04-11 17:44:51,168 basehttp 14456 20136 "GET / HTTP/1.1" 200 56869
+INFO 2025-04-11 17:46:25,179 views 14456 20136 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:46:25,183 views 14456 20136 Người dùng: admin_hoshi
+INFO 2025-04-11 17:46:25,184 views 14456 20136 Người dùng đã xác thực: True
+INFO 2025-04-11 17:46:25,188 views 14456 20136 Tổng số bài viết ban đầu: 8
+INFO 2025-04-11 17:46:25,192 views 14456 20136 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:46:25,196 views 14456 20136 Số bài viết của những người đang theo dõi: 8
+INFO 2025-04-11 17:46:25,200 views 14456 20136 Tổng số bài viết sau khi lọc: 8
+INFO 2025-04-11 17:46:25,225 views 14456 20136 Debug - Post Authors:
+INFO 2025-04-11 17:46:25,225 views 14456 20136 Post ID: 17, Author Username: admin_hoshi
+INFO 2025-04-11 17:46:25,225 views 14456 20136 Post ID: 16, Author Username: admin_hoshi
+INFO 2025-04-11 17:46:25,225 views 14456 20136 Post ID: 15, Author Username: admin_hoshi
+INFO 2025-04-11 17:46:25,225 views 14456 20136 Post ID: 14, Author Username: admin_hoshi
+INFO 2025-04-11 17:46:25,226 views 14456 20136 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 17:46:25,226 views 14456 20136 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 17:46:25,226 views 14456 20136 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:46:25,226 views 14456 20136 Post ID: 6, Author Username: quynhchan
+INFO 2025-04-11 17:46:25,226 views 14456 20136 Total posts before filtering: 8
+INFO 2025-04-11 17:46:25,226 views 14456 20136 Following users: [2]
+INFO 2025-04-11 17:46:25,228 views 14456 20136 Total posts after filtering: 8
+INFO 2025-04-11 17:46:25,335 basehttp 14456 20136 "GET / HTTP/1.1" 200 58847
+INFO 2025-04-11 17:46:25,588 basehttp 14456 20136 "GET /media/posts/shen_K1gTHFr.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 17:46:25,977 basehttp 14456 20136 "GET /media/posts/graves_Q3JewNI.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 17:46:28,995 autoreload 14456 15456 C:\hoshi_v2\posts\views.py changed, reloading.
+INFO 2025-04-11 17:46:30,489 autoreload 18224 15432 Watching for file changes with StatReloader
+INFO 2025-04-11 17:46:38,601 views 18224 1948 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:46:38,668 views 18224 1948 Người dùng: admin_hoshi
+INFO 2025-04-11 17:46:38,729 views 18224 1948 Người dùng đã xác thực: True
+INFO 2025-04-11 17:46:38,746 views 18224 1948 Tổng số bài viết ban đầu: 8
+INFO 2025-04-11 17:46:38,756 views 18224 1948 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:46:38,763 views 18224 1948 Số bài viết của những người đang theo dõi: 8
+INFO 2025-04-11 17:46:38,770 views 18224 1948 Tổng số bài viết sau khi lọc: 8
+INFO 2025-04-11 17:46:38,844 views 18224 1948 Debug - Post Authors:
+INFO 2025-04-11 17:46:38,847 views 18224 1948 Post ID: 17, Author Username: admin_hoshi
+INFO 2025-04-11 17:46:38,847 views 18224 1948 Post ID: 16, Author Username: admin_hoshi
+INFO 2025-04-11 17:46:38,847 views 18224 1948 Post ID: 15, Author Username: admin_hoshi
+INFO 2025-04-11 17:46:38,847 views 18224 1948 Post ID: 14, Author Username: admin_hoshi
+INFO 2025-04-11 17:46:38,849 views 18224 1948 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 17:46:38,849 views 18224 1948 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 17:46:38,849 views 18224 1948 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:46:38,850 views 18224 1948 Post ID: 6, Author Username: quynhchan
+INFO 2025-04-11 17:46:38,850 views 18224 1948 Total posts before filtering: 8
+INFO 2025-04-11 17:46:38,851 views 18224 1948 Following users: [2]
+INFO 2025-04-11 17:46:38,851 views 18224 1948 Total posts after filtering: 8
+INFO 2025-04-11 17:46:39,111 basehttp 18224 1948 "GET / HTTP/1.1" 200 58847
+INFO 2025-04-11 17:46:44,230 views 18224 1948 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:46:44,231 views 18224 1948 Người dùng: admin_hoshi
+INFO 2025-04-11 17:46:44,232 views 18224 1948 Người dùng đã xác thực: True
+INFO 2025-04-11 17:46:44,234 views 18224 1948 Tổng số bài viết ban đầu: 8
+INFO 2025-04-11 17:46:44,237 views 18224 1948 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:46:44,241 views 18224 1948 Số bài viết của những người đang theo dõi: 8
+INFO 2025-04-11 17:46:44,245 views 18224 1948 Tổng số bài viết sau khi lọc: 8
+INFO 2025-04-11 17:46:44,382 views 18224 1948 Debug - Post Authors:
+INFO 2025-04-11 17:46:44,395 views 18224 1948 Post ID: 17, Author Username: admin_hoshi
+INFO 2025-04-11 17:46:44,406 views 18224 1948 Post ID: 16, Author Username: admin_hoshi
+INFO 2025-04-11 17:46:44,410 views 18224 1948 Post ID: 15, Author Username: admin_hoshi
+INFO 2025-04-11 17:46:44,417 views 18224 1948 Post ID: 14, Author Username: admin_hoshi
+INFO 2025-04-11 17:46:44,425 views 18224 1948 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 17:46:44,427 views 18224 1948 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 17:46:44,442 views 18224 1948 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:46:44,445 views 18224 1948 Post ID: 6, Author Username: quynhchan
+INFO 2025-04-11 17:46:44,452 views 18224 1948 Total posts before filtering: 8
+INFO 2025-04-11 17:46:44,453 views 18224 1948 Following users: [2]
+INFO 2025-04-11 17:46:44,455 views 18224 1948 Total posts after filtering: 8
+INFO 2025-04-11 17:46:44,707 basehttp 18224 1948 "GET / HTTP/1.1" 200 58848
+INFO 2025-04-11 17:46:47,559 basehttp 18224 1948 "GET /posts/create/ HTTP/1.1" 200 18593
+INFO 2025-04-11 17:46:56,296 basehttp 18224 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 8803
+INFO 2025-04-11 17:46:56,909 basehttp 18224 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 8803
+INFO 2025-04-11 17:46:58,199 basehttp 18224 1948 "GET /api/posts/?page=2 HTTP/1.1" 200 8803
+INFO 2025-04-11 17:46:59,122 basehttp 18224 1948 "POST /posts/create/ HTTP/1.1" 302 0
+INFO 2025-04-11 17:46:59,153 views 18224 1948 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:46:59,153 views 18224 1948 Người dùng: admin_hoshi
+INFO 2025-04-11 17:46:59,155 views 18224 1948 Người dùng đã xác thực: True
+INFO 2025-04-11 17:46:59,158 views 18224 1948 Tổng số bài viết ban đầu: 9
+INFO 2025-04-11 17:46:59,163 views 18224 1948 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:46:59,169 views 18224 1948 Số bài viết của những người đang theo dõi: 9
+INFO 2025-04-11 17:46:59,173 views 18224 1948 Tổng số bài viết sau khi lọc: 9
+INFO 2025-04-11 17:46:59,335 views 18224 1948 Debug - Post Authors:
+INFO 2025-04-11 17:46:59,337 views 18224 1948 Post ID: 18, Author Username: admin_hoshi
+INFO 2025-04-11 17:46:59,344 views 18224 1948 Post ID: 17, Author Username: admin_hoshi
+INFO 2025-04-11 17:46:59,345 views 18224 1948 Post ID: 16, Author Username: admin_hoshi
+INFO 2025-04-11 17:46:59,347 views 18224 1948 Post ID: 15, Author Username: admin_hoshi
+INFO 2025-04-11 17:46:59,351 views 18224 1948 Post ID: 14, Author Username: admin_hoshi
+INFO 2025-04-11 17:46:59,351 views 18224 1948 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 17:46:59,351 views 18224 1948 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 17:46:59,351 views 18224 1948 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:46:59,352 views 18224 1948 Post ID: 6, Author Username: quynhchan
+INFO 2025-04-11 17:46:59,353 views 18224 1948 Total posts before filtering: 9
+INFO 2025-04-11 17:46:59,353 views 18224 1948 Following users: [2]
+INFO 2025-04-11 17:46:59,353 views 18224 1948 Total posts after filtering: 9
+INFO 2025-04-11 17:46:59,618 basehttp 18224 1948 "GET / HTTP/1.1" 200 63347
+INFO 2025-04-11 17:47:22,403 autoreload 18224 15432 C:\hoshi_v2\posts\api.py changed, reloading.
+INFO 2025-04-11 17:47:23,297 autoreload 15068 8308 Watching for file changes with StatReloader
+INFO 2025-04-11 17:47:26,151 autoreload 15068 8308 C:\hoshi_v2\posts\api.py changed, reloading.
+INFO 2025-04-11 17:47:27,266 autoreload 18916 14692 Watching for file changes with StatReloader
+INFO 2025-04-11 17:47:36,865 autoreload 18916 14692 C:\hoshi_v2\accounts\views.py changed, reloading.
+INFO 2025-04-11 17:47:37,873 autoreload 21496 18560 Watching for file changes with StatReloader
+INFO 2025-04-11 17:47:43,471 views 21496 19200 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:47:43,472 views 21496 19200 Người dùng: admin_hoshi
+INFO 2025-04-11 17:47:43,473 views 21496 19200 Người dùng đã xác thực: True
+INFO 2025-04-11 17:47:43,476 views 21496 19200 Tổng số bài viết ban đầu: 9
+INFO 2025-04-11 17:47:43,482 views 21496 19200 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:47:43,487 views 21496 19200 Số bài viết của những người đang theo dõi: 9
+INFO 2025-04-11 17:47:43,492 views 21496 19200 Tổng số bài viết sau khi lọc: 9
+INFO 2025-04-11 17:47:43,524 views 21496 19200 Debug - Post Authors:
+INFO 2025-04-11 17:47:43,524 views 21496 19200 Post ID: 18, Author Username: admin_hoshi
+INFO 2025-04-11 17:47:43,525 views 21496 19200 Post ID: 17, Author Username: admin_hoshi
+INFO 2025-04-11 17:47:43,525 views 21496 19200 Post ID: 16, Author Username: admin_hoshi
+INFO 2025-04-11 17:47:43,525 views 21496 19200 Post ID: 15, Author Username: admin_hoshi
+INFO 2025-04-11 17:47:43,525 views 21496 19200 Post ID: 14, Author Username: admin_hoshi
+INFO 2025-04-11 17:47:43,525 views 21496 19200 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 17:47:43,525 views 21496 19200 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 17:47:43,525 views 21496 19200 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:47:43,526 views 21496 19200 Post ID: 6, Author Username: quynhchan
+INFO 2025-04-11 17:47:43,526 views 21496 19200 Total posts before filtering: 9
+INFO 2025-04-11 17:47:43,526 views 21496 19200 Following users: [2]
+INFO 2025-04-11 17:47:43,526 views 21496 19200 Total posts after filtering: 9
+INFO 2025-04-11 17:47:43,600 basehttp 21496 19200 "GET / HTTP/1.1" 200 63039
+INFO 2025-04-11 17:47:43,882 basehttp 21496 19200 "GET /media/posts/shen_K1gTHFr.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 17:47:43,898 basehttp 21496 14068 "GET /media/posts/graves_Q3JewNI.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 17:47:58,738 views 21496 19200 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:47:58,738 views 21496 19200 Người dùng: admin_hoshi
+INFO 2025-04-11 17:47:58,739 views 21496 19200 Người dùng đã xác thực: True
+INFO 2025-04-11 17:47:58,739 views 21496 19200 Tổng số bài viết ban đầu: 9
+INFO 2025-04-11 17:47:58,741 views 21496 19200 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:47:58,742 views 21496 19200 Số bài viết của những người đang theo dõi: 9
+INFO 2025-04-11 17:47:58,743 views 21496 19200 Tổng số bài viết sau khi lọc: 9
+INFO 2025-04-11 17:47:58,767 views 21496 19200 Debug - Post Authors:
+INFO 2025-04-11 17:47:58,767 views 21496 19200 Post ID: 18, Author Username: admin_hoshi
+INFO 2025-04-11 17:47:58,768 views 21496 19200 Post ID: 17, Author Username: admin_hoshi
+INFO 2025-04-11 17:47:58,768 views 21496 19200 Post ID: 16, Author Username: admin_hoshi
+INFO 2025-04-11 17:47:58,768 views 21496 19200 Post ID: 15, Author Username: admin_hoshi
+INFO 2025-04-11 17:47:58,769 views 21496 19200 Post ID: 14, Author Username: admin_hoshi
+INFO 2025-04-11 17:47:58,769 views 21496 19200 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 17:47:58,769 views 21496 19200 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 17:47:58,769 views 21496 19200 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:47:58,769 views 21496 19200 Post ID: 6, Author Username: quynhchan
+INFO 2025-04-11 17:47:58,770 views 21496 19200 Total posts before filtering: 9
+INFO 2025-04-11 17:47:58,770 views 21496 19200 Following users: [2]
+INFO 2025-04-11 17:47:58,770 views 21496 19200 Total posts after filtering: 9
+INFO 2025-04-11 17:47:58,818 basehttp 21496 19200 "GET / HTTP/1.1" 200 63039
+INFO 2025-04-11 17:48:03,013 basehttp 21496 19200 "GET /posts/create/ HTTP/1.1" 200 18593
+INFO 2025-04-11 17:48:03,316 basehttp 21496 19200 - Broken pipe from ('127.0.0.1', 64970)
+INFO 2025-04-11 17:48:09,056 basehttp 21496 14068 "GET /api/posts/?page=2 HTTP/1.1" 200 9195
+INFO 2025-04-11 17:48:09,247 basehttp 21496 14068 "GET /api/posts/?page=2 HTTP/1.1" 200 9195
+INFO 2025-04-11 17:48:09,596 basehttp 21496 14068 "GET /api/posts/?page=2 HTTP/1.1" 200 9195
+INFO 2025-04-11 17:48:11,896 basehttp 21496 14068 "POST /posts/create/ HTTP/1.1" 302 0
+INFO 2025-04-11 17:48:11,913 views 21496 14068 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:48:11,914 views 21496 14068 Người dùng: admin_hoshi
+INFO 2025-04-11 17:48:11,914 views 21496 14068 Người dùng đã xác thực: True
+INFO 2025-04-11 17:48:11,915 views 21496 14068 Tổng số bài viết ban đầu: 10
+INFO 2025-04-11 17:48:11,919 views 21496 14068 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:48:11,924 views 21496 14068 Số bài viết của những người đang theo dõi: 10
+INFO 2025-04-11 17:48:11,927 views 21496 14068 Tổng số bài viết sau khi lọc: 10
+INFO 2025-04-11 17:48:11,982 views 21496 14068 Debug - Post Authors:
+INFO 2025-04-11 17:48:11,984 views 21496 14068 Post ID: 19, Author Username: admin_hoshi
+INFO 2025-04-11 17:48:11,984 views 21496 14068 Post ID: 18, Author Username: admin_hoshi
+INFO 2025-04-11 17:48:11,984 views 21496 14068 Post ID: 17, Author Username: admin_hoshi
+INFO 2025-04-11 17:48:11,984 views 21496 14068 Post ID: 16, Author Username: admin_hoshi
+INFO 2025-04-11 17:48:11,985 views 21496 14068 Post ID: 15, Author Username: admin_hoshi
+INFO 2025-04-11 17:48:11,985 views 21496 14068 Post ID: 14, Author Username: admin_hoshi
+INFO 2025-04-11 17:48:11,985 views 21496 14068 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 17:48:11,985 views 21496 14068 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 17:48:11,986 views 21496 14068 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:48:11,986 views 21496 14068 Post ID: 6, Author Username: quynhchan
+INFO 2025-04-11 17:48:11,986 views 21496 14068 Total posts before filtering: 10
+INFO 2025-04-11 17:48:11,986 views 21496 14068 Following users: [2]
+INFO 2025-04-11 17:48:11,986 views 21496 14068 Total posts after filtering: 10
+INFO 2025-04-11 17:48:12,057 basehttp 21496 14068 "GET / HTTP/1.1" 200 67728
+INFO 2025-04-11 17:50:44,982 autoreload 21496 18560 C:\hoshi_v2\posts\views.py changed, reloading.
+INFO 2025-04-11 17:50:46,118 autoreload 16028 11332 Watching for file changes with StatReloader
+INFO 2025-04-11 17:51:09,608 autoreload 16028 11332 C:\hoshi_v2\posts\views.py changed, reloading.
+INFO 2025-04-11 17:51:10,770 autoreload 17820 19848 Watching for file changes with StatReloader
+INFO 2025-04-11 17:51:11,247 views 17820 17900 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:51:11,247 views 17820 17900 Người dùng: admin_hoshi
+INFO 2025-04-11 17:51:11,248 views 17820 17900 Người dùng đã xác thực: True
+INFO 2025-04-11 17:51:11,249 views 17820 17900 Tổng số bài viết ban đầu: 10
+INFO 2025-04-11 17:51:11,251 views 17820 17900 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:51:11,253 views 17820 17900 Số bài viết của những người đang theo dõi: 10
+INFO 2025-04-11 17:51:11,254 views 17820 17900 Tổng số bài viết sau khi lọc: 10
+INFO 2025-04-11 17:51:11,280 views 17820 17900 Debug - Post Authors:
+INFO 2025-04-11 17:51:11,280 views 17820 17900 Post ID: 19, Author Username: admin_hoshi
+INFO 2025-04-11 17:51:11,281 views 17820 17900 Post ID: 18, Author Username: admin_hoshi
+INFO 2025-04-11 17:51:11,281 views 17820 17900 Post ID: 17, Author Username: admin_hoshi
+INFO 2025-04-11 17:51:11,281 views 17820 17900 Post ID: 16, Author Username: admin_hoshi
+INFO 2025-04-11 17:51:11,281 views 17820 17900 Post ID: 15, Author Username: admin_hoshi
+INFO 2025-04-11 17:51:11,282 views 17820 17900 Post ID: 14, Author Username: admin_hoshi
+INFO 2025-04-11 17:51:11,282 views 17820 17900 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 17:51:11,282 views 17820 17900 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 17:51:11,282 views 17820 17900 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:51:11,282 views 17820 17900 Post ID: 6, Author Username: quynhchan
+INFO 2025-04-11 17:51:11,282 views 17820 17900 Total posts before filtering: 10
+INFO 2025-04-11 17:51:11,283 views 17820 17900 Following users: [2]
+INFO 2025-04-11 17:51:11,283 views 17820 17900 Total posts after filtering: 10
+INFO 2025-04-11 17:51:11,284 views 17820 17900 Post ID: 19 has 0 media files
+INFO 2025-04-11 17:51:11,285 views 17820 17900 Post ID: 18 has 0 media files
+INFO 2025-04-11 17:51:11,286 views 17820 17900 Post ID: 17 has 0 media files
+INFO 2025-04-11 17:51:11,287 views 17820 17900 Post ID: 16 has 0 media files
+INFO 2025-04-11 17:51:11,289 views 17820 17900 Post ID: 15 has 1 media files
+INFO 2025-04-11 17:51:11,290 views 17820 17900    - Media: 7, Type: image, File: posts/shen_K1gTHFr.jpg
+INFO 2025-04-11 17:51:11,290 views 17820 17900 Post ID: 14 has 1 media files
+INFO 2025-04-11 17:51:11,292 views 17820 17900    - Media: 6, Type: image, File: posts/graves_Q3JewNI.jpg
+INFO 2025-04-11 17:51:11,293 views 17820 17900 Post ID: 13 has 0 media files
+INFO 2025-04-11 17:51:11,295 views 17820 17900 Post ID: 12 has 0 media files
+INFO 2025-04-11 17:51:11,296 views 17820 17900 Post ID: 11 has 0 media files
+INFO 2025-04-11 17:51:11,298 views 17820 17900 Post ID: 6 has 1 media files
+INFO 2025-04-11 17:51:11,300 views 17820 17900    - Media: 2, Type: image, File: posts/graves_aCVo84j.jpg
+INFO 2025-04-11 17:51:11,300 views 17820 17900 Debug - Post data structure:
+INFO 2025-04-11 17:51:11,301 views 17820 17900 Post data - ID: 19, Media count: 0
+INFO 2025-04-11 17:51:11,303 views 17820 17900 Post data - ID: 18, Media count: 0
+INFO 2025-04-11 17:51:11,305 views 17820 17900 Post data - ID: 17, Media count: 0
+INFO 2025-04-11 17:51:11,307 views 17820 17900 Post data - ID: 16, Media count: 0
+INFO 2025-04-11 17:51:11,309 views 17820 17900 Post data - ID: 15, Media count: 1
+INFO 2025-04-11 17:51:11,312 views 17820 17900 Post data - ID: 14, Media count: 1
+INFO 2025-04-11 17:51:11,313 views 17820 17900 Post data - ID: 13, Media count: 0
+INFO 2025-04-11 17:51:11,314 views 17820 17900 Post data - ID: 12, Media count: 0
+INFO 2025-04-11 17:51:11,315 views 17820 17900 Post data - ID: 11, Media count: 0
+INFO 2025-04-11 17:51:11,317 views 17820 17900 Post data - ID: 6, Media count: 1
+INFO 2025-04-11 17:51:11,451 basehttp 17820 17900 "GET / HTTP/1.1" 200 67424
+INFO 2025-04-11 17:51:11,835 basehttp 17820 17900 "GET /media/posts/shen_K1gTHFr.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 17:51:11,850 basehttp 17820 20344 "GET /media/posts/graves_Q3JewNI.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 17:51:35,332 autoreload 17820 19848 C:\hoshi_v2\posts\views.py changed, reloading.
+INFO 2025-04-11 17:51:36,405 autoreload 5916 20828 Watching for file changes with StatReloader
+INFO 2025-04-11 17:52:18,494 views 5916 18724 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:52:18,495 views 5916 18724 Người dùng: admin_hoshi
+INFO 2025-04-11 17:52:18,495 views 5916 18724 Người dùng đã xác thực: True
+INFO 2025-04-11 17:52:18,500 views 5916 18724 Tổng số bài viết ban đầu: 10
+INFO 2025-04-11 17:52:18,505 views 5916 18724 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:52:18,508 views 5916 18724 Số bài viết của những người đang theo dõi: 10
+INFO 2025-04-11 17:52:18,514 views 5916 18724 Tổng số bài viết sau khi lọc: 10
+INFO 2025-04-11 17:52:18,610 views 5916 18724 Debug - Post Authors:
+INFO 2025-04-11 17:52:18,611 views 5916 18724 Post ID: 19, Author Username: admin_hoshi
+INFO 2025-04-11 17:52:18,612 views 5916 18724 Post ID: 18, Author Username: admin_hoshi
+INFO 2025-04-11 17:52:18,612 views 5916 18724 Post ID: 17, Author Username: admin_hoshi
+INFO 2025-04-11 17:52:18,613 views 5916 18724 Post ID: 16, Author Username: admin_hoshi
+INFO 2025-04-11 17:52:18,613 views 5916 18724 Post ID: 15, Author Username: admin_hoshi
+INFO 2025-04-11 17:52:18,615 views 5916 18724 Post ID: 14, Author Username: admin_hoshi
+INFO 2025-04-11 17:52:18,615 views 5916 18724 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 17:52:18,615 views 5916 18724 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 17:52:18,615 views 5916 18724 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:52:18,616 views 5916 18724 Post ID: 6, Author Username: quynhchan
+INFO 2025-04-11 17:52:18,616 views 5916 18724 Total posts before filtering: 10
+INFO 2025-04-11 17:52:18,617 views 5916 18724 Following users: [2]
+INFO 2025-04-11 17:52:18,618 views 5916 18724 Total posts after filtering: 10
+INFO 2025-04-11 17:52:18,621 views 5916 18724 Post ID: 19 has 0 media files
+INFO 2025-04-11 17:52:18,625 views 5916 18724 Post ID: 18 has 0 media files
+INFO 2025-04-11 17:52:18,629 views 5916 18724 Post ID: 17 has 0 media files
+INFO 2025-04-11 17:52:18,633 views 5916 18724 Post ID: 16 has 0 media files
+INFO 2025-04-11 17:52:18,639 views 5916 18724 Post ID: 15 has 1 media files
+INFO 2025-04-11 17:52:18,643 views 5916 18724    - Media: 7, Type: image, File: posts/shen_K1gTHFr.jpg
+INFO 2025-04-11 17:52:18,648 views 5916 18724 Post ID: 14 has 1 media files
+INFO 2025-04-11 17:52:18,650 views 5916 18724    - Media: 6, Type: image, File: posts/graves_Q3JewNI.jpg
+INFO 2025-04-11 17:52:18,652 views 5916 18724 Post ID: 13 has 0 media files
+INFO 2025-04-11 17:52:18,657 views 5916 18724 Post ID: 12 has 0 media files
+INFO 2025-04-11 17:52:18,659 views 5916 18724 Post ID: 11 has 0 media files
+INFO 2025-04-11 17:52:18,661 views 5916 18724 Post ID: 6 has 1 media files
+INFO 2025-04-11 17:52:18,665 views 5916 18724    - Media: 2, Type: image, File: posts/graves_aCVo84j.jpg
+INFO 2025-04-11 17:52:18,666 views 5916 18724 Debug - Post data structure:
+INFO 2025-04-11 17:52:18,667 views 5916 18724 Post data - ID: 19, Media count: 0
+INFO 2025-04-11 17:52:18,671 views 5916 18724 Post data - ID: 18, Media count: 0
+INFO 2025-04-11 17:52:18,673 views 5916 18724 Post data - ID: 17, Media count: 0
+INFO 2025-04-11 17:52:18,674 views 5916 18724 Post data - ID: 16, Media count: 0
+INFO 2025-04-11 17:52:18,676 views 5916 18724 Post data - ID: 15, Media count: 1
+INFO 2025-04-11 17:52:18,680 views 5916 18724 Post data - ID: 14, Media count: 1
+INFO 2025-04-11 17:52:18,681 views 5916 18724 Post data - ID: 13, Media count: 0
+INFO 2025-04-11 17:52:18,683 views 5916 18724 Post data - ID: 12, Media count: 0
+INFO 2025-04-11 17:52:18,683 views 5916 18724 Post data - ID: 11, Media count: 0
+INFO 2025-04-11 17:52:18,684 views 5916 18724 Post data - ID: 6, Media count: 1
+INFO 2025-04-11 17:52:18,810 basehttp 5916 18724 "GET / HTTP/1.1" 200 67425
+INFO 2025-04-11 17:52:22,638 autoreload 5916 20828 C:\hoshi_v2\posts\views.py changed, reloading.
+INFO 2025-04-11 17:52:23,659 autoreload 1980 16436 Watching for file changes with StatReloader
+INFO 2025-04-11 17:52:27,281 basehttp 1980 19200 "GET /posts/create/ HTTP/1.1" 200 18593
+INFO 2025-04-11 17:52:35,365 basehttp 1980 19200 "GET /api/posts/?page=2 HTTP/1.1" 200 9596
+INFO 2025-04-11 17:52:36,903 basehttp 1980 19200 "GET /api/posts/?page=2 HTTP/1.1" 200 9596
+INFO 2025-04-11 17:52:37,789 basehttp 1980 19200 "GET /api/posts/?page=2 HTTP/1.1" 200 9596
+INFO 2025-04-11 17:52:38,520 basehttp 1980 19200 "POST /posts/create/ HTTP/1.1" 302 0
+INFO 2025-04-11 17:52:38,533 views 1980 19200 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:52:38,534 views 1980 19200 Người dùng: admin_hoshi
+INFO 2025-04-11 17:52:38,534 views 1980 19200 Người dùng đã xác thực: True
+INFO 2025-04-11 17:52:38,537 views 1980 19200 Tổng số bài viết ban đầu: 11
+INFO 2025-04-11 17:52:38,539 views 1980 19200 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:52:38,541 views 1980 19200 Số bài viết của những người đang theo dõi: 11
+INFO 2025-04-11 17:52:38,545 views 1980 19200 Tổng số bài viết sau khi lọc: 11
+INFO 2025-04-11 17:52:38,579 views 1980 19200 Debug - Post Authors:
+INFO 2025-04-11 17:52:38,580 views 1980 19200 Post ID: 20, Author Username: admin_hoshi
+INFO 2025-04-11 17:52:38,580 views 1980 19200 Post ID: 19, Author Username: admin_hoshi
+INFO 2025-04-11 17:52:38,580 views 1980 19200 Post ID: 18, Author Username: admin_hoshi
+INFO 2025-04-11 17:52:38,580 views 1980 19200 Post ID: 17, Author Username: admin_hoshi
+INFO 2025-04-11 17:52:38,581 views 1980 19200 Post ID: 16, Author Username: admin_hoshi
+INFO 2025-04-11 17:52:38,581 views 1980 19200 Post ID: 15, Author Username: admin_hoshi
+INFO 2025-04-11 17:52:38,581 views 1980 19200 Post ID: 14, Author Username: admin_hoshi
+INFO 2025-04-11 17:52:38,581 views 1980 19200 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 17:52:38,582 views 1980 19200 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 17:52:38,582 views 1980 19200 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:52:38,582 views 1980 19200 Total posts before filtering: 11
+INFO 2025-04-11 17:52:38,582 views 1980 19200 Following users: [2]
+INFO 2025-04-11 17:52:38,582 views 1980 19200 Total posts after filtering: 11
+INFO 2025-04-11 17:52:38,585 views 1980 19200 Post ID: 20 has 0 media files
+INFO 2025-04-11 17:52:38,589 views 1980 19200 Post ID: 19 has 0 media files
+INFO 2025-04-11 17:52:38,592 views 1980 19200 Post ID: 18 has 0 media files
+INFO 2025-04-11 17:52:38,595 views 1980 19200 Post ID: 17 has 0 media files
+INFO 2025-04-11 17:52:38,599 views 1980 19200 Post ID: 16 has 0 media files
+INFO 2025-04-11 17:52:38,604 views 1980 19200 Post ID: 15 has 1 media files
+INFO 2025-04-11 17:52:38,608 views 1980 19200    - Media: 7, Type: image, File: posts/shen_K1gTHFr.jpg
+INFO 2025-04-11 17:52:38,609 views 1980 19200 Post ID: 14 has 1 media files
+INFO 2025-04-11 17:52:38,611 views 1980 19200    - Media: 6, Type: image, File: posts/graves_Q3JewNI.jpg
+INFO 2025-04-11 17:52:38,614 views 1980 19200 Post ID: 13 has 0 media files
+INFO 2025-04-11 17:52:38,619 views 1980 19200 Post ID: 12 has 0 media files
+INFO 2025-04-11 17:52:38,623 views 1980 19200 Post ID: 11 has 0 media files
+INFO 2025-04-11 17:52:38,625 views 1980 19200 Debug - Post data structure:
+INFO 2025-04-11 17:52:38,627 views 1980 19200 Post data - ID: 20, Media count: 0
+INFO 2025-04-11 17:52:38,629 views 1980 19200 Post data - ID: 19, Media count: 0
+INFO 2025-04-11 17:52:38,630 views 1980 19200 Post data - ID: 18, Media count: 0
+INFO 2025-04-11 17:52:38,632 views 1980 19200 Post data - ID: 17, Media count: 0
+INFO 2025-04-11 17:52:38,635 views 1980 19200 Post data - ID: 16, Media count: 0
+INFO 2025-04-11 17:52:38,637 views 1980 19200 Post data - ID: 15, Media count: 1
+INFO 2025-04-11 17:52:38,639 views 1980 19200 Post data - ID: 14, Media count: 1
+INFO 2025-04-11 17:52:38,641 views 1980 19200 Post data - ID: 13, Media count: 0
+INFO 2025-04-11 17:52:38,642 views 1980 19200 Post data - ID: 12, Media count: 0
+INFO 2025-04-11 17:52:38,643 views 1980 19200 Post data - ID: 11, Media count: 0
+INFO 2025-04-11 17:52:38,725 basehttp 1980 19200 "GET / HTTP/1.1" 200 63469
+INFO 2025-04-11 17:52:38,940 basehttp 1980 19200 "GET /media/posts/shen_K1gTHFr.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 17:52:38,955 basehttp 1980 16028 "GET /media/posts/graves_Q3JewNI.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 17:53:16,325 views 1980 19200 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:53:16,325 views 1980 19200 Người dùng: admin_hoshi
+INFO 2025-04-11 17:53:16,325 views 1980 19200 Người dùng đã xác thực: True
+INFO 2025-04-11 17:53:16,326 views 1980 19200 Tổng số bài viết ban đầu: 11
+INFO 2025-04-11 17:53:16,327 views 1980 19200 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:53:16,330 views 1980 19200 Số bài viết của những người đang theo dõi: 11
+INFO 2025-04-11 17:53:16,332 views 1980 19200 Tổng số bài viết sau khi lọc: 11
+INFO 2025-04-11 17:53:16,359 views 1980 19200 Debug - Post Authors:
+INFO 2025-04-11 17:53:16,361 views 1980 19200 Post ID: 20, Author Username: admin_hoshi
+INFO 2025-04-11 17:53:16,361 views 1980 19200 Post ID: 19, Author Username: admin_hoshi
+INFO 2025-04-11 17:53:16,363 views 1980 19200 Post ID: 18, Author Username: admin_hoshi
+INFO 2025-04-11 17:53:16,363 views 1980 19200 Post ID: 17, Author Username: admin_hoshi
+INFO 2025-04-11 17:53:16,363 views 1980 19200 Post ID: 16, Author Username: admin_hoshi
+INFO 2025-04-11 17:53:16,363 views 1980 19200 Post ID: 15, Author Username: admin_hoshi
+INFO 2025-04-11 17:53:16,364 views 1980 19200 Post ID: 14, Author Username: admin_hoshi
+INFO 2025-04-11 17:53:16,365 views 1980 19200 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 17:53:16,365 views 1980 19200 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 17:53:16,365 views 1980 19200 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:53:16,365 views 1980 19200 Total posts before filtering: 11
+INFO 2025-04-11 17:53:16,366 views 1980 19200 Following users: [2]
+INFO 2025-04-11 17:53:16,366 views 1980 19200 Total posts after filtering: 11
+INFO 2025-04-11 17:53:16,368 views 1980 19200 Post ID: 20 has 0 media files
+INFO 2025-04-11 17:53:16,372 views 1980 19200 Post ID: 19 has 0 media files
+INFO 2025-04-11 17:53:16,376 views 1980 19200 Post ID: 18 has 0 media files
+INFO 2025-04-11 17:53:16,379 views 1980 19200 Post ID: 17 has 0 media files
+INFO 2025-04-11 17:53:16,381 views 1980 19200 Post ID: 16 has 0 media files
+INFO 2025-04-11 17:53:16,384 views 1980 19200 Post ID: 15 has 1 media files
+INFO 2025-04-11 17:53:16,385 views 1980 19200    - Media: 7, Type: image, File: posts/shen_K1gTHFr.jpg
+INFO 2025-04-11 17:53:16,386 views 1980 19200 Post ID: 14 has 1 media files
+INFO 2025-04-11 17:53:16,387 views 1980 19200    - Media: 6, Type: image, File: posts/graves_Q3JewNI.jpg
+INFO 2025-04-11 17:53:16,388 views 1980 19200 Post ID: 13 has 0 media files
+INFO 2025-04-11 17:53:16,389 views 1980 19200 Post ID: 12 has 0 media files
+INFO 2025-04-11 17:53:16,391 views 1980 19200 Post ID: 11 has 0 media files
+INFO 2025-04-11 17:53:16,392 views 1980 19200 Debug - Post data structure:
+INFO 2025-04-11 17:53:16,393 views 1980 19200 Post data - ID: 20, Media count: 0
+INFO 2025-04-11 17:53:16,394 views 1980 19200 Post data - ID: 19, Media count: 0
+INFO 2025-04-11 17:53:16,395 views 1980 19200 Post data - ID: 18, Media count: 0
+INFO 2025-04-11 17:53:16,397 views 1980 19200 Post data - ID: 17, Media count: 0
+INFO 2025-04-11 17:53:16,450 views 1980 19200 Post data - ID: 16, Media count: 0
+INFO 2025-04-11 17:53:16,452 views 1980 19200 Post data - ID: 15, Media count: 1
+INFO 2025-04-11 17:53:16,456 views 1980 19200 Post data - ID: 14, Media count: 1
+INFO 2025-04-11 17:53:16,458 views 1980 19200 Post data - ID: 13, Media count: 0
+INFO 2025-04-11 17:53:16,461 views 1980 19200 Post data - ID: 12, Media count: 0
+INFO 2025-04-11 17:53:16,468 views 1980 19200 Post data - ID: 11, Media count: 0
+INFO 2025-04-11 17:53:16,578 basehttp 1980 19200 "GET / HTTP/1.1" 200 63161
+INFO 2025-04-11 17:53:18,310 views 1980 19200 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:53:18,311 views 1980 19200 Người dùng: admin_hoshi
+INFO 2025-04-11 17:53:18,311 views 1980 19200 Người dùng đã xác thực: True
+INFO 2025-04-11 17:53:18,312 views 1980 19200 Tổng số bài viết ban đầu: 11
+INFO 2025-04-11 17:53:18,313 views 1980 19200 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:53:18,315 views 1980 19200 Số bài viết của những người đang theo dõi: 11
+INFO 2025-04-11 17:53:18,317 views 1980 19200 Tổng số bài viết sau khi lọc: 11
+INFO 2025-04-11 17:53:18,345 views 1980 19200 Debug - Post Authors:
+INFO 2025-04-11 17:53:18,345 views 1980 19200 Post ID: 20, Author Username: admin_hoshi
+INFO 2025-04-11 17:53:18,346 views 1980 19200 Post ID: 19, Author Username: admin_hoshi
+INFO 2025-04-11 17:53:18,346 views 1980 19200 Post ID: 18, Author Username: admin_hoshi
+INFO 2025-04-11 17:53:18,346 views 1980 19200 Post ID: 17, Author Username: admin_hoshi
+INFO 2025-04-11 17:53:18,346 views 1980 19200 Post ID: 16, Author Username: admin_hoshi
+INFO 2025-04-11 17:53:18,346 views 1980 19200 Post ID: 15, Author Username: admin_hoshi
+INFO 2025-04-11 17:53:18,346 views 1980 19200 Post ID: 14, Author Username: admin_hoshi
+INFO 2025-04-11 17:53:18,346 views 1980 19200 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 17:53:18,346 views 1980 19200 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 17:53:18,347 views 1980 19200 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:53:18,347 views 1980 19200 Total posts before filtering: 11
+INFO 2025-04-11 17:53:18,351 views 1980 19200 Following users: [2]
+INFO 2025-04-11 17:53:18,352 views 1980 19200 Total posts after filtering: 11
+INFO 2025-04-11 17:53:18,354 views 1980 19200 Post ID: 20 has 0 media files
+INFO 2025-04-11 17:53:18,355 views 1980 19200 Post ID: 19 has 0 media files
+INFO 2025-04-11 17:53:18,357 views 1980 19200 Post ID: 18 has 0 media files
+INFO 2025-04-11 17:53:18,358 views 1980 19200 Post ID: 17 has 0 media files
+INFO 2025-04-11 17:53:18,360 views 1980 19200 Post ID: 16 has 0 media files
+INFO 2025-04-11 17:53:18,361 views 1980 19200 Post ID: 15 has 1 media files
+INFO 2025-04-11 17:53:18,363 views 1980 19200    - Media: 7, Type: image, File: posts/shen_K1gTHFr.jpg
+INFO 2025-04-11 17:53:18,365 views 1980 19200 Post ID: 14 has 1 media files
+INFO 2025-04-11 17:53:18,366 views 1980 19200    - Media: 6, Type: image, File: posts/graves_Q3JewNI.jpg
+INFO 2025-04-11 17:53:18,367 views 1980 19200 Post ID: 13 has 0 media files
+INFO 2025-04-11 17:53:18,368 views 1980 19200 Post ID: 12 has 0 media files
+INFO 2025-04-11 17:53:18,369 views 1980 19200 Post ID: 11 has 0 media files
+INFO 2025-04-11 17:53:18,370 views 1980 19200 Debug - Post data structure:
+INFO 2025-04-11 17:53:18,371 views 1980 19200 Post data - ID: 20, Media count: 0
+INFO 2025-04-11 17:53:18,372 views 1980 19200 Post data - ID: 19, Media count: 0
+INFO 2025-04-11 17:53:18,373 views 1980 19200 Post data - ID: 18, Media count: 0
+INFO 2025-04-11 17:53:18,373 views 1980 19200 Post data - ID: 17, Media count: 0
+INFO 2025-04-11 17:53:18,374 views 1980 19200 Post data - ID: 16, Media count: 0
+INFO 2025-04-11 17:53:18,374 views 1980 19200 Post data - ID: 15, Media count: 1
+INFO 2025-04-11 17:53:18,375 views 1980 19200 Post data - ID: 14, Media count: 1
+INFO 2025-04-11 17:53:18,375 views 1980 19200 Post data - ID: 13, Media count: 0
+INFO 2025-04-11 17:53:18,376 views 1980 19200 Post data - ID: 12, Media count: 0
+INFO 2025-04-11 17:53:18,378 views 1980 19200 Post data - ID: 11, Media count: 0
+INFO 2025-04-11 17:53:18,433 basehttp 1980 19200 "GET / HTTP/1.1" 200 63161
+INFO 2025-04-11 17:53:19,877 basehttp 1980 19200 "POST /api/posts/20/like/ HTTP/1.1" 200 34
+INFO 2025-04-11 17:53:24,255 basehttp 1980 19200 "POST /api/posts/comments/add/ HTTP/1.1" 200 232
+INFO 2025-04-11 17:53:24,275 basehttp 1980 16028 "POST /api/posts/comments/add/ HTTP/1.1" 200 231
+INFO 2025-04-11 17:53:37,545 views 1980 19200 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:53:37,546 views 1980 19200 Người dùng: admin_hoshi
+INFO 2025-04-11 17:53:37,546 views 1980 19200 Người dùng đã xác thực: True
+INFO 2025-04-11 17:53:37,546 views 1980 19200 Tổng số bài viết ban đầu: 11
+INFO 2025-04-11 17:53:37,549 views 1980 19200 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:53:37,552 views 1980 19200 Số bài viết của những người đang theo dõi: 11
+INFO 2025-04-11 17:53:37,555 views 1980 19200 Tổng số bài viết sau khi lọc: 11
+INFO 2025-04-11 17:53:37,590 views 1980 19200 Debug - Post Authors:
+INFO 2025-04-11 17:53:37,591 views 1980 19200 Post ID: 20, Author Username: admin_hoshi
+INFO 2025-04-11 17:53:37,591 views 1980 19200 Post ID: 19, Author Username: admin_hoshi
+INFO 2025-04-11 17:53:37,592 views 1980 19200 Post ID: 18, Author Username: admin_hoshi
+INFO 2025-04-11 17:53:37,592 views 1980 19200 Post ID: 17, Author Username: admin_hoshi
+INFO 2025-04-11 17:53:37,592 views 1980 19200 Post ID: 16, Author Username: admin_hoshi
+INFO 2025-04-11 17:53:37,592 views 1980 19200 Post ID: 15, Author Username: admin_hoshi
+INFO 2025-04-11 17:53:37,592 views 1980 19200 Post ID: 14, Author Username: admin_hoshi
+INFO 2025-04-11 17:53:37,592 views 1980 19200 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 17:53:37,593 views 1980 19200 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 17:53:37,593 views 1980 19200 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:53:37,593 views 1980 19200 Total posts before filtering: 11
+INFO 2025-04-11 17:53:37,593 views 1980 19200 Following users: [2]
+INFO 2025-04-11 17:53:37,594 views 1980 19200 Total posts after filtering: 11
+INFO 2025-04-11 17:53:37,595 views 1980 19200 Post ID: 20 has 0 media files
+INFO 2025-04-11 17:53:37,598 views 1980 19200 Post ID: 19 has 0 media files
+INFO 2025-04-11 17:53:37,601 views 1980 19200 Post ID: 18 has 0 media files
+INFO 2025-04-11 17:53:37,603 views 1980 19200 Post ID: 17 has 0 media files
+INFO 2025-04-11 17:53:37,607 views 1980 19200 Post ID: 16 has 0 media files
+INFO 2025-04-11 17:53:37,609 views 1980 19200 Post ID: 15 has 1 media files
+INFO 2025-04-11 17:53:37,609 views 1980 19200    - Media: 7, Type: image, File: posts/shen_K1gTHFr.jpg
+INFO 2025-04-11 17:53:37,611 views 1980 19200 Post ID: 14 has 1 media files
+INFO 2025-04-11 17:53:37,660 views 1980 19200    - Media: 6, Type: image, File: posts/graves_Q3JewNI.jpg
+INFO 2025-04-11 17:53:37,666 views 1980 19200 Post ID: 13 has 0 media files
+INFO 2025-04-11 17:53:37,674 views 1980 19200 Post ID: 12 has 0 media files
+INFO 2025-04-11 17:53:37,684 views 1980 19200 Post ID: 11 has 0 media files
+INFO 2025-04-11 17:53:37,689 views 1980 19200 Debug - Post data structure:
+INFO 2025-04-11 17:53:37,691 views 1980 19200 Post data - ID: 20, Media count: 0
+INFO 2025-04-11 17:53:37,695 views 1980 19200 Post data - ID: 19, Media count: 0
+INFO 2025-04-11 17:53:37,698 views 1980 19200 Post data - ID: 18, Media count: 0
+INFO 2025-04-11 17:53:37,701 views 1980 19200 Post data - ID: 17, Media count: 0
+INFO 2025-04-11 17:53:37,705 views 1980 19200 Post data - ID: 16, Media count: 0
+INFO 2025-04-11 17:53:37,708 views 1980 19200 Post data - ID: 15, Media count: 1
+INFO 2025-04-11 17:53:37,711 views 1980 19200 Post data - ID: 14, Media count: 1
+INFO 2025-04-11 17:53:37,713 views 1980 19200 Post data - ID: 13, Media count: 0
+INFO 2025-04-11 17:53:37,718 views 1980 19200 Post data - ID: 12, Media count: 0
+INFO 2025-04-11 17:53:37,721 views 1980 19200 Post data - ID: 11, Media count: 0
+INFO 2025-04-11 17:53:37,845 basehttp 1980 19200 "GET / HTTP/1.1" 200 65495
+INFO 2025-04-11 17:53:44,031 views 1980 19200 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:53:44,031 views 1980 19200 Người dùng: admin_hoshi
+INFO 2025-04-11 17:53:44,032 views 1980 19200 Người dùng đã xác thực: True
+INFO 2025-04-11 17:53:44,033 views 1980 19200 Tổng số bài viết ban đầu: 11
+INFO 2025-04-11 17:53:44,035 views 1980 19200 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:53:44,038 views 1980 19200 Số bài viết của những người đang theo dõi: 11
+INFO 2025-04-11 17:53:44,039 views 1980 19200 Tổng số bài viết sau khi lọc: 11
+INFO 2025-04-11 17:53:44,066 views 1980 19200 Debug - Post Authors:
+INFO 2025-04-11 17:53:44,066 views 1980 19200 Post ID: 20, Author Username: admin_hoshi
+INFO 2025-04-11 17:53:44,066 views 1980 19200 Post ID: 19, Author Username: admin_hoshi
+INFO 2025-04-11 17:53:44,066 views 1980 19200 Post ID: 18, Author Username: admin_hoshi
+INFO 2025-04-11 17:53:44,067 views 1980 19200 Post ID: 17, Author Username: admin_hoshi
+INFO 2025-04-11 17:53:44,067 views 1980 19200 Post ID: 16, Author Username: admin_hoshi
+INFO 2025-04-11 17:53:44,067 views 1980 19200 Post ID: 15, Author Username: admin_hoshi
+INFO 2025-04-11 17:53:44,067 views 1980 19200 Post ID: 14, Author Username: admin_hoshi
+INFO 2025-04-11 17:53:44,067 views 1980 19200 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 17:53:44,067 views 1980 19200 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 17:53:44,068 views 1980 19200 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:53:44,068 views 1980 19200 Total posts before filtering: 11
+INFO 2025-04-11 17:53:44,068 views 1980 19200 Following users: [2]
+INFO 2025-04-11 17:53:44,068 views 1980 19200 Total posts after filtering: 11
+INFO 2025-04-11 17:53:44,070 views 1980 19200 Post ID: 20 has 0 media files
+INFO 2025-04-11 17:53:44,071 views 1980 19200 Post ID: 19 has 0 media files
+INFO 2025-04-11 17:53:44,072 views 1980 19200 Post ID: 18 has 0 media files
+INFO 2025-04-11 17:53:44,073 views 1980 19200 Post ID: 17 has 0 media files
+INFO 2025-04-11 17:53:44,075 views 1980 19200 Post ID: 16 has 0 media files
+INFO 2025-04-11 17:53:44,077 views 1980 19200 Post ID: 15 has 1 media files
+INFO 2025-04-11 17:53:44,079 views 1980 19200    - Media: 7, Type: image, File: posts/shen_K1gTHFr.jpg
+INFO 2025-04-11 17:53:44,080 views 1980 19200 Post ID: 14 has 1 media files
+INFO 2025-04-11 17:53:44,081 views 1980 19200    - Media: 6, Type: image, File: posts/graves_Q3JewNI.jpg
+INFO 2025-04-11 17:53:44,083 views 1980 19200 Post ID: 13 has 0 media files
+INFO 2025-04-11 17:53:44,085 views 1980 19200 Post ID: 12 has 0 media files
+INFO 2025-04-11 17:53:44,087 views 1980 19200 Post ID: 11 has 0 media files
+INFO 2025-04-11 17:53:44,087 views 1980 19200 Debug - Post data structure:
+INFO 2025-04-11 17:53:44,088 views 1980 19200 Post data - ID: 20, Media count: 0
+INFO 2025-04-11 17:53:44,089 views 1980 19200 Post data - ID: 19, Media count: 0
+INFO 2025-04-11 17:53:44,090 views 1980 19200 Post data - ID: 18, Media count: 0
+INFO 2025-04-11 17:53:44,091 views 1980 19200 Post data - ID: 17, Media count: 0
+INFO 2025-04-11 17:53:44,091 views 1980 19200 Post data - ID: 16, Media count: 0
+INFO 2025-04-11 17:53:44,092 views 1980 19200 Post data - ID: 15, Media count: 1
+INFO 2025-04-11 17:53:44,093 views 1980 19200 Post data - ID: 14, Media count: 1
+INFO 2025-04-11 17:53:44,093 views 1980 19200 Post data - ID: 13, Media count: 0
+INFO 2025-04-11 17:53:44,095 views 1980 19200 Post data - ID: 12, Media count: 0
+INFO 2025-04-11 17:53:44,097 views 1980 19200 Post data - ID: 11, Media count: 0
+INFO 2025-04-11 17:53:44,163 basehttp 1980 19200 "GET / HTTP/1.1" 200 65494
+INFO 2025-04-11 17:53:44,519 basehttp 1980 19200 - Broken pipe from ('127.0.0.1', 65292)
+INFO 2025-04-11 17:53:56,503 basehttp 1980 16028 "GET /users/admin_hoshi/ HTTP/1.1" 200 231332
+INFO 2025-04-11 17:54:00,727 basehttp 1980 16028 "DELETE /api/posts/20/ HTTP/1.1" 200 20
+WARNING 2025-04-11 17:54:03,404 log 1980 16028 Not Found: /api/posts/20/
+WARNING 2025-04-11 17:54:03,405 basehttp 1980 16028 "DELETE /api/posts/20/ HTTP/1.1" 404 0
+WARNING 2025-04-11 17:54:06,383 log 1980 16028 Not Found: /api/posts/20/
+WARNING 2025-04-11 17:54:06,384 basehttp 1980 16028 "DELETE /api/posts/20/ HTTP/1.1" 404 0
+INFO 2025-04-11 17:54:10,583 autoreload 1980 16436 C:\hoshi_v2\posts\views.py changed, reloading.
+INFO 2025-04-11 17:54:11,739 autoreload 6644 9780 Watching for file changes with StatReloader
+INFO 2025-04-11 17:54:12,216 basehttp 6644 6832 "DELETE /api/posts/19/ HTTP/1.1" 200 20
+INFO 2025-04-11 17:54:13,018 basehttp 6644 6832 "GET /users/admin_hoshi/ HTTP/1.1" 200 192526
+INFO 2025-04-11 17:54:13,292 basehttp 6644 16004 "GET /media/posts/graves_Q3JewNI.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 17:54:13,307 basehttp 6644 6832 "GET /media/posts/shen_K1gTHFr.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 17:54:18,817 basehttp 6644 6832 "DELETE /api/posts/18/ HTTP/1.1" 200 20
+INFO 2025-04-11 17:54:20,122 basehttp 6644 6832 "GET /users/admin_hoshi/ HTTP/1.1" 200 173187
+INFO 2025-04-11 17:54:27,010 basehttp 6644 6832 "DELETE /api/posts/17/ HTTP/1.1" 200 20
+INFO 2025-04-11 17:54:29,790 basehttp 6644 6832 "DELETE /api/posts/16/ HTTP/1.1" 200 20
+INFO 2025-04-11 17:54:30,998 basehttp 6644 6832 "GET /users/admin_hoshi/ HTTP/1.1" 200 134098
+INFO 2025-04-11 17:54:31,232 autoreload 6644 9780 C:\hoshi_v2\posts\views.py changed, reloading.
+INFO 2025-04-11 17:54:34,072 autoreload 20516 12600 Watching for file changes with StatReloader
+INFO 2025-04-11 17:54:35,022 basehttp 20516 19696 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+WARNING 2025-04-11 17:54:35,182 log 20516 19696 Not Found: /users/admin_hoshi/undefined
+WARNING 2025-04-11 17:54:35,183 basehttp 20516 19696 "GET /users/admin_hoshi/undefined HTTP/1.1" 404 5730
+INFO 2025-04-11 17:54:35,277 basehttp 20516 7464 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+WARNING 2025-04-11 17:54:35,300 log 20516 19696 Not Found: /users/admin_hoshi/undefined
+WARNING 2025-04-11 17:54:35,300 basehttp 20516 19696 "GET /users/admin_hoshi/undefined HTTP/1.1" 404 5730
+INFO 2025-04-11 17:54:35,950 basehttp 20516 7464 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+WARNING 2025-04-11 17:54:35,992 log 20516 19696 Not Found: /users/admin_hoshi/undefined
+WARNING 2025-04-11 17:54:35,992 basehttp 20516 19696 "GET /users/admin_hoshi/undefined HTTP/1.1" 404 5730
+INFO 2025-04-11 17:54:36,050 basehttp 20516 7464 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+WARNING 2025-04-11 17:54:36,068 log 20516 19696 Not Found: /users/admin_hoshi/undefined
+WARNING 2025-04-11 17:54:36,068 basehttp 20516 19696 "GET /users/admin_hoshi/undefined HTTP/1.1" 404 5730
+INFO 2025-04-11 17:54:36,599 basehttp 20516 7464 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+WARNING 2025-04-11 17:54:36,620 log 20516 19696 Not Found: /users/admin_hoshi/undefined
+WARNING 2025-04-11 17:54:36,620 basehttp 20516 19696 "GET /users/admin_hoshi/undefined HTTP/1.1" 404 5730
+INFO 2025-04-11 17:54:36,839 basehttp 20516 7464 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+WARNING 2025-04-11 17:54:36,860 log 20516 19696 Not Found: /users/admin_hoshi/undefined
+WARNING 2025-04-11 17:54:36,860 basehttp 20516 19696 "GET /users/admin_hoshi/undefined HTTP/1.1" 404 5730
+INFO 2025-04-11 17:54:37,716 basehttp 20516 7464 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+WARNING 2025-04-11 17:54:37,746 log 20516 19696 Not Found: /users/admin_hoshi/undefined
+WARNING 2025-04-11 17:54:37,746 basehttp 20516 19696 "GET /users/admin_hoshi/undefined HTTP/1.1" 404 5730
+INFO 2025-04-11 17:54:44,448 autoreload 20516 12600 C:\hoshi_v2\posts\views.py changed, reloading.
+INFO 2025-04-11 17:54:45,556 autoreload 16328 9144 Watching for file changes with StatReloader
+INFO 2025-04-11 17:55:15,068 views 16328 11860 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:55:15,068 views 16328 11860 Người dùng: admin_hoshi
+INFO 2025-04-11 17:55:15,069 views 16328 11860 Người dùng đã xác thực: True
+INFO 2025-04-11 17:55:15,071 views 16328 11860 Tổng số bài viết ban đầu: 6
+INFO 2025-04-11 17:55:15,077 views 16328 11860 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:55:15,081 views 16328 11860 Số bài viết của những người đang theo dõi: 6
+INFO 2025-04-11 17:55:15,084 views 16328 11860 Tổng số bài viết sau khi lọc: 6
+INFO 2025-04-11 17:55:15,116 views 16328 11860 Debug - Post Authors:
+INFO 2025-04-11 17:55:15,117 views 16328 11860 Post ID: 15, Author Username: admin_hoshi
+INFO 2025-04-11 17:55:15,117 views 16328 11860 Post ID: 14, Author Username: admin_hoshi
+INFO 2025-04-11 17:55:15,117 views 16328 11860 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 17:55:15,118 views 16328 11860 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 17:55:15,118 views 16328 11860 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:55:15,118 views 16328 11860 Post ID: 6, Author Username: quynhchan
+INFO 2025-04-11 17:55:15,118 views 16328 11860 Total posts before filtering: 6
+INFO 2025-04-11 17:55:15,118 views 16328 11860 Following users: [2]
+INFO 2025-04-11 17:55:15,118 views 16328 11860 Total posts after filtering: 6
+INFO 2025-04-11 17:55:15,120 views 16328 11860 Post ID: 15 has 1 media files
+INFO 2025-04-11 17:55:15,122 views 16328 11860    - Media: 7, Type: image, File: posts/shen_K1gTHFr.jpg
+INFO 2025-04-11 17:55:15,123 views 16328 11860 Post ID: 14 has 1 media files
+INFO 2025-04-11 17:55:15,124 views 16328 11860    - Media: 6, Type: image, File: posts/graves_Q3JewNI.jpg
+INFO 2025-04-11 17:55:15,124 views 16328 11860 Post ID: 13 has 0 media files
+INFO 2025-04-11 17:55:15,126 views 16328 11860 Post ID: 12 has 0 media files
+INFO 2025-04-11 17:55:15,127 views 16328 11860 Post ID: 11 has 0 media files
+INFO 2025-04-11 17:55:15,128 views 16328 11860 Post ID: 6 has 1 media files
+INFO 2025-04-11 17:55:15,129 views 16328 11860    - Media: 2, Type: image, File: posts/graves_aCVo84j.jpg
+INFO 2025-04-11 17:55:15,129 views 16328 11860 Debug - Post data structure:
+INFO 2025-04-11 17:55:15,130 views 16328 11860 Post data - ID: 15, Media count: 1
+INFO 2025-04-11 17:55:15,131 views 16328 11860 Post data - ID: 14, Media count: 1
+INFO 2025-04-11 17:55:15,132 views 16328 11860 Post data - ID: 13, Media count: 0
+INFO 2025-04-11 17:55:15,133 views 16328 11860 Post data - ID: 12, Media count: 0
+INFO 2025-04-11 17:55:15,135 views 16328 11860 Post data - ID: 11, Media count: 0
+INFO 2025-04-11 17:55:15,136 views 16328 11860 Post data - ID: 6, Media count: 1
+INFO 2025-04-11 17:55:15,262 basehttp 16328 11860 "GET / HTTP/1.1" 200 52116
+INFO 2025-04-11 17:55:19,666 views 16328 11860 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:55:19,666 views 16328 11860 Người dùng: admin_hoshi
+INFO 2025-04-11 17:55:19,667 views 16328 11860 Người dùng đã xác thực: True
+INFO 2025-04-11 17:55:19,668 views 16328 11860 Tổng số bài viết ban đầu: 6
+INFO 2025-04-11 17:55:19,669 views 16328 11860 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:55:19,671 views 16328 11860 Số bài viết của những người đang theo dõi: 6
+INFO 2025-04-11 17:55:19,672 views 16328 11860 Tổng số bài viết sau khi lọc: 6
+INFO 2025-04-11 17:55:19,689 views 16328 11860 Debug - Post Authors:
+INFO 2025-04-11 17:55:19,690 views 16328 11860 Post ID: 15, Author Username: admin_hoshi
+INFO 2025-04-11 17:55:19,690 views 16328 11860 Post ID: 14, Author Username: admin_hoshi
+INFO 2025-04-11 17:55:19,690 views 16328 11860 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 17:55:19,691 views 16328 11860 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 17:55:19,691 views 16328 11860 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:55:19,691 views 16328 11860 Post ID: 6, Author Username: quynhchan
+INFO 2025-04-11 17:55:19,691 views 16328 11860 Total posts before filtering: 6
+INFO 2025-04-11 17:55:19,691 views 16328 11860 Following users: [2]
+INFO 2025-04-11 17:55:19,692 views 16328 11860 Total posts after filtering: 6
+INFO 2025-04-11 17:55:19,693 views 16328 11860 Post ID: 15 has 1 media files
+INFO 2025-04-11 17:55:19,693 views 16328 11860    - Media: 7, Type: image, File: posts/shen_K1gTHFr.jpg
+INFO 2025-04-11 17:55:19,694 views 16328 11860 Post ID: 14 has 1 media files
+INFO 2025-04-11 17:55:19,695 views 16328 11860    - Media: 6, Type: image, File: posts/graves_Q3JewNI.jpg
+INFO 2025-04-11 17:55:19,697 views 16328 11860 Post ID: 13 has 0 media files
+INFO 2025-04-11 17:55:19,698 views 16328 11860 Post ID: 12 has 0 media files
+INFO 2025-04-11 17:55:19,700 views 16328 11860 Post ID: 11 has 0 media files
+INFO 2025-04-11 17:55:19,701 views 16328 11860 Post ID: 6 has 1 media files
+INFO 2025-04-11 17:55:19,702 views 16328 11860    - Media: 2, Type: image, File: posts/graves_aCVo84j.jpg
+INFO 2025-04-11 17:55:19,702 views 16328 11860 Debug - Post data structure:
+INFO 2025-04-11 17:55:19,705 views 16328 11860 Post data - ID: 15, Media count: 1
+INFO 2025-04-11 17:55:19,706 views 16328 11860 Post data - ID: 14, Media count: 1
+INFO 2025-04-11 17:55:19,707 views 16328 11860 Post data - ID: 13, Media count: 0
+INFO 2025-04-11 17:55:19,707 views 16328 11860 Post data - ID: 12, Media count: 0
+INFO 2025-04-11 17:55:19,708 views 16328 11860 Post data - ID: 11, Media count: 0
+INFO 2025-04-11 17:55:19,709 views 16328 11860 Post data - ID: 6, Media count: 1
+INFO 2025-04-11 17:55:19,761 basehttp 16328 11860 "GET / HTTP/1.1" 200 52116
+INFO 2025-04-11 17:55:25,108 basehttp 16328 11860 "GET /posts/create/ HTTP/1.1" 200 18595
+INFO 2025-04-11 17:55:25,428 basehttp 16328 11860 - Broken pipe from ('127.0.0.1', 49158)
+INFO 2025-04-11 17:55:30,858 basehttp 16328 17640 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+INFO 2025-04-11 17:55:30,983 basehttp 16328 17640 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+INFO 2025-04-11 17:55:31,351 basehttp 16328 17640 "GET /api/posts/?page=2 HTTP/1.1" 200 7886
+INFO 2025-04-11 17:55:33,346 views 16328 17640 POST request received with the following data:
+INFO 2025-04-11 17:55:33,347 views 16328 17640 Request POST: <QueryDict: {'csrfmiddlewaretoken': ['ZIyhc0I5kKWCcWzn46tL01XiSWuRw0aShOC7NyEgKTowupjki9oTGUQj4R0MJqZ1'], 'media[]': [''], 'caption': ['asdasdasdasdasda'], 'location': ['']}>
+INFO 2025-04-11 17:55:33,348 views 16328 17640 Request FILES keys: []
+WARNING 2025-04-11 17:55:33,348 views 16328 17640 No media files found. Available fields: []
+INFO 2025-04-11 17:55:33,362 basehttp 16328 17640 "POST /posts/create/ HTTP/1.1" 302 0
+INFO 2025-04-11 17:55:33,384 views 16328 17640 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:55:33,385 views 16328 17640 Người dùng: admin_hoshi
+INFO 2025-04-11 17:55:33,385 views 16328 17640 Người dùng đã xác thực: True
+INFO 2025-04-11 17:55:33,386 views 16328 17640 Tổng số bài viết ban đầu: 7
+INFO 2025-04-11 17:55:33,389 views 16328 17640 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:55:33,395 views 16328 17640 Số bài viết của những người đang theo dõi: 7
+INFO 2025-04-11 17:55:33,399 views 16328 17640 Tổng số bài viết sau khi lọc: 7
+INFO 2025-04-11 17:55:33,428 views 16328 17640 Debug - Post Authors:
+INFO 2025-04-11 17:55:33,428 views 16328 17640 Post ID: 21, Author Username: admin_hoshi
+INFO 2025-04-11 17:55:33,428 views 16328 17640 Post ID: 15, Author Username: admin_hoshi
+INFO 2025-04-11 17:55:33,429 views 16328 17640 Post ID: 14, Author Username: admin_hoshi
+INFO 2025-04-11 17:55:33,429 views 16328 17640 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 17:55:33,429 views 16328 17640 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 17:55:33,429 views 16328 17640 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:55:33,429 views 16328 17640 Post ID: 6, Author Username: quynhchan
+INFO 2025-04-11 17:55:33,430 views 16328 17640 Total posts before filtering: 7
+INFO 2025-04-11 17:55:33,430 views 16328 17640 Following users: [2]
+INFO 2025-04-11 17:55:33,430 views 16328 17640 Total posts after filtering: 7
+INFO 2025-04-11 17:55:33,432 views 16328 17640 Post ID: 21 has 0 media files
+INFO 2025-04-11 17:55:33,435 views 16328 17640 Post ID: 15 has 1 media files
+INFO 2025-04-11 17:55:33,436 views 16328 17640    - Media: 7, Type: image, File: posts/shen_K1gTHFr.jpg
+INFO 2025-04-11 17:55:33,440 views 16328 17640 Post ID: 14 has 1 media files
+INFO 2025-04-11 17:55:33,442 views 16328 17640    - Media: 6, Type: image, File: posts/graves_Q3JewNI.jpg
+INFO 2025-04-11 17:55:33,443 views 16328 17640 Post ID: 13 has 0 media files
+INFO 2025-04-11 17:55:33,448 views 16328 17640 Post ID: 12 has 0 media files
+INFO 2025-04-11 17:55:33,451 views 16328 17640 Post ID: 11 has 0 media files
+INFO 2025-04-11 17:55:33,455 views 16328 17640 Post ID: 6 has 1 media files
+INFO 2025-04-11 17:55:33,456 views 16328 17640    - Media: 2, Type: image, File: posts/graves_aCVo84j.jpg
+INFO 2025-04-11 17:55:33,456 views 16328 17640 Debug - Post data structure:
+INFO 2025-04-11 17:55:33,457 views 16328 17640 Post data - ID: 21, Media count: 0
+INFO 2025-04-11 17:55:33,458 views 16328 17640 Post data - ID: 15, Media count: 1
+INFO 2025-04-11 17:55:33,460 views 16328 17640 Post data - ID: 14, Media count: 1
+INFO 2025-04-11 17:55:33,461 views 16328 17640 Post data - ID: 13, Media count: 0
+INFO 2025-04-11 17:55:33,462 views 16328 17640 Post data - ID: 12, Media count: 0
+INFO 2025-04-11 17:55:33,463 views 16328 17640 Post data - ID: 11, Media count: 0
+INFO 2025-04-11 17:55:33,463 views 16328 17640 Post data - ID: 6, Media count: 1
+INFO 2025-04-11 17:55:33,516 basehttp 16328 17640 "GET / HTTP/1.1" 200 57157
+INFO 2025-04-11 17:56:11,514 views 16328 17640 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:56:11,515 views 16328 17640 Người dùng: admin_hoshi
+INFO 2025-04-11 17:56:11,515 views 16328 17640 Người dùng đã xác thực: True
+INFO 2025-04-11 17:56:11,516 views 16328 17640 Tổng số bài viết ban đầu: 7
+INFO 2025-04-11 17:56:11,518 views 16328 17640 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:56:11,520 views 16328 17640 Số bài viết của những người đang theo dõi: 7
+INFO 2025-04-11 17:56:11,521 views 16328 17640 Tổng số bài viết sau khi lọc: 7
+INFO 2025-04-11 17:56:11,548 views 16328 17640 Debug - Post Authors:
+INFO 2025-04-11 17:56:11,548 views 16328 17640 Post ID: 21, Author Username: admin_hoshi
+INFO 2025-04-11 17:56:11,548 views 16328 17640 Post ID: 15, Author Username: admin_hoshi
+INFO 2025-04-11 17:56:11,548 views 16328 17640 Post ID: 14, Author Username: admin_hoshi
+INFO 2025-04-11 17:56:11,548 views 16328 17640 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 17:56:11,549 views 16328 17640 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 17:56:11,549 views 16328 17640 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:56:11,549 views 16328 17640 Post ID: 6, Author Username: quynhchan
+INFO 2025-04-11 17:56:11,549 views 16328 17640 Total posts before filtering: 7
+INFO 2025-04-11 17:56:11,549 views 16328 17640 Following users: [2]
+INFO 2025-04-11 17:56:11,549 views 16328 17640 Total posts after filtering: 7
+INFO 2025-04-11 17:56:11,551 views 16328 17640 Post ID: 21 has 0 media files
+INFO 2025-04-11 17:56:11,554 views 16328 17640 Post ID: 15 has 1 media files
+INFO 2025-04-11 17:56:11,555 views 16328 17640    - Media: 7, Type: image, File: posts/shen_K1gTHFr.jpg
+INFO 2025-04-11 17:56:11,556 views 16328 17640 Post ID: 14 has 1 media files
+INFO 2025-04-11 17:56:11,557 views 16328 17640    - Media: 6, Type: image, File: posts/graves_Q3JewNI.jpg
+INFO 2025-04-11 17:56:11,560 views 16328 17640 Post ID: 13 has 0 media files
+INFO 2025-04-11 17:56:11,561 views 16328 17640 Post ID: 12 has 0 media files
+INFO 2025-04-11 17:56:11,563 views 16328 17640 Post ID: 11 has 0 media files
+INFO 2025-04-11 17:56:11,566 views 16328 17640 Post ID: 6 has 1 media files
+INFO 2025-04-11 17:56:11,568 views 16328 17640    - Media: 2, Type: image, File: posts/graves_aCVo84j.jpg
+INFO 2025-04-11 17:56:11,568 views 16328 17640 Debug - Post data structure:
+INFO 2025-04-11 17:56:11,569 views 16328 17640 Post data - ID: 21, Media count: 0
+INFO 2025-04-11 17:56:11,570 views 16328 17640 Post data - ID: 15, Media count: 1
+INFO 2025-04-11 17:56:11,571 views 16328 17640 Post data - ID: 14, Media count: 1
+INFO 2025-04-11 17:56:11,572 views 16328 17640 Post data - ID: 13, Media count: 0
+INFO 2025-04-11 17:56:11,574 views 16328 17640 Post data - ID: 12, Media count: 0
+INFO 2025-04-11 17:56:11,575 views 16328 17640 Post data - ID: 11, Media count: 0
+INFO 2025-04-11 17:56:11,576 views 16328 17640 Post data - ID: 6, Media count: 1
+INFO 2025-04-11 17:56:11,716 basehttp 16328 17640 "GET / HTTP/1.1" 200 56849
+INFO 2025-04-11 17:56:11,960 basehttp 16328 17640 "GET /media/posts/shen_K1gTHFr.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 17:56:11,979 basehttp 16328 14008 "GET /media/posts/graves_Q3JewNI.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 17:56:12,805 views 16328 17640 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:56:12,805 views 16328 17640 Người dùng: admin_hoshi
+INFO 2025-04-11 17:56:12,805 views 16328 17640 Người dùng đã xác thực: True
+INFO 2025-04-11 17:56:12,807 views 16328 17640 Tổng số bài viết ban đầu: 7
+INFO 2025-04-11 17:56:12,808 views 16328 17640 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:56:12,810 views 16328 17640 Số bài viết của những người đang theo dõi: 7
+INFO 2025-04-11 17:56:12,811 views 16328 17640 Tổng số bài viết sau khi lọc: 7
+INFO 2025-04-11 17:56:12,831 views 16328 17640 Debug - Post Authors:
+INFO 2025-04-11 17:56:12,831 views 16328 17640 Post ID: 21, Author Username: admin_hoshi
+INFO 2025-04-11 17:56:12,833 views 16328 17640 Post ID: 15, Author Username: admin_hoshi
+INFO 2025-04-11 17:56:12,833 views 16328 17640 Post ID: 14, Author Username: admin_hoshi
+INFO 2025-04-11 17:56:12,833 views 16328 17640 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 17:56:12,833 views 16328 17640 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 17:56:12,833 views 16328 17640 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:56:12,833 views 16328 17640 Post ID: 6, Author Username: quynhchan
+INFO 2025-04-11 17:56:12,833 views 16328 17640 Total posts before filtering: 7
+INFO 2025-04-11 17:56:12,834 views 16328 17640 Following users: [2]
+INFO 2025-04-11 17:56:12,834 views 16328 17640 Total posts after filtering: 7
+INFO 2025-04-11 17:56:12,835 views 16328 17640 Post ID: 21 has 0 media files
+INFO 2025-04-11 17:56:12,837 views 16328 17640 Post ID: 15 has 1 media files
+INFO 2025-04-11 17:56:12,838 views 16328 17640    - Media: 7, Type: image, File: posts/shen_K1gTHFr.jpg
+INFO 2025-04-11 17:56:12,839 views 16328 17640 Post ID: 14 has 1 media files
+INFO 2025-04-11 17:56:12,839 views 16328 17640    - Media: 6, Type: image, File: posts/graves_Q3JewNI.jpg
+INFO 2025-04-11 17:56:12,840 views 16328 17640 Post ID: 13 has 0 media files
+INFO 2025-04-11 17:56:12,842 views 16328 17640 Post ID: 12 has 0 media files
+INFO 2025-04-11 17:56:12,844 views 16328 17640 Post ID: 11 has 0 media files
+INFO 2025-04-11 17:56:12,846 views 16328 17640 Post ID: 6 has 1 media files
+INFO 2025-04-11 17:56:12,846 views 16328 17640    - Media: 2, Type: image, File: posts/graves_aCVo84j.jpg
+INFO 2025-04-11 17:56:12,846 views 16328 17640 Debug - Post data structure:
+INFO 2025-04-11 17:56:12,847 views 16328 17640 Post data - ID: 21, Media count: 0
+INFO 2025-04-11 17:56:12,848 views 16328 17640 Post data - ID: 15, Media count: 1
+INFO 2025-04-11 17:56:12,849 views 16328 17640 Post data - ID: 14, Media count: 1
+INFO 2025-04-11 17:56:12,849 views 16328 17640 Post data - ID: 13, Media count: 0
+INFO 2025-04-11 17:56:12,850 views 16328 17640 Post data - ID: 12, Media count: 0
+INFO 2025-04-11 17:56:12,852 views 16328 17640 Post data - ID: 11, Media count: 0
+INFO 2025-04-11 17:56:12,852 views 16328 17640 Post data - ID: 6, Media count: 1
+INFO 2025-04-11 17:56:12,909 basehttp 16328 17640 "GET / HTTP/1.1" 200 56849
+INFO 2025-04-11 17:56:29,320 views 16328 17640 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:56:29,321 views 16328 17640 Người dùng: admin_hoshi
+INFO 2025-04-11 17:56:29,321 views 16328 17640 Người dùng đã xác thực: True
+INFO 2025-04-11 17:56:29,322 views 16328 17640 Tổng số bài viết ban đầu: 7
+INFO 2025-04-11 17:56:29,323 views 16328 17640 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:56:29,324 views 16328 17640 Số bài viết của những người đang theo dõi: 7
+INFO 2025-04-11 17:56:29,328 views 16328 17640 Tổng số bài viết sau khi lọc: 7
+INFO 2025-04-11 17:56:29,355 views 16328 17640 Debug - Post Authors:
+INFO 2025-04-11 17:56:29,357 views 16328 17640 Post ID: 21, Author Username: admin_hoshi
+INFO 2025-04-11 17:56:29,357 views 16328 17640 Post ID: 15, Author Username: admin_hoshi
+INFO 2025-04-11 17:56:29,357 views 16328 17640 Post ID: 14, Author Username: admin_hoshi
+INFO 2025-04-11 17:56:29,357 views 16328 17640 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 17:56:29,358 views 16328 17640 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 17:56:29,358 views 16328 17640 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:56:29,358 views 16328 17640 Post ID: 6, Author Username: quynhchan
+INFO 2025-04-11 17:56:29,358 views 16328 17640 Total posts before filtering: 7
+INFO 2025-04-11 17:56:29,358 views 16328 17640 Following users: [2]
+INFO 2025-04-11 17:56:29,358 views 16328 17640 Total posts after filtering: 7
+INFO 2025-04-11 17:56:29,361 views 16328 17640 Post ID: 21 has 0 media files
+INFO 2025-04-11 17:56:29,364 views 16328 17640 Post ID: 15 has 1 media files
+INFO 2025-04-11 17:56:29,365 views 16328 17640    - Media: 7, Type: image, File: posts/shen_K1gTHFr.jpg
+INFO 2025-04-11 17:56:29,367 views 16328 17640 Post ID: 14 has 1 media files
+INFO 2025-04-11 17:56:29,369 views 16328 17640    - Media: 6, Type: image, File: posts/graves_Q3JewNI.jpg
+INFO 2025-04-11 17:56:29,372 views 16328 17640 Post ID: 13 has 0 media files
+INFO 2025-04-11 17:56:29,374 views 16328 17640 Post ID: 12 has 0 media files
+INFO 2025-04-11 17:56:29,377 views 16328 17640 Post ID: 11 has 0 media files
+INFO 2025-04-11 17:56:29,379 views 16328 17640 Post ID: 6 has 1 media files
+INFO 2025-04-11 17:56:29,381 views 16328 17640    - Media: 2, Type: image, File: posts/graves_aCVo84j.jpg
+INFO 2025-04-11 17:56:29,381 views 16328 17640 Debug - Post data structure:
+INFO 2025-04-11 17:56:29,383 views 16328 17640 Post data - ID: 21, Media count: 0
+INFO 2025-04-11 17:56:29,385 views 16328 17640 Post data - ID: 15, Media count: 1
+INFO 2025-04-11 17:56:29,387 views 16328 17640 Post data - ID: 14, Media count: 1
+INFO 2025-04-11 17:56:29,389 views 16328 17640 Post data - ID: 13, Media count: 0
+INFO 2025-04-11 17:56:29,391 views 16328 17640 Post data - ID: 12, Media count: 0
+INFO 2025-04-11 17:56:29,392 views 16328 17640 Post data - ID: 11, Media count: 0
+INFO 2025-04-11 17:56:29,395 views 16328 17640 Post data - ID: 6, Media count: 1
+INFO 2025-04-11 17:56:29,544 basehttp 16328 17640 "GET / HTTP/1.1" 200 56849
+INFO 2025-04-11 17:56:29,809 basehttp 16328 17640 - Broken pipe from ('127.0.0.1', 49181)
+INFO 2025-04-11 17:56:32,470 views 16328 14008 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:56:32,471 views 16328 14008 Người dùng: admin_hoshi
+INFO 2025-04-11 17:56:32,471 views 16328 14008 Người dùng đã xác thực: True
+INFO 2025-04-11 17:56:32,472 views 16328 14008 Tổng số bài viết ban đầu: 7
+INFO 2025-04-11 17:56:32,473 views 16328 14008 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:56:32,475 views 16328 14008 Số bài viết của những người đang theo dõi: 7
+INFO 2025-04-11 17:56:32,476 views 16328 14008 Tổng số bài viết sau khi lọc: 7
+INFO 2025-04-11 17:56:32,493 views 16328 14008 Debug - Post Authors:
+INFO 2025-04-11 17:56:32,493 views 16328 14008 Post ID: 21, Author Username: admin_hoshi
+INFO 2025-04-11 17:56:32,493 views 16328 14008 Post ID: 15, Author Username: admin_hoshi
+INFO 2025-04-11 17:56:32,493 views 16328 14008 Post ID: 14, Author Username: admin_hoshi
+INFO 2025-04-11 17:56:32,493 views 16328 14008 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 17:56:32,495 views 16328 14008 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 17:56:32,495 views 16328 14008 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:56:32,495 views 16328 14008 Post ID: 6, Author Username: quynhchan
+INFO 2025-04-11 17:56:32,495 views 16328 14008 Total posts before filtering: 7
+INFO 2025-04-11 17:56:32,496 views 16328 14008 Following users: [2]
+INFO 2025-04-11 17:56:32,496 views 16328 14008 Total posts after filtering: 7
+INFO 2025-04-11 17:56:32,497 views 16328 14008 Post ID: 21 has 0 media files
+INFO 2025-04-11 17:56:32,498 views 16328 14008 Post ID: 15 has 1 media files
+INFO 2025-04-11 17:56:32,500 views 16328 14008    - Media: 7, Type: image, File: posts/shen_K1gTHFr.jpg
+INFO 2025-04-11 17:56:32,501 views 16328 14008 Post ID: 14 has 1 media files
+INFO 2025-04-11 17:56:32,503 views 16328 14008    - Media: 6, Type: image, File: posts/graves_Q3JewNI.jpg
+INFO 2025-04-11 17:56:32,503 views 16328 14008 Post ID: 13 has 0 media files
+INFO 2025-04-11 17:56:32,504 views 16328 14008 Post ID: 12 has 0 media files
+INFO 2025-04-11 17:56:32,505 views 16328 14008 Post ID: 11 has 0 media files
+INFO 2025-04-11 17:56:32,507 views 16328 14008 Post ID: 6 has 1 media files
+INFO 2025-04-11 17:56:32,508 views 16328 14008    - Media: 2, Type: image, File: posts/graves_aCVo84j.jpg
+INFO 2025-04-11 17:56:32,508 views 16328 14008 Debug - Post data structure:
+INFO 2025-04-11 17:56:32,509 views 16328 14008 Post data - ID: 21, Media count: 0
+INFO 2025-04-11 17:56:32,509 views 16328 14008 Post data - ID: 15, Media count: 1
+INFO 2025-04-11 17:56:32,510 views 16328 14008 Post data - ID: 14, Media count: 1
+INFO 2025-04-11 17:56:32,510 views 16328 14008 Post data - ID: 13, Media count: 0
+INFO 2025-04-11 17:56:32,511 views 16328 14008 Post data - ID: 12, Media count: 0
+INFO 2025-04-11 17:56:32,512 views 16328 14008 Post data - ID: 11, Media count: 0
+INFO 2025-04-11 17:56:32,515 views 16328 14008 Post data - ID: 6, Media count: 1
+INFO 2025-04-11 17:56:32,557 basehttp 16328 14008 "GET / HTTP/1.1" 200 56849
+INFO 2025-04-11 17:57:30,216 views 16328 14008 POST request received with the following data:
+INFO 2025-04-11 17:57:30,218 views 16328 14008 Request POST: <QueryDict: {'csrfmiddlewaretoken': ['aUX2Q0hozNdXVgBaTdwH1qrWYbOen15cs01SrydzZWFRdJl77grPHjkXa6k9ArUl'], 'caption': ['']}>
+INFO 2025-04-11 17:57:30,219 views 16328 14008 Request FILES keys: ['media[]']
+INFO 2025-04-11 17:57:30,219 views 16328 14008 Found 1 files in media[]
+INFO 2025-04-11 17:57:30,258 views 16328 14008 Created media 8 for post 22, type: image, file: shen.jpg
+INFO 2025-04-11 17:57:30,266 basehttp 16328 14008 "POST /posts/create/ HTTP/1.1" 302 0
+INFO 2025-04-11 17:57:30,281 views 16328 14008 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:57:30,281 views 16328 14008 Người dùng: admin_hoshi
+INFO 2025-04-11 17:57:30,281 views 16328 14008 Người dùng đã xác thực: True
+INFO 2025-04-11 17:57:30,284 views 16328 14008 Tổng số bài viết ban đầu: 8
+INFO 2025-04-11 17:57:30,287 views 16328 14008 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:57:30,288 views 16328 14008 Số bài viết của những người đang theo dõi: 8
+INFO 2025-04-11 17:57:30,290 views 16328 14008 Tổng số bài viết sau khi lọc: 8
+INFO 2025-04-11 17:57:30,314 views 16328 14008 Debug - Post Authors:
+INFO 2025-04-11 17:57:30,314 views 16328 14008 Post ID: 22, Author Username: admin_hoshi
+INFO 2025-04-11 17:57:30,314 views 16328 14008 Post ID: 21, Author Username: admin_hoshi
+INFO 2025-04-11 17:57:30,315 views 16328 14008 Post ID: 15, Author Username: admin_hoshi
+INFO 2025-04-11 17:57:30,315 views 16328 14008 Post ID: 14, Author Username: admin_hoshi
+INFO 2025-04-11 17:57:30,315 views 16328 14008 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 17:57:30,315 views 16328 14008 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 17:57:30,315 views 16328 14008 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:57:30,315 views 16328 14008 Post ID: 6, Author Username: quynhchan
+INFO 2025-04-11 17:57:30,315 views 16328 14008 Total posts before filtering: 8
+INFO 2025-04-11 17:57:30,315 views 16328 14008 Following users: [2]
+INFO 2025-04-11 17:57:30,315 views 16328 14008 Total posts after filtering: 8
+INFO 2025-04-11 17:57:30,317 views 16328 14008 Post ID: 22 has 1 media files
+INFO 2025-04-11 17:57:30,319 views 16328 14008    - Media: 8, Type: image, File: posts/shen_4RrOOEq.jpg
+INFO 2025-04-11 17:57:30,320 views 16328 14008 Post ID: 21 has 0 media files
+INFO 2025-04-11 17:57:30,322 views 16328 14008 Post ID: 15 has 1 media files
+INFO 2025-04-11 17:57:30,323 views 16328 14008    - Media: 7, Type: image, File: posts/shen_K1gTHFr.jpg
+INFO 2025-04-11 17:57:30,323 views 16328 14008 Post ID: 14 has 1 media files
+INFO 2025-04-11 17:57:30,326 views 16328 14008    - Media: 6, Type: image, File: posts/graves_Q3JewNI.jpg
+INFO 2025-04-11 17:57:30,327 views 16328 14008 Post ID: 13 has 0 media files
+INFO 2025-04-11 17:57:30,329 views 16328 14008 Post ID: 12 has 0 media files
+INFO 2025-04-11 17:57:30,331 views 16328 14008 Post ID: 11 has 0 media files
+INFO 2025-04-11 17:57:30,333 views 16328 14008 Post ID: 6 has 1 media files
+INFO 2025-04-11 17:57:30,334 views 16328 14008    - Media: 2, Type: image, File: posts/graves_aCVo84j.jpg
+INFO 2025-04-11 17:57:30,334 views 16328 14008 Debug - Post data structure:
+INFO 2025-04-11 17:57:30,335 views 16328 14008 Post data - ID: 22, Media count: 1
+INFO 2025-04-11 17:57:30,336 views 16328 14008 Post data - ID: 21, Media count: 0
+INFO 2025-04-11 17:57:30,337 views 16328 14008 Post data - ID: 15, Media count: 1
+INFO 2025-04-11 17:57:30,338 views 16328 14008 Post data - ID: 14, Media count: 1
+INFO 2025-04-11 17:57:30,339 views 16328 14008 Post data - ID: 13, Media count: 0
+INFO 2025-04-11 17:57:30,340 views 16328 14008 Post data - ID: 12, Media count: 0
+INFO 2025-04-11 17:57:30,340 views 16328 14008 Post data - ID: 11, Media count: 0
+INFO 2025-04-11 17:57:30,341 views 16328 14008 Post data - ID: 6, Media count: 1
+INFO 2025-04-11 17:57:30,409 basehttp 16328 14008 "GET / HTTP/1.1" 200 62394
+INFO 2025-04-11 17:57:30,898 basehttp 16328 14008 "GET /media/posts/shen_4RrOOEq.jpg HTTP/1.1" 200 4075944
+INFO 2025-04-11 17:57:41,474 views 16328 14008 POST request received with the following data:
+INFO 2025-04-11 17:57:41,475 views 16328 14008 Request POST: <QueryDict: {'csrfmiddlewaretoken': ['DmlP4OJ6BcCmdQ0HgQ5aTBsrJXsoILf4VspFFmFh1l4gvjKEuT0izulsVSYjVb4d'], 'caption': ['xvcxvcxvxcv']}>
+INFO 2025-04-11 17:57:41,475 views 16328 14008 Request FILES keys: ['media[]']
+INFO 2025-04-11 17:57:41,475 views 16328 14008 Found 1 files in media[]
+INFO 2025-04-11 17:57:41,512 views 16328 14008 Created media 9 for post 23, type: image, file: shen.jpg
+INFO 2025-04-11 17:57:41,518 basehttp 16328 14008 "POST /posts/create/ HTTP/1.1" 302 0
+INFO 2025-04-11 17:57:41,531 views 16328 14008 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:57:41,531 views 16328 14008 Người dùng: admin_hoshi
+INFO 2025-04-11 17:57:41,531 views 16328 14008 Người dùng đã xác thực: True
+INFO 2025-04-11 17:57:41,532 views 16328 14008 Tổng số bài viết ban đầu: 9
+INFO 2025-04-11 17:57:41,533 views 16328 14008 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:57:41,535 views 16328 14008 Số bài viết của những người đang theo dõi: 9
+INFO 2025-04-11 17:57:41,536 views 16328 14008 Tổng số bài viết sau khi lọc: 9
+INFO 2025-04-11 17:57:41,568 views 16328 14008 Debug - Post Authors:
+INFO 2025-04-11 17:57:41,568 views 16328 14008 Post ID: 23, Author Username: admin_hoshi
+INFO 2025-04-11 17:57:41,569 views 16328 14008 Post ID: 22, Author Username: admin_hoshi
+INFO 2025-04-11 17:57:41,569 views 16328 14008 Post ID: 21, Author Username: admin_hoshi
+INFO 2025-04-11 17:57:41,569 views 16328 14008 Post ID: 15, Author Username: admin_hoshi
+INFO 2025-04-11 17:57:41,569 views 16328 14008 Post ID: 14, Author Username: admin_hoshi
+INFO 2025-04-11 17:57:41,570 views 16328 14008 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 17:57:41,570 views 16328 14008 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 17:57:41,570 views 16328 14008 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:57:41,570 views 16328 14008 Post ID: 6, Author Username: quynhchan
+INFO 2025-04-11 17:57:41,570 views 16328 14008 Total posts before filtering: 9
+INFO 2025-04-11 17:57:41,571 views 16328 14008 Following users: [2]
+INFO 2025-04-11 17:57:41,571 views 16328 14008 Total posts after filtering: 9
+INFO 2025-04-11 17:57:41,572 views 16328 14008 Post ID: 23 has 1 media files
+INFO 2025-04-11 17:57:41,573 views 16328 14008    - Media: 9, Type: image, File: posts/shen_b0kqYeG.jpg
+INFO 2025-04-11 17:57:41,575 views 16328 14008 Post ID: 22 has 1 media files
+INFO 2025-04-11 17:57:41,576 views 16328 14008    - Media: 8, Type: image, File: posts/shen_4RrOOEq.jpg
+INFO 2025-04-11 17:57:41,577 views 16328 14008 Post ID: 21 has 0 media files
+INFO 2025-04-11 17:57:41,578 views 16328 14008 Post ID: 15 has 1 media files
+INFO 2025-04-11 17:57:41,579 views 16328 14008    - Media: 7, Type: image, File: posts/shen_K1gTHFr.jpg
+INFO 2025-04-11 17:57:41,580 views 16328 14008 Post ID: 14 has 1 media files
+INFO 2025-04-11 17:57:41,582 views 16328 14008    - Media: 6, Type: image, File: posts/graves_Q3JewNI.jpg
+INFO 2025-04-11 17:57:41,583 views 16328 14008 Post ID: 13 has 0 media files
+INFO 2025-04-11 17:57:41,585 views 16328 14008 Post ID: 12 has 0 media files
+INFO 2025-04-11 17:57:41,585 views 16328 14008 Post ID: 11 has 0 media files
+INFO 2025-04-11 17:57:41,589 views 16328 14008 Post ID: 6 has 1 media files
+INFO 2025-04-11 17:57:41,590 views 16328 14008    - Media: 2, Type: image, File: posts/graves_aCVo84j.jpg
+INFO 2025-04-11 17:57:41,590 views 16328 14008 Debug - Post data structure:
+INFO 2025-04-11 17:57:41,591 views 16328 14008 Post data - ID: 23, Media count: 1
+INFO 2025-04-11 17:57:41,592 views 16328 14008 Post data - ID: 22, Media count: 1
+INFO 2025-04-11 17:57:41,592 views 16328 14008 Post data - ID: 21, Media count: 0
+INFO 2025-04-11 17:57:41,593 views 16328 14008 Post data - ID: 15, Media count: 1
+INFO 2025-04-11 17:57:41,595 views 16328 14008 Post data - ID: 14, Media count: 1
+INFO 2025-04-11 17:57:41,597 views 16328 14008 Post data - ID: 13, Media count: 0
+INFO 2025-04-11 17:57:41,598 views 16328 14008 Post data - ID: 12, Media count: 0
+INFO 2025-04-11 17:57:41,599 views 16328 14008 Post data - ID: 11, Media count: 0
+INFO 2025-04-11 17:57:41,599 views 16328 14008 Post data - ID: 6, Media count: 1
+INFO 2025-04-11 17:57:41,678 basehttp 16328 14008 "GET / HTTP/1.1" 200 67826
+INFO 2025-04-11 17:57:41,984 basehttp 16328 8840 "GET /media/posts/shen_4RrOOEq.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 17:57:42,063 basehttp 16328 14008 "GET /media/posts/shen_b0kqYeG.jpg HTTP/1.1" 200 4075944
+INFO 2025-04-11 17:58:09,154 basehttp 16328 14008 "GET /posts/create/ HTTP/1.1" 200 17908
+INFO 2025-04-11 17:58:14,660 basehttp 16328 14008 "GET /api/posts/?page=2 HTTP/1.1" 200 9245
+INFO 2025-04-11 17:58:14,978 basehttp 16328 14008 "GET /api/posts/?page=2 HTTP/1.1" 200 9245
+INFO 2025-04-11 17:58:16,175 basehttp 16328 14008 "GET /api/posts/?page=2 HTTP/1.1" 200 9245
+INFO 2025-04-11 17:58:16,263 basehttp 16328 14008 "GET /api/posts/?page=2 HTTP/1.1" 200 9245
+INFO 2025-04-11 17:58:16,427 basehttp 16328 14008 "GET /api/posts/?page=2 HTTP/1.1" 200 9245
+INFO 2025-04-11 17:58:16,517 basehttp 16328 14008 "GET /api/posts/?page=2 HTTP/1.1" 200 9245
+INFO 2025-04-11 17:58:17,337 views 16328 14008 POST request received with the following data:
+INFO 2025-04-11 17:58:17,337 views 16328 14008 Request POST: <QueryDict: {'csrfmiddlewaretoken': ['QiQHeSL9IcX9LjU1oQsC9WNlUdzbmMRn8oUxPqHk8lp33MEYCTnKPPGm6856zcGw'], 'media': ['', ''], 'caption': [''], 'location': ['']}>
+INFO 2025-04-11 17:58:17,337 views 16328 14008 Request FILES keys: []
+WARNING 2025-04-11 17:58:17,338 views 16328 14008 No media files found. Available fields: []
+INFO 2025-04-11 17:58:17,352 basehttp 16328 14008 "POST /posts/create/ HTTP/1.1" 302 0
+INFO 2025-04-11 17:58:17,367 views 16328 14008 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 17:58:17,368 views 16328 14008 Người dùng: admin_hoshi
+INFO 2025-04-11 17:58:17,369 views 16328 14008 Người dùng đã xác thực: True
+INFO 2025-04-11 17:58:17,370 views 16328 14008 Tổng số bài viết ban đầu: 10
+INFO 2025-04-11 17:58:17,372 views 16328 14008 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 17:58:17,377 views 16328 14008 Số bài viết của những người đang theo dõi: 10
+INFO 2025-04-11 17:58:17,380 views 16328 14008 Tổng số bài viết sau khi lọc: 10
+INFO 2025-04-11 17:58:17,418 views 16328 14008 Debug - Post Authors:
+INFO 2025-04-11 17:58:17,418 views 16328 14008 Post ID: 24, Author Username: admin_hoshi
+INFO 2025-04-11 17:58:17,418 views 16328 14008 Post ID: 23, Author Username: admin_hoshi
+INFO 2025-04-11 17:58:17,419 views 16328 14008 Post ID: 22, Author Username: admin_hoshi
+INFO 2025-04-11 17:58:17,419 views 16328 14008 Post ID: 21, Author Username: admin_hoshi
+INFO 2025-04-11 17:58:17,419 views 16328 14008 Post ID: 15, Author Username: admin_hoshi
+INFO 2025-04-11 17:58:17,419 views 16328 14008 Post ID: 14, Author Username: admin_hoshi
+INFO 2025-04-11 17:58:17,420 views 16328 14008 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 17:58:17,421 views 16328 14008 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 17:58:17,421 views 16328 14008 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 17:58:17,421 views 16328 14008 Post ID: 6, Author Username: quynhchan
+INFO 2025-04-11 17:58:17,421 views 16328 14008 Total posts before filtering: 10
+INFO 2025-04-11 17:58:17,421 views 16328 14008 Following users: [2]
+INFO 2025-04-11 17:58:17,422 views 16328 14008 Total posts after filtering: 10
+INFO 2025-04-11 17:58:17,423 views 16328 14008 Post ID: 24 has 0 media files
+INFO 2025-04-11 17:58:17,428 views 16328 14008 Post ID: 23 has 1 media files
+INFO 2025-04-11 17:58:17,431 views 16328 14008    - Media: 9, Type: image, File: posts/shen_b0kqYeG.jpg
+INFO 2025-04-11 17:58:17,434 views 16328 14008 Post ID: 22 has 1 media files
+INFO 2025-04-11 17:58:17,437 views 16328 14008    - Media: 8, Type: image, File: posts/shen_4RrOOEq.jpg
+INFO 2025-04-11 17:58:17,440 views 16328 14008 Post ID: 21 has 0 media files
+INFO 2025-04-11 17:58:17,442 views 16328 14008 Post ID: 15 has 1 media files
+INFO 2025-04-11 17:58:17,445 views 16328 14008    - Media: 7, Type: image, File: posts/shen_K1gTHFr.jpg
+INFO 2025-04-11 17:58:17,448 views 16328 14008 Post ID: 14 has 1 media files
+INFO 2025-04-11 17:58:17,450 views 16328 14008    - Media: 6, Type: image, File: posts/graves_Q3JewNI.jpg
+INFO 2025-04-11 17:58:17,451 views 16328 14008 Post ID: 13 has 0 media files
+INFO 2025-04-11 17:58:17,455 views 16328 14008 Post ID: 12 has 0 media files
+INFO 2025-04-11 17:58:17,458 views 16328 14008 Post ID: 11 has 0 media files
+INFO 2025-04-11 17:58:17,462 views 16328 14008 Post ID: 6 has 1 media files
+INFO 2025-04-11 17:58:17,463 views 16328 14008    - Media: 2, Type: image, File: posts/graves_aCVo84j.jpg
+INFO 2025-04-11 17:58:17,463 views 16328 14008 Debug - Post data structure:
+INFO 2025-04-11 17:58:17,465 views 16328 14008 Post data - ID: 24, Media count: 0
+INFO 2025-04-11 17:58:17,466 views 16328 14008 Post data - ID: 23, Media count: 1
+INFO 2025-04-11 17:58:17,467 views 16328 14008 Post data - ID: 22, Media count: 1
+INFO 2025-04-11 17:58:17,468 views 16328 14008 Post data - ID: 21, Media count: 0
+INFO 2025-04-11 17:58:17,469 views 16328 14008 Post data - ID: 15, Media count: 1
+INFO 2025-04-11 17:58:17,470 views 16328 14008 Post data - ID: 14, Media count: 1
+INFO 2025-04-11 17:58:17,471 views 16328 14008 Post data - ID: 13, Media count: 0
+INFO 2025-04-11 17:58:17,475 views 16328 14008 Post data - ID: 12, Media count: 0
+INFO 2025-04-11 17:58:17,475 views 16328 14008 Post data - ID: 11, Media count: 0
+INFO 2025-04-11 17:58:17,477 views 16328 14008 Post data - ID: 6, Media count: 1
+INFO 2025-04-11 17:58:17,559 basehttp 16328 14008 "GET / HTTP/1.1" 200 72361
+INFO 2025-04-11 17:58:17,777 basehttp 16328 14008 "GET /media/posts/shen_b0kqYeG.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 17:58:17,790 basehttp 16328 8840 "GET /media/posts/shen_4RrOOEq.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 17:58:17,806 basehttp 16328 17556 "GET /media/posts/graves_Q3JewNI.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 17:58:17,824 basehttp 16328 19956 "GET /media/posts/shen_K1gTHFr.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 17:58:44,468 basehttp 16328 14008 "GET /api/posts/?page=2 HTTP/1.1" 200 9637
+INFO 2025-04-11 17:58:44,878 basehttp 16328 14008 "GET /api/posts/?page=2 HTTP/1.1" 200 9637
+INFO 2025-04-11 17:58:45,356 basehttp 16328 14008 "GET /api/posts/?page=2 HTTP/1.1" 200 9637
+INFO 2025-04-11 17:58:46,001 basehttp 16328 14008 "GET /api/posts/?page=2 HTTP/1.1" 200 9637
+INFO 2025-04-11 17:58:46,088 basehttp 16328 14008 "GET /api/posts/?page=2 HTTP/1.1" 200 9637
+INFO 2025-04-11 17:58:46,270 basehttp 16328 14008 "GET /api/posts/?page=2 HTTP/1.1" 200 9637
+INFO 2025-04-11 17:58:56,561 basehttp 16328 14008 "GET /posts/create/ HTTP/1.1" 200 17878
+INFO 2025-04-11 17:59:52,229 basehttp 16328 14008 "GET /posts/create/ HTTP/1.1" 200 17878
+INFO 2025-04-11 17:59:52,831 basehttp 16328 14008 - Broken pipe from ('127.0.0.1', 49240)
+INFO 2025-04-11 18:00:11,203 basehttp 16328 8840 "GET /posts/create/ HTTP/1.1" 200 17878
+INFO 2025-04-11 18:00:24,311 basehttp 16328 8840 "GET /api/posts/?page=2 HTTP/1.1" 200 9637
+INFO 2025-04-11 18:00:24,561 basehttp 16328 8840 "GET /api/posts/?page=2 HTTP/1.1" 200 9637
+INFO 2025-04-11 18:00:24,752 basehttp 16328 8840 "GET /api/posts/?page=2 HTTP/1.1" 200 9637
+INFO 2025-04-11 18:00:24,853 basehttp 16328 8840 "GET /api/posts/?page=2 HTTP/1.1" 200 9637
+INFO 2025-04-11 18:00:25,744 views 16328 8840 POST request received with the following data:
+INFO 2025-04-11 18:00:25,745 views 16328 8840 Request POST: <QueryDict: {'csrfmiddlewaretoken': ['Diz8gWer7IMlq2COWIUEYRVUv0MKR3hWVoDYRuaCxRefIvmLaLPMEKOVHViF4t65'], 'media': ['', ''], 'caption': ['asaSAsASA'], 'location': ['']}>
+INFO 2025-04-11 18:00:25,745 views 16328 8840 Request FILES keys: []
+WARNING 2025-04-11 18:00:25,745 views 16328 8840 No media files found. Available fields: []
+INFO 2025-04-11 18:00:25,761 basehttp 16328 8840 "POST /posts/create/ HTTP/1.1" 302 0
+INFO 2025-04-11 18:00:25,779 views 16328 8840 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 18:00:25,780 views 16328 8840 Người dùng: admin_hoshi
+INFO 2025-04-11 18:00:25,780 views 16328 8840 Người dùng đã xác thực: True
+INFO 2025-04-11 18:00:25,781 views 16328 8840 Tổng số bài viết ban đầu: 11
+INFO 2025-04-11 18:00:25,784 views 16328 8840 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 18:00:25,787 views 16328 8840 Số bài viết của những người đang theo dõi: 11
+INFO 2025-04-11 18:00:25,791 views 16328 8840 Tổng số bài viết sau khi lọc: 11
+INFO 2025-04-11 18:00:25,825 views 16328 8840 Debug - Post Authors:
+INFO 2025-04-11 18:00:25,825 views 16328 8840 Post ID: 25, Author Username: admin_hoshi
+INFO 2025-04-11 18:00:25,825 views 16328 8840 Post ID: 24, Author Username: admin_hoshi
+INFO 2025-04-11 18:00:25,826 views 16328 8840 Post ID: 23, Author Username: admin_hoshi
+INFO 2025-04-11 18:00:25,826 views 16328 8840 Post ID: 22, Author Username: admin_hoshi
+INFO 2025-04-11 18:00:25,826 views 16328 8840 Post ID: 21, Author Username: admin_hoshi
+INFO 2025-04-11 18:00:25,826 views 16328 8840 Post ID: 15, Author Username: admin_hoshi
+INFO 2025-04-11 18:00:25,826 views 16328 8840 Post ID: 14, Author Username: admin_hoshi
+INFO 2025-04-11 18:00:25,827 views 16328 8840 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 18:00:25,827 views 16328 8840 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 18:00:25,827 views 16328 8840 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 18:00:25,827 views 16328 8840 Total posts before filtering: 11
+INFO 2025-04-11 18:00:25,828 views 16328 8840 Following users: [2]
+INFO 2025-04-11 18:00:25,828 views 16328 8840 Total posts after filtering: 11
+INFO 2025-04-11 18:00:25,831 views 16328 8840 Post ID: 25 has 0 media files
+INFO 2025-04-11 18:00:25,834 views 16328 8840 Post ID: 24 has 0 media files
+INFO 2025-04-11 18:00:25,836 views 16328 8840 Post ID: 23 has 1 media files
+INFO 2025-04-11 18:00:25,838 views 16328 8840    - Media: 9, Type: image, File: posts/shen_b0kqYeG.jpg
+INFO 2025-04-11 18:00:25,840 views 16328 8840 Post ID: 22 has 1 media files
+INFO 2025-04-11 18:00:25,841 views 16328 8840    - Media: 8, Type: image, File: posts/shen_4RrOOEq.jpg
+INFO 2025-04-11 18:00:25,842 views 16328 8840 Post ID: 21 has 0 media files
+INFO 2025-04-11 18:00:25,846 views 16328 8840 Post ID: 15 has 1 media files
+INFO 2025-04-11 18:00:25,849 views 16328 8840    - Media: 7, Type: image, File: posts/shen_K1gTHFr.jpg
+INFO 2025-04-11 18:00:25,850 views 16328 8840 Post ID: 14 has 1 media files
+INFO 2025-04-11 18:00:25,852 views 16328 8840    - Media: 6, Type: image, File: posts/graves_Q3JewNI.jpg
+INFO 2025-04-11 18:00:25,854 views 16328 8840 Post ID: 13 has 0 media files
+INFO 2025-04-11 18:00:25,857 views 16328 8840 Post ID: 12 has 0 media files
+INFO 2025-04-11 18:00:25,861 views 16328 8840 Post ID: 11 has 0 media files
+INFO 2025-04-11 18:00:25,862 views 16328 8840 Debug - Post data structure:
+INFO 2025-04-11 18:00:25,863 views 16328 8840 Post data - ID: 25, Media count: 0
+INFO 2025-04-11 18:00:25,866 views 16328 8840 Post data - ID: 24, Media count: 0
+INFO 2025-04-11 18:00:25,866 views 16328 8840 Post data - ID: 23, Media count: 1
+INFO 2025-04-11 18:00:25,868 views 16328 8840 Post data - ID: 22, Media count: 1
+INFO 2025-04-11 18:00:25,870 views 16328 8840 Post data - ID: 21, Media count: 0
+INFO 2025-04-11 18:00:25,871 views 16328 8840 Post data - ID: 15, Media count: 1
+INFO 2025-04-11 18:00:25,872 views 16328 8840 Post data - ID: 14, Media count: 1
+INFO 2025-04-11 18:00:25,875 views 16328 8840 Post data - ID: 13, Media count: 0
+INFO 2025-04-11 18:00:25,877 views 16328 8840 Post data - ID: 12, Media count: 0
+INFO 2025-04-11 18:00:25,879 views 16328 8840 Post data - ID: 11, Media count: 0
+INFO 2025-04-11 18:00:25,965 basehttp 16328 8840 "GET / HTTP/1.1" 200 64710
+INFO 2025-04-11 18:00:26,251 basehttp 16328 8840 "GET /media/posts/shen_b0kqYeG.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:00:26,268 basehttp 16328 14800 "GET /media/posts/shen_4RrOOEq.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:00:26,300 basehttp 16328 10456 "GET /media/posts/shen_K1gTHFr.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:00:26,318 basehttp 16328 19696 "GET /media/posts/graves_Q3JewNI.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:01:01,033 views 16328 8840 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 18:01:01,034 views 16328 8840 Người dùng: admin_hoshi
+INFO 2025-04-11 18:01:01,035 views 16328 8840 Người dùng đã xác thực: True
+INFO 2025-04-11 18:01:01,036 views 16328 8840 Tổng số bài viết ban đầu: 11
+INFO 2025-04-11 18:01:01,039 views 16328 8840 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 18:01:01,042 views 16328 8840 Số bài viết của những người đang theo dõi: 11
+INFO 2025-04-11 18:01:01,045 views 16328 8840 Tổng số bài viết sau khi lọc: 11
+INFO 2025-04-11 18:01:01,073 views 16328 8840 Debug - Post Authors:
+INFO 2025-04-11 18:01:01,074 views 16328 8840 Post ID: 25, Author Username: admin_hoshi
+INFO 2025-04-11 18:01:01,075 views 16328 8840 Post ID: 24, Author Username: admin_hoshi
+INFO 2025-04-11 18:01:01,075 views 16328 8840 Post ID: 23, Author Username: admin_hoshi
+INFO 2025-04-11 18:01:01,075 views 16328 8840 Post ID: 22, Author Username: admin_hoshi
+INFO 2025-04-11 18:01:01,076 views 16328 8840 Post ID: 21, Author Username: admin_hoshi
+INFO 2025-04-11 18:01:01,076 views 16328 8840 Post ID: 15, Author Username: admin_hoshi
+INFO 2025-04-11 18:01:01,076 views 16328 8840 Post ID: 14, Author Username: admin_hoshi
+INFO 2025-04-11 18:01:01,076 views 16328 8840 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 18:01:01,077 views 16328 8840 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 18:01:01,078 views 16328 8840 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 18:01:01,078 views 16328 8840 Total posts before filtering: 11
+INFO 2025-04-11 18:01:01,078 views 16328 8840 Following users: [2]
+INFO 2025-04-11 18:01:01,078 views 16328 8840 Total posts after filtering: 11
+INFO 2025-04-11 18:01:01,080 views 16328 8840 Post ID: 25 has 0 media files
+INFO 2025-04-11 18:01:01,083 views 16328 8840 Post ID: 24 has 0 media files
+INFO 2025-04-11 18:01:01,085 views 16328 8840 Post ID: 23 has 1 media files
+INFO 2025-04-11 18:01:01,087 views 16328 8840    - Media: 9, Type: image, File: posts/shen_b0kqYeG.jpg
+INFO 2025-04-11 18:01:01,089 views 16328 8840 Post ID: 22 has 1 media files
+INFO 2025-04-11 18:01:01,091 views 16328 8840    - Media: 8, Type: image, File: posts/shen_4RrOOEq.jpg
+INFO 2025-04-11 18:01:01,093 views 16328 8840 Post ID: 21 has 0 media files
+INFO 2025-04-11 18:01:01,098 views 16328 8840 Post ID: 15 has 1 media files
+INFO 2025-04-11 18:01:01,114 views 16328 8840    - Media: 7, Type: image, File: posts/shen_K1gTHFr.jpg
+INFO 2025-04-11 18:01:01,139 views 16328 8840 Post ID: 14 has 1 media files
+INFO 2025-04-11 18:01:01,159 views 16328 8840    - Media: 6, Type: image, File: posts/graves_Q3JewNI.jpg
+INFO 2025-04-11 18:01:01,170 views 16328 8840 Post ID: 13 has 0 media files
+INFO 2025-04-11 18:01:01,178 views 16328 8840 Post ID: 12 has 0 media files
+INFO 2025-04-11 18:01:01,187 views 16328 8840 Post ID: 11 has 0 media files
+INFO 2025-04-11 18:01:01,193 views 16328 8840 Debug - Post data structure:
+INFO 2025-04-11 18:01:01,195 views 16328 8840 Post data - ID: 25, Media count: 0
+INFO 2025-04-11 18:01:01,200 views 16328 8840 Post data - ID: 24, Media count: 0
+INFO 2025-04-11 18:01:01,202 views 16328 8840 Post data - ID: 23, Media count: 1
+INFO 2025-04-11 18:01:01,214 views 16328 8840 Post data - ID: 22, Media count: 1
+INFO 2025-04-11 18:01:01,225 views 16328 8840 Post data - ID: 21, Media count: 0
+INFO 2025-04-11 18:01:01,232 views 16328 8840 Post data - ID: 15, Media count: 1
+INFO 2025-04-11 18:01:01,239 views 16328 8840 Post data - ID: 14, Media count: 1
+INFO 2025-04-11 18:01:01,242 views 16328 8840 Post data - ID: 13, Media count: 0
+INFO 2025-04-11 18:01:01,244 views 16328 8840 Post data - ID: 12, Media count: 0
+INFO 2025-04-11 18:01:01,246 views 16328 8840 Post data - ID: 11, Media count: 0
+INFO 2025-04-11 18:01:01,334 basehttp 16328 8840 "GET / HTTP/1.1" 200 60778
+INFO 2025-04-11 18:01:01,637 basehttp 16328 8840 "GET /media/posts/shen_b0kqYeG.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:01:01,655 basehttp 16328 14800 "GET /media/posts/shen_4RrOOEq.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:01:04,755 basehttp 16328 8840 "GET /posts/create/ HTTP/1.1" 200 17878
+INFO 2025-04-11 18:01:05,276 basehttp 16328 8840 - Broken pipe from ('127.0.0.1', 49346)
+INFO 2025-04-11 18:01:14,509 basehttp 16328 10456 "GET /posts/create/ HTTP/1.1" 200 17878
+INFO 2025-04-11 18:01:42,681 basehttp 16328 10456 "GET /posts/create/ HTTP/1.1" 200 17878
+INFO 2025-04-11 18:02:34,238 basehttp 16328 10456 "GET /users/admin_hoshi/ HTTP/1.1" 200 233326
+INFO 2025-04-11 18:02:34,476 basehttp 16328 14800 "GET /media/posts/shen_4RrOOEq.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:02:34,493 basehttp 16328 10456 "GET /media/posts/shen_b0kqYeG.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:02:50,342 basehttp 16328 10456 "POST /posts/25/edit/ HTTP/1.1" 200 172
+INFO 2025-04-11 18:02:50,469 basehttp 16328 2920 "POST /posts/25/edit/ HTTP/1.1" 200 172
+INFO 2025-04-11 18:02:50,500 basehttp 16328 7464 "POST /posts/25/edit/ HTTP/1.1" 200 172
+INFO 2025-04-11 18:02:50,519 basehttp 16328 11612 "POST /posts/25/edit/ HTTP/1.1" 200 172
+INFO 2025-04-11 18:02:50,528 basehttp 16328 16496 "POST /posts/25/edit/ HTTP/1.1" 200 172
+INFO 2025-04-11 18:02:50,552 basehttp 16328 14800 "POST /posts/25/edit/ HTTP/1.1" 200 172
+INFO 2025-04-11 18:02:50,570 basehttp 16328 19652 "POST /posts/25/edit/ HTTP/1.1" 200 172
+INFO 2025-04-11 18:02:50,600 basehttp 16328 8304 "POST /posts/25/edit/ HTTP/1.1" 200 172
+INFO 2025-04-11 18:02:50,629 basehttp 16328 15184 "POST /posts/25/edit/ HTTP/1.1" 200 172
+INFO 2025-04-11 18:02:50,660 basehttp 16328 10456 "POST /posts/25/edit/ HTTP/1.1" 200 172
+INFO 2025-04-11 18:02:51,815 basehttp 16328 10456 "GET /users/admin_hoshi/ HTTP/1.1" 200 245691
+INFO 2025-04-11 18:02:51,948 basehttp 16328 15184 "GET /media/posts/thuctap_KyRpUqF.jpg HTTP/1.1" 200 727690
+INFO 2025-04-11 18:02:51,964 basehttp 16328 11612 "GET /media/posts/thuctap_Fl9EXb7.jpg HTTP/1.1" 200 727690
+INFO 2025-04-11 18:02:51,980 basehttp 16328 8304 "GET /media/posts/thuctap_xkIpDf9.jpg HTTP/1.1" 200 727690
+INFO 2025-04-11 18:02:51,994 basehttp 16328 19652 "GET /media/posts/thuctap_NID1XzY.jpg HTTP/1.1" 200 727690
+INFO 2025-04-11 18:02:52,009 basehttp 16328 16496 "GET /media/posts/thuctap_iRlleSQ.jpg HTTP/1.1" 200 727690
+INFO 2025-04-11 18:02:52,026 basehttp 16328 2920 "GET /media/posts/thuctap_qf5W9RI.jpg HTTP/1.1" 200 727690
+INFO 2025-04-11 18:02:52,043 basehttp 16328 7464 "GET /media/posts/thuctap_dJ7M9KG.jpg HTTP/1.1" 200 727690
+INFO 2025-04-11 18:02:52,059 basehttp 16328 14800 "GET /media/posts/thuctap_99TVX0R.jpg HTTP/1.1" 200 727690
+INFO 2025-04-11 18:02:52,072 basehttp 16328 10456 "GET /media/posts/thuctap_8pycokD.jpg HTTP/1.1" 200 727690
+INFO 2025-04-11 18:02:52,116 basehttp 16328 11612 "GET /media/posts/graves_Q3JewNI.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:02:52,133 basehttp 16328 15184 "GET /media/posts/shen_K1gTHFr.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:02:52,246 basehttp 16328 8304 "GET /users/admin_hoshi/ HTTP/1.1" 200 245691
+INFO 2025-04-11 18:02:52,333 basehttp 16328 7464 "GET /media/posts/thuctap_Fl9EXb7.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:02:52,350 basehttp 16328 10456 "GET /media/posts/thuctap_99TVX0R.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:02:52,365 basehttp 16328 16496 "GET /media/posts/thuctap_qf5W9RI.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:02:52,381 basehttp 16328 2920 "GET /media/posts/thuctap_dJ7M9KG.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:02:52,396 basehttp 16328 19652 "GET /media/posts/thuctap_8pycokD.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:02:52,412 basehttp 16328 8304 "GET /media/posts/thuctap_KyRpUqF.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:02:52,429 basehttp 16328 15184 "GET /media/posts/thuctap_xkIpDf9.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:02:52,443 basehttp 16328 14800 "GET /media/posts/thuctap_iRlleSQ.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:02:52,458 basehttp 16328 11612 "GET /media/posts/thuctap_NID1XzY.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:03:59,751 autoreload 2652 14536 Watching for file changes with StatReloader
+INFO 2025-04-11 18:04:02,530 views 16328 7464 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 18:04:02,531 views 16328 7464 Người dùng: admin_hoshi
+INFO 2025-04-11 18:04:02,531 views 16328 7464 Người dùng đã xác thực: True
+INFO 2025-04-11 18:04:02,533 views 16328 7464 Tổng số bài viết ban đầu: 11
+INFO 2025-04-11 18:04:02,538 views 16328 7464 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 18:04:02,542 views 16328 7464 Số bài viết của những người đang theo dõi: 11
+INFO 2025-04-11 18:04:02,546 views 16328 7464 Tổng số bài viết sau khi lọc: 11
+INFO 2025-04-11 18:04:02,595 views 16328 7464 Debug - Post Authors:
+INFO 2025-04-11 18:04:02,596 views 16328 7464 Post ID: 25, Author Username: admin_hoshi
+INFO 2025-04-11 18:04:02,596 views 16328 7464 Post ID: 24, Author Username: admin_hoshi
+INFO 2025-04-11 18:04:02,597 views 16328 7464 Post ID: 23, Author Username: admin_hoshi
+INFO 2025-04-11 18:04:02,597 views 16328 7464 Post ID: 22, Author Username: admin_hoshi
+INFO 2025-04-11 18:04:02,598 views 16328 7464 Post ID: 21, Author Username: admin_hoshi
+INFO 2025-04-11 18:04:02,598 views 16328 7464 Post ID: 15, Author Username: admin_hoshi
+INFO 2025-04-11 18:04:02,599 views 16328 7464 Post ID: 14, Author Username: admin_hoshi
+INFO 2025-04-11 18:04:02,599 views 16328 7464 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 18:04:02,599 views 16328 7464 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 18:04:02,600 views 16328 7464 Post ID: 11, Author Username: admin_hoshi
+INFO 2025-04-11 18:04:02,600 views 16328 7464 Total posts before filtering: 11
+INFO 2025-04-11 18:04:02,600 views 16328 7464 Following users: [2]
+INFO 2025-04-11 18:04:02,601 views 16328 7464 Total posts after filtering: 11
+INFO 2025-04-11 18:04:02,602 views 16328 7464 Post ID: 25 has 10 media files
+INFO 2025-04-11 18:04:02,606 views 16328 7464    - Media: 10, Type: image, File: posts/thuctap.jpg
+INFO 2025-04-11 18:04:02,606 views 16328 7464    - Media: 11, Type: image, File: posts/thuctap_8pycokD.jpg
+INFO 2025-04-11 18:04:02,607 views 16328 7464    - Media: 12, Type: image, File: posts/thuctap_qf5W9RI.jpg
+INFO 2025-04-11 18:04:02,607 views 16328 7464    - Media: 13, Type: image, File: posts/thuctap_dJ7M9KG.jpg
+INFO 2025-04-11 18:04:02,607 views 16328 7464    - Media: 14, Type: image, File: posts/thuctap_Fl9EXb7.jpg
+INFO 2025-04-11 18:04:02,607 views 16328 7464    - Media: 15, Type: image, File: posts/thuctap_iRlleSQ.jpg
+INFO 2025-04-11 18:04:02,607 views 16328 7464    - Media: 16, Type: image, File: posts/thuctap_99TVX0R.jpg
+INFO 2025-04-11 18:04:02,607 views 16328 7464    - Media: 17, Type: image, File: posts/thuctap_NID1XzY.jpg
+INFO 2025-04-11 18:04:02,609 views 16328 7464    - Media: 18, Type: image, File: posts/thuctap_xkIpDf9.jpg
+INFO 2025-04-11 18:04:02,609 views 16328 7464    - Media: 19, Type: image, File: posts/thuctap_KyRpUqF.jpg
+INFO 2025-04-11 18:04:02,611 views 16328 7464 Post ID: 24 has 0 media files
+INFO 2025-04-11 18:04:02,614 views 16328 7464 Post ID: 23 has 1 media files
+INFO 2025-04-11 18:04:02,617 views 16328 7464    - Media: 9, Type: image, File: posts/shen_b0kqYeG.jpg
+INFO 2025-04-11 18:04:02,620 views 16328 7464 Post ID: 22 has 1 media files
+INFO 2025-04-11 18:04:02,622 views 16328 7464    - Media: 8, Type: image, File: posts/shen_4RrOOEq.jpg
+INFO 2025-04-11 18:04:02,623 views 16328 7464 Post ID: 21 has 0 media files
+INFO 2025-04-11 18:04:02,626 views 16328 7464 Post ID: 15 has 1 media files
+INFO 2025-04-11 18:04:02,628 views 16328 7464    - Media: 7, Type: image, File: posts/shen_K1gTHFr.jpg
+INFO 2025-04-11 18:04:02,629 views 16328 7464 Post ID: 14 has 1 media files
+INFO 2025-04-11 18:04:02,632 views 16328 7464    - Media: 6, Type: image, File: posts/graves_Q3JewNI.jpg
+INFO 2025-04-11 18:04:02,633 views 16328 7464 Post ID: 13 has 0 media files
+INFO 2025-04-11 18:04:02,637 views 16328 7464 Post ID: 12 has 0 media files
+INFO 2025-04-11 18:04:02,640 views 16328 7464 Post ID: 11 has 0 media files
+INFO 2025-04-11 18:04:02,642 views 16328 7464 Debug - Post data structure:
+INFO 2025-04-11 18:04:02,643 views 16328 7464 Post data - ID: 25, Media count: 10
+INFO 2025-04-11 18:04:02,645 views 16328 7464 Post data - ID: 24, Media count: 0
+INFO 2025-04-11 18:04:02,647 views 16328 7464 Post data - ID: 23, Media count: 1
+INFO 2025-04-11 18:04:02,649 views 16328 7464 Post data - ID: 22, Media count: 1
+INFO 2025-04-11 18:04:02,650 views 16328 7464 Post data - ID: 21, Media count: 0
+INFO 2025-04-11 18:04:02,652 views 16328 7464 Post data - ID: 15, Media count: 1
+INFO 2025-04-11 18:04:02,653 views 16328 7464 Post data - ID: 14, Media count: 1
+INFO 2025-04-11 18:04:02,653 views 16328 7464 Post data - ID: 13, Media count: 0
+INFO 2025-04-11 18:04:02,655 views 16328 7464 Post data - ID: 12, Media count: 0
+INFO 2025-04-11 18:04:02,656 views 16328 7464 Post data - ID: 11, Media count: 0
+INFO 2025-04-11 18:04:02,707 basehttp 16328 7464 "GET / HTTP/1.1" 200 69139
+INFO 2025-04-11 18:04:02,898 basehttp 16328 11612 "GET /media/posts/thuctap_xkIpDf9.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:04:02,915 basehttp 16328 14800 "GET /media/posts/thuctap_NID1XzY.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:04:02,931 basehttp 16328 10456 "GET /media/posts/thuctap_8pycokD.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:04:02,947 basehttp 16328 15184 "GET /media/posts/thuctap_99TVX0R.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:04:02,956 basehttp 16328 11612 "GET /media/posts/shen_b0kqYeG.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:04:02,979 basehttp 16328 7464 "GET /media/posts/thuctap_KyRpUqF.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:04:02,998 basehttp 16328 8304 "GET /media/posts/thuctap_iRlleSQ.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:04:03,010 basehttp 16328 16496 "GET /media/posts/thuctap_qf5W9RI.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:04:03,026 basehttp 16328 19652 "GET /media/posts/thuctap_Fl9EXb7.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:04:03,043 basehttp 16328 14800 "GET /media/posts/shen_4RrOOEq.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:04:03,060 basehttp 16328 2920 "GET /media/posts/thuctap_dJ7M9KG.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:04:03,233 basehttp 16328 10456 "GET /static/img/favicon.ico HTTP/1.1" 200 52
+INFO 2025-04-11 18:04:06,896 basehttp 16328 15184 "GET /posts/create/ HTTP/1.1" 200 17660
+INFO 2025-04-11 18:04:11,530 basehttp 16328 11612 "GET /api/posts/?page=2 HTTP/1.1" 200 1746
+INFO 2025-04-11 18:04:11,577 basehttp 16328 7464 "GET /api/posts/?page=2 HTTP/1.1" 200 1746
+INFO 2025-04-11 18:04:11,790 basehttp 16328 8304 "GET /api/posts/?page=2 HTTP/1.1" 200 1746
+INFO 2025-04-11 18:04:12,473 views 16328 16496 POST request received with the following data:
+INFO 2025-04-11 18:04:12,473 views 16328 16496 Request POST: <QueryDict: {'csrfmiddlewaretoken': ['R7MeODlnOzuTNr4yLsXkZJIt3uYx5tBQ9dQ4pbhyeIWN5UOvZvSsFCBufpusiTqZ'], 'media': ['', ''], 'caption': [''], 'location': ['']}>
+INFO 2025-04-11 18:04:12,475 views 16328 16496 Request FILES keys: []
+WARNING 2025-04-11 18:04:12,475 views 16328 16496 No media files found. Available fields: []
+INFO 2025-04-11 18:04:12,487 basehttp 16328 16496 "POST /posts/create/ HTTP/1.1" 302 0
+INFO 2025-04-11 18:04:12,509 views 16328 19652 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 18:04:12,510 views 16328 19652 Người dùng: admin_hoshi
+INFO 2025-04-11 18:04:12,510 views 16328 19652 Người dùng đã xác thực: True
+INFO 2025-04-11 18:04:12,511 views 16328 19652 Tổng số bài viết ban đầu: 12
+INFO 2025-04-11 18:04:12,513 views 16328 19652 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 18:04:12,515 views 16328 19652 Số bài viết của những người đang theo dõi: 12
+INFO 2025-04-11 18:04:12,517 views 16328 19652 Tổng số bài viết sau khi lọc: 12
+INFO 2025-04-11 18:04:12,550 views 16328 19652 Debug - Post Authors:
+INFO 2025-04-11 18:04:12,550 views 16328 19652 Post ID: 26, Author Username: admin_hoshi
+INFO 2025-04-11 18:04:12,550 views 16328 19652 Post ID: 25, Author Username: admin_hoshi
+INFO 2025-04-11 18:04:12,551 views 16328 19652 Post ID: 24, Author Username: admin_hoshi
+INFO 2025-04-11 18:04:12,551 views 16328 19652 Post ID: 23, Author Username: admin_hoshi
+INFO 2025-04-11 18:04:12,551 views 16328 19652 Post ID: 22, Author Username: admin_hoshi
+INFO 2025-04-11 18:04:12,551 views 16328 19652 Post ID: 21, Author Username: admin_hoshi
+INFO 2025-04-11 18:04:12,551 views 16328 19652 Post ID: 15, Author Username: admin_hoshi
+INFO 2025-04-11 18:04:12,551 views 16328 19652 Post ID: 14, Author Username: admin_hoshi
+INFO 2025-04-11 18:04:12,552 views 16328 19652 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 18:04:12,552 views 16328 19652 Post ID: 12, Author Username: admin_hoshi
+INFO 2025-04-11 18:04:12,552 views 16328 19652 Total posts before filtering: 12
+INFO 2025-04-11 18:04:12,552 views 16328 19652 Following users: [2]
+INFO 2025-04-11 18:04:12,553 views 16328 19652 Total posts after filtering: 12
+INFO 2025-04-11 18:04:12,555 views 16328 19652 Post ID: 26 has 0 media files
+INFO 2025-04-11 18:04:12,558 views 16328 19652 Post ID: 25 has 10 media files
+INFO 2025-04-11 18:04:12,560 views 16328 19652    - Media: 10, Type: image, File: posts/thuctap.jpg
+INFO 2025-04-11 18:04:12,561 views 16328 19652    - Media: 11, Type: image, File: posts/thuctap_8pycokD.jpg
+INFO 2025-04-11 18:04:12,561 views 16328 19652    - Media: 12, Type: image, File: posts/thuctap_qf5W9RI.jpg
+INFO 2025-04-11 18:04:12,562 views 16328 19652    - Media: 13, Type: image, File: posts/thuctap_dJ7M9KG.jpg
+INFO 2025-04-11 18:04:12,562 views 16328 19652    - Media: 14, Type: image, File: posts/thuctap_Fl9EXb7.jpg
+INFO 2025-04-11 18:04:12,562 views 16328 19652    - Media: 15, Type: image, File: posts/thuctap_iRlleSQ.jpg
+INFO 2025-04-11 18:04:12,562 views 16328 19652    - Media: 16, Type: image, File: posts/thuctap_99TVX0R.jpg
+INFO 2025-04-11 18:04:12,562 views 16328 19652    - Media: 17, Type: image, File: posts/thuctap_NID1XzY.jpg
+INFO 2025-04-11 18:04:12,563 views 16328 19652    - Media: 18, Type: image, File: posts/thuctap_xkIpDf9.jpg
+INFO 2025-04-11 18:04:12,563 views 16328 19652    - Media: 19, Type: image, File: posts/thuctap_KyRpUqF.jpg
+INFO 2025-04-11 18:04:12,565 views 16328 19652 Post ID: 24 has 0 media files
+INFO 2025-04-11 18:04:12,566 views 16328 19652 Post ID: 23 has 1 media files
+INFO 2025-04-11 18:04:12,570 views 16328 19652    - Media: 9, Type: image, File: posts/shen_b0kqYeG.jpg
+INFO 2025-04-11 18:04:12,571 views 16328 19652 Post ID: 22 has 1 media files
+INFO 2025-04-11 18:04:12,572 views 16328 19652    - Media: 8, Type: image, File: posts/shen_4RrOOEq.jpg
+INFO 2025-04-11 18:04:12,573 views 16328 19652 Post ID: 21 has 0 media files
+INFO 2025-04-11 18:04:12,576 views 16328 19652 Post ID: 15 has 1 media files
+INFO 2025-04-11 18:04:12,578 views 16328 19652    - Media: 7, Type: image, File: posts/shen_K1gTHFr.jpg
+INFO 2025-04-11 18:04:12,579 views 16328 19652 Post ID: 14 has 1 media files
+INFO 2025-04-11 18:04:12,587 views 16328 19652    - Media: 6, Type: image, File: posts/graves_Q3JewNI.jpg
+INFO 2025-04-11 18:04:12,592 views 16328 19652 Post ID: 13 has 0 media files
+INFO 2025-04-11 18:04:12,599 views 16328 19652 Post ID: 12 has 0 media files
+INFO 2025-04-11 18:04:12,602 views 16328 19652 Debug - Post data structure:
+INFO 2025-04-11 18:04:12,606 views 16328 19652 Post data - ID: 26, Media count: 0
+INFO 2025-04-11 18:04:12,609 views 16328 19652 Post data - ID: 25, Media count: 10
+INFO 2025-04-11 18:04:12,611 views 16328 19652 Post data - ID: 24, Media count: 0
+INFO 2025-04-11 18:04:12,614 views 16328 19652 Post data - ID: 23, Media count: 1
+INFO 2025-04-11 18:04:12,619 views 16328 19652 Post data - ID: 22, Media count: 1
+INFO 2025-04-11 18:04:12,622 views 16328 19652 Post data - ID: 21, Media count: 0
+INFO 2025-04-11 18:04:12,624 views 16328 19652 Post data - ID: 15, Media count: 1
+INFO 2025-04-11 18:04:12,626 views 16328 19652 Post data - ID: 14, Media count: 1
+INFO 2025-04-11 18:04:12,627 views 16328 19652 Post data - ID: 13, Media count: 0
+INFO 2025-04-11 18:04:12,627 views 16328 19652 Post data - ID: 12, Media count: 0
+INFO 2025-04-11 18:04:12,711 basehttp 16328 19652 "GET / HTTP/1.1" 200 62125
+INFO 2025-04-11 18:04:12,961 basehttp 16328 7464 "GET /media/posts/thuctap_99TVX0R.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:04:12,979 basehttp 16328 8304 "GET /media/posts/thuctap_NID1XzY.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:04:12,983 basehttp 16328 15184 "GET /media/posts/thuctap_Fl9EXb7.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:04:12,999 basehttp 16328 11612 "GET /media/posts/thuctap_iRlleSQ.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:04:13,014 basehttp 16328 16496 "GET /media/posts/thuctap_xkIpDf9.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:04:13,030 basehttp 16328 14800 "GET /media/posts/thuctap_8pycokD.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:04:13,046 basehttp 16328 19652 "GET /media/posts/thuctap_KyRpUqF.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:04:13,061 basehttp 16328 10456 "GET /media/posts/thuctap_dJ7M9KG.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:04:13,077 basehttp 16328 2920 "GET /media/posts/thuctap_qf5W9RI.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:04:13,088 basehttp 16328 7464 - Broken pipe from ('127.0.0.1', 50185)
+INFO 2025-04-11 18:04:20,060 views 16328 8304 POST request received with the following data:
+INFO 2025-04-11 18:04:20,061 views 16328 8304 Request POST: <QueryDict: {'csrfmiddlewaretoken': ['tiwislsq97uejbxoidJSxemNMKkiwKXPLoA83ToBzgW8BEhlwgE0d7fOYFQdJaMY'], 'caption': ['asdsadas']}>
+INFO 2025-04-11 18:04:20,061 views 16328 8304 Request FILES keys: ['media']
+INFO 2025-04-11 18:04:20,061 views 16328 8304 Found 1 files in media
+INFO 2025-04-11 18:04:20,089 views 16328 8304 Created media 20 for post 27, type: image, file: shen.jpg
+INFO 2025-04-11 18:04:20,093 basehttp 16328 8304 "POST /posts/create/ HTTP/1.1" 302 0
+INFO 2025-04-11 18:04:20,103 views 16328 15184 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 18:04:20,103 views 16328 15184 Người dùng: admin_hoshi
+INFO 2025-04-11 18:04:20,103 views 16328 15184 Người dùng đã xác thực: True
+INFO 2025-04-11 18:04:20,104 views 16328 15184 Tổng số bài viết ban đầu: 13
+INFO 2025-04-11 18:04:20,104 views 16328 15184 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 18:04:20,107 views 16328 15184 Số bài viết của những người đang theo dõi: 13
+INFO 2025-04-11 18:04:20,110 views 16328 15184 Tổng số bài viết sau khi lọc: 13
+INFO 2025-04-11 18:04:20,129 views 16328 15184 Debug - Post Authors:
+INFO 2025-04-11 18:04:20,129 views 16328 15184 Post ID: 27, Author Username: admin_hoshi
+INFO 2025-04-11 18:04:20,130 views 16328 15184 Post ID: 26, Author Username: admin_hoshi
+INFO 2025-04-11 18:04:20,130 views 16328 15184 Post ID: 25, Author Username: admin_hoshi
+INFO 2025-04-11 18:04:20,130 views 16328 15184 Post ID: 24, Author Username: admin_hoshi
+INFO 2025-04-11 18:04:20,130 views 16328 15184 Post ID: 23, Author Username: admin_hoshi
+INFO 2025-04-11 18:04:20,131 views 16328 15184 Post ID: 22, Author Username: admin_hoshi
+INFO 2025-04-11 18:04:20,131 views 16328 15184 Post ID: 21, Author Username: admin_hoshi
+INFO 2025-04-11 18:04:20,131 views 16328 15184 Post ID: 15, Author Username: admin_hoshi
+INFO 2025-04-11 18:04:20,131 views 16328 15184 Post ID: 14, Author Username: admin_hoshi
+INFO 2025-04-11 18:04:20,131 views 16328 15184 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 18:04:20,132 views 16328 15184 Total posts before filtering: 13
+INFO 2025-04-11 18:04:20,132 views 16328 15184 Following users: [2]
+INFO 2025-04-11 18:04:20,132 views 16328 15184 Total posts after filtering: 13
+INFO 2025-04-11 18:04:20,133 views 16328 15184 Post ID: 27 has 1 media files
+INFO 2025-04-11 18:04:20,134 views 16328 15184    - Media: 20, Type: image, File: posts/shen_wZbuQuS.jpg
+INFO 2025-04-11 18:04:20,134 views 16328 15184 Post ID: 26 has 0 media files
+INFO 2025-04-11 18:04:20,136 views 16328 15184 Post ID: 25 has 10 media files
+INFO 2025-04-11 18:04:20,137 views 16328 15184    - Media: 10, Type: image, File: posts/thuctap.jpg
+INFO 2025-04-11 18:04:20,137 views 16328 15184    - Media: 11, Type: image, File: posts/thuctap_8pycokD.jpg
+INFO 2025-04-11 18:04:20,138 views 16328 15184    - Media: 12, Type: image, File: posts/thuctap_qf5W9RI.jpg
+INFO 2025-04-11 18:04:20,138 views 16328 15184    - Media: 13, Type: image, File: posts/thuctap_dJ7M9KG.jpg
+INFO 2025-04-11 18:04:20,138 views 16328 15184    - Media: 14, Type: image, File: posts/thuctap_Fl9EXb7.jpg
+INFO 2025-04-11 18:04:20,138 views 16328 15184    - Media: 15, Type: image, File: posts/thuctap_iRlleSQ.jpg
+INFO 2025-04-11 18:04:20,138 views 16328 15184    - Media: 16, Type: image, File: posts/thuctap_99TVX0R.jpg
+INFO 2025-04-11 18:04:20,138 views 16328 15184    - Media: 17, Type: image, File: posts/thuctap_NID1XzY.jpg
+INFO 2025-04-11 18:04:20,139 views 16328 15184    - Media: 18, Type: image, File: posts/thuctap_xkIpDf9.jpg
+INFO 2025-04-11 18:04:20,139 views 16328 15184    - Media: 19, Type: image, File: posts/thuctap_KyRpUqF.jpg
+INFO 2025-04-11 18:04:20,139 views 16328 15184 Post ID: 24 has 0 media files
+INFO 2025-04-11 18:04:20,141 views 16328 15184 Post ID: 23 has 1 media files
+INFO 2025-04-11 18:04:20,142 views 16328 15184    - Media: 9, Type: image, File: posts/shen_b0kqYeG.jpg
+INFO 2025-04-11 18:04:20,143 views 16328 15184 Post ID: 22 has 1 media files
+INFO 2025-04-11 18:04:20,143 views 16328 15184    - Media: 8, Type: image, File: posts/shen_4RrOOEq.jpg
+INFO 2025-04-11 18:04:20,143 views 16328 15184 Post ID: 21 has 0 media files
+INFO 2025-04-11 18:04:20,146 views 16328 15184 Post ID: 15 has 1 media files
+INFO 2025-04-11 18:04:20,146 views 16328 15184    - Media: 7, Type: image, File: posts/shen_K1gTHFr.jpg
+INFO 2025-04-11 18:04:20,147 views 16328 15184 Post ID: 14 has 1 media files
+INFO 2025-04-11 18:04:20,148 views 16328 15184    - Media: 6, Type: image, File: posts/graves_Q3JewNI.jpg
+INFO 2025-04-11 18:04:20,149 views 16328 15184 Post ID: 13 has 0 media files
+INFO 2025-04-11 18:04:20,150 views 16328 15184 Debug - Post data structure:
+INFO 2025-04-11 18:04:20,150 views 16328 15184 Post data - ID: 27, Media count: 1
+INFO 2025-04-11 18:04:20,151 views 16328 15184 Post data - ID: 26, Media count: 0
+INFO 2025-04-11 18:04:20,151 views 16328 15184 Post data - ID: 25, Media count: 10
+INFO 2025-04-11 18:04:20,152 views 16328 15184 Post data - ID: 24, Media count: 0
+INFO 2025-04-11 18:04:20,153 views 16328 15184 Post data - ID: 23, Media count: 1
+INFO 2025-04-11 18:04:20,153 views 16328 15184 Post data - ID: 22, Media count: 1
+INFO 2025-04-11 18:04:20,154 views 16328 15184 Post data - ID: 21, Media count: 0
+INFO 2025-04-11 18:04:20,155 views 16328 15184 Post data - ID: 15, Media count: 1
+INFO 2025-04-11 18:04:20,156 views 16328 15184 Post data - ID: 14, Media count: 1
+INFO 2025-04-11 18:04:20,156 views 16328 15184 Post data - ID: 13, Media count: 0
+INFO 2025-04-11 18:04:20,194 basehttp 16328 15184 "GET / HTTP/1.1" 200 62972
+INFO 2025-04-11 18:04:20,237 basehttp 16328 16496 - Broken pipe from ('127.0.0.1', 50182)
+INFO 2025-04-11 18:04:20,415 basehttp 16328 14800 "GET /media/posts/thuctap_8pycokD.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:04:20,425 basehttp 16328 10456 "GET /media/posts/thuctap_dJ7M9KG.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:04:20,440 basehttp 16328 2920 "GET /media/posts/thuctap_Fl9EXb7.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:04:20,469 basehttp 16328 8304 "GET /media/posts/thuctap_iRlleSQ.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:04:20,479 basehttp 16328 11612 "GET /media/posts/shen_wZbuQuS.jpg HTTP/1.1" 200 4075944
+INFO 2025-04-11 18:04:20,501 basehttp 16328 19652 "GET /media/posts/thuctap_qf5W9RI.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:04:20,518 basehttp 16328 10456 "GET /media/posts/thuctap_xkIpDf9.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:04:20,534 basehttp 16328 14800 "GET /media/posts/thuctap_NID1XzY.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:04:20,549 basehttp 16328 2920 "GET /media/posts/thuctap_KyRpUqF.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:04:20,565 basehttp 16328 15184 "GET /media/posts/thuctap_99TVX0R.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:04:20,632 basehttp 16328 11612 - Broken pipe from ('127.0.0.1', 50187)
+INFO 2025-04-11 18:04:23,795 basehttp 16328 8304 "GET /users/admin_hoshi/ HTTP/1.1" 200 285562
+INFO 2025-04-11 18:04:23,995 basehttp 16328 19652 "GET /media/posts/shen_wZbuQuS.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:04:34,379 basehttp 16328 10456 "POST /posts/26/edit/ HTTP/1.1" 200 163
+INFO 2025-04-11 18:04:34,474 basehttp 16328 10456 "POST /posts/26/edit/ HTTP/1.1" 200 163
+INFO 2025-04-11 18:04:34,508 basehttp 16328 15184 "POST /posts/26/edit/ HTTP/1.1" 200 163
+INFO 2025-04-11 18:04:34,546 basehttp 16328 10456 "POST /posts/26/edit/ HTTP/1.1" 200 163
+INFO 2025-04-11 18:04:34,567 basehttp 16328 2920 "POST /posts/26/edit/ HTTP/1.1" 200 163
+INFO 2025-04-11 18:04:34,613 basehttp 16328 2856 "POST /posts/26/edit/ HTTP/1.1" 200 163
+INFO 2025-04-11 18:04:34,642 basehttp 16328 15184 "POST /posts/26/edit/ HTTP/1.1" 200 163
+INFO 2025-04-11 18:04:34,678 basehttp 16328 14800 "POST /posts/26/edit/ HTTP/1.1" 200 163
+INFO 2025-04-11 18:04:34,693 basehttp 16328 19652 "POST /posts/26/edit/ HTTP/1.1" 200 163
+INFO 2025-04-11 18:04:34,711 basehttp 16328 11720 "POST /posts/26/edit/ HTTP/1.1" 200 163
+INFO 2025-04-11 18:04:34,721 basehttp 16328 8304 "POST /posts/26/edit/ HTTP/1.1" 200 163
+INFO 2025-04-11 18:04:34,765 basehttp 16328 2036 "POST /posts/26/edit/ HTTP/1.1" 200 163
+INFO 2025-04-11 18:04:35,927 basehttp 16328 10456 "GET /users/admin_hoshi/ HTTP/1.1" 200 301149
+INFO 2025-04-11 18:04:36,057 basehttp 16328 10456 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_4EJ39ln.jpg HTTP/1.1" 200 2140644
+INFO 2025-04-11 18:04:36,083 basehttp 16328 2856 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_FYnfRca.jpg HTTP/1.1" 200 2140644
+INFO 2025-04-11 18:04:36,100 basehttp 16328 8304 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_SNoc2fv.jpg HTTP/1.1" 200 2140644
+INFO 2025-04-11 18:04:36,131 basehttp 16328 19652 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_2s5HOGi.jpg HTTP/1.1" 200 2140644
+INFO 2025-04-11 18:04:36,147 basehttp 16328 15184 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_3iFrcIw.jpg HTTP/1.1" 200 2140644
+INFO 2025-04-11 18:04:36,167 basehttp 16328 14800 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_9Gzhi7t.jpg HTTP/1.1" 200 2140644
+INFO 2025-04-11 18:04:36,183 basehttp 16328 14800 "GET /media/posts/thuctap_KyRpUqF.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:04:36,197 basehttp 16328 19652 - Broken pipe from ('127.0.0.1', 50188)
+INFO 2025-04-11 18:04:36,198 basehttp 16328 15184 - Broken pipe from ('127.0.0.1', 50186)
+INFO 2025-04-11 18:04:36,198 basehttp 16328 2856 - Broken pipe from ('127.0.0.1', 50309)
+INFO 2025-04-11 18:04:36,201 basehttp 16328 10456 - Broken pipe from ('127.0.0.1', 49830)
+INFO 2025-04-11 18:04:36,207 basehttp 16328 2920 - Broken pipe from ('127.0.0.1', 50184)
+INFO 2025-04-11 18:04:36,214 basehttp 16328 2036 - Broken pipe from ('127.0.0.1', 50308)
+INFO 2025-04-11 18:04:36,214 basehttp 16328 11720 - Broken pipe from ('127.0.0.1', 50307)
+INFO 2025-04-11 18:04:36,247 basehttp 16328 13300 "GET /media/posts/shen_wZbuQuS.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:04:36,267 basehttp 16328 4612 "GET /media/posts/thuctap_qf5W9RI.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:04:36,280 basehttp 16328 20532 "GET /media/posts/thuctap_8pycokD.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:04:36,288 basehttp 16328 4612 "GET /media/posts/thuctap_NID1XzY.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:04:36,309 basehttp 16328 3360 "GET /media/posts/thuctap_Fl9EXb7.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:04:36,342 basehttp 16328 14800 - Broken pipe from ('127.0.0.1', 49829)
+INFO 2025-04-11 18:04:36,358 basehttp 16328 17960 "GET /media/posts/thuctap_iRlleSQ.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:04:36,387 basehttp 16328 20532 "GET /media/posts/thuctap_xkIpDf9.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:04:36,404 basehttp 16328 16400 "GET /media/posts/thuctap_dJ7M9KG.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:04:36,452 basehttp 16328 13300 "GET /media/posts/thuctap_99TVX0R.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:04:36,485 basehttp 16328 14016 "GET /users/admin_hoshi/ HTTP/1.1" 200 301149
+INFO 2025-04-11 18:04:36,570 basehttp 16328 14016 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_aModDcf.jpg HTTP/1.1" 200 2140644
+INFO 2025-04-11 18:04:36,602 basehttp 16328 16400 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_4EJ39ln.jpg HTTP/1.1" 200 2140644
+INFO 2025-04-11 18:04:36,767 basehttp 16328 4612 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_3iFrcIw.jpg HTTP/1.1" 200 2140644
+INFO 2025-04-11 18:04:36,779 basehttp 16328 20532 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_SNoc2fv.jpg HTTP/1.1" 200 2140644
+INFO 2025-04-11 18:04:36,783 basehttp 16328 3360 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_9Gzhi7t.jpg HTTP/1.1" 200 2140644
+INFO 2025-04-11 18:04:36,792 basehttp 16328 17960 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_2s5HOGi.jpg HTTP/1.1" 200 2140644
+INFO 2025-04-11 18:04:36,815 basehttp 16328 13300 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_FYnfRca.jpg HTTP/1.1" 200 2140644
+INFO 2025-04-11 18:04:36,875 basehttp 16328 14016 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_7wzmoex.jpg HTTP/1.1" 200 2140644
+INFO 2025-04-11 18:04:36,918 basehttp 16328 4612 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_4Wk3hvY.jpg HTTP/1.1" 200 2140644
+INFO 2025-04-11 18:04:36,927 basehttp 16328 3360 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_K6YxELX.jpg HTTP/1.1" 200 2140644
+INFO 2025-04-11 18:04:36,953 basehttp 16328 20532 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_qtRdH6l.jpg HTTP/1.1" 200 2140644
+INFO 2025-04-11 18:04:36,956 basehttp 16328 16400 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_6sy1vEe.jpg HTTP/1.1" 200 2140644
+INFO 2025-04-11 18:05:18,192 basehttp 16328 17960 "GET /posts/create/ HTTP/1.1" 200 17660
+INFO 2025-04-11 18:06:30,240 basehttp 16328 13300 "GET /posts/create/ HTTP/1.1" 200 18855
+INFO 2025-04-11 18:07:44,560 basehttp 16328 13300 "GET /posts/create/ HTTP/1.1" 200 19010
+INFO 2025-04-11 18:07:47,385 basehttp 16328 13300 "GET /posts/create/ HTTP/1.1" 200 19010
+INFO 2025-04-11 18:07:47,638 basehttp 16328 13300 "GET /posts/create/ HTTP/1.1" 200 19010
+INFO 2025-04-11 18:08:06,015 views 16328 13300 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 18:08:06,016 views 16328 13300 Người dùng: admin_hoshi
+INFO 2025-04-11 18:08:06,016 views 16328 13300 Người dùng đã xác thực: True
+INFO 2025-04-11 18:08:06,019 views 16328 13300 Tổng số bài viết ban đầu: 13
+INFO 2025-04-11 18:08:06,023 views 16328 13300 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 18:08:06,027 views 16328 13300 Số bài viết của những người đang theo dõi: 13
+INFO 2025-04-11 18:08:06,032 views 16328 13300 Tổng số bài viết sau khi lọc: 13
+INFO 2025-04-11 18:08:06,076 views 16328 13300 Debug - Post Authors:
+INFO 2025-04-11 18:08:06,077 views 16328 13300 Post ID: 27, Author Username: admin_hoshi
+INFO 2025-04-11 18:08:06,077 views 16328 13300 Post ID: 26, Author Username: admin_hoshi
+INFO 2025-04-11 18:08:06,077 views 16328 13300 Post ID: 25, Author Username: admin_hoshi
+INFO 2025-04-11 18:08:06,077 views 16328 13300 Post ID: 24, Author Username: admin_hoshi
+INFO 2025-04-11 18:08:06,077 views 16328 13300 Post ID: 23, Author Username: admin_hoshi
+INFO 2025-04-11 18:08:06,078 views 16328 13300 Post ID: 22, Author Username: admin_hoshi
+INFO 2025-04-11 18:08:06,078 views 16328 13300 Post ID: 21, Author Username: admin_hoshi
+INFO 2025-04-11 18:08:06,078 views 16328 13300 Post ID: 15, Author Username: admin_hoshi
+INFO 2025-04-11 18:08:06,078 views 16328 13300 Post ID: 14, Author Username: admin_hoshi
+INFO 2025-04-11 18:08:06,079 views 16328 13300 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 18:08:06,079 views 16328 13300 Total posts before filtering: 13
+INFO 2025-04-11 18:08:06,079 views 16328 13300 Following users: [2]
+INFO 2025-04-11 18:08:06,079 views 16328 13300 Total posts after filtering: 13
+INFO 2025-04-11 18:08:06,081 views 16328 13300 Post ID: 27 has 1 media files
+INFO 2025-04-11 18:08:06,083 views 16328 13300    - Media: 20, Type: image, File: posts/shen_wZbuQuS.jpg
+INFO 2025-04-11 18:08:06,084 views 16328 13300 Post ID: 26 has 12 media files
+INFO 2025-04-11 18:08:06,087 views 16328 13300    - Media: 21, Type: image, File: posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_aModDcf.jpg
+INFO 2025-04-11 18:08:06,088 views 16328 13300    - Media: 22, Type: image, File: posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_3iFrcIw.jpg
+INFO 2025-04-11 18:08:06,088 views 16328 13300    - Media: 23, Type: image, File: posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_9Gzhi7t.jpg
+INFO 2025-04-11 18:08:06,088 views 16328 13300    - Media: 29, Type: image, File: posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_2s5HOGi.jpg
+INFO 2025-04-11 18:08:06,089 views 16328 13300    - Media: 24, Type: image, File: posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_SNoc2fv.jpg
+INFO 2025-04-11 18:08:06,089 views 16328 13300    - Media: 25, Type: image, File: posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_4EJ39ln.jpg
+INFO 2025-04-11 18:08:06,089 views 16328 13300    - Media: 30, Type: image, File: posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_FYnfRca.jpg
+INFO 2025-04-11 18:08:06,089 views 16328 13300    - Media: 31, Type: image, File: posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_7wzmoex.jpg
+INFO 2025-04-11 18:08:06,089 views 16328 13300    - Media: 26, Type: image, File: posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_4Wk3hvY.jpg
+INFO 2025-04-11 18:08:06,090 views 16328 13300    - Media: 27, Type: image, File: posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_K6YxELX.jpg
+INFO 2025-04-11 18:08:06,090 views 16328 13300    - Media: 28, Type: image, File: posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_qtRdH6l.jpg
+INFO 2025-04-11 18:08:06,090 views 16328 13300    - Media: 32, Type: image, File: posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_6sy1vEe.jpg
+INFO 2025-04-11 18:08:06,091 views 16328 13300 Post ID: 25 has 10 media files
+INFO 2025-04-11 18:08:06,093 views 16328 13300    - Media: 10, Type: image, File: posts/thuctap.jpg
+INFO 2025-04-11 18:08:06,093 views 16328 13300    - Media: 11, Type: image, File: posts/thuctap_8pycokD.jpg
+INFO 2025-04-11 18:08:06,093 views 16328 13300    - Media: 12, Type: image, File: posts/thuctap_qf5W9RI.jpg
+INFO 2025-04-11 18:08:06,094 views 16328 13300    - Media: 13, Type: image, File: posts/thuctap_dJ7M9KG.jpg
+INFO 2025-04-11 18:08:06,095 views 16328 13300    - Media: 14, Type: image, File: posts/thuctap_Fl9EXb7.jpg
+INFO 2025-04-11 18:08:06,095 views 16328 13300    - Media: 15, Type: image, File: posts/thuctap_iRlleSQ.jpg
+INFO 2025-04-11 18:08:06,095 views 16328 13300    - Media: 16, Type: image, File: posts/thuctap_99TVX0R.jpg
+INFO 2025-04-11 18:08:06,095 views 16328 13300    - Media: 17, Type: image, File: posts/thuctap_NID1XzY.jpg
+INFO 2025-04-11 18:08:06,096 views 16328 13300    - Media: 18, Type: image, File: posts/thuctap_xkIpDf9.jpg
+INFO 2025-04-11 18:08:06,096 views 16328 13300    - Media: 19, Type: image, File: posts/thuctap_KyRpUqF.jpg
+INFO 2025-04-11 18:08:06,098 views 16328 13300 Post ID: 24 has 0 media files
+INFO 2025-04-11 18:08:06,102 views 16328 13300 Post ID: 23 has 1 media files
+INFO 2025-04-11 18:08:06,105 views 16328 13300    - Media: 9, Type: image, File: posts/shen_b0kqYeG.jpg
+INFO 2025-04-11 18:08:06,107 views 16328 13300 Post ID: 22 has 1 media files
+INFO 2025-04-11 18:08:06,110 views 16328 13300    - Media: 8, Type: image, File: posts/shen_4RrOOEq.jpg
+INFO 2025-04-11 18:08:06,113 views 16328 13300 Post ID: 21 has 0 media files
+INFO 2025-04-11 18:08:06,117 views 16328 13300 Post ID: 15 has 1 media files
+INFO 2025-04-11 18:08:06,119 views 16328 13300    - Media: 7, Type: image, File: posts/shen_K1gTHFr.jpg
+INFO 2025-04-11 18:08:06,120 views 16328 13300 Post ID: 14 has 1 media files
+INFO 2025-04-11 18:08:06,124 views 16328 13300    - Media: 6, Type: image, File: posts/graves_Q3JewNI.jpg
+INFO 2025-04-11 18:08:06,125 views 16328 13300 Post ID: 13 has 0 media files
+INFO 2025-04-11 18:08:06,126 views 16328 13300 Debug - Post data structure:
+INFO 2025-04-11 18:08:06,127 views 16328 13300 Post data - ID: 27, Media count: 1
+INFO 2025-04-11 18:08:06,130 views 16328 13300 Post data - ID: 26, Media count: 12
+INFO 2025-04-11 18:08:06,133 views 16328 13300 Post data - ID: 25, Media count: 10
+INFO 2025-04-11 18:08:06,134 views 16328 13300 Post data - ID: 24, Media count: 0
+INFO 2025-04-11 18:08:06,136 views 16328 13300 Post data - ID: 23, Media count: 1
+INFO 2025-04-11 18:08:06,138 views 16328 13300 Post data - ID: 22, Media count: 1
+INFO 2025-04-11 18:08:06,140 views 16328 13300 Post data - ID: 21, Media count: 0
+INFO 2025-04-11 18:08:06,140 views 16328 13300 Post data - ID: 15, Media count: 1
+INFO 2025-04-11 18:08:06,143 views 16328 13300 Post data - ID: 14, Media count: 1
+INFO 2025-04-11 18:08:06,145 views 16328 13300 Post data - ID: 13, Media count: 0
+INFO 2025-04-11 18:08:06,198 basehttp 16328 13300 "GET / HTTP/1.1" 200 72914
+INFO 2025-04-11 18:08:06,360 basehttp 16328 13300 "GET /media/posts/shen_wZbuQuS.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:08:06,385 basehttp 16328 12172 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_9Gzhi7t.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:08:06,389 basehttp 16328 18224 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_2s5HOGi.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:08:06,416 basehttp 16328 12980 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_3iFrcIw.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:08:06,431 basehttp 16328 12980 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_4Wk3hvY.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:08:06,472 basehttp 16328 12980 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_K6YxELX.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:08:06,487 basehttp 16328 16932 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_SNoc2fv.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:08:06,496 basehttp 16328 13300 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_4EJ39ln.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:08:06,510 basehttp 16328 13300 "GET /media/posts/thuctap_8pycokD.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:08:06,524 basehttp 16328 13300 "GET /media/posts/thuctap_qf5W9RI.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:08:06,532 basehttp 16328 18812 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_aModDcf.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:08:06,550 basehttp 16328 12172 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_FYnfRca.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:08:06,572 basehttp 16328 12980 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_qtRdH6l.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:08:06,606 basehttp 16328 12980 "GET /media/posts/thuctap_99TVX0R.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:08:06,620 basehttp 16328 16932 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_6sy1vEe.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:08:06,634 basehttp 16328 16932 "GET /media/posts/thuctap_xkIpDf9.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:08:06,645 basehttp 16328 16932 "GET /media/posts/thuctap_KyRpUqF.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:08:06,655 basehttp 16328 12980 "GET /media/posts/thuctap_NID1XzY.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:08:06,665 basehttp 16328 12980 "GET /media/posts/shen_4RrOOEq.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:08:06,695 basehttp 16328 12980 "GET /media/posts/shen_K1gTHFr.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:08:06,715 basehttp 16328 13300 "GET /media/posts/thuctap_dJ7M9KG.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:08:06,747 basehttp 16328 18812 "GET /media/posts/thuctap_Fl9EXb7.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:08:06,774 basehttp 16328 12980 "GET /media/posts/graves_Q3JewNI.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:08:06,795 basehttp 16328 12172 "GET /media/posts/thuctap_iRlleSQ.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:08:06,811 basehttp 16328 18224 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_7wzmoex.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:08:06,838 basehttp 16328 16932 "GET /media/posts/shen_b0kqYeG.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:08:08,239 basehttp 16328 13300 "GET /posts/create/ HTTP/1.1" 200 19010
+INFO 2025-04-11 18:08:12,784 basehttp 16328 13300 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 18:08:12,850 basehttp 16328 13300 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 18:08:13,068 basehttp 16328 13300 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 18:08:13,160 basehttp 16328 13300 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 18:08:14,264 basehttp 16328 13300 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 18:08:14,381 basehttp 16328 13300 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 18:08:14,444 basehttp 16328 13300 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 18:41:58,618 views 16328 19340 Bắt đầu xử lý trang chủ
+INFO 2025-04-11 18:41:58,633 views 16328 19340 Người dùng: admin_hoshi
+INFO 2025-04-11 18:41:58,634 views 16328 19340 Người dùng đã xác thực: True
+INFO 2025-04-11 18:41:58,637 views 16328 19340 Tổng số bài viết ban đầu: 13
+INFO 2025-04-11 18:41:58,643 views 16328 19340 Những người dùng đang được theo dõi: [2]
+INFO 2025-04-11 18:41:58,650 views 16328 19340 Số bài viết của những người đang theo dõi: 13
+INFO 2025-04-11 18:41:58,654 views 16328 19340 Tổng số bài viết sau khi lọc: 13
+INFO 2025-04-11 18:41:58,693 views 16328 19340 Debug - Post Authors:
+INFO 2025-04-11 18:41:58,694 views 16328 19340 Post ID: 27, Author Username: admin_hoshi
+INFO 2025-04-11 18:41:58,694 views 16328 19340 Post ID: 26, Author Username: admin_hoshi
+INFO 2025-04-11 18:41:58,694 views 16328 19340 Post ID: 25, Author Username: admin_hoshi
+INFO 2025-04-11 18:41:58,694 views 16328 19340 Post ID: 24, Author Username: admin_hoshi
+INFO 2025-04-11 18:41:58,695 views 16328 19340 Post ID: 23, Author Username: admin_hoshi
+INFO 2025-04-11 18:41:58,695 views 16328 19340 Post ID: 22, Author Username: admin_hoshi
+INFO 2025-04-11 18:41:58,695 views 16328 19340 Post ID: 21, Author Username: admin_hoshi
+INFO 2025-04-11 18:41:58,695 views 16328 19340 Post ID: 15, Author Username: admin_hoshi
+INFO 2025-04-11 18:41:58,695 views 16328 19340 Post ID: 14, Author Username: admin_hoshi
+INFO 2025-04-11 18:41:58,696 views 16328 19340 Post ID: 13, Author Username: admin_hoshi
+INFO 2025-04-11 18:41:58,696 views 16328 19340 Total posts before filtering: 13
+INFO 2025-04-11 18:41:58,696 views 16328 19340 Following users: [2]
+INFO 2025-04-11 18:41:58,696 views 16328 19340 Total posts after filtering: 13
+INFO 2025-04-11 18:41:58,698 views 16328 19340 Post ID: 27 has 1 media files
+INFO 2025-04-11 18:41:58,699 views 16328 19340    - Media: 20, Type: image, File: posts/shen_wZbuQuS.jpg
+INFO 2025-04-11 18:41:58,700 views 16328 19340 Post ID: 26 has 12 media files
+INFO 2025-04-11 18:41:58,701 views 16328 19340    - Media: 21, Type: image, File: posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_aModDcf.jpg
+INFO 2025-04-11 18:41:58,702 views 16328 19340    - Media: 22, Type: image, File: posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_3iFrcIw.jpg
+INFO 2025-04-11 18:41:58,702 views 16328 19340    - Media: 23, Type: image, File: posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_9Gzhi7t.jpg
+INFO 2025-04-11 18:41:58,702 views 16328 19340    - Media: 29, Type: image, File: posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_2s5HOGi.jpg
+INFO 2025-04-11 18:41:58,703 views 16328 19340    - Media: 24, Type: image, File: posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_SNoc2fv.jpg
+INFO 2025-04-11 18:41:58,703 views 16328 19340    - Media: 25, Type: image, File: posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_4EJ39ln.jpg
+INFO 2025-04-11 18:41:58,703 views 16328 19340    - Media: 30, Type: image, File: posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_FYnfRca.jpg
+INFO 2025-04-11 18:41:58,703 views 16328 19340    - Media: 31, Type: image, File: posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_7wzmoex.jpg
+INFO 2025-04-11 18:41:58,703 views 16328 19340    - Media: 26, Type: image, File: posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_4Wk3hvY.jpg
+INFO 2025-04-11 18:41:58,704 views 16328 19340    - Media: 27, Type: image, File: posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_K6YxELX.jpg
+INFO 2025-04-11 18:41:58,704 views 16328 19340    - Media: 28, Type: image, File: posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_qtRdH6l.jpg
+INFO 2025-04-11 18:41:58,704 views 16328 19340    - Media: 32, Type: image, File: posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_6sy1vEe.jpg
+INFO 2025-04-11 18:41:58,705 views 16328 19340 Post ID: 25 has 10 media files
+INFO 2025-04-11 18:41:58,706 views 16328 19340    - Media: 10, Type: image, File: posts/thuctap.jpg
+INFO 2025-04-11 18:41:58,707 views 16328 19340    - Media: 11, Type: image, File: posts/thuctap_8pycokD.jpg
+INFO 2025-04-11 18:41:58,707 views 16328 19340    - Media: 12, Type: image, File: posts/thuctap_qf5W9RI.jpg
+INFO 2025-04-11 18:41:58,707 views 16328 19340    - Media: 13, Type: image, File: posts/thuctap_dJ7M9KG.jpg
+INFO 2025-04-11 18:41:58,707 views 16328 19340    - Media: 14, Type: image, File: posts/thuctap_Fl9EXb7.jpg
+INFO 2025-04-11 18:41:58,708 views 16328 19340    - Media: 15, Type: image, File: posts/thuctap_iRlleSQ.jpg
+INFO 2025-04-11 18:41:58,708 views 16328 19340    - Media: 16, Type: image, File: posts/thuctap_99TVX0R.jpg
+INFO 2025-04-11 18:41:58,708 views 16328 19340    - Media: 17, Type: image, File: posts/thuctap_NID1XzY.jpg
+INFO 2025-04-11 18:41:58,708 views 16328 19340    - Media: 18, Type: image, File: posts/thuctap_xkIpDf9.jpg
+INFO 2025-04-11 18:41:58,708 views 16328 19340    - Media: 19, Type: image, File: posts/thuctap_KyRpUqF.jpg
+INFO 2025-04-11 18:41:58,709 views 16328 19340 Post ID: 24 has 0 media files
+INFO 2025-04-11 18:41:58,711 views 16328 19340 Post ID: 23 has 1 media files
+INFO 2025-04-11 18:41:58,713 views 16328 19340    - Media: 9, Type: image, File: posts/shen_b0kqYeG.jpg
+INFO 2025-04-11 18:41:58,713 views 16328 19340 Post ID: 22 has 1 media files
+INFO 2025-04-11 18:41:58,715 views 16328 19340    - Media: 8, Type: image, File: posts/shen_4RrOOEq.jpg
+INFO 2025-04-11 18:41:58,716 views 16328 19340 Post ID: 21 has 0 media files
+INFO 2025-04-11 18:41:58,718 views 16328 19340 Post ID: 15 has 1 media files
+INFO 2025-04-11 18:41:58,719 views 16328 19340    - Media: 7, Type: image, File: posts/shen_K1gTHFr.jpg
+INFO 2025-04-11 18:41:58,720 views 16328 19340 Post ID: 14 has 1 media files
+INFO 2025-04-11 18:41:58,721 views 16328 19340    - Media: 6, Type: image, File: posts/graves_Q3JewNI.jpg
+INFO 2025-04-11 18:41:58,721 views 16328 19340 Post ID: 13 has 0 media files
+INFO 2025-04-11 18:41:58,722 views 16328 19340 Debug - Post data structure:
+INFO 2025-04-11 18:41:58,723 views 16328 19340 Post data - ID: 27, Media count: 1
+INFO 2025-04-11 18:41:58,724 views 16328 19340 Post data - ID: 26, Media count: 12
+INFO 2025-04-11 18:41:58,725 views 16328 19340 Post data - ID: 25, Media count: 10
+INFO 2025-04-11 18:41:58,726 views 16328 19340 Post data - ID: 24, Media count: 0
+INFO 2025-04-11 18:41:58,727 views 16328 19340 Post data - ID: 23, Media count: 1
+INFO 2025-04-11 18:41:58,727 views 16328 19340 Post data - ID: 22, Media count: 1
+INFO 2025-04-11 18:41:58,728 views 16328 19340 Post data - ID: 21, Media count: 0
+INFO 2025-04-11 18:41:58,729 views 16328 19340 Post data - ID: 15, Media count: 1
+INFO 2025-04-11 18:41:58,730 views 16328 19340 Post data - ID: 14, Media count: 1
+INFO 2025-04-11 18:41:58,731 views 16328 19340 Post data - ID: 13, Media count: 0
+INFO 2025-04-11 18:41:58,816 basehttp 16328 19340 "GET / HTTP/1.1" 200 72942
+INFO 2025-04-11 18:41:59,097 basehttp 16328 19340 "GET /static/img/logo.png HTTP/1.1" 304 0
+INFO 2025-04-11 18:41:59,134 basehttp 16328 19340 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_2s5HOGi.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:41:59,150 basehttp 16328 19340 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_SNoc2fv.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:41:59,167 basehttp 16328 19340 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_4EJ39ln.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:41:59,198 basehttp 16328 7984 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_3iFrcIw.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:41:59,213 basehttp 16328 7984 "GET /media/posts/shen_b0kqYeG.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:41:59,244 basehttp 16328 13104 "GET /media/avatars/atrox_KBKO3lg.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:41:59,267 basehttp 16328 19340 "GET /media/posts/thuctap.jpg HTTP/1.1" 200 727690
+INFO 2025-04-11 18:41:59,292 basehttp 16328 18896 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_aModDcf.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:41:59,327 basehttp 16328 7984 "GET /media/posts/shen_4RrOOEq.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:41:59,377 basehttp 16328 16436 "GET /media/posts/shen_wZbuQuS.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:41:59,381 basehttp 16328 7984 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_7wzmoex.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:41:59,400 basehttp 16328 7984 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_K6YxELX.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:41:59,415 basehttp 16328 19340 "GET /media/posts/graves_Q3JewNI.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:41:59,447 basehttp 16328 16436 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_4Wk3hvY.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:41:59,480 basehttp 16328 7984 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_qtRdH6l.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:41:59,495 basehttp 16328 7516 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_9Gzhi7t.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:41:59,524 basehttp 16328 18896 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_FYnfRca.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:41:59,545 basehttp 16328 19340 "GET /media/posts/pantheon-vs-aatrox-lol-uhdpaper.com-4K-5.2644_6sy1vEe.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:41:59,566 basehttp 16328 16436 "GET /media/posts/thuctap_8pycokD.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:41:59,597 basehttp 16328 16436 "GET /media/posts/thuctap_99TVX0R.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:41:59,628 basehttp 16328 16436 "GET /media/posts/thuctap_NID1XzY.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:41:59,647 basehttp 16328 7984 "GET /media/posts/thuctap_qf5W9RI.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:41:59,667 basehttp 16328 16436 "GET /media/posts/thuctap_xkIpDf9.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:41:59,675 basehttp 16328 16436 "GET /static/img/favicon.ico HTTP/1.1" 304 0
+INFO 2025-04-11 18:41:59,691 basehttp 16328 19340 "GET /media/posts/thuctap_iRlleSQ.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:41:59,715 basehttp 16328 18896 "GET /media/posts/thuctap_Fl9EXb7.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:41:59,729 basehttp 16328 7984 "GET /media/posts/thuctap_KyRpUqF.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:41:59,745 basehttp 16328 7516 "GET /media/posts/thuctap_dJ7M9KG.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:41:59,771 basehttp 16328 13104 "GET /media/posts/shen_K1gTHFr.jpg HTTP/1.1" 304 0
+INFO 2025-04-11 18:42:15,228 basehttp 16328 19340 "GET /posts/create/ HTTP/1.1" 200 19725
+INFO 2025-04-11 18:42:21,491 basehttp 16328 19340 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 18:42:21,875 basehttp 16328 19340 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 18:42:21,991 basehttp 16328 19340 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 18:42:22,454 basehttp 16328 19340 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 18:42:22,524 basehttp 16328 19340 "GET /api/posts/?page=2 HTTP/1.1" 200 6550
+INFO 2025-04-11 18:42:24,001 views 16328 19340 POST request received with the following data:
+INFO 2025-04-11 18:43:39,355 autoreload 2232 19196 Watching for file changes with StatReloader

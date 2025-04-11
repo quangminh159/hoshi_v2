@@ -8,14 +8,18 @@
 {% block extra_css %}
 <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
 <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
-<link href="https://unpkg.com/filepond-plugin-image-edit/dist/filepond-plugin-image-edit.css" rel="stylesheet">
+<link href="https://unpkg.com/filepond-plugin-file-poster/dist/filepond-plugin-file-poster.css" rel="stylesheet">
+<link href="https://unpkg.com/filepond-plugin-media-preview/dist/filepond-plugin-media-preview.css" rel="stylesheet">
 <style>
     .filepond--root {
-        max-height: 400px;
+        max-height: none;
     }
     .filepond--panel-root {
         background-color: #f8f9fa;
         border: 2px dashed #dee2e6;
+    }
+    .filepond--item {
+        margin-bottom: 8px;
     }
     .location-suggestions {
         position: absolute;
@@ -36,18 +40,67 @@
     .location-suggestion:hover {
         background-color: #f8f9fa;
     }
-    .preview-container {
-        position: relative;
-        width: 100%;
-        padding-bottom: 100%;
+    .media-type-selector {
+        display: flex;
+        margin-bottom: 1rem;
+        border-bottom: 1px solid #dee2e6;
     }
-    .preview-container img {
+    .media-type-selector .type-btn {
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        border: none;
+        background: none;
+        font-weight: 500;
+        position: relative;
+    }
+    .media-type-selector .type-btn.active {
+        color: #0d6efd;
+    }
+    .media-type-selector .type-btn.active::after {
+        content: '';
         position: absolute;
-        top: 0;
+        bottom: -1px;
         left: 0;
+        width: 100%;
+        height: 2px;
+        background-color: #0d6efd;
+    }
+    .media-previews {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 10px;
+        margin-top: 15px;
+    }
+    .media-preview-item {
+        position: relative;
+        border-radius: 8px;
+        overflow: hidden;
+        aspect-ratio: 1;
+    }
+    .media-preview-item img {
         width: 100%;
         height: 100%;
         object-fit: cover;
+    }
+    .media-preview-item video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .remove-media {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: rgba(0,0,0,0.5);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
     }
 </style>
 {% endblock %}
@@ -61,24 +114,32 @@
                     <h5 class="card-title mb-0">Tạo bài viết mới</h5>
                 </div>
                 <div class="card-body">
-                    <form method="post" enctype="multipart/form-data">
+                    <form method="post" action="{% url 'posts:create' %}" enctype="multipart/form-data" id="postForm">
                         {% csrf_token %}
+                        
+                        <!-- Media Type Selector -->
+                        <div class="media-type-selector">
+                            <button type="button" class="type-btn active" data-type="all">Tất cả</button>
+                            <button type="button" class="type-btn" data-type="image">Ảnh</button>
+                            <button type="button" class="type-btn" data-type="video">Video</button>
+                        </div>
                         
                         <!-- Media Upload -->
                         <div class="mb-3">
-                            <label for="media" class="form-label">Ảnh/Video</label>
                             <input type="file" 
                                    id="media" 
                                    name="media" 
-                                   class="form-control" 
-                                   accept="image/*,video/*" 
-                                   multiple>
-                            <div class="form-text">Có thể chọn nhiều file. Tối đa 1GB mỗi file.</div>
+                                   class="filepond"
+                                   multiple
+                                   data-allow-reorder="true">
+                            <div class="form-text mt-1">
+                                Kích thước tối đa: 1GB cho mỗi file. Định dạng: JPEG, PNG, GIF, MP4, MOV, MKV.
+                            </div>
                         </div>
                         
-                        <!-- Preview Container -->
-                        <div class="preview-container mb-3">
-                            <!-- Media preview will be populated here -->
+                        <!-- Media Previews -->
+                        <div class="media-previews mb-3">
+                            <!-- Previews will be added here -->
                         </div>
                         
                         <!-- Caption -->
@@ -117,52 +178,208 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
-// Preview uploaded files
-const mediaInput = document.getElementById('media');
-const previewContainer = document.querySelector('.preview-container');
+<!-- FilePond and its plugins -->
+<script src="https://unpkg.com/filepond-plugin-file-encode/dist/filepond-plugin-file-encode.js"></script>
+<!-- Loại bỏ plugin validate size -->
+<!-- <script src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.js"></script> -->
+<script src="https://unpkg.com/filepond-plugin-image-exif-orientation/dist/filepond-plugin-image-exif-orientation.js"></script>
+<script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
+<script src="https://unpkg.com/filepond-plugin-file-poster/dist/filepond-plugin-file-poster.js"></script>
+<script src="https://unpkg.com/filepond-plugin-media-preview/dist/filepond-plugin-media-preview.js"></script>
+<script src="https://unpkg.com/filepond/dist/filepond.js"></script>
 
-mediaInput.addEventListener('change', function() {
-    previewContainer.innerHTML = '';
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Register FilePond plugins (bỏ plugin FileValidateSize)
+    FilePond.registerPlugin(
+        FilePondPluginFileEncode,
+        // FilePondPluginFileValidateSize,
+        FilePondPluginImageExifOrientation,
+        FilePondPluginImagePreview,
+        FilePondPluginFilePoster,
+        FilePondPluginMediaPreview
+    );
     
-    for (const file of this.files) {
-        const reader = new FileReader();
-        const preview = document.createElement('div');
-        preview.className = 'position-relative mb-2';
+    // Set allowed file types based on selected media type
+    let acceptedFileTypes = ['image/png', 'image/jpeg', 'image/gif', 'video/mp4', 'video/quicktime', 'video/x-matroska'];
+    
+    // Set up FilePond
+    const pond = FilePond.create(document.querySelector('input.filepond'), {
+        allowMultiple: true,
+        allowReorder: true,
+        maxFiles: 10,
+        acceptedFileTypes: acceptedFileTypes,
+        labelIdle: 'Kéo & thả ảnh hoặc video của bạn ở đây hoặc <span class="filepond--label-action">Tìm</span>',
+        labelFileTypeNotAllowed: 'Loại file không được hỗ trợ',
+        fileValidateTypeLabelExpectedTypes: 'Chỉ chấp nhận ảnh và video',
+        stylePanelLayout: 'compact',
+        styleItemPanelAspectRatio: 1,
+        imageCropAspectRatio: '1:1',
+        onaddfile: (error, file) => {
+            if (error) {
+                console.error('Error adding file:', error);
+                return;
+            }
+            updateMediaPreviews();
+        },
+        onremovefile: () => {
+            updateMediaPreviews();
+        },
+        onreorderfiles: () => {
+            updateMediaPreviews();
+        }
+    });
+    
+    // Media type selector handlers
+    const typeButtons = document.querySelectorAll('.type-btn');
+    typeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Remove active class from all buttons
+            typeButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            // Handle file type filtering
+            const type = this.getAttribute('data-type');
+            
+            if (type === 'image') {
+                pond.acceptedFileTypes = ['image/png', 'image/jpeg', 'image/gif'];
+            } else if (type === 'video') {
+                pond.acceptedFileTypes = ['video/mp4', 'video/quicktime', 'video/x-matroska'];
+            } else {
+                pond.acceptedFileTypes = acceptedFileTypes;
+            }
+        });
+    });
+    
+    // Function to update media previews
+    function updateMediaPreviews() {
+        const previewContainer = document.querySelector('.media-previews');
+        previewContainer.innerHTML = '';
         
-        reader.onload = function(e) {
+        if (!pond.getFiles().length) return;
+        
+        pond.getFiles().forEach((fileItem, index) => {
+            const file = fileItem.file;
+            if (!file) return;
+            
+            const preview = document.createElement('div');
+            preview.className = 'media-preview-item';
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'remove-media';
+            removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+            removeBtn.addEventListener('click', () => {
+                pond.removeFile(fileItem);
+            });
+            
             if (file.type.startsWith('image/')) {
-                preview.innerHTML = `
-                    <img src="${e.target.result}" 
-                         class="img-thumbnail" 
-                         style="max-height: 200px;">
-                `;
+                // For images
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                    preview.appendChild(removeBtn);
+                };
+                reader.readAsDataURL(file);
             } else if (file.type.startsWith('video/')) {
-                preview.innerHTML = `
-                    <video src="${e.target.result}" 
-                           class="img-thumbnail" 
-                           style="max-height: 200px;"
-                           controls></video>
-                `;
+                // For videos
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `
+                        <video src="${e.target.result}" muted>
+                            Your browser does not support the video tag.
+                        </video>
+                        <div class="video-indicator">
+                            <i class="fas fa-play-circle"></i>
+                        </div>
+                    `;
+                    preview.appendChild(removeBtn);
+                };
+                reader.readAsDataURL(file);
+            }
+            
+            previewContainer.appendChild(preview);
+        });
+    }
+    
+    // Handle hashtags and mentions in caption
+    const captionInput = document.getElementById('caption');
+    captionInput.addEventListener('input', function() {
+        const text = this.value;
+        const lastWord = text.split(' ').pop();
+        
+        if (lastWord.startsWith('#')) {
+            // TODO: Show hashtag suggestions
+        } else if (lastWord.startsWith('@')) {
+            // TODO: Show user suggestions
+        }
+    });
+    
+    // Form submission handler
+    document.getElementById('postForm').addEventListener('submit', function(e) {
+        if (pond.getFiles().length === 0) {
+            e.preventDefault();
+            alert('Vui lòng chọn ít nhất một ảnh hoặc video');
+            return;
+        }
+        
+        // Kiểm tra kích thước file (tối đa 1GB)
+        const MAX_FILE_SIZE = 1 * 1024 * 1024 * 1024; // 1GB
+        const oversizedFiles = [];
+        
+        for (let i = 0; i < pond.getFiles().length; i++) {
+            const file = pond.getFiles()[i].file;
+            if (file && file.size > MAX_FILE_SIZE) {
+                oversizedFiles.push(file.name);
             }
         }
         
-        reader.readAsDataURL(file);
-        previewContainer.appendChild(preview);
-    }
-});
-
-// Handle hashtags and mentions in caption
-const captionInput = document.getElementById('caption');
-captionInput.addEventListener('input', function() {
-    const text = this.value;
-    const lastWord = text.split(' ').pop();
-    
-    if (lastWord.startsWith('#')) {
-        // TODO: Show hashtag suggestions
-    } else if (lastWord.startsWith('@')) {
-        // TODO: Show user suggestions
-    }
+        if (oversizedFiles.length > 0) {
+            e.preventDefault();
+            alert(`Các file sau vượt quá kích thước cho phép (1GB): ${oversizedFiles.join(', ')}`);
+            return;
+        }
+        
+        // Convert FilePond files to FormData
+        e.preventDefault();
+        
+        // Lấy form data
+        const formData = new FormData(this);
+        
+        // Thêm files từ FilePond vào formData
+        pond.getFiles().forEach((fileItem, i) => {
+            if (fileItem.file) {
+                formData.append('media', fileItem.file);
+            }
+        });
+        
+        // Gửi form bằng fetch API
+        fetch('{% url "posts:create" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => {
+            if (response.redirected) {
+                window.location.href = response.url;
+            } else {
+                return response.json();
+            }
+        })
+        .then(data => {
+            if (data && data.error) {
+                alert(data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            window.location.href = '{% url "home" %}';
+        });
+    });
 });
 </script>
 {% endblock %} 
