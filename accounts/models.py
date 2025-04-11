@@ -72,10 +72,10 @@ class User(AbstractUser):
         return f"{self.first_name} {self.last_name}".strip()
     
     def get_followers_count(self):
-        return self.followers.count()
+        return self.followers_relationships.count()
     
     def get_following_count(self):
-        return self.following.count()
+        return self.following_relationships.count()
     
     def get_posts_count(self):
         return self.posts.count()

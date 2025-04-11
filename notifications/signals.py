@@ -33,7 +33,7 @@ def create_comment_notification(sender, instance, created, **kwargs):
 @receiver(post_save, sender=Message)
 def create_message_notification(sender, instance, created, **kwargs):
     if created:
-        for participant in instance.conversation.participants.all():
+        for participant in instance.room.participants.all():
             if participant != instance.sender:
                 Notification.objects.create(
                     recipient=participant,

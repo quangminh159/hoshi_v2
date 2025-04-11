@@ -16,7 +16,7 @@ from .forms import (
     SecuritySettingsForm,
     DeleteAccountForm
 )
-from .models import Device, DataDownloadRequest
+from .models import Device, DataDownloadRequest, UserFollowing
 import pyotp
 import qrcode
 from posts.models import SavedPost, Post, Comment
@@ -27,6 +27,14 @@ def profile(request, username):
     user = get_object_or_404(User, username=username)
     is_own_profile = request.user == user
     is_saved_posts = request.GET.get('tab') == 'saved'
+    is_following = False
+    
+    # Kiểm tra trạng thái theo dõi nếu người dùng đã đăng nhập và không phải trang cá nhân của mình
+    if request.user.is_authenticated and not is_own_profile:
+        is_following = UserFollowing.objects.filter(
+            user=request.user,
+            following_user=user
+        ).exists()
 
     if is_saved_posts and is_own_profile:
         # Lấy các bài viết đã lưu giống như feed
@@ -55,9 +63,12 @@ def profile(request, username):
         'posts': page_obj,
         'is_own_profile': is_own_profile,
         'is_saved_posts': is_saved_posts,
-        'followers_count': user.followers.count(),
-        'following_count': user.following.count(),
+        # followers: những người đang theo dõi tài khoản này
+        'followers_count': user.get_followers_count(),
+        # following: những người mà tài khoản này đang theo dõi
+        'following_count': user.get_following_count(),
         'posts_count': posts.count(),
+        'is_following': is_following,
     }
 
     # Debug print

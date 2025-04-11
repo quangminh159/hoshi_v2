@@ -3,7 +3,9 @@
 
 {% block title %}
     {% if room.room_type == 'direct' %}
-        Trò chuyện với {{ room.participants.exclude.id=request.user.id.first.username }}
+        {% with other_user=room.participants.exclude|first %}
+        Trò chuyện với {{ other_user.username }}
+        {% endwith %}
     {% else %}
         {{ room.name }}
     {% endif %} 
@@ -21,7 +23,7 @@
                             <i class="fas fa-arrow-left"></i>
                         </a>
                         {% if room.room_type == 'direct' %}
-                            {% with other_user=room.participants.exclude.id=request.user.id.first %}
+                            {% with other_user=room.participants.exclude|first %}
                                 {% if other_user.avatar %}
                                     <img src="{{ other_user.avatar.url }}" alt="{{ other_user.username }}" class="rounded-circle me-2" style="width: 40px; height: 40px;">
                                 {% else %}
@@ -57,24 +59,18 @@
                         {% endif %}
                     </div>
                 </div>
-                <div class="card-body chat-messages" style="height: 400px; overflow-y: auto;">
+                <div class="card-body chat-messages" style="height: 70vh; overflow-y: auto; background-color: #f8f9fa;">
                     <div id="messages">
-                        {% for message in messages %}
-                            <div class="message {% if message.sender == request.user %}message-sent{% else %}message-received{% endif %} mb-3">
-                                <div class="message-content">
-                                    {{ message.content }}
-                                </div>
-                                <small class="text-muted">{{ message.created_at|time:"H:i" }}</small>
-                            </div>
-                        {% endfor %}
+                        <!-- Tin nhắn sẽ được thêm vào đây bằng JavaScript -->
                     </div>
                 </div>
                 <div class="card-footer bg-white">
+                    <div id="typingIndicator" class="text-muted small mb-2 d-none"></div>
                     <form id="messageForm" method="post" action="{% url 'chat:send_message' room.id %}">
                         {% csrf_token %}
                         <div class="input-group">
-                            <input type="text" class="form-control" name="content" placeholder="Nhập tin nhắn..." required>
-                            <button type="submit" class="btn btn-primary">
+                            <input type="text" class="form-control rounded-pill" name="content" placeholder="Nhắn tin..." required>
+                            <button type="submit" class="btn btn-primary rounded-circle ms-2">
                                 <i class="fas fa-paper-plane"></i>
                             </button>
                         </div>
@@ -91,75 +87,635 @@
 .chat-messages {
     display: flex;
     flex-direction: column-reverse;
+    padding: 10px;
 }
 
 .message {
-    max-width: 70%;
-    margin-bottom: 1rem;
+    max-width: 75%;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
 }
 
 .message-sent {
     align-self: flex-end;
+    align-items: flex-end;
 }
 
 .message-received {
     align-self: flex-start;
+    align-items: flex-start;
 }
 
 .message-content {
-    padding: 0.75rem 1rem;
-    border-radius: 1rem;
-    margin-bottom: 0.25rem;
+    padding: 12px 16px;
+    border-radius: 22px;
+    word-wrap: break-word;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    margin-bottom: 2px;
 }
 
 .message-sent .message-content {
-    background-color: #007bff;
+    background-color: #0095f6;
     color: white;
-    border-bottom-right-radius: 0.25rem;
+    border-bottom-right-radius: 5px;
 }
 
 .message-received .message-content {
-    background-color: #f1f1f1;
-    border-bottom-left-radius: 0.25rem;
+    background-color: #e6e6e6;
+    color: #262626;
+    border-bottom-left-radius: 5px;
+}
+
+.message small {
+    font-size: 11px;
+    margin-top: 2px;
+    color: #8e8e8e;
 }
 
 .message-sent small {
-    float: right;
+    text-align: right;
+}
+
+.message-actions {
+    display: none;
+    position: absolute;
+    background-color: white;
+    border-radius: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    padding: 5px 10px;
+    z-index: 10;
+}
+
+.message-sent .message-actions {
+    left: 0;
+    transform: translateX(-80%);
+}
+
+.message-received .message-actions {
+    right: 0;
+    transform: translateX(80%);
+}
+
+.message:hover .message-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.message-actions span {
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+.message-actions span:hover {
+    background-color: #f0f0f0;
+}
+
+.reaction-picker {
+    position: absolute;
+    background-color: white;
+    border-radius: 24px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    padding: 8px;
+    z-index: 20;
+    top: -45px;
+}
+
+.message-sent .reaction-picker {
+    right: 0;
+}
+
+.message-received .reaction-picker {
+    left: 0;
+}
+
+.reaction-box {
+    display: inline-flex;
+    align-items: center;
+    background-color: white;
+    border-radius: 12px;
+    padding: 2px 8px;
+    margin-right: 4px;
+    margin-top: 4px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    font-size: 12px;
+}
+
+.reactions-container {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 4px;
+}
+
+.message-sent .reactions-container {
+    justify-content: flex-end;
+}
+
+.system-message {
+    text-align: center;
+    padding: 8px 0;
+    margin: 10px 0;
+    color: #8e8e8e;
+    font-size: 12px;
+}
+
+.replying-to {
+    background-color: rgba(0,0,0,0.05);
+    border-radius: 12px;
+    margin-bottom: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+}
+
+.seen-indicator {
+    font-size: 11px;
+    color: #8e8e8e;
+    margin-top: 2px;
+}
+
+#connectionStatus {
+    padding: 5px 0;
+    font-size: 12px;
+}
+
+/* Custom scrollbar */
+.chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background: #c7c7c7;
+    border-radius: 10px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+    background: #a0a0a0;
+}
+
+/* Input styling */
+.form-control {
+    border: 1px solid #dbdbdb;
+}
+
+.form-control:focus {
+    border-color: #0095f6;
+    box-shadow: none;
+}
+
+.btn-primary {
+    background-color: #0095f6;
+    border-color: #0095f6;
+}
+
+.btn-primary:hover {
+    background-color: #0085e0;
+    border-color: #0085e0;
 }
 </style>
 {% endblock %}
 
 {% block extra_js %}
 <script>
+// Kết nối WebSocket
+const roomId = "{{ room.id }}";
+const userId = {{ request.user.id }};
+const userName = "{{ request.user.username }}";
+const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
+const chatSocket = new WebSocket(`${wsScheme}://${window.location.host}/ws/chat/${roomId}/`);
+
+// Biến để theo dõi trạng thái kết nối
+let socketConnected = false;
+let reconnectAttempts = 0;
+const MAX_RECONNECT_ATTEMPTS = 5;
+
+// Dữ liệu tin nhắn ban đầu
+const initialMessages = {{ messages_json|safe }};
+
+// Khởi tạo giao diện khi tải trang
+document.addEventListener('DOMContentLoaded', function() {
+    // Thêm trạng thái kết nối vào giao diện
+    const statusEl = document.createElement('div');
+    statusEl.id = 'connectionStatus';
+    statusEl.className = 'text-muted small';
+    statusEl.textContent = "Đang kết nối...";
+    
+    const footer = document.querySelector('.card-footer');
+    footer.insertBefore(statusEl, document.getElementById('typingIndicator'));
+    
+    // Hiển thị danh sách tin nhắn ban đầu
+    if (initialMessages && initialMessages.length) {
+        // Hiển thị tin nhắn từ mới đến cũ
+        initialMessages.forEach(message => {
+            const isSent = message.sender_id === userId;
+            addMessageToChat(message, isSent);
+        });
+    }
+    
+    // Cuộn xuống tin nhắn mới nhất
+    setTimeout(() => {
+        const chatContainer = document.querySelector('.chat-messages');
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }, 100);
+});
+
+chatSocket.onopen = function(e) {
+    console.log("WebSocket kết nối thành công");
+    socketConnected = true;
+    reconnectAttempts = 0;
+    
+    // Cập nhật trạng thái kết nối
+    const statusEl = document.getElementById('connectionStatus');
+    if (statusEl) {
+        statusEl.textContent = "Đã kết nối";
+        statusEl.className = "text-success small";
+        
+        // Ẩn trạng thái sau 3 giây
+        setTimeout(() => {
+            statusEl.style.display = 'none';
+        }, 3000);
+    }
+};
+
+chatSocket.onclose = function(e) {
+    console.log("WebSocket mất kết nối", e);
+    socketConnected = false;
+    
+    // Cập nhật trạng thái kết nối
+    const statusEl = document.getElementById('connectionStatus');
+    if (statusEl) {
+        statusEl.textContent = "Mất kết nối";
+        statusEl.className = "text-danger small";
+        statusEl.style.display = 'block';
+    }
+    
+    // Thử kết nối lại nếu chưa vượt quá số lần thử
+    if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+        reconnectAttempts++;
+        const delay = Math.min(1000 * reconnectAttempts, 5000);
+        setTimeout(reconnectWebSocket, delay);
+    }
+};
+
+// Hàm kết nối lại WebSocket
+function reconnectWebSocket() {
+    const newSocket = new WebSocket(`${wsScheme}://${window.location.host}/ws/chat/${roomId}/`);
+    
+    // Gán các sự kiện cho socket mới
+    newSocket.onopen = chatSocket.onopen;
+    newSocket.onclose = chatSocket.onclose;
+    newSocket.onerror = chatSocket.onerror;
+    newSocket.onmessage = chatSocket.onmessage;
+    
+    // Cập nhật tham chiếu
+    chatSocket = newSocket;
+}
+
+chatSocket.onmessage = function(e) {
+    const data = JSON.parse(e.data);
+    console.log("Nhận dữ liệu:", data);
+    
+    if (data.type === 'message') {
+        // Xử lý khi nhận tin nhắn mới
+        const message = data.message;
+        // Chỉ hiển thị tin nhắn của người khác (tin nhắn của mình đã được hiển thị khi gửi)
+        if (message.sender_id !== userId) {
+            addMessageToChat(message, false);
+            // Đánh dấu tin nhắn đã đọc
+            markMessageAsRead(message.id);
+        } else {
+            // Hiển thị tin nhắn của mình (trong trường hợp gửi từ thiết bị khác)
+            const existingMessage = document.querySelector(`.message[data-message-id="${message.id}"]`);
+            if (!existingMessage) {
+                addMessageToChat(message, true);
+            }
+        }
+    } 
+    else if (data.type === 'typing') {
+        // Xử lý khi có người đang nhập tin nhắn
+        if (data.user_id !== userId) {
+            const typingIndicator = document.getElementById('typingIndicator');
+            if (data.is_typing) {
+                typingIndicator.textContent = `${data.username} đang nhập...`;
+                typingIndicator.classList.remove('d-none');
+            } else {
+                typingIndicator.classList.add('d-none');
+            }
+        }
+    }
+    else if (data.type === 'seen') {
+        // Xử lý khi tin nhắn được đánh dấu đã đọc
+        const messageEl = document.querySelector(`.message[data-message-id="${data.message_id}"]`);
+        if (messageEl) {
+            const seenIndicator = messageEl.querySelector('.seen-indicator') || document.createElement('div');
+            seenIndicator.className = 'seen-indicator text-muted small mt-1';
+            seenIndicator.textContent = 'Đã xem';
+            if (!messageEl.querySelector('.seen-indicator')) {
+                messageEl.appendChild(seenIndicator);
+            }
+        }
+    }
+    else if (data.type === 'reaction') {
+        // Xử lý khi có reaction mới
+        updateMessageReactions(data.message_id, data.reactions);
+    }
+    else if (data.type === 'deleted') {
+        // Xử lý khi tin nhắn bị xóa
+        const messageEl = document.querySelector(`.message[data-message-id="${data.message_id}"]`);
+        if (messageEl) {
+            const contentEl = messageEl.querySelector('.message-content');
+            contentEl.textContent = 'Tin nhắn này đã bị xóa';
+            contentEl.classList.add('text-muted', 'fst-italic');
+        }
+    }
+};
+
+// Gửi tin nhắn qua WebSocket
 document.getElementById('messageForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
-    const form = this;
-    const formData = new FormData(form);
+    if (!socketConnected) {
+        return;
+    }
     
-    fetch(form.action, {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+    const form = this;
+    const content = form.querySelector('input[name="content"]').value.trim();
+    const replyTo = form.dataset.replyTo;
+    
+    if (content) {
+        // Chuẩn bị dữ liệu tin nhắn
+        const messageData = {
+            'type': 'message',
+            'content': content
+        };
+        
+        // Thêm id tin nhắn đang trả lời (nếu có)
+        if (replyTo) {
+            messageData.replied_to = replyTo;
+            // Xóa thông tin trả lời sau khi gửi
+            cancelReply();
         }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.status === 'success') {
-            const message = data.message;
-            const messageHtml = `
-                <div class="message message-sent mb-3">
-                    <div class="message-content">
-                        ${message.content}
-                    </div>
-                    <small class="text-muted">${new Date(message.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>
-                </div>
-            `;
-            document.getElementById('messages').insertAdjacentHTML('afterbegin', messageHtml);
+        
+        // Gửi tin nhắn qua WebSocket
+        try {
+            chatSocket.send(JSON.stringify(messageData));
+            
+            // Hiển thị tin nhắn của mình ngay lập tức (tối ưu UX)
+            const tempMessage = {
+                id: 'temp_' + Date.now(), // ID tạm thời
+                content: content,
+                sender: userName,
+                sender_id: userId,
+                created_at: new Date().toISOString()
+            };
+            addMessageToChat(tempMessage, true);
+            
             form.reset();
+            
+            // Cuộn xuống tin nhắn mới nhất
+            const chatContainer = document.querySelector('.chat-messages');
+            chatContainer.scrollTop = 0;
+        } catch (error) {
+            console.error("Lỗi khi gửi tin nhắn:", error);
         }
+    }
+});
+
+// Theo dõi trạng thái nhập tin nhắn
+const messageInput = document.querySelector('input[name="content"]');
+let typingTimeout = null;
+
+messageInput.addEventListener('input', function() {
+    if (!socketConnected) return;
+    
+    // Gửi trạng thái đang nhập
+    try {
+        chatSocket.send(JSON.stringify({
+            'type': 'typing',
+            'is_typing': true
+        }));
+        
+        // Hủy timeout trước đó nếu có
+        clearTimeout(typingTimeout);
+        
+        // Đặt timeout mới để báo kết thúc nhập sau 1 giây
+        typingTimeout = setTimeout(function() {
+            if (socketConnected) {
+                chatSocket.send(JSON.stringify({
+                    'type': 'typing',
+                    'is_typing': false
+                }));
+            }
+        }, 1000);
+    } catch (error) {
+        console.error("Lỗi khi gửi trạng thái typing:", error);
+    }
+});
+
+// Thêm tin nhắn vào giao diện
+function addMessageToChat(message, isSent) {
+    let mediaContent = '';
+    if (message.media) {
+        if (message.media_type === 'image') {
+            mediaContent = `<img src="${message.media}" class="img-fluid rounded mb-2" style="max-height: 200px;">`;
+        } else if (message.media_type === 'video') {
+            mediaContent = `<video controls class="img-fluid rounded mb-2" style="max-height: 200px;"><source src="${message.media}" type="video/mp4"></video>`;
+        } else if (message.media_type === 'audio') {
+            mediaContent = `<audio controls class="w-100 mb-2"><source src="${message.media}" type="audio/mpeg"></audio>`;
+        } else if (message.media_type === 'voice') {
+            mediaContent = `<audio controls class="w-100 mb-2"><source src="${message.media}" type="audio/mpeg"></audio>`;
+        }
+    }
+
+    let repliedContent = '';
+    if (message.replied_to) {
+        repliedContent = `
+            <div class="replied-message mb-2 px-2 py-1 border-left" style="border-left: 3px solid #ccc; background-color: rgba(0,0,0,0.05);">
+                <small class="d-block text-muted">${message.replied_to.sender}</small>
+                ${message.replied_to.content}
+            </div>
+        `;
+    }
+
+    const messageClass = isSent ? 'message-sent' : 'message-received';
+    const messageHtml = `
+        <div class="message ${messageClass} mb-3" data-message-id="${message.id}">
+            ${repliedContent}
+            ${mediaContent}
+            <div class="message-content">
+                ${message.content}
+            </div>
+            <small class="text-muted">${new Date(message.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>
+            <div class="message-actions">
+                <span class="reaction-button" onclick="showReactionPicker(${message.id})">
+                    <i class="far fa-smile"></i>
+                </span>
+                <span class="reply-button" onclick="replyToMessage(${message.id}, '${message.sender}')">
+                    <i class="fas fa-reply"></i>
+                </span>
+                ${isSent ? `<span class="delete-button" onclick="deleteMessage(${message.id})">
+                    <i class="fas fa-trash-alt text-danger"></i>
+                </span>` : ''}
+            </div>
+            <div class="reactions-container"></div>
+        </div>
+    `;
+    document.getElementById('messages').insertAdjacentHTML('afterbegin', messageHtml);
+}
+
+// Đánh dấu tin nhắn đã đọc
+function markMessageAsRead(messageId) {
+    if (!socketConnected) return;
+    
+    try {
+        chatSocket.send(JSON.stringify({
+            'type': 'seen',
+            'message_id': messageId
+        }));
+    } catch (error) {
+        console.error("Lỗi khi đánh dấu tin nhắn đã đọc:", error);
+    }
+}
+
+// Thêm reaction cho tin nhắn
+function addReaction(messageId, reaction) {
+    if (!socketConnected) return;
+    
+    try {
+        chatSocket.send(JSON.stringify({
+            'type': 'reaction',
+            'message_id': messageId,
+            'reaction': reaction
+        }));
+    } catch (error) {
+        console.error("Lỗi khi thêm reaction:", error);
+    }
+}
+
+// Hiển thị bảng chọn reaction
+function showReactionPicker(messageId) {
+    const reactions = ['like', 'laugh', 'sad', 'angry', 'wow', 'thumbs_up', 'thumbs_down'];
+    const emojis = {'like': '❤️', 'laugh': '😂', 'sad': '😢', 'angry': '😡', 'wow': '😮', 'thumbs_up': '👍', 'thumbs_down': '👎'};
+    
+    const picker = document.createElement('div');
+    picker.className = 'reaction-picker bg-white p-1 rounded shadow-sm d-flex';
+    
+    reactions.forEach(reaction => {
+        const emoji = document.createElement('span');
+        emoji.className = 'reaction-emoji mx-1';
+        emoji.textContent = emojis[reaction];
+        emoji.style.cursor = 'pointer';
+        emoji.onclick = function() {
+            addReaction(messageId, reaction);
+            picker.remove();
+        };
+        picker.appendChild(emoji);
     });
+    
+    const messageEl = document.querySelector(`.message[data-message-id="${messageId}"]`);
+    if (!messageEl) return;
+    
+    const existingPicker = document.querySelector('.reaction-picker');
+    if (existingPicker) existingPicker.remove();
+    
+    messageEl.appendChild(picker);
+    
+    // Tự động đóng sau 5 giây
+    setTimeout(() => {
+        if (picker && picker.parentNode) {
+            picker.remove();
+        }
+    }, 5000);
+}
+
+// Cập nhật hiển thị reaction cho tin nhắn
+function updateMessageReactions(messageId, reactions) {
+    const messageEl = document.querySelector(`.message[data-message-id="${messageId}"]`);
+    if (!messageEl) return;
+    
+    const container = messageEl.querySelector('.reactions-container');
+    container.innerHTML = '';
+    
+    // Nhóm reaction theo loại
+    const reactionGroups = {};
+    reactions.forEach(r => {
+        if (!reactionGroups[r.reaction]) {
+            reactionGroups[r.reaction] = [];
+        }
+        reactionGroups[r.reaction].push(r);
+    });
+    
+    // Hiển thị các nhóm reaction
+    for (const [type, users] of Object.entries(reactionGroups)) {
+        const reactBox = document.createElement('span');
+        reactBox.className = 'reaction-box d-inline-block bg-light rounded px-2 py-1 me-1 mb-1';
+        reactBox.innerHTML = `${users[0].emoji} <small>${users.length}</small>`;
+        reactBox.title = users.map(u => u.username).join(', ');
+        container.appendChild(reactBox);
+    }
+}
+
+// Trả lời tin nhắn
+function replyToMessage(messageId, senderName) {
+    const messageEl = document.querySelector(`.message[data-message-id="${messageId}"]`);
+    if (!messageEl) return;
+    
+    const content = messageEl.querySelector('.message-content').textContent.trim();
+    
+    const replyingToEl = document.getElementById('replyingTo') || document.createElement('div');
+    replyingToEl.id = 'replyingTo';
+    replyingToEl.className = 'replying-to bg-light p-2 rounded mb-2';
+    replyingToEl.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center">
+            <span>Trả lời cho ${senderName}: ${content.substring(0, 30)}${content.length > 30 ? '...' : ''}</span>
+            <button type="button" class="btn-close btn-sm" onclick="cancelReply()"></button>
+        </div>
+    `;
+    
+    const form = document.getElementById('messageForm');
+    form.dataset.replyTo = messageId;
+    
+    form.parentNode.insertBefore(replyingToEl, form);
+}
+
+// Hủy trả lời
+function cancelReply() {
+    const replyingToEl = document.getElementById('replyingTo');
+    if (replyingToEl) {
+        replyingToEl.remove();
+    }
+    
+    const form = document.getElementById('messageForm');
+    delete form.dataset.replyTo;
+}
+
+// Xóa tin nhắn
+function deleteMessage(messageId) {
+    if (!socketConnected) return;
+    
+    if (confirm('Bạn có chắc muốn xóa tin nhắn này?')) {
+        try {
+            chatSocket.send(JSON.stringify({
+                'type': 'delete',
+                'message_id': messageId
+            }));
+        } catch (error) {
+            console.error("Lỗi khi xóa tin nhắn:", error);
+        }
+    }
+}
+
+// Khi đóng trang, đóng WebSocket
+window.addEventListener('beforeunload', function() {
+    if (socketConnected) {
+        chatSocket.close();
+    }
 });
 </script>
 {% endblock %} 

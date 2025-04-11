@@ -31,17 +31,25 @@ class FollowUserView(APIView):
                 )
                 
             # Kiểm tra xem đã follow chưa
-            follow_relationship, created = UserFollowing.objects.get_or_create(
+            existing_follow = UserFollowing.objects.filter(
                 user=request.user,
                 following_user=user_to_follow
-            )
+            ).exists()
             
-            if not created:
-                # Đã follow rồi, trả về thông báo
+            if existing_follow:
+                # Đã follow trước đó, trả về thông báo lỗi
                 return Response({
                     'error': 'Bạn đã theo dõi người dùng này rồi',
                     'status': 'already_following',
+                    'followers_count': user_to_follow.get_followers_count(),
+                    'following_count': request.user.get_following_count()
                 }, status=status.HTTP_400_BAD_REQUEST)
+                
+            # Chưa follow, tạo mối quan hệ mới
+            follow_relationship = UserFollowing.objects.create(
+                user=request.user,
+                following_user=user_to_follow
+            )
                 
             # Đã follow thành công
             return Response({
@@ -52,7 +60,7 @@ class FollowUserView(APIView):
                 'follower_id': request.user.id,
                 'followed_at': follow_relationship.created_at
             })
-            
+                
         except User.DoesNotExist:
             return Response(
                 {'error': 'Không tìm thấy người dùng'}, 
@@ -107,11 +115,13 @@ class UserFollowersView(APIView):
             user = User.objects.get(username=username)
             
             # Lấy danh sách người theo dõi (followers)
-            followers = user.followers.all()
+            # Đây là những người đang theo dõi user này
+            followers = user.followers_relationships.select_related('user').all()
             
             # Xây dựng dữ liệu phản hồi
             followers_data = []
-            for follower in followers:
+            for follower_relation in followers:
+                follower = follower_relation.user
                 is_following = False
                 if request.user.is_authenticated:
                     is_following = UserFollowing.objects.filter(
@@ -143,11 +153,13 @@ class UserFollowingView(APIView):
             user = User.objects.get(username=username)
             
             # Lấy danh sách đang theo dõi (following)
-            following = user.following.all()
+            # Đây là những người mà user đang theo dõi
+            following = user.following_relationships.select_related('following_user').all()
             
             # Xây dựng dữ liệu phản hồi
             following_data = []
-            for followed_user in following:
+            for following_relation in following:
+                followed_user = following_relation.following_user
                 is_following = False
                 if request.user.is_authenticated:
                     is_following = UserFollowing.objects.filter(

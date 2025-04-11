@@ -20,7 +20,7 @@
                             <a href="{% url 'chat:room_detail' room.id %}" class="list-group-item list-group-item-action">
                                 <div class="d-flex align-items-center">
                                     {% if room.room_type == 'direct' %}
-                                        {% with other_user=room.participants.exclude.id=request.user.id.first %}
+                                        {% with other_user=room.participants.exclude|first %}
                                             {% if other_user.avatar %}
                                                 <img src="{{ other_user.avatar.url }}" alt="{{ other_user.username }}" class="rounded-circle me-3" style="width: 48px; height: 48px;">
                                             {% else %}
