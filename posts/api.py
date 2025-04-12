@@ -13,6 +13,9 @@ from django.utils import timezone
 from django.core.cache import cache
 import time
 import hashlib
+from django.http import JsonResponse
+from django.db.models import Q
+from accounts.models import UserBlock
 
 User = get_user_model()
 
@@ -633,4 +636,57 @@ def delete_post(request, post_id):
         return Response({
             'status': 'error',
             'message': f'Có lỗi xảy ra: {str(e)}'
-        }, status=status.HTTP_400_BAD_REQUEST) 
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def hashtag_suggestions(request):
+    """API endpoint để gợi ý hashtag khi người dùng nhập caption"""
+    query = request.GET.get('q', '')
+    
+    if not query:
+        return JsonResponse([], safe=False)
+    
+    # Tìm các hashtag phù hợp với chuỗi tìm kiếm
+    suggestions = Hashtag.objects.filter(name__icontains=query)
+    
+    # Sắp xếp theo số lượng bài viết sử dụng hashtag này
+    suggestions = suggestions.annotate(posts_count=Count('posts')).order_by('-posts_count')[:10]
+    
+    # Chỉ trả về tên hashtag
+    result = [tag.name for tag in suggestions]
+    
+    return JsonResponse(result, safe=False)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def user_suggestions(request):
+    """API endpoint để gợi ý người dùng khi người dùng nhập @mention"""
+    query = request.GET.get('q', '')
+    
+    if not query:
+        return JsonResponse([], safe=False)
+    
+    # Tìm các người dùng phù hợp với chuỗi tìm kiếm
+    suggestions = User.objects.filter(
+        Q(username__icontains=query) | 
+        Q(first_name__icontains=query) | 
+        Q(last_name__icontains=query)
+    ).distinct()[:10]
+    
+    # Lấy danh sách những người đã chặn người dùng hiện tại
+    blocked_by_users = UserBlock.objects.filter(blocked=request.user).values_list('blocker_id', flat=True)
+    
+    # Loại bỏ người dùng đã chặn người dùng hiện tại
+    suggestions = suggestions.exclude(id__in=blocked_by_users)
+    
+    # Chuyển đổi thành JSON response
+    result = []
+    for user in suggestions:
+        result.append({
+            'username': user.username,
+            'avatar_url': user.profile.avatar.url if hasattr(user, 'profile') and user.profile.avatar else '/static/images/default-avatar.png',
+            'full_name': f"{user.first_name} {user.last_name}".strip()
+        })
+    
+    return JsonResponse(result, safe=False) 

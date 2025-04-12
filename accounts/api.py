@@ -154,4 +154,48 @@ class DataDownloadRequestViewSet(viewsets.ReadOnlyModelViewSet):
         if serializer.is_valid():
             serializer.save(user=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def user_suggestions(request):
+    """API endpoint để cung cấp gợi ý người dùng khi nhập @"""
+    query = request.GET.get('q', '')
+    
+    # Chỉ hiển thị người dùng khi đã đăng nhập
+    if request.user.is_authenticated:
+        # Tìm kiếm chỉ trong những người mà user đang follow
+        following_users = User.objects.filter(
+            followers_relationships__user=request.user,
+            username__istartswith=query
+        ).order_by('username')[:10]
+        
+        # Chuyển đổi thành dạng JSON
+        result = []
+        for user in following_users:
+            result.append({
+                'id': user.id,
+                'username': user.username,
+                'avatar_url': user.get_avatar_url(),
+                'full_name': f"{user.first_name} {user.last_name}".strip()
+            })
+    else:
+        # Nếu chưa đăng nhập, trả về danh sách trống
+        result = []
+    
+    return Response(result)
+
+@api_view(['GET'])
+def hashtag_suggestions(request):
+    """API endpoint để cung cấp gợi ý hashtag khi nhập #"""
+    query = request.GET.get('q', '')
+    
+    # Import và sử dụng mô hình Hashtag từ ứng dụng Posts
+    from posts.models import Hashtag
+    
+    # Tìm kiếm hashtag dựa trên query
+    hashtags = Hashtag.objects.filter(name__istartswith=query).order_by('-posts_count')[:10]
+    
+    # Chuyển đổi thành dạng danh sách đơn giản
+    result = [hashtag.name for hashtag in hashtags]
+    
+    return Response(result) 

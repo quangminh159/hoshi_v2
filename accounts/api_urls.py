@@ -191,4 +191,6 @@ urlpatterns = [
     path('unfollow/<str:username>/', UnfollowUserView.as_view(), name='unfollow_user'),
     path('users/<str:username>/followers/', UserFollowersView.as_view(), name='user_followers'),
     path('users/<str:username>/following/', UserFollowingView.as_view(), name='user_following'),
+    path('user-suggestions/', api.user_suggestions, name='user_suggestions'),
+    path('hashtag-suggestions/', api.hashtag_suggestions, name='hashtag_suggestions'),
 ] 

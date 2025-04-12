@@ -387,21 +387,35 @@ def create_post(request):
                     # Nếu có lỗi khi tạo hashtag, chỉ log lỗi và tiếp tục
                     print(f"Error creating hashtag {tag_name}: {str(e)}")
             
-            # Xử lý mentions
-            mentions = [word[1:] for word in caption.split() if word.startswith('@')]
+            # Xử lý mentions (@username) và tạo thông báo
+            mentions = re.findall(r'@(\w+)', caption)
             for username in mentions:
                 try:
                     mentioned_user = User.objects.get(username=username)
-                    Mention.objects.create(
+                    # Nếu user tồn tại, tạo mention
+                    mention = Mention.objects.create(
                         user=mentioned_user,
                         post=post
                     )
+                    
+                    # Tạo thông báo cho người được tag
+                    if mentioned_user != request.user:
+                        Notification.objects.create(
+                            recipient=mentioned_user,
+                            sender=request.user,
+                            notification_type='mention',
+                            text=f"{request.user.username} đã nhắc đến bạn trong một bài viết",
+                            post=post,
+                            content_type=ContentType.objects.get_for_model(post),
+                            object_id=post.id
+                        )
+                        
                 except User.DoesNotExist:
                     # Nếu user không tồn tại, chỉ log lỗi và tiếp tục
-                    print(f"User {username} not found")
+                    logger.warning(f"User {username} not found when creating mention")
                 except Exception as e:
                     # Nếu có lỗi khác, chỉ log lỗi và tiếp tục
-                    print(f"Error creating mention for {username}: {str(e)}")
+                    logger.error(f"Error creating mention for {username}: {str(e)}")
             
             messages.success(request, 'Đăng bài thành công!')
             return redirect('home')
@@ -420,6 +434,7 @@ def edit_post(request, post_id):
     if request.method == 'POST':
         try:
             # Cập nhật caption và location
+            old_caption = post.caption
             post.caption = request.POST.get('caption', '').strip()
             post.location = request.POST.get('location', '').strip()
             
@@ -472,6 +487,38 @@ def edit_post(request, post_id):
             for tag_name in hashtags:
                 hashtag, _ = Hashtag.objects.get_or_create(name=tag_name)
                 hashtag.posts.add(post)
+            
+            # Xử lý mentions
+            # Xóa mentions cũ
+            Mention.objects.filter(post=post).delete()
+            
+            # Thêm mentions mới và tạo thông báo
+            mentions = re.findall(r'@(\w+)', post.caption)
+            for username in mentions:
+                try:
+                    mentioned_user = User.objects.get(username=username)
+                    # Tạo mention mới
+                    mention = Mention.objects.create(
+                        user=mentioned_user,
+                        post=post
+                    )
+                    
+                    # Tạo thông báo nếu đây là mention mới (không có trong caption cũ)
+                    if mentioned_user != request.user and f'@{username}' not in old_caption:
+                        Notification.objects.create(
+                            recipient=mentioned_user,
+                            sender=request.user,
+                            notification_type='mention',
+                            text=f"{request.user.username} đã nhắc đến bạn trong một bài viết",
+                            post=post,
+                            content_type=ContentType.objects.get_for_model(post),
+                            object_id=post.id
+                        )
+                        
+                except User.DoesNotExist:
+                    logger.warning(f"User {username} not found when updating mention")
+                except Exception as e:
+                    logger.error(f"Error updating mention for {username}: {str(e)}")
             
             messages.success(request, 'Bài viết đã được cập nhật thành công.')
             return redirect('posts:post_detail', post_id=post.id)

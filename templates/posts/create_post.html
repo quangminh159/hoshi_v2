@@ -310,9 +310,94 @@ document.addEventListener('DOMContentLoaded', function() {
         const lastWord = text.split(' ').pop();
         
         if (lastWord.startsWith('#')) {
-            // TODO: Show hashtag suggestions
+            // Hiển thị gợi ý hashtag
+            const hashtagSuggestions = document.createElement('div');
+            hashtagSuggestions.className = 'hashtag-suggestions';
+            hashtagSuggestions.style.cssText = `
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                z-index: 1000;
+                background: white;
+                border: 1px solid #dee2e6;
+                border-radius: 0.25rem;
+                max-height: 200px;
+                overflow-y: auto;
+            `;
+            
+            // Gọi API để lấy gợi ý hashtag phổ biến
+            fetch('/api/accounts/hashtag-suggestions?q=' + encodeURIComponent(lastWord.substring(1)))
+            .then(response => response.json())
+            .then(hashtags => {
+                hashtagSuggestions.innerHTML = '';
+                hashtags.forEach(tag => {
+                    const suggestion = document.createElement('div');
+                    suggestion.className = 'hashtag-suggestion';
+                    suggestion.textContent = '#' + tag;
+                    suggestion.style.cssText = `
+                        padding: 0.5rem 1rem;
+                        cursor: pointer;
+                    `;
+                    suggestion.addEventListener('click', () => {
+                        const words = text.split(' ');
+                        words[words.length - 1] = '#' + tag;
+                        this.value = words.join(' ') + ' ';
+                        hashtagSuggestions.remove();
+                    });
+                    hashtagSuggestions.appendChild(suggestion);
+                });
+            });
+            
+            this.parentElement.appendChild(hashtagSuggestions);
         } else if (lastWord.startsWith('@')) {
-            // TODO: Show user suggestions
+            // Hiển thị gợi ý người dùng
+            const userSuggestions = document.createElement('div');
+            userSuggestions.className = 'user-suggestions';
+            userSuggestions.style.cssText = `
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                z-index: 1000;
+                background: white;
+                border: 1px solid #dee2e6;
+                border-radius: 0.25rem;
+                max-height: 200px;
+                overflow-y: auto;
+            `;
+            
+            // Gọi API để lấy gợi ý người dùng
+            fetch('/api/accounts/user-suggestions?q=' + encodeURIComponent(lastWord.substring(1)))
+            .then(response => response.json())
+            .then(users => {
+                userSuggestions.innerHTML = '';
+                users.forEach(user => {
+                    const suggestion = document.createElement('div');
+                    suggestion.className = 'user-suggestion';
+                    suggestion.innerHTML = `
+                        <img src="${user.avatar_url || '/static/images/default-avatar.png'}" 
+                             alt="${user.username}" 
+                             style="width: 24px; height: 24px; border-radius: 50%; margin-right: 8px;">
+                        <span>${user.username}</span>
+                    `;
+                    suggestion.style.cssText = `
+                        padding: 0.5rem 1rem;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                    `;
+                    suggestion.addEventListener('click', () => {
+                        const words = text.split(' ');
+                        words[words.length - 1] = '@' + user.username;
+                        this.value = words.join(' ') + ' ';
+                        userSuggestions.remove();
+                    });
+                    userSuggestions.appendChild(suggestion);
+                });
+            });
+            
+            this.parentElement.appendChild(userSuggestions);
         }
     });
     
