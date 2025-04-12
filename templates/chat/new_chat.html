@@ -619,51 +619,219 @@
 
 {% block extra_js %}
 <script>
-$(document).ready(function() {
-  // Loại bỏ hiển thị thông báo tin nhắn
-  $('.notification-message').remove();
-  
-  // Xử lý gửi tin nhắn
-  $('.chat-form').on('submit', function(e) {
-    e.preventDefault();
-    var messageInput = $(this).find('.message-input');
-    var message = messageInput.val().trim();
+  document.addEventListener('DOMContentLoaded', function() {
+    // Chọn các phần tử DOM
+    const chatSidebar = document.getElementById('chatSidebar');
+    const chatMessages = document.getElementById('chatMessages');
+    const messageInput = document.getElementById('messageInput');
+    const sendButton = document.getElementById('sendButton');
+    const backButton = document.getElementById('backButton');
+    const typingIndicator = document.getElementById('typingIndicator');
+    const conversationItems = document.querySelectorAll('.chat-contact');
     
-    if (message) {
-      // Gửi tin nhắn qua Ajax
-      $.ajax({
-        url: $(this).attr('action'),
-        method: 'POST',
-        data: $(this).serialize(),
-        success: function(response) {
-          // Xóa thông báo và làm mới giao diện
-          $('.notification-message').remove();
+    // Cuộn xuống tin nhắn cuối cùng
+    if (chatMessages) {
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    
+    // Xử lý sự kiện gửi tin nhắn
+    if (sendButton && messageInput) {
+      const sendMessage = () => {
+        const message = messageInput.value.trim();
+        
+        if (message) {
+          // Lấy ID cuộc hội thoại
+          const conversationId = document.querySelector('.chat-main').dataset.conversationId;
           
-          // Xóa nội dung input
-          messageInput.val('');
+          // Gửi tin nhắn qua WebSocket
+          if (window.chatSocket) {
+            window.chatSocket.send(JSON.stringify({
+              'type': 'message',
+              'message': message,
+              'conversation_id': conversationId
+            }));
+          }
+          
+          // Thêm tin nhắn vào giao diện
+          const messageElement = createMessageElement({
+            content: message,
+            sender_id: {{ request.user.id }},
+            timestamp: new Date().toISOString(),
+            is_read: false
+          });
+          
+          chatMessages.appendChild(messageElement);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+          
+          // Xóa input
+          messageInput.value = '';
+        }
+      };
+      
+      // Xử lý sự kiện click vào nút gửi
+      sendButton.addEventListener('click', sendMessage);
+      
+      // Xử lý sự kiện nhấn Enter
+      messageInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          sendMessage();
         }
       });
     }
     
-    return false;
-  });
-  
-  // Ẩn tất cả thông báo hiện tại
-  function hideAllNotifications() {
-    $('.notification-message').fadeOut(300, function() {
-      $(this).remove();
+    // Xử lý sự kiện đang gõ
+    if (messageInput) {
+      let typingTimeout;
+      
+      messageInput.addEventListener('input', function() {
+        // Gửi trạng thái đang gõ
+        if (window.chatSocket && !typingTimeout) {
+          window.chatSocket.send(JSON.stringify({
+            'type': 'typing',
+            'is_typing': true,
+            'conversation_id': document.querySelector('.chat-main').dataset.conversationId
+          }));
+        }
+        
+        // Đặt timeout để reset trạng thái
+        clearTimeout(typingTimeout);
+        typingTimeout = setTimeout(() => {
+          if (window.chatSocket) {
+            window.chatSocket.send(JSON.stringify({
+              'type': 'typing',
+              'is_typing': false,
+              'conversation_id': document.querySelector('.chat-main').dataset.conversationId
+            }));
+          }
+          typingTimeout = null;
+        }, 1000);
+      });
+    }
+    
+    // Xử lý sự kiện click vào cuộc trò chuyện
+    conversationItems.forEach(item => {
+      item.addEventListener('click', function() {
+        const conversationId = this.dataset.conversationId;
+        window.location.href = `/chat/conversations/${conversationId}/`;
+      });
     });
-  }
-  
-  // Gọi hàm ẩn tất cả thông báo khi trang tải xong
-  hideAllNotifications();
-  
-  // Xử lý nút đóng thông báo
-  $(document).on('click', '.notification-close', function() {
-    $(this).closest('.notification-message').fadeOut(300, function() {
-      $(this).remove();
-    });
+    
+    // Xử lý nút back trên mobile
+    if (backButton) {
+      backButton.addEventListener('click', function() {
+        chatSidebar.classList.toggle('hidden');
+      });
+    }
+    
+    // Khởi tạo WebSocket
+    function initWebSocket() {
+      {% if active_conversation %}
+      const conversationId = {{ active_conversation.id }};
+      const wsScheme = window.location.protocol === 'https:' ? 'wss' : 'ws';
+      const chatSocket = new WebSocket(
+        `${wsScheme}://${window.location.host}/ws/chat/${conversationId}/`
+      );
+      
+      chatSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        
+        if (data.type === 'chat_message') {
+          // Nhận tin nhắn mới
+          if (data.message.sender_id !== {{ request.user.id }}) {
+            const messageElement = createMessageElement(data.message);
+            chatMessages.appendChild(messageElement);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // Phát âm thanh
+            playMessageSound();
+            
+            // Đánh dấu đã đọc
+            markAsRead(data.message.id);
+          }
+        } else if (data.type === 'typing') {
+          // Hiển thị trạng thái đang gõ
+          if (data.user_id !== {{ request.user.id }}) {
+            if (data.is_typing) {
+              typingIndicator.classList.remove('d-none');
+            } else {
+              typingIndicator.classList.add('d-none');
+            }
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+          }
+        }
+      };
+      
+      chatSocket.onclose = function(e) {
+        console.error('Chat socket closed unexpectedly');
+        // Kết nối lại sau 3 giây
+        setTimeout(initWebSocket, 3000);
+      };
+      
+      window.chatSocket = chatSocket;
+      {% endif %}
+    }
+    
+    // Khởi tạo WebSocket khi trang tải xong
+    initWebSocket();
+    
+    // Hàm tạo phần tử tin nhắn mới
+    function createMessageElement(message) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${message.sender_id === {{ request.user.id }} ? 'sent' : 'received'}`;
+      
+      // Avatar của người gửi (chỉ hiển thị với tin nhắn nhận)
+      if (message.sender_id !== {{ request.user.id }}) {
+        const avatarDiv = document.createElement('div');
+        avatarDiv.className = 'message-avatar';
+        avatarDiv.innerHTML = `
+          <img src="${message.sender_avatar || '{% static "img/default-avatar.png" %}'}" alt="Avatar">
+        `;
+        messageDiv.appendChild(avatarDiv);
+      }
+      
+      // Nội dung tin nhắn
+      const contentDiv = document.createElement('div');
+      contentDiv.className = 'message-content';
+      contentDiv.innerHTML = `
+        <div class="message-bubble">${message.content}</div>
+        <div class="message-time">
+          ${new Date(message.timestamp).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'})}
+          ${message.sender_id === {{ request.user.id }} ? 
+            (message.is_read ? '<i class="fas fa-check-double"></i>' : '<i class="fas fa-check"></i>') 
+            : ''}
+        </div>
+      `;
+      messageDiv.appendChild(contentDiv);
+      
+      // Avatar của người gửi (chỉ hiển thị với tin nhắn gửi)
+      if (message.sender_id === {{ request.user.id }}) {
+        const avatarDiv = document.createElement('div');
+        avatarDiv.className = 'message-avatar';
+        avatarDiv.innerHTML = `
+          <img src="{{ request.user.get_avatar_url|default:'static/img/default-avatar.png' }}" alt="Your Avatar">
+        `;
+        messageDiv.appendChild(avatarDiv);
+      }
+      
+      return messageDiv;
+    }
+    
+    // Hàm phát âm thanh khi có tin nhắn mới
+    function playMessageSound() {
+      const audio = new Audio('{% static "sounds/message.mp3" %}');
+      audio.play().catch(e => console.log('Error playing sound:', e));
+    }
+    
+    // Hàm đánh dấu tin nhắn đã đọc
+    function markAsRead(messageId) {
+      if (window.chatSocket) {
+        window.chatSocket.send(JSON.stringify({
+          'type': 'read',
+          'id': messageId,
+          'conversation_id': document.querySelector('.chat-main').dataset.conversationId
+        }));
+      }
+    }
   });
-});
 </script>
 {% endblock %} 

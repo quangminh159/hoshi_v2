@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+from django.views.generic import RedirectView
+from django.urls import reverse_lazy
 
 app_name = 'accounts'
 
@@ -15,6 +17,10 @@ urlpatterns = [
     # Block/Unblock URLs
     path('block/<int:user_id>/', views.block_user, name='block_user'),
     path('unblock/<int:user_id>/', views.unblock_user, name='unblock_user'),
+    
+    # Password Reset URLs - chuyển hướng đến allauth
+    path('password/reset/', RedirectView.as_view(url=reverse_lazy('account_reset_password')), name='account_reset_password'),
+    path('password/reset/done/', RedirectView.as_view(url=reverse_lazy('account_reset_password_done')), name='account_reset_password_done'),
     
     # API URLs
     path('suggestions/', views.get_suggestions, name='get_suggestions'),

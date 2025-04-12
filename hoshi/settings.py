@@ -190,8 +190,26 @@ ACCOUNT_LOGOUT_ON_PASSWORD_CHANGE = True
 ACCOUNT_PRESERVE_USERNAME_CASING = False
 # ACCOUNT_SIGNUP_FORM_CLASS = 'accounts.forms.CustomSignupForm'
 
+# Thêm cấu hình ACCOUNT_FORMS
+ACCOUNT_FORMS = {
+    "login": "allauth.account.forms.LoginForm",
+    "add_email": "allauth.account.forms.AddEmailForm",
+    "change_password": "allauth.account.forms.ChangePasswordForm",
+    "set_password": "allauth.account.forms.SetPasswordForm",
+    "reset_password": "accounts.forms.CustomResetPasswordForm",
+    "reset_password_from_key": "accounts.forms.CustomResetPasswordKeyForm",
+    "disconnect": "allauth.socialaccount.forms.DisconnectForm",
+    "signup": "accounts.forms.CustomSignupForm",
+}
+
 # Email settings
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'quangminh159159@gmail.com'
+EMAIL_HOST_PASSWORD = 'vjmioramcpgxfesp'
+DEFAULT_FROM_EMAIL = 'Hoshi <noreply@hoshi.vn>'
 
 # Crispy Forms
 CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
@@ -291,7 +309,9 @@ SOCIALACCOUNT_PROVIDERS = {
             'client_id': config('APPLE_CLIENT_ID', default=''),
             'secret': config('APPLE_CLIENT_SECRET', default=''),
             'key': config('APPLE_KEY_ID', default=''),
-            'certificate_key': config('APPLE_CERTIFICATE_KEY', default='')
+            'settings': {
+                'certificate_key': config('APPLE_CERTIFICATE_KEY', default='')
+            }
         }
     }
 }
@@ -340,6 +360,27 @@ LOGGING = {
 # AllAuth settings
 ACCOUNT_SESSION_REMEMBER = True
 ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
+
+# Template overrides cho django-allauth
+ACCOUNT_TEMPLATE_EXTENSION = 'html'
+ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = LOGIN_URL
+ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = None
+
+# Cấu hình email HTML
+ACCOUNT_EMAIL_SUBJECT_PREFIX = ""
+ACCOUNT_EMAIL_VERIFICATION = "optional"
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
+ACCOUNT_EMAIL_CONFIRMATION_HMAC = True
+ACCOUNT_EMAIL_CONFIRMATION_COOLDOWN = 180
+ACCOUNT_EMAIL_MAX_LENGTH = 254
+
+# Cho phép gửi email HTML
+ACCOUNT_EMAIL_CONFIRMATION_EMAIL_TEMPLATE = "account/email/email_confirmation_message.html"
+ACCOUNT_PASSWORD_RESET_EMAIL_TEMPLATE = "account/email/password_reset_key_message.html"
+ACCOUNT_EMAIL_CONFIRMATION_COOLDOWN = 180
+
+# Vô hiệu hóa những cảnh báo không cần thiết
+SILENCED_SYSTEM_CHECKS = ['allauth.socialaccount.W002']
 
 # File upload settings
 MAX_UPLOAD_SIZE = 1073741824  # 1GB in bytes (1024*1024*1024)

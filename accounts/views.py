@@ -7,6 +7,9 @@ from django.views.decorators.http import require_POST
 from django.core.paginator import Paginator, EmptyPage
 from django.utils import timezone
 from django.db.models import Prefetch
+from django.urls import reverse_lazy
+from allauth.account.views import PasswordResetView, PasswordResetDoneView
+from allauth.account.forms import ResetPasswordForm
 
 from .forms import (
     ProfileForm,
@@ -14,7 +17,8 @@ from .forms import (
     NotificationSettingsForm,
     PrivacySettingsForm,
     SecuritySettingsForm,
-    DeleteAccountForm
+    DeleteAccountForm,
+    CustomResetPasswordForm
 )
 from .models import Device, DataDownloadRequest, UserFollowing, UserBlock
 import pyotp
@@ -484,3 +488,16 @@ def unblock_user(request, user_id):
     
     # Xử lý GET request hoặc các method khác
     return redirect('accounts:settings')
+
+# Custom views cho việc đặt lại mật khẩu
+class CustomPasswordResetView(PasswordResetView):
+    template_name = 'accounts/password_reset.html'
+    success_url = reverse_lazy('accounts:account_reset_password_done')
+    form_class = CustomResetPasswordForm
+
+class CustomPasswordResetDoneView(PasswordResetDoneView):
+    template_name = 'accounts/password_reset_done.html'
+
+# Đăng ký các view mới
+password_reset = CustomPasswordResetView.as_view()
+password_reset_done = CustomPasswordResetDoneView.as_view()

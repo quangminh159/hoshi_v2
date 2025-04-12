@@ -69,7 +69,10 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [
+            BASE_DIR / 'templates',
+            BASE_DIR / 'templates' / 'allauth',  # Thêm cho allauth template override
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -150,7 +153,14 @@ ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 ACCOUNT_SESSION_REMEMBER = True
 
 # Email
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'quangminh159159@gmail.com'  # Điền email của bạn
+EMAIL_HOST_PASSWORD = 'vjmioramcpgxfesp'  # Cần tạo app password trong tài khoản Google
+DEFAULT_FROM_EMAIL = 'Hoshi <noreply@hoshi.vn>'  # Tên hiển thị và email gửi
 
 # Crispy Forms
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
@@ -212,8 +222,41 @@ ACCOUNT_FORMS = {
     "add_email": "allauth.account.forms.AddEmailForm",
     "change_password": "allauth.account.forms.ChangePasswordForm",
     "set_password": "allauth.account.forms.SetPasswordForm",
-    "reset_password": "allauth.account.forms.ResetPasswordForm",
-    "reset_password_from_key": "allauth.account.forms.ResetPasswordKeyForm",
+    "reset_password": "accounts.forms.CustomResetPasswordForm",
+    "reset_password_from_key": "accounts.forms.CustomResetPasswordKeyForm",
     "disconnect": "allauth.socialaccount.forms.DisconnectForm",
     "signup": "accounts.forms.CustomSignupForm",
-} 
+}
+
+# Template overrides cho django-allauth
+ACCOUNT_TEMPLATE_EXTENSION = 'html'
+ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = LOGIN_URL
+ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = None
+
+# Cấu hình email HTML
+ACCOUNT_EMAIL_SUBJECT_PREFIX = ""
+ACCOUNT_EMAIL_VERIFICATION = "optional"
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
+ACCOUNT_EMAIL_CONFIRMATION_HMAC = True
+ACCOUNT_EMAIL_CONFIRMATION_COOLDOWN = 180
+ACCOUNT_EMAIL_MAX_LENGTH = 254
+
+# Sử dụng HTML Email
+ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = None
+ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = LOGIN_URL
+ACCOUNT_EMAIL_SUBJECT_PREFIX = ""
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = "http"
+
+# Cho phép gửi email HTML
+ACCOUNT_EMAIL_CONFIRMATION_EMAIL_TEMPLATE = "account/email/email_confirmation_message.html"
+ACCOUNT_PASSWORD_RESET_EMAIL_TEMPLATE = "account/email/password_reset_key_message.html"
+ACCOUNT_EMAIL_CONFIRMATION_COOLDOWN = 180
+
+# Vô hiệu hóa những cảnh báo không cần thiết
+SILENCED_SYSTEM_CHECKS = ['allauth.socialaccount.W002']
+
+# Override templates cho việc đặt lại mật khẩu - đặt tên biến theo allauth
+ACCOUNT_TEMPLATES = {
+    'password_reset': 'accounts/password_reset.html',
+    'password_reset_done': 'accounts/password_reset_done.html',
+}

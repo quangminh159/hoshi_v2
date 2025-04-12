@@ -3,6 +3,8 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from allauth.account.forms import SignupForm as AllAuthSignupForm
+from allauth.account.forms import ResetPasswordForm as AllAuthResetPasswordForm
+from allauth.account.forms import ResetPasswordKeyForm as AllAuthResetPasswordKeyForm
 from .models import User
 
 User = get_user_model()
@@ -238,3 +240,27 @@ class DeleteAccountForm(forms.Form):
         if not self.user.check_password(password):
             raise forms.ValidationError('Mật khẩu không chính xác.')
         return password 
+
+class CustomResetPasswordForm(AllAuthResetPasswordForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['email'].widget.attrs.update({
+            'placeholder': 'Địa chỉ email của bạn',
+            'class': 'form-control'
+        })
+        self.fields['email'].label = 'Email'
+
+class CustomResetPasswordKeyForm(AllAuthResetPasswordKeyForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['password1'].widget.attrs.update({
+            'placeholder': 'Mật khẩu mới',
+            'class': 'form-control'
+        })
+        self.fields['password1'].label = 'Mật khẩu mới'
+        
+        self.fields['password2'].widget.attrs.update({
+            'placeholder': 'Xác nhận mật khẩu mới',
+            'class': 'form-control'
+        })
+        self.fields['password2'].label = 'Xác nhận mật khẩu mới' 

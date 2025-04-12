@@ -47,4 +47,4 @@ class FollowUserView(APIView):
             return Response(
                 {'error': 'Không tìm thấy người dùng'}, 
                 status=status.HTTP_404_NOT_FOUND
-            ) 
+            )   
