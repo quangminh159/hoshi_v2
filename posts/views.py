@@ -5,7 +5,7 @@ from django.db.models import Count, Q
 from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator, EmptyPage
 from django.views.decorators.http import require_POST
-from .models import Post, Comment, Like, SavedPost, Hashtag, Media, Mention, PostReport, PostMedia, CommentLike, Notification
+from .models import Post, Comment, Like, SavedPost, Hashtag, Media, Mention, PostReport, PostMedia, CommentLike
 from django.conf import settings
 from django.urls import reverse
 from django.contrib import messages
@@ -16,6 +16,7 @@ import logging
 import traceback
 from accounts.models import UserBlock
 from django.contrib.contenttypes.models import ContentType
+from notifications.models import Notification
 import re
 
 User = get_user_model()
@@ -688,9 +689,12 @@ def add_comment(request, post_id):
         Notification.objects.get_or_create(
             recipient=post.author,
             sender=request.user,
-            verb="đã bình luận về",
-            content_object=post,
-            action_object=comment
+            notification_type='comment',
+            text=f"{request.user.username} đã bình luận về bài viết của bạn",
+            post=post,
+            comment=comment,
+            content_type=ContentType.objects.get_for_model(post),
+            object_id=post.id
         )
     
     # Gửi thông báo cho người được trả lời
@@ -698,9 +702,12 @@ def add_comment(request, post_id):
         Notification.objects.get_or_create(
             recipient=parent.author,
             sender=request.user,
-            verb="đã trả lời bình luận của",
-            content_object=post,
-            action_object=comment
+            notification_type='comment',
+            text=f"{request.user.username} đã trả lời bình luận của bạn",
+            post=post,
+            comment=comment,
+            content_type=ContentType.objects.get_for_model(comment),
+            object_id=comment.id
         )
     
     # Nếu là AJAX request, trả về JSON response
@@ -857,7 +864,8 @@ def saved_posts(request):
     context = {
         'posts': page_obj,
         'is_saved_posts': True,
-        'title': 'Bài viết đã lưu'
+        'title': 'Bài viết đã lưu',
+        'profile_user': request.user  # Thêm profile_user để tránh lỗi username rỗng
     }
     return render(request, 'accounts/profile.html', context)
 
