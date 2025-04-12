@@ -1,0 +1,140 @@
+{% extends 'chat/base_chat.html' %}
+{% load static %}
+
+{% block title %}Bắt đầu cuộc trò chuyện mới{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+  .start-chat-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+    padding: 30px;
+  }
+  
+  .start-chat-header {
+    border-bottom: 1px solid #eaeaea;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .start-chat-header h4 {
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+  }
+  
+  .user-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+  }
+  
+  .user-card {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    transition: all 0.3s;
+    cursor: pointer;
+    border: 2px solid transparent;
+  }
+  
+  .user-card:hover {
+    background: #f0f2f5;
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    border-color: #1890ff;
+  }
+  
+  .user-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin: 0 auto 15px;
+    overflow: hidden;
+    background-color: #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: #757575;
+  }
+  
+  .user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .user-name {
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+  }
+  
+  .user-email {
+    font-size: 13px;
+    color: #777;
+    margin-bottom: 15px;
+  }
+  
+  .btn-start-chat {
+    width: 100%;
+  }
+  
+  .no-users {
+    text-align: center;
+    padding: 50px 20px;
+    color: #777;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="start-chat-container">
+    <div class="start-chat-header d-flex justify-content-between align-items-center">
+      <h4>Bắt đầu cuộc trò chuyện mới</h4>
+      <a href="{% url 'chat:conversation_list' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left"></i> Quay lại
+      </a>
+    </div>
+    
+    {% if users %}
+      <div class="user-list">
+        {% for user in users %}
+          <div class="user-card">
+            <div class="user-avatar">
+              {% if user.get_avatar_url %}
+                <img src="{{ user.get_avatar_url }}" alt="{{ user.username }}">
+              {% else %}
+                {{ user.username|first|upper }}
+              {% endif %}
+            </div>
+            <div class="user-name">{{ user.username }}</div>
+            <div class="user-email">{{ user.email }}</div>
+            <form method="post" action="{% url 'chat:start_conversation' %}">
+              {% csrf_token %}
+              <input type="hidden" name="user_id" value="{{ user.id }}">
+              <button type="submit" class="btn btn-primary btn-start-chat">
+                <i class="fas fa-comment"></i> Bắt đầu trò chuyện
+              </button>
+            </form>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="no-users">
+        <i class="fas fa-users fa-4x mb-3"></i>
+        <h5>Không tìm thấy người dùng</h5>
+        <p>Hiện tại không có người dùng nào khả dụng để bắt đầu cuộc trò chuyện</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,340 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+  /* CSS RẤT QUAN TRỌNG - KHÔNG ĐƯỢC XÓA */
+  .chat-sidebar {
+    background-color: #fafafa !important;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1) !important;
+    border-radius: 8px !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 1000 !important;
+  }
+  
+  .chat-sidebar-header {
+    padding: 16px !important;
+    border-bottom: 1px solid #eee !important;
+    background-color: #f5f5f5 !important;
+    border-top-left-radius: 8px !important;
+    border-top-right-radius: 8px !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  .chat-sidebar-header h2 {
+    margin: 0 !important;
+    font-size: 20px !important;
+    color: #333 !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  .chat-sidebar-search {
+    padding: 16px !important;
+    border-bottom: 1px solid #eee !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  .chat-sidebar-search input {
+    width: 100% !important;
+    padding: 10px 12px !important;
+    border-radius: 20px !important;
+    border: 1px solid #ddd !important;
+    background-color: #fff !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  .chat-sidebar-conversations {
+    padding: 0 !important;
+    max-height: calc(100vh - 250px) !important;
+    overflow-y: auto !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  .chat-sidebar-conversation {
+    padding: 16px !important;
+    border-bottom: 1px solid #eee !important;
+    transition: background-color 0.2s !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  .chat-sidebar-conversation:hover {
+    background-color: #f5f5f5 !important;
+  }
+  
+  .chat-sidebar-conversation.active {
+    background-color: #e6f7ff !important;
+    border-left: 4px solid #1890ff !important;
+  }
+  
+  .chat-sidebar-conversation-avatar {
+    width: 50px !important;
+    height: 50px !important;
+    border-radius: 50% !important;
+    background-color: #e0e0e0 !important;
+    margin-right: 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 20px !important;
+    font-weight: bold !important;
+    color: #757575 !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  .chat-sidebar-conversation-avatar img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    border-radius: 50% !important;
+  }
+  
+  .chat-sidebar-conversation-info {
+    flex: 1 !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  .chat-sidebar-conversation-name {
+    font-weight: 600 !important;
+    color: #333 !important;
+    margin-bottom: 4px !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  .chat-sidebar-conversation-last-message {
+    font-size: 13px !important;
+    color: #666 !important;
+    display: block !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 180px !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  .chat-sidebar-conversation-time {
+    font-size: 12px !important;
+    color: #999 !important;
+    display: block !important;
+    text-align: right !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  .chat-sidebar-footer {
+    padding: 16px !important;
+    border-top: 1px solid #eee !important;
+    background-color: #f5f5f5 !important;
+    border-bottom-left-radius: 8px !important;
+    border-bottom-right-radius: 8px !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  .chat-sidebar-footer-button {
+    background-color: #1890ff !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 20px !important;
+    padding: 8px 16px !important;
+    cursor: pointer !important;
+    transition: background-color 0.2s !important;
+    display: inline-block !important;
+    text-decoration: none !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  .chat-sidebar-footer-button:hover {
+    background-color: #40a9ff !important;
+  }
+  
+  .chat-sidebar-footer-counter {
+    font-size: 13px !important;
+    color: #666 !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  /* Bổ sung debug outlines */
+  .debug .row {
+    outline: 2px solid red !important;
+  }
+  
+  .debug .chat-sidebar {
+    outline: 2px solid blue !important;
+  }
+  
+  .debug .chat-sidebar-header {
+    outline: 2px solid green !important;
+  }
+  
+  .debug .chat-sidebar-search {
+    outline: 2px solid orange !important;
+  }
+  
+  .debug .chat-sidebar-conversations {
+    outline: 2px solid purple !important;
+  }
+  
+  .debug .chat-sidebar-conversation {
+    outline: 2px solid yellow !important;
+  }
+  
+  .debug .col-md-9 {
+    outline: 2px solid pink !important;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="row">
+    <div class="col-md-3">
+      <div class="chat-sidebar">
+        <div class="chat-sidebar-header">
+          <h2>Trò chuyện</h2>
+          <a href="{% url 'chat:new_chat' %}" class="btn btn-sm btn-primary">
+            <i class="fas fa-plus"></i>
+          </a>
+        </div>
+        
+        <div class="chat-sidebar-search">
+          <input type="text" placeholder="Tìm kiếm cuộc trò chuyện..." id="chatSearch">
+        </div>
+        
+        <div class="chat-sidebar-conversations">
+          {% block conversations_list %}
+          {% endblock %}
+        </div>
+        
+        <div class="chat-sidebar-footer">
+          <a href="{% url 'chat:conversation_list' %}" class="chat-sidebar-footer-button">
+            Xem tất cả
+          </a>
+          {% if conversation_count %}
+            <div class="chat-sidebar-footer-counter">
+              {{ conversation_count }} cuộc trò chuyện
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-9">
+      {% block chat_content %}
+      {% endblock %}
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log("Base chat page loaded");
+    
+    // Bật debug mode nếu cần
+    const enableDebug = true;
+    if (enableDebug) {
+      document.body.classList.add('debug');
+      console.log("Debug mode enabled");
+      
+      // Log số lượng trò chuyện
+      const conversations = document.querySelectorAll('.chat-sidebar-conversation');
+      console.log(`Found ${conversations.length} conversations`);
+      
+      // Kiểm tra hiển thị của phần nội dung
+      const contentCol = document.querySelector('.col-md-9');
+      if (contentCol) {
+        console.log("Content column is present");
+        const chatContent = contentCol.querySelector('#chat-content');
+        if (chatContent) {
+          console.log("Chat content is present");
+        } else {
+          console.log("Chat content is missing");
+        }
+      } else {
+        console.error("Content column is missing");
+      }
+    }
+    
+    // Tìm kiếm trò chuyện
+    const searchInput = document.getElementById('chatSearch');
+    if (searchInput) {
+      searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const conversations = document.querySelectorAll('.chat-sidebar-conversation');
+        
+        conversations.forEach(function(conversation) {
+          const name = conversation.querySelector('.chat-sidebar-conversation-name');
+          if (name) {
+            const nameText = name.textContent.toLowerCase();
+            if (nameText.includes(searchTerm)) {
+              conversation.style.display = 'flex';
+            } else {
+              conversation.style.display = 'none';
+            }
+          }
+        });
+      });
+    }
+    
+    // Đảm bảo hiển thị đúng
+    function ensureChatVisibility() {
+      // Hiển thị sidebar
+      const sidebar = document.querySelector('.chat-sidebar');
+      if (sidebar) {
+        sidebar.style.display = 'block';
+        sidebar.style.visibility = 'visible';
+        sidebar.style.opacity = '1';
+      }
+      
+      // Hiển thị phần nội dung
+      const contentCol = document.querySelector('.col-md-9');
+      if (contentCol) {
+        contentCol.style.display = 'block';
+        contentCol.style.visibility = 'visible';
+        contentCol.style.opacity = '1';
+        
+        // Hiển thị chat-content (nếu có)
+        const chatContent = contentCol.querySelector('#chat-content');
+        if (chatContent) {
+          chatContent.style.display = 'block';
+          chatContent.style.visibility = 'visible';
+          chatContent.style.opacity = '1';
+        }
+      }
+    }
+    
+    // Kiểm tra ngay lập tức
+    ensureChatVisibility();
+    
+    // Kiểm tra định kỳ
+    setInterval(ensureChatVisibility, 1000);
+  });
+</script>
+{% endblock %} 

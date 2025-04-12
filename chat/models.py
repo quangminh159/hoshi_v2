@@ -1,153 +1,147 @@
+from concurrent.futures import thread
+from chat.managers import ThreadManager
 from django.db import models
+from django.contrib.auth import get_user_model
 from django.conf import settings
+import os, uuid
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
 
-class Conversation(models.Model):
-    """
-    Mô hình đại diện cho một cuộc trò chuyện giữa các người dùng.
-    Có thể là cuộc trò chuyện 1-1 hoặc nhóm.
-    """
-    name = models.CharField(_('tên nhóm chat'), max_length=255, blank=True, null=True)
-    creator = models.ForeignKey(
-        settings.AUTH_USER_MODEL, 
-        on_delete=models.SET_NULL, 
-        related_name='created_conversations',
-        null=True
-    )
-    participants = models.ManyToManyField(
-        settings.AUTH_USER_MODEL,
-        related_name='conversations',
-        through='ConversationParticipant'
-    )
-    is_group = models.BooleanField(_('nhóm chat'), default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    
-    class Meta:
-        ordering = ['-updated_at']
-        verbose_name = _('cuộc trò chuyện')
-        verbose_name_plural = _('cuộc trò chuyện')
+User = get_user_model()
+
+# Create your models here.
+def random_file_name(instance, filename):
+    ext = filename.split('.')[-1]
+    filename = "%s.%s" % (uuid.uuid4(), ext)
+    return os.path.join('profile-pics', filename)
+
+class UserSetting(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE)
+    username = models.CharField(max_length=32, default="")
+    profile_image = models.ImageField(upload_to=random_file_name, blank=True, null=True, default='\\profile-pics\\default.jpg')
+    is_online = models.BooleanField(default=False)
     
     def __str__(self):
-        if self.is_group and self.name:
-            return self.name
-        participants_names = ", ".join([user.username for user in self.participants.all()[:3]])
-        if self.participants.count() > 3:
-            participants_names += f" và {self.participants.count() - 3} người khác"
-        return participants_names
+        return str(self.user)
 
-    @classmethod
-    def get_or_create_for_users(cls, user1, user2):
-        """
-        Lấy hoặc tạo cuộc trò chuyện giữa hai người dùng
-        """
-        # Tìm kiếm cuộc trò chuyện có cả hai người dùng
-        conversations = cls.objects.filter(is_group=False)
-        conversations = conversations.filter(participants=user1).filter(participants=user2)
-        
-        if conversations.exists():
-            return conversations.first()
-        
-        # Tạo cuộc trò chuyện mới
-        conversation = cls.objects.create(is_group=False, creator=user1)
-        ConversationParticipant.objects.create(conversation=conversation, user=user1)
-        ConversationParticipant.objects.create(conversation=conversation, user=user2)
-        
-        return conversation
+class TrackingModel(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+
+class Thread(TrackingModel):
+    name = models.CharField(max_length=50, null=True, blank=True)
+    users = models.ManyToManyField(settings.AUTH_USER_MODEL)
+    unread_by_1 = models.PositiveIntegerField(default=0)
+    unread_by_2 = models.PositiveIntegerField(default=0)
+
+    objects = ThreadManager()
+
+    def __str__(self):
+        return f'{self.name} \t -> \t {self.users.first()} - {self.users.last()}'
+
+class Message(TrackingModel):
+    thread = models.ForeignKey(Thread, on_delete=models.CASCADE, null=True, blank=True)
+    sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+    text = models.TextField(blank=True, null=True)
+    content = models.TextField(blank=True, null=True)
+    isread = models.BooleanField(default=False)
+    is_read = models.BooleanField(default=False)
+    
+    def __str__(self):
+        return f'From Thread - {self.thread.name if self.thread else "No Thread"}'
+    
+    def save(self, *args, **kwargs):
+        if self.text and not self.content:
+            self.content = self.text
+        elif self.content and not self.text:
+            self.text = self.content
+        if self.isread and not self.is_read:
+            self.is_read = self.isread
+        elif self.is_read and not self.isread:
+            self.isread = self.is_read
+        super().save(*args, **kwargs)
+
+# Mô hình trò chuyện mới
+class Conversation(models.Model):
+    participants = models.ManyToManyField(settings.AUTH_USER_MODEL, through='ConversationParticipant', related_name='conversations')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    last_message_time = models.DateTimeField(default=timezone.now)
+    
+    def __str__(self):
+        participants_str = ", ".join([user.username for user in self.participants.all()])
+        return f"Conversation between {participants_str}"
+    
+    def get_other_participant(self, user=None):
+        """Lấy người dùng khác trong cuộc trò chuyện"""
+        if user:
+            return self.participants.exclude(id=user.id).first()
+        else:
+            # Nếu không cung cấp người dùng, trả về người dùng khác so với người đầu tiên
+            first_user = self.participants.first()
+            if first_user:
+                return self.participants.exclude(id=first_user.id).first()
+            return None
+    
+    def get_last_message(self):
+        """Lấy tin nhắn cuối cùng của cuộc trò chuyện"""
+        return self.messages.order_by('-created_at').first()
 
 class ConversationParticipant(models.Model):
-    """
-    Mô hình liên kết giữa người dùng và cuộc trò chuyện,
-    lưu trữ thông tin về vai trò, trạng thái, v.v.
-    """
-    conversation = models.ForeignKey(
-        Conversation, 
-        on_delete=models.CASCADE,
-        related_name='conversation_participants'
-    )
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name='user_conversations'
-    )
-    is_admin = models.BooleanField(_('quản trị viên'), default=False)
-    muted = models.BooleanField(_('đã tắt tiếng'), default=False)
+    conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name='conversation_participants')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='conversation_participations')
     joined_at = models.DateTimeField(auto_now_add=True)
     left_at = models.DateTimeField(null=True, blank=True)
     
     class Meta:
         unique_together = ('conversation', 'user')
-        verbose_name = _('thành viên')
-        verbose_name_plural = _('thành viên')
-    
+        
     def __str__(self):
-        return f"{self.user.username} trong {self.conversation}"
+        return f"{self.user.username} in {self.conversation}"
 
-class Message(models.Model):
-    """
-    Mô hình đại diện cho một tin nhắn trong cuộc trò chuyện
-    """
-    conversation = models.ForeignKey(
-        Conversation,
-        on_delete=models.CASCADE,
-        related_name='messages'
-    )
-    sender = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL,
-        related_name='sent_messages',
-        null=True
-    )
-    content = models.TextField(_('nội dung'))
-    attachment = models.FileField(
-        _('tệp đính kèm'),
-        upload_to='chat_attachments/',
-        null=True,
-        blank=True
-    )
-    is_read = models.BooleanField(_('đã đọc'), default=False)
+class ConversationMessage(models.Model):
+    conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name='messages', null=True)
+    sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sent_messages', null=True)
+    content = models.TextField(blank=True, null=True)
+    text = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    deleted_at = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True)
+    is_read = models.BooleanField(default=False)
+    isread = models.BooleanField(default=False)
     
     class Meta:
         ordering = ['created_at']
-        verbose_name = _('tin nhắn')
-        verbose_name_plural = _('tin nhắn')
     
     def __str__(self):
-        return f"Tin nhắn từ {self.sender.username} lúc {self.created_at.strftime('%H:%M:%S %d/%m/%Y')}"
+        return f"Message from {self.sender.username} in {self.conversation}"
     
-    def soft_delete(self):
-        """Xóa mềm tin nhắn"""
-        self.deleted_at = timezone.now()
-        self.save()
-    
-    @property
-    def is_deleted(self):
-        return self.deleted_at is not None
+    def mark_as_read(self, user):
+        """Đánh dấu tin nhắn là đã đọc"""
+        if user != self.sender and self.conversation.participants.filter(id=user.id).exists():
+            self.is_read = True
+            self.isread = True
+            self.save()
+            
+    def save(self, *args, **kwargs):
+        if self.text and not self.content:
+            self.content = self.text
+        elif self.content and not self.text:
+            self.text = self.content
+        if self.isread and not self.is_read:
+            self.is_read = self.isread
+        elif self.is_read and not self.isread:
+            self.isread = self.is_read
+        super().save(*args, **kwargs)
 
-class MessageRead(models.Model):
-    """
-    Mô hình theo dõi trạng thái đọc tin nhắn của từng người dùng
-    """
-    message = models.ForeignKey(
-        Message,
-        on_delete=models.CASCADE,
-        related_name='read_receipts'
-    )
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name='message_receipts'
-    )
+class ReadReceipt(models.Model):
+    message = models.ForeignKey(ConversationMessage, on_delete=models.CASCADE, related_name='read_receipts')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     read_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
         unique_together = ('message', 'user')
-        verbose_name = _('trạng thái đọc')
-        verbose_name_plural = _('trạng thái đọc')
-    
+        
     def __str__(self):
-        return f"{self.user.username} đã đọc tin nhắn {self.message.id} lúc {self.read_at.strftime('%H:%M:%S %d/%m/%Y')}" 
+        return f"{self.user.username} read message {self.message.id}"

@@ -156,13 +156,6 @@ def feed(request):
         'media', 'comments', 'post_likes', 'saved_by'
     )
     
-    # Log chi tiết về từng bài viết
-    for post in posts[:10]:  # Log 10 bài viết đầu tiên
-        logger.info(f"Post ID: {post.id}, Author: {post.author.username}, Created At: {post.created_at}")
-        logger.info(f"Media count: {post.media.count()}")
-        for media in post.media.all():
-            logger.info(f"Media: {media.id}, Type: {media.media_type}, URL: {media.file.url}")
-    
     # Kiểm tra và xử lý avatar
     for post in posts:
         if not hasattr(post.author, 'avatar_url'):
@@ -173,7 +166,82 @@ def feed(request):
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
     
-    # Prefetch bình luận và trả lời
+    # Kiểm tra nếu yêu cầu JSON format
+    if request.GET.get('format') == 'json':
+        posts_data = []
+        for post in page_obj.object_list:
+            # Lấy tối đa 3 bình luận gốc cho mỗi bài viết
+            root_comments = Comment.objects.filter(post=post, parent=None).order_by('-created_at')[:2]
+            
+            comments_with_replies = []
+            for comment in root_comments:
+                # Lấy tối đa 2 trả lời cho mỗi bình luận
+                replies = Comment.objects.filter(parent=comment).order_by('-created_at')[:1]
+                comments_with_replies.append({
+                    'comment': {
+                        'id': comment.id,
+                        'text': comment.text,
+                        'created_at': comment.created_at.isoformat(),
+                        'author': {
+                            'id': comment.author.id,
+                            'username': comment.author.username,
+                            'avatar': comment.author.avatar.url if comment.author.avatar else None,
+                        },
+                        'likes_count': comment.likes_count,
+                    },
+                    'replies': [{
+                        'id': reply.id,
+                        'text': reply.text, 
+                        'created_at': reply.created_at.isoformat(),
+                        'author': {
+                            'id': reply.author.id,
+                            'username': reply.author.username,
+                            'avatar': reply.author.avatar.url if reply.author.avatar else None,
+                        },
+                        'likes_count': reply.likes_count,
+                        'parent_id': reply.parent_id,
+                    } for reply in replies],
+                    'replies_count': Comment.objects.filter(parent=comment).count()
+                })
+            
+            # Lấy thông tin về media của bài viết
+            media_files = []
+            for media in post.media.all():
+                media_files.append({
+                    'id': media.id,
+                    'file_url': media.file.url,
+                    'media_type': media.media_type,
+                    'order': media.order
+                })
+            
+            posts_data.append({
+                'id': post.id,
+                'author': {
+                    'id': post.author.id,
+                    'username': post.author.username,
+                    'avatar': post.author.avatar.url if post.author.avatar else None,
+                },
+                'caption': post.caption,
+                'location': post.location,
+                'created_at': post.created_at.isoformat(),
+                'likes_count': post.likes_count,
+                'comments_count': post.comments_count,
+                'is_liked': post.post_likes.filter(user=request.user).exists(),
+                'is_saved': post.saved_by.filter(user=request.user).exists(),
+                'comments_data': comments_with_replies,
+                'media': media_files,
+                'disable_comments': post.disable_comments,
+                'hide_likes': post.hide_likes,
+                'total_comments': Comment.objects.filter(post=post).count()
+            })
+        
+        return JsonResponse({
+            'posts': posts_data,
+            'has_next': page_obj.has_next(),
+            'next_page': page_obj.next_page_number() if page_obj.has_next() else None
+        })
+    
+    # Prefetch bình luận và trả lời cho HTML response
     posts_with_comments = []
     for post in page_obj:
         # Lấy tối đa 3 bình luận gốc cho mỗi bài viết
@@ -195,28 +263,7 @@ def feed(request):
             'total_comments': Comment.objects.filter(post=post).count()
         })
     
-    logger.info("Debug - Post Authors:")
-    for post_data in posts_with_comments:
-        post = post_data['post']
-        logger.info(f"Post ID: {post.id}, Author Username: {post.author.username}")
-    
-    # Log thông tin về việc lọc bài viết
-    logger.info(f"Total posts before filtering: {posts.count()}")
-    if request.user.is_authenticated:
-        logger.info(f"Following users: {list(following_users) if 'following_users' in locals() else 'None'}")
     logger.info(f"Total posts after filtering: {posts.count()}")
-    
-    # Thêm debug để kiểm tra media
-    for post in page_obj:
-        logger.info(f"Post ID: {post.id} has {post.media.count()} media files")
-        for media in post.media.all():
-            logger.info(f"   - Media: {media.id}, Type: {media.media_type}, File: {media.file}")
-    
-    # Debug posts_with_data
-    logger.info("Debug - Post data structure:")
-    for post_data in posts_with_comments:
-        post = post_data['post']
-        logger.info(f"Post data - ID: {post.id}, Media count: {post.media.count()}")
     
     # Kiểm tra điều kiện lọc bài viết
     context = {
@@ -585,103 +632,96 @@ def save_post(request, post_id):
 @login_required
 @require_POST
 def add_comment(request, post_id):
-    """Thêm bình luận mới"""
+    """Thêm bình luận vào bài viết"""
     post = get_object_or_404(Post, id=post_id)
     
-    # Kiểm tra xem người dùng có bị chặn không
-    if UserBlock.objects.filter(blocker=post.author, blocked=request.user).exists():
-        return JsonResponse({
-            'status': 'error',
-            'message': 'Bạn không thể bình luận vào bài viết này.'
-        })
-        
+    text = request.POST.get('text')
     parent_id = request.POST.get('parent_id')
-    content = request.POST.get('content', '').strip()
     
-    if not content:
-        return JsonResponse({
-            'status': 'error',
-            'message': 'Nội dung bình luận không được để trống.'
-        })
+    if not text:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'message': 'Nội dung bình luận không được để trống'
+            })
+        messages.error(request, 'Nội dung bình luận không được để trống')
+        return redirect('posts:post_detail', post_id=post_id)
     
-    # Xử lý parent_id
+    # Kiểm tra xem bài viết có tắt bình luận không
+    if post.disable_comments:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'message': 'Bài viết này đã tắt bình luận'
+            })
+        messages.error(request, 'Bài viết này đã tắt bình luận')
+        return redirect('posts:post_detail', post_id=post_id)
+    
+    # Nếu là trả lời bình luận, kiểm tra parent comment
     parent = None
     if parent_id:
         try:
             parent = Comment.objects.get(id=parent_id, post=post)
         except Comment.DoesNotExist:
-            return JsonResponse({
-                'status': 'error',
-                'message': 'Bình luận mẹ không tồn tại.'
-            })
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Bình luận gốc không tồn tại'
+                })
+            messages.error(request, 'Bình luận gốc không tồn tại')
+            return redirect('posts:post_detail', post_id=post_id)
     
-    # Tạo comment mới
+    # Tạo bình luận mới
     comment = Comment.objects.create(
         post=post,
         author=request.user,
-        text=content,
+        text=text,
         parent=parent
     )
     
-    # Gửi thông báo
-    if parent:
-        # Thông báo trả lời comment
-        if parent.author != request.user:
-            Notification.objects.create(
-                recipient=parent.author,
-                sender=request.user,
-                content_type=ContentType.objects.get_for_model(Comment),
-                object_id=comment.id,
-                notification_type='reply',
-                text=f"{request.user.username} đã trả lời bình luận của bạn."
-            )
-    else:
-        # Thông báo bình luận bài viết
-        if post.author != request.user:
-            Notification.objects.create(
-                recipient=post.author,
-                sender=request.user,
-                content_type=ContentType.objects.get_for_model(Comment),
-                object_id=comment.id,
-                notification_type='comment',
-                text=f"{request.user.username} đã bình luận về bài viết của bạn."
-            )
+    # Tăng comment_count
+    post.comments_count = post.comments.count()
+    post.save()
     
-    # Xử lý mentions
-    mentions = re.findall(r'@(\w+)', content)
-    for username in mentions:
-        try:
-            mentioned_user = User.objects.get(username=username)
-            # Không thông báo nếu là chính mình
-            if mentioned_user != request.user:
-                Notification.objects.create(
-                    recipient=mentioned_user,
-                    sender=request.user,
-                    content_type=ContentType.objects.get_for_model(Comment),
-                    object_id=comment.id,
-                    notification_type='mention',
-                    text=f"{request.user.username} đã nhắc đến bạn trong một bình luận."
-                )
-        except User.DoesNotExist:
-            pass
-            
-    # Chuẩn bị dữ liệu trả về
-    data = {
-        'id': comment.id,
-        'text': comment.text,
-        'author': {
-            'id': request.user.id,
-            'username': request.user.username,
-            'avatar': request.user.get_avatar_url(),
-        },
-        'created_at': comment.created_at.isoformat(),
-        'parent_id': parent_id,
-    }
+    # Gửi thông báo cho người đăng bài viết
+    if post.author != request.user:
+        Notification.objects.get_or_create(
+            recipient=post.author,
+            sender=request.user,
+            verb="đã bình luận về",
+            content_object=post,
+            action_object=comment
+        )
     
-    return JsonResponse({
-        'status': 'success',
-        'comment': data
-    })
+    # Gửi thông báo cho người được trả lời
+    if parent and parent.author != request.user:
+        Notification.objects.get_or_create(
+            recipient=parent.author,
+            sender=request.user,
+            verb="đã trả lời bình luận của",
+            content_object=post,
+            action_object=comment
+        )
+    
+    # Nếu là AJAX request, trả về JSON response
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({
+            'success': True,
+            'id': comment.id,
+            'text': comment.text,
+            'created_at': comment.created_at.isoformat(),
+            'author': {
+                'id': request.user.id,
+                'username': request.user.username,
+                'avatar': request.user.avatar.url if request.user.avatar else None
+            },
+            'post_id': post.id,
+            'parent_id': parent.id if parent else None
+        })
+    
+    # Nếu không phải AJAX, redirect như bình thường
+    messages.success(request, 'Đã thêm bình luận thành công')
+    return redirect('posts:post_detail', post_id=post_id)
 
 @login_required
 def delete_comment(request, post_id, comment_id):
@@ -706,35 +746,79 @@ def delete_comment(request, post_id, comment_id):
 @login_required
 def explore(request):
     # Lọc theo hashtag
-    hashtag = request.GET.get('hashtag')
-    if hashtag:
-        posts = Post.objects.filter(hashtags__name=hashtag)
+    tag = request.GET.get('tag')
+    if tag:
+        posts = Post.objects.filter(hashtags__name=tag)
     else:
         # Hiển thị bài viết phổ biến
         posts = Post.objects.annotate(
-            engagement=Count('likes') + Count('comments')
+            engagement=Count('post_likes') + Count('comments')
         ).order_by('-engagement')
     
     # Lọc theo media type
-    media_type = request.GET.get('media_type')
+    media_type = request.GET.get('media_type', 'all')
     if media_type in ['image', 'video']:
         posts = posts.filter(media__media_type=media_type)
     
+    # Lọc theo sort
+    sort = request.GET.get('sort', 'popular')
+    if sort == 'recent':
+        posts = posts.order_by('-created_at')
+    
     # Phân trang
-    paginator = Paginator(posts, settings.POSTS_PER_PAGE)
+    paginator = Paginator(posts, settings.POSTS_PER_PAGE if hasattr(settings, 'POSTS_PER_PAGE') else 10)
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
     
     # Lấy hashtags phổ biến
     popular_tags = Hashtag.objects.annotate(
-        posts_count=Count('posts')
-    ).order_by('-posts_count')[:10]
+        tag_posts_count=Count('posts')
+    ).order_by('-tag_posts_count')[:10]
+    
+    # Kiểm tra nếu yêu cầu JSON format
+    if request.GET.get('format') == 'json':
+        posts_data = []
+        for post in page_obj.object_list:
+            media_files = []
+            for media in post.media.all():
+                media_files.append({
+                    'id': media.id,
+                    'file': media.file.url,
+                    'media_type': media.media_type,
+                    'order': media.order
+                })
+            
+            posts_data.append({
+                'id': post.id,
+                'author': {
+                    'id': post.author.id,
+                    'username': post.author.username,
+                    'avatar': post.author.avatar.url if post.author.avatar else None,
+                },
+                'caption': post.caption,
+                'location': post.location,
+                'created_at': post.created_at.isoformat(),
+                'likes_count': post.likes_count,
+                'comments_count': post.comments_count,
+                'is_liked': post.post_likes.filter(user=request.user).exists() if request.user.is_authenticated else False,
+                'is_saved': post.saved_by.filter(user=request.user).exists() if request.user.is_authenticated else False,
+                'media': media_files,
+                'hide_likes': post.hide_likes,
+                'disable_comments': post.disable_comments
+            })
+        
+        return JsonResponse({
+            'posts': posts_data,
+            'has_next': page_obj.has_next(),
+            'next_page': page_obj.next_page_number() if page_obj.has_next() else None
+        })
     
     context = {
         'posts': page_obj,
         'popular_tags': popular_tags,
-        'current_hashtag': hashtag,
-        'current_media_type': media_type
+        'tag': tag,
+        'media_type': media_type,
+        'sort': sort
     }
     return render(request, 'posts/explore.html', context)
 

@@ -128,9 +128,9 @@
             <div class="tag-cloud">
                 {% for tag in popular_tags %}
                     <a href="?tag={{ tag.name }}" 
-                       class="tag-item {% if tag.name == request.GET.tag %}active{% endif %}">
+                       class="tag-item {% if tag.name == tag %}active{% endif %}">
                         #{{ tag.name }}
-                        <small class="ms-1">({{ tag.count }})</small>
+                        <small class="ms-1">({{ tag.tag_posts_count }})</small>
                     </a>
                 {% endfor %}
             </div>
@@ -174,18 +174,18 @@
     </div>
     
     <!-- Posts Grid -->
-    <div class="post-grid">
+    <div class="post-grid" id="posts-container">
         {% for post in posts %}
-            <a href="{% url 'posts:detail' post.id %}" class="post-item">
+            <a href="{% url 'posts:post_detail' post.id %}" class="post-item">
                 {% with media=post.media.first %}
-                    {% if media.type == 'image' %}
+                    {% if media.media_type == 'image' %}
                         <img src="{{ media.file.url }}" alt="Post image">
                     {% else %}
                         <video src="{{ media.file.url }}" muted loop></video>
                     {% endif %}
                     
                     <div class="post-type">
-                        {% if media.type == 'image' %}
+                        {% if media.media_type == 'image' %}
                             {% if post.media.count > 1 %}
                                 <i class="fas fa-clone"></i>
                             {% endif %}
@@ -220,41 +220,17 @@
             </div>
         {% endfor %}
     </div>
-    
-    <!-- Pagination -->
-    {% if posts.has_other_pages %}
-        <nav class="mt-4">
-            <ul class="pagination justify-content-center">
-                {% if posts.has_previous %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ posts.previous_page_number }}">
-                            <i class="fas fa-chevron-left"></i>
-                        </a>
-                    </li>
-                {% endif %}
-                
-                {% for i in posts.paginator.page_range %}
-                    {% if posts.number == i %}
-                        <li class="page-item active">
-                            <span class="page-link">{{ i }}</span>
-                        </li>
-                    {% elif i > posts.number|add:'-3' and i < posts.number|add:'3' %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ i }}">{{ i }}</a>
-                        </li>
-                    {% endif %}
-                {% endfor %}
-                
-                {% if posts.has_next %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ posts.next_page_number }}">
-                            <i class="fas fa-chevron-right"></i>
-                        </a>
-                    </li>
-                {% endif %}
-            </ul>
-        </nav>
-    {% endif %}
+
+    <!-- Loading Indicator -->
+    <div id="loading-indicator" class="text-center py-4 d-none">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2 text-muted">Đang tải thêm bài viết...</p>
+    </div>
+
+    <!-- Load More Trigger -->
+    <div id="load-more-trigger" class="py-4"></div>
 </div>
 
 <!-- Preview Modal -->
@@ -307,6 +283,168 @@ document.querySelectorAll('.post-item').forEach(item => {
             window.location.href = url;
         }
     });
+});
+
+// Infinite Scrolling Implementation
+document.addEventListener('DOMContentLoaded', function() {
+    let currentPage = {{ posts.number|default:1 }};
+    let isLoading = false;
+    let hasMore = {% if posts.has_next %}true{% else %}false{% endif %};
+    
+    const postsContainer = document.getElementById('posts-container');
+    const loadingIndicator = document.getElementById('loading-indicator');
+    const loadMoreTrigger = document.getElementById('load-more-trigger');
+    
+    // Get current query parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // Function to load more posts
+    async function loadMorePosts() {
+        if (isLoading || !hasMore) return;
+        
+        isLoading = true;
+        loadingIndicator.classList.remove('d-none');
+        
+        // Create URL with current filters
+        const nextPage = currentPage + 1;
+        urlParams.set('page', nextPage);
+        
+        // Make sure format=json is included
+        urlParams.set('format', 'json');
+        
+        const url = `${window.location.pathname}?${urlParams.toString()}`;
+        
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Network response was not ok');
+            
+            const data = await response.json();
+            
+            if (data.posts.length === 0) {
+                // No more posts
+                hasMore = false;
+                loadingIndicator.classList.add('d-none');
+                return;
+            }
+            
+            // Append new posts to container
+            appendPosts(data.posts);
+            currentPage = nextPage;
+            hasMore = data.has_next;
+            
+            // Setup event listeners for new posts
+            setupVideoHover();
+            setupPreviewModal();
+            
+        } catch (error) {
+            console.error('Error loading more posts:', error);
+        } finally {
+            isLoading = false;
+            loadingIndicator.classList.add('d-none');
+        }
+    }
+    
+    // Function to append posts to container
+    function appendPosts(posts) {
+        posts.forEach(post => {
+            const postHtml = createPostHTML(post);
+            postsContainer.insertAdjacentHTML('beforeend', postHtml);
+        });
+    }
+    
+    // Function to create HTML for a post
+    function createPostHTML(post) {
+        const media = post.media[0];
+        const isImage = media.media_type === 'image';
+        const hasMultiple = post.media.length > 1;
+        
+        return `
+            <a href="/posts/${post.id}/" class="post-item">
+                ${isImage 
+                    ? `<img src="${media.file}" alt="Post image">`
+                    : `<video src="${media.file}" muted loop></video>`
+                }
+                
+                <div class="post-type">
+                    ${isImage
+                        ? (hasMultiple ? '<i class="fas fa-clone"></i>' : '')
+                        : '<i class="fas fa-play"></i>'
+                    }
+                </div>
+                
+                <div class="post-overlay">
+                    <div class="post-stats">
+                        ${!post.hide_likes 
+                            ? `<span><i class="fas fa-heart"></i>${post.likes_count}</span>`
+                            : ''
+                        }
+                        ${!post.disable_comments
+                            ? `<span><i class="fas fa-comment"></i>${post.comments_count}</span>`
+                            : ''
+                        }
+                    </div>
+                </div>
+            </a>
+        `;
+    }
+    
+    // Set up Intersection Observer
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting && !isLoading) {
+                loadMorePosts();
+            }
+        });
+    }, {
+        rootMargin: '0px 0px 200px 0px'  // Trigger 200px before the element is visible
+    });
+    
+    // Start observing the trigger element
+    if (loadMoreTrigger) {
+        observer.observe(loadMoreTrigger);
+    }
+    
+    // Setup video hover events for dynamically added content
+    function setupVideoHover() {
+        document.querySelectorAll('.post-item video').forEach(video => {
+            video.addEventListener('mouseenter', () => {
+                video.play();
+            });
+            
+            video.addEventListener('mouseleave', () => {
+                video.pause();
+                video.currentTime = 0;
+            });
+        });
+    }
+    
+    // Setup preview modal for dynamically added content
+    function setupPreviewModal() {
+        document.querySelectorAll('.post-item').forEach(item => {
+            if (!item.hasAttribute('data-modal-initialized')) {
+                item.setAttribute('data-modal-initialized', 'true');
+                
+                item.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    
+                    const url = item.href;
+                    try {
+                        const response = await fetch(url);
+                        const html = await response.text();
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const content = doc.querySelector('.post-content').innerHTML;
+                        
+                        previewContent.innerHTML = content;
+                        previewModal.show();
+                    } catch (error) {
+                        console.error('Error:', error);
+                        window.location.href = url;
+                    }
+                });
+            }
+        });
+    }
 });
 </script>
 {% endblock %} 

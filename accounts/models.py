@@ -38,12 +38,13 @@ class User(AbstractUser):
     linkedin = models.URLField(_('linkedin'), max_length=200, blank=True)
     
     # Notification settings
-    push_notifications = models.BooleanField(_('push notifications'), default=True)
-    email_notifications = models.BooleanField(_('email notifications'), default=True)
-    like_notifications = models.BooleanField(_('like notifications'), default=True)
-    comment_notifications = models.BooleanField(_('comment notifications'), default=True)
-    follow_notifications = models.BooleanField(_('follow notifications'), default=True)
-    mention_notifications = models.BooleanField(_('mention notifications'), default=True)
+    push_notifications = models.BooleanField(_('push notifications'), default=False)
+    email_notifications = models.BooleanField(_('email notifications'), default=False)
+    like_notifications = models.BooleanField(_('like notifications'), default=False)
+    comment_notifications = models.BooleanField(_('comment notifications'), default=False)
+    follow_notifications = models.BooleanField(_('follow notifications'), default=False)
+    mention_notifications = models.BooleanField(_('mention notifications'), default=False)
+    message_notifications = models.BooleanField(_('message notifications'), default=False)
     
     # Privacy settings
     private_account = models.BooleanField(_('private account'), default=False)

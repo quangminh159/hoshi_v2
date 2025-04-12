@@ -1,263 +1,205 @@
-import json
-from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.consumer import SyncConsumer, AsyncConsumer
 from channels.db import database_sync_to_async
-from django.utils import timezone
-from django.contrib.auth import get_user_model
-from .models import Conversation, Message, MessageRead, ConversationParticipant
+from asgiref.sync import async_to_sync, sync_to_async
+from django.contrib.auth.models import User
+from chat.models import Message, Thread, UserSetting, Conversation, ConversationMessage, ConversationParticipant
+import json
+from rich.console import Console
+console = Console(style='bold green')
 
-User = get_user_model()
+online_users = []
+class WebConsumer(AsyncConsumer):
+    async def websocket_connect(self, event):
+        self.me = self.scope['user']
+        self.room_name = str(self.me.id)
+        
+        online_users.append(self.me.id)
+        await self.channel_layer.group_add(self.room_name, self.channel_name)
+        await self.send({
+            'type': 'websocket.accept',
+        })
 
-class ChatConsumer(AsyncWebsocketConsumer):
-    async def connect(self):
-        self.user = self.scope['user']
-        
-        if not self.user.is_authenticated:
-            # Từ chối kết nối nếu người dùng chưa đăng nhập
-            await self.close()
-            return
-            
-        self.conversation_id = self.scope['url_route']['kwargs']['conversation_id']
-        self.conversation_group_name = f'chat_{self.conversation_id}'
-        
-        # Kiểm tra xem người dùng có quyền tham gia cuộc trò chuyện này không
-        is_participant = await self.is_conversation_participant(self.conversation_id, self.user.id)
-        if not is_participant:
-            # Từ chối kết nối nếu người dùng không phải là thành viên
-            await self.close()
-            return
-        
-        # Tham gia group
-        await self.channel_layer.group_add(
-            self.conversation_group_name,
-            self.channel_name
-        )
-        
-        # Chấp nhận kết nối WebSocket
-        await self.accept()
-        
-        # Cập nhật trạng thái online
-        await self.update_user_status(True)
-        
-        # Gửi thông báo người dùng đang online
-        await self.channel_layer.group_send(
-            self.conversation_group_name,
+        console.print(f'You are connected {self.room_name}')
+
+    async def websocket_receive(self, event):
+        event = json.loads(event['text'])
+        # console.print(f'Received message: {event["type"]}')
+
+        if event['type'] == 'message':
+            # Xử lý cho cả Thread và Conversation
+            msg = await self.send_msg(event)
+            await self.send_users(msg, [self.me.id, self.them_user.id])
+        elif event['type'] == 'online':
+            msg = await self.send_online(event)
+            console.print(online_users)
+            await self.send_users(msg, [])
+        elif event['type'] == 'read':
+            # Xử lý đánh dấu đã đọc cho Thread
+            if 'thread_id' in event:
+                msg = await sync_to_async(Message.objects.get)(id=event['id'])
+                msg.isread = True
+                msg.is_read = True
+                await sync_to_async(msg.save)()
+                
+                msg_thread = await sync_to_async(Thread.objects.get)(message=msg)
+                await self.unread(msg_thread, int(event['user']), -1)
+            # Xử lý đánh dấu đã đọc cho Conversation
+            elif 'conversation_id' in event:
+                msg = await sync_to_async(ConversationMessage.objects.get)(id=event['id'])
+                await sync_to_async(msg.mark_as_read)(self.me)
+        elif event['type'] == 'istyping':
+            console.print(self.me, event)
+            await self.send_istyping(event)
+
+    async def websocket_message(self, event):
+        await self.send(
             {
-                'type': 'user_status',
-                'user_id': self.user.id,
-                'status': 'online',
-                'timestamp': timezone.now().isoformat()
+                'type': 'websocket.send',
+                'text': event.get('text'),
             }
         )
+
+    async def websocket_disconnect(self, event):
+        console.print(f'[{self.channel_name}] - Disconnected')
+
+        event = json.loads('''{
+            "type": "online",
+            "set": "false"
+        }''')
+
+        online_users.remove(self.me.id)
+        msg = await self.send_online(event)
+        await self.send_users(msg, [])
+
+        await self.channel_layer.group_discard(self.room_name, self.channel_name)
+
+    async def send_msg(self, msg):
+        them_id = msg['to']
+        self.them_user = await sync_to_async(User.objects.get)(id=them_id)
         
-        # Đánh dấu đã đọc tin nhắn cũ
-        await self.mark_messages_as_read()
-    
-    async def disconnect(self, close_code):
-        # Kiểm tra xem conversation_group_name có tồn tại không
-        if not hasattr(self, 'conversation_group_name'):
-            # Nếu không có thuộc tính này, có thể kết nối đã bị từ chối trước đó
-            return
-            
-        # Cập nhật trạng thái offline
-        await self.update_user_status(False)
+        # Xử lý gửi tin nhắn cho mô hình Thread
+        self.thread = await sync_to_async(Thread.objects.get_or_create_thread)(self.me, self.them_user)
+        await self.store_message_thread(msg['message'])
+        await self.unread(self.thread, self.me.id, 1)
         
-        # Gửi thông báo người dùng offline
-        await self.channel_layer.group_send(
-            self.conversation_group_name,
-            {
-                'type': 'user_status',
-                'user_id': self.user.id,
-                'status': 'offline',
-                'timestamp': timezone.now().isoformat()
-            }
-        )
-        
-        # Rời khỏi nhóm
-        await self.channel_layer.group_discard(
-            self.conversation_group_name,
-            self.channel_name
-        )
-    
-    async def receive(self, text_data):
-        """
-        Xử lý tin nhắn nhận được từ WebSocket
-        """
-        text_data_json = json.loads(text_data)
-        message_type = text_data_json.get('type', 'message')
-        
-        print(f"Received message: {text_data_json}")  # Thêm log để debug
-        
-        if message_type == 'message':
-            message_content = text_data_json['message']
-            attachment_url = text_data_json.get('attachment_url', None)
-            
-            # Lưu tin nhắn vào CSDL
-            message = await self.save_message(message_content, attachment_url)
-            
-            # Gửi tin nhắn đến tất cả người dùng trong nhóm
-            await self.channel_layer.group_send(
-                self.conversation_group_name,
-                {
-                    'type': 'chat_message',
-                    'message': {
-                        'id': message.id,
-                        'sender_id': self.user.id,
-                        'sender_username': self.user.username,
-                        'sender_avatar': self.user.get_avatar_url(),
-                        'content': message_content,
-                        'attachment_url': attachment_url,
-                        'timestamp': message.created_at.isoformat(),
-                        'is_read': False
-                    }
-                }
-            )
-        elif message_type == 'typing':
-            # Gửi thông báo người dùng đang nhập tin nhắn
-            is_typing = text_data_json.get('is_typing', False)
-            await self.channel_layer.group_send(
-                self.conversation_group_name,
-                {
-                    'type': 'user_typing',
-                    'user_id': self.user.id,
-                    'username': self.user.username,
-                    'is_typing': is_typing
-                }
-            )
-        elif message_type == 'read_receipt':
-            # Đánh dấu tin nhắn đã đọc
-            message_id = text_data_json['message_id']
-            await self.mark_message_read(message_id)
-            
-            # Gửi thông báo tin nhắn đã đọc
-            await self.channel_layer.group_send(
-                self.conversation_group_name,
-                {
-                    'type': 'message_read',
-                    'message_id': message_id,
-                    'user_id': self.user.id,
-                    'timestamp': timezone.now().isoformat()
-                }
-            )
-    
-    async def chat_message(self, event):
-        """
-        Gửi tin nhắn đến WebSocket
-        """
-        message = event['message']
-        
-        # Kiểm tra nếu người dùng là người gửi thì đánh dấu đã đọc
-        if message['sender_id'] == self.user.id:
-            message['is_read'] = True
-        
-        # Gửi tin nhắn đến WebSocket
-        await self.send(text_data=json.dumps({
-            'type': 'chat_message',
-            'message': message
-        }))
-    
-    async def user_typing(self, event):
-        """
-        Gửi thông báo người dùng đang nhập tin nhắn đến WebSocket
-        """
-        await self.send(text_data=json.dumps({
-            'type': 'typing',
-            'user_id': event['user_id'],
-            'username': event['username'],
-            'is_typing': event['is_typing']
-        }))
-    
-    async def message_read(self, event):
-        """
-        Gửi thông báo tin nhắn đã đọc
-        """
-        await self.send(text_data=json.dumps({
-            'type': 'read_receipt',
-            'message_id': event['message_id'],
-            'user_id': event['user_id'],
-            'timestamp': event['timestamp']
-        }))
-    
-    async def user_status(self, event):
-        """
-        Gửi trạng thái người dùng đến WebSocket
-        """
-        await self.send(text_data=json.dumps({
-            'type': 'user_status',
-            'user_id': event['user_id'],
-            'status': event['status'],
-            'timestamp': event['timestamp']
-        }))
-    
+        # Xử lý gửi tin nhắn cho mô hình Conversation
+        # Tìm hoặc tạo cuộc trò chuyện
+        conversation = await self.get_or_create_conversation(self.me, self.them_user)
+        await self.store_message_conversation(conversation, msg['message'])
+
+        await self.send_notifi([self.me.id, self.them_user.id])
+        return json.dumps({
+            'type': 'message',
+            'sender': them_id,
+        })
+
     @database_sync_to_async
-    def is_conversation_participant(self, conversation_id, user_id):
-        """
-        Kiểm tra xem người dùng có phải là thành viên của cuộc trò chuyện
-        """
-        return ConversationParticipant.objects.filter(
-            conversation_id=conversation_id,
-            user_id=user_id,
-            left_at__isnull=True
-        ).exists()
-    
+    def store_message_thread(self, text):
+        Message.objects.create(
+            thread = self.thread,
+            sender = self.scope['user'],
+            text = text,
+            content = text,
+        )
+        
     @database_sync_to_async
-    def save_message(self, content, attachment_url=None):
-        """
-        Lưu tin nhắn vào CSDL
-        """
-        conversation = Conversation.objects.get(id=self.conversation_id)
-        message = Message.objects.create(
-            conversation=conversation,
-            sender=self.user,
-            content=content,
-            attachment=attachment_url
+    def get_or_create_conversation(self, user1, user2):
+        # Tìm cuộc trò chuyện hiện có
+        conversations = Conversation.objects.filter(
+            participants=user1
+        ).filter(
+            participants=user2
         )
         
-        # Đánh dấu là đã đọc đối với người gửi
-        MessageRead.objects.create(
-            message=message,
-            user=self.user
-        )
+        if conversations.exists():
+            return conversations.first()
         
-        # Cập nhật thời gian cập nhật của cuộc trò chuyện
-        conversation.updated_at = timezone.now()
+        # Tạo cuộc trò chuyện mới
+        conversation = Conversation.objects.create()
+        ConversationParticipant.objects.create(conversation=conversation, user=user1)
+        ConversationParticipant.objects.create(conversation=conversation, user=user2)
+        return conversation
+        
+    @database_sync_to_async
+    def store_message_conversation(self, conversation, content):
+        ConversationMessage.objects.create(
+            conversation = conversation,
+            sender = self.scope['user'],
+            content = content,
+            text = content,
+        )
+        # Cập nhật thời gian tin nhắn cuối cùng
+        from django.utils import timezone
+        conversation.last_message_time = timezone.now()
         conversation.save()
-        
-        return message
-    
-    @database_sync_to_async
-    def mark_message_read(self, message_id):
-        """
-        Đánh dấu một tin nhắn đã đọc
-        """
-        message = Message.objects.get(id=message_id)
-        MessageRead.objects.get_or_create(
-            message=message,
-            user=self.user
-        )
-    
-    @database_sync_to_async
-    def mark_messages_as_read(self):
-        """
-        Đánh dấu tất cả tin nhắn chưa đọc trong cuộc trò chuyện là đã đọc
-        """
-        conversation = Conversation.objects.get(id=self.conversation_id)
-        unread_messages = Message.objects.filter(
-            conversation=conversation
-        ).exclude(
-            read_receipts__user=self.user
-        )
-        
-        for message in unread_messages:
-            MessageRead.objects.get_or_create(
-                message=message,
-                user=self.user
+
+    async def send_users(self, msg, users=[]):
+        if not users: users = online_users
+
+        for user in users:
+            await self.channel_layer.group_send(
+                str(user),
+                {
+                    'type': 'websocket.message',
+                    'text': msg,
+                },
             )
+
+    async def send_online(self, event):
+        user = self.scope['user']
+        await self.store_is_online(user, event['set'])
+        return json.dumps({
+            'type': 'online',
+            'set': event['set'],
+            'user': user.id
+        })
+
+    async def store_is_online(self, user, value):
+        if value == 'true': value = True
+        else: value = False
+
+        settings = await sync_to_async(UserSetting.objects.get)(id=user.id)
+        settings.is_online = value
+        await sync_to_async(settings.save)()
     
-    @database_sync_to_async
-    def update_user_status(self, is_online):
-        """
-        Cập nhật trạng thái online/offline của người dùng
-        """
-        # Cập nhật trạng thái với Redis (nếu cần)
-        # Ví dụ: sử dụng Django-Redis để lưu trạng thái
-        pass 
+    async def send_notifi(self, users):
+        console.print(f'NOTIFI {users}')
+
+        for i in range(len(users)):
+            text = json.dumps({
+                'type': 'notifi',
+                'user': users[i-1],
+                'sender': users[0]
+            })
+
+            await self.channel_layer.group_send(
+                str(users[i]),
+                {
+                    'type': 'websocket.message',
+                    'text': text,
+                },
+            )
+
+    async def unread(self, thread, user, plus):
+        users = await sync_to_async(thread.users.first)()
+        
+        if(users.id != int(user)): 
+            thread.unread_by_1 += plus
+        else: 
+            thread.unread_by_2 += plus
+        
+        await sync_to_async(thread.save)()
+
+    async def send_istyping(self, event):
+        text = json.dumps({
+            'type': 'istyping',
+            'set': event['set'],
+        })
+
+        await self.channel_layer.group_send(
+            str(event['user']),
+            {
+                'type': 'websocket.message',
+                'text': text,
+            },
+        )

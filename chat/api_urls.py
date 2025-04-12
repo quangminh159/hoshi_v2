@@ -1,16 +1,13 @@
 from django.urls import path, include
-from rest_framework_nested import routers
+from rest_framework.routers import DefaultRouter
 from . import api
 
-router = routers.DefaultRouter()
-router.register(r'rooms', api.ChatRoomViewSet, basename='room')
+router = DefaultRouter()
+router.register(r'conversations', api.ConversationViewSet, basename='conversation')
+router.register(r'messages', api.MessageViewSet, basename='message')
 
-rooms_router = routers.NestedDefaultRouter(router, r'rooms', lookup='room')
-rooms_router.register(r'messages', api.MessageViewSet, basename='room-messages')
-
-app_name = 'chat-api'
+app_name = 'chat_api'
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('', include(rooms_router.urls)),
-] 
+]
