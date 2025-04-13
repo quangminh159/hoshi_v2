@@ -97,4 +97,22 @@ pip --version
 which python
 
 echo "===== Cài đặt hoàn tất ====="
-echo "Quá trình build đã hoàn tất, ứng dụng sẵn sàng để chạy" 
+echo "Quá trình build đã hoàn tất, ứng dụng sẵn sàng để chạy"
+
+# Cài đặt các thư viện Python cần thiết
+echo "Đang cài đặt các thư viện Python..."
+pip install -r requirements.txt
+
+# Cài đặt thư viện rich
+echo "Đang cài đặt thư viện rich..."
+pip install rich
+
+# Tạo bảng dữ liệu Django
+echo "Đang tạo bảng dữ liệu..."
+python manage.py migrate
+
+# Thu thập các file tĩnh
+echo "Đang thu thập file tĩnh..."
+python manage.py collectstatic --no-input
+
+echo "Quá trình cài đặt đã hoàn tất!" 

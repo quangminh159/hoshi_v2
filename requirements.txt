@@ -49,3 +49,4 @@ django-widget-tweaks==1.5.0
 django-tinymce==3.7.1
 django-summernote==0.8.20.0
 django-taggit==5.0.1
+rich==13.7.0
