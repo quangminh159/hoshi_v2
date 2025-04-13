@@ -27,10 +27,11 @@ logger.info("Thư mục hiện tại: %s", os.getcwd())
 required_packages = {
     'dj_database_url': 'dj-database-url==2.1.0',
     'decouple': 'python-decouple==3.8',
-    'crispy_bootstrap5': 'crispy-bootstrap5==2022.1',
+    'crispy_bootstrap5': 'crispy-bootstrap5==2025.4',
     'crispy_forms': 'django-crispy-forms==2.1',
     'whitenoise': 'whitenoise==6.6.0',
-    'dotenv': 'python-dotenv==1.0.1'
+    'dotenv': 'python-dotenv==1.0.1',
+    'two_factor': 'django-two-factor-auth==1.16.0'
 }
 
 for module_name, package_name in required_packages.items():

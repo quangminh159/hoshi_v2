@@ -33,14 +33,33 @@ except ImportError:
     CRISPY_BOOTSTRAP5_INSTALLED = False
     print("Không tìm thấy crispy-bootstrap5, đang cố gắng cài đặt...")
     try:
-        import subprocess
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "crispy-bootstrap5==2022.1"])
+        import sys
+        # Sử dụng phiên bản 2025.4 thay vì 2022.1
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "crispy-bootstrap5==2025.4"])
         import crispy_bootstrap5
         CRISPY_BOOTSTRAP5_INSTALLED = True
         print("Đã cài đặt và import crispy-bootstrap5 thành công")
     except Exception as e:
         print(f"Không thể cài đặt crispy-bootstrap5: {e}")
         CRISPY_BOOTSTRAP5_INSTALLED = False
+
+# Kiểm tra two_factor
+try:
+    import two_factor
+    TWO_FACTOR_INSTALLED = True
+    print("Đã tìm thấy django-two-factor-auth")
+except ImportError:
+    TWO_FACTOR_INSTALLED = False
+    print("Không tìm thấy two_factor, đang cố gắng cài đặt...")
+    try:
+        import sys
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "django-two-factor-auth==1.16.0"])
+        import two_factor
+        TWO_FACTOR_INSTALLED = True
+        print("Đã cài đặt và import django-two-factor-auth thành công")
+    except Exception as e:
+        print(f"Không thể cài đặt django-two-factor-auth: {e}")
+        TWO_FACTOR_INSTALLED = False
 
 # Import settings cơ bản
 import sys
@@ -116,6 +135,30 @@ if 'INSTALLED_APPS' in locals() and not CRISPY_BOOTSTRAP5_INSTALLED:
     if 'CRISPY_TEMPLATE_PACK' in locals() and CRISPY_TEMPLATE_PACK == 'bootstrap5':
         CRISPY_TEMPLATE_PACK = 'bootstrap4'
         print("Đã thay đổi CRISPY_TEMPLATE_PACK thành bootstrap4")
+
+# Xử lý two_factor
+if 'INSTALLED_APPS' in locals():
+    if not TWO_FACTOR_INSTALLED and 'two_factor' in INSTALLED_APPS:
+        # Loại bỏ tất cả các ứng dụng two_factor
+        two_factor_apps = [
+            'two_factor',
+            'two_factor.plugins.yubikey',
+            'django_otp',
+            'django_otp.plugins.otp_totp',
+            'django_otp.plugins.otp_static',
+            'django_otp.plugins.otp_email'
+        ]
+        
+        for app in two_factor_apps:
+            if app in INSTALLED_APPS:
+                INSTALLED_APPS.remove(app)
+                print(f"Đã loại bỏ {app} khỏi INSTALLED_APPS")
+        
+        # Loại bỏ middleware liên quan
+        two_factor_middleware = 'django_otp.middleware.OTPMiddleware'
+        if 'MIDDLEWARE' in locals() and two_factor_middleware in MIDDLEWARE:
+            MIDDLEWARE.remove(two_factor_middleware)
+            print(f"Đã loại bỏ {two_factor_middleware} khỏi MIDDLEWARE")
 
 # Khôi phục sys.path
 sys.path = original_path

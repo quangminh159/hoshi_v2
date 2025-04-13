@@ -13,11 +13,12 @@ echo "===== Cài đặt các thư viện cần thiết trước ====="
 pip install python-decouple==3.8
 pip install dj-database-url==2.1.0
 pip install python-dotenv==1.0.1
+pip install django-two-factor-auth==1.16.0
 
 # Cài đặt các thư viện crispy forms
 echo "===== Cài đặt thư viện crispy forms ====="
 pip install django-crispy-forms==2.1
-pip install crispy-bootstrap5==2022.1
+pip install crispy-bootstrap5==2025.4
 
 echo "===== Cài đặt các dependencies ====="
 pip install -r requirements_render.txt
@@ -27,6 +28,7 @@ pip list | grep -i crispy
 pip list | grep -i bootstrap
 pip list | grep -i django
 pip list | grep -i all
+pip list | grep -i two-factor
 
 echo "===== Tạo thư mục static nếu không tồn tại ====="
 mkdir -p static staticfiles media
