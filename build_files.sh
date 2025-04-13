@@ -6,7 +6,8 @@ echo "===== Thông tin thư mục ====="
 pwd
 ls -la
 
-echo "===== Cài đặt thư viện dj-database-url trước ====="
+echo "===== Cài đặt các thư viện cần thiết trước ====="
+pip install python-decouple==3.8
 pip install dj-database-url==2.1.0
 
 echo "===== Cài đặt các dependencies ====="

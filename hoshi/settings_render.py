@@ -5,10 +5,7 @@ Django settings cho môi trường Render.
 from pathlib import Path
 import os
 
-# Kế thừa cài đặt cơ bản
-from .settings import *
-
-# Đảm bảo dj-database-url được import đúng cách
+# Đảm bảo có thư viện cần thiết
 try:
     import dj_database_url
 except ImportError:
@@ -18,7 +15,83 @@ except ImportError:
     subprocess.check_call([sys.executable, "-m", "pip", "install", "dj-database-url==2.1.0"])
     import dj_database_url
 
-# Tắt DEBUG trong môi trường production
+try:
+    from decouple import config
+except ImportError:
+    import sys
+    print("python-decouple không được tìm thấy, đang cài đặt...")
+    import subprocess
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "python-decouple==3.8"])
+    from decouple import config
+
+# Import settings cơ bản
+import sys
+import importlib
+original_path = sys.path.copy()
+
+# Avoid circular import
+module_name = 'hoshi.settings'
+if module_name in sys.modules:
+    del sys.modules[module_name]
+
+# Tải setting từ django.conf
+from django.conf import settings as django_settings
+
+# Lấy các biến từ settings.py
+try:
+    settings_module = importlib.import_module('hoshi.settings')
+    # Sao chép tất cả các biến từ settings.py
+    for key in dir(settings_module):
+        if key.isupper():
+            locals()[key] = getattr(settings_module, key)
+except Exception as e:
+    print(f"Lỗi khi import settings: {e}")
+    # Định nghĩa lại các biến cần thiết
+    BASE_DIR = Path(__file__).resolve().parent.parent
+    SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'fallback-secret-key')
+    INSTALLED_APPS = [
+        'django.contrib.admin',
+        'django.contrib.auth',
+        'django.contrib.contenttypes',
+        'django.contrib.sessions',
+        'django.contrib.messages',
+        'django.contrib.staticfiles',
+        'django.contrib.sites',
+    ]
+    MIDDLEWARE = [
+        'django.middleware.security.SecurityMiddleware',
+        'django.contrib.sessions.middleware.SessionMiddleware',
+        'django.middleware.common.CommonMiddleware',
+        'django.middleware.csrf.CsrfViewMiddleware',
+        'django.contrib.auth.middleware.AuthenticationMiddleware',
+        'django.contrib.messages.middleware.MessageMiddleware',
+        'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    ]
+    TEMPLATES = [
+        {
+            'BACKEND': 'django.template.backends.django.DjangoTemplates',
+            'DIRS': [os.path.join(BASE_DIR, 'templates')],
+            'APP_DIRS': True,
+            'OPTIONS': {
+                'context_processors': [
+                    'django.template.context_processors.debug',
+                    'django.template.context_processors.request',
+                    'django.contrib.auth.context_processors.auth',
+                    'django.contrib.messages.context_processors.messages',
+                ],
+            },
+        },
+    ]
+    STATIC_URL = '/static/'
+    SOCIALACCOUNT_PROVIDERS = {
+        'google': {'APP': {'client_id': '', 'secret': '', 'key': ''}},
+        'facebook': {'APP': {'client_id': '', 'secret': '', 'key': ''}},
+    }
+
+# Khôi phục sys.path
+sys.path = original_path
+
+# Cấu hình riêng cho Render
 DEBUG = False
 
 # Cấu hình host cho Render
@@ -34,7 +107,7 @@ else:
     print("Cảnh báo: DATABASE_URL không được cấu hình.")
 
 # Đảm bảo SQLite không được sử dụng trong môi trường production
-if 'sqlite' in DATABASES['default']['ENGINE']:
+if 'default' in DATABASES and 'ENGINE' in DATABASES['default'] and 'sqlite' in DATABASES['default']['ENGINE']:
     print("Cảnh báo: Đang sử dụng SQLite trong môi trường production.")
 
 # Cấu hình Static files
