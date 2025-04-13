@@ -98,20 +98,12 @@
                         </div>
 
                         <div class="social-login">
-                            {% get_providers as socialaccount_providers %}
-                            {% for provider in socialaccount_providers %}
-                                {% if provider.id == 'google' %}
-                                    <a href="{% provider_login_url provider.id %}" class="social-btn google">
-                                        <i class="fab fa-google"></i>
-                                        <span>Đăng nhập với Google</span>
-                                    </a>
-                                {% elif provider.id == 'facebook' %}
-                                    <a href="{% provider_login_url provider.id %}" class="social-btn facebook">
-                                        <i class="fab fa-facebook"></i>
-                                        <span>Đăng nhập với Facebook</span>
-                                    </a>
-                                {% endif %}
-                            {% endfor %}
+                            <!-- Xóa sử dụng {% get_providers %} để tránh lỗi -->
+                            <a href="/accounts/google/login/" class="social-btn google">
+                                <i class="fab fa-google"></i>
+                                <span>Đăng nhập với Google</span>
+                            </a>
+                            
                         </div>
 
                         <div class="auth-footer">
@@ -143,4 +135,4 @@ document.getElementById('togglePassword').addEventListener('click', function() {
     }
 });
 </script>
-{% endblock %} 
+{% endblock %}

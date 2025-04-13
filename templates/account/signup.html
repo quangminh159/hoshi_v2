@@ -197,11 +197,7 @@
                                         <i class="fab fa-google"></i>
                                         <span>Đăng ký với Google</span>
                                     </a>
-                                {% elif provider.id == 'facebook' %}
-                                    <a href="{% provider_login_url provider.id process='signup' %}" class="social-btn facebook">
-                                        <i class="fab fa-facebook"></i>
-                                        <span>Đăng ký với Facebook</span>
-                                    </a>
+                                
                                 {% endif %}
                             {% endfor %}
                         </div>

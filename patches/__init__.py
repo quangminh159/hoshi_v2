@@ -1,0 +1,1 @@
+# Patches package for fixing django-allauth issues

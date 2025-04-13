@@ -2,6 +2,7 @@
 window.Hoshi = window.Hoshi || {};
 window.Hoshi.processedEvents = new Set();
 window.Hoshi.processedRequests = new Set();
+window.Hoshi.processedComments = new Set(); // Lưu trữ ID của các comments đã hiển thị
 window.Hoshi.debug = true;
 
 // Hàm debounce - chỉ xử lý sau một khoảng thời gian kể từ lần cuối cùng được gọi
@@ -599,6 +600,13 @@ let commentFormsInitialized = false;
 
 // Xử lý form bình luận - Cải tiến để chỉ chạy một lần
 document.addEventListener('DOMContentLoaded', function() {
+    // Gỡ bỏ tất cả các event listener đã được gắn trước đó
+    document.querySelectorAll('.add-comment-form').forEach(form => {
+        // Tạo một bản sao mới của form để xóa tất cả event listeners
+        const newForm = form.cloneNode(true);
+        form.parentNode.replaceChild(newForm, form);
+    });
+    
     // Kiểm tra xem đã khởi tạo chưa
     if (commentFormsInitialized) {
         console.log("DOMContentLoaded đã được xử lý trước đó, bỏ qua");
@@ -632,7 +640,23 @@ function logEventListeners(element) {
 function initializeCommentForms() {
     console.log("Bắt đầu khởi tạo form bình luận...");
     
+    // Xóa tất cả các event listener đã đăng ký trước đó
     document.querySelectorAll('.add-comment-form').forEach(form => {
+        // Clone form để xóa tất cả event listeners
+        const formClone = form.cloneNode(true);
+        if (form.parentNode) {
+            form.parentNode.replaceChild(formClone, form);
+        }
+    });
+
+    // Đăng ký lại event listener mới
+    document.querySelectorAll('.add-comment-form').forEach(form => {
+        // QUAN TRỌNG: Không xử lý form đã được đánh dấu data-no-auto
+        if (form.getAttribute('data-no-auto') === 'true') {
+            console.log(`Form với data-no-auto, sẽ được xử lý bởi script khác.`);
+            return;
+        }
+        
         // Tạo ID duy nhất cho form
         const formId = form.getAttribute('data-post-id') || Math.random().toString(36).substr(2, 9);
         const uniqueFormId = `comment-form-${formId}`;
@@ -649,10 +673,19 @@ function initializeCommentForms() {
         
         console.log(`Đăng ký event submit cho form với post-id=${formId}`);
         
-        // Xử lý sự kiện submit với debounce để tránh trigger nhiều lần
+        // Xử lý sự kiện submit với throttle để tránh trigger nhiều lần
         const handleSubmit = throttle(function(e) {
             console.log(`Form submit được kích hoạt cho post-id=${this.getAttribute('data-post-id')}`);
             e.preventDefault();
+            
+            // NGHIÊM TRỌ̣NG: Kiểm tra thuộc tính này để đảm bảo hàm không bị gọi 2 lần
+            const lastProcessed = parseInt(this.getAttribute('data-last-processed') || '0');
+            const now = Date.now();
+            if (now - lastProcessed < 2000) {
+                console.log('Có một yêu cầu được xử lý trong 2 giây vừa qua, bỏ qua để tránh trùng lặp');
+                return;
+            }
+            this.setAttribute('data-last-processed', now.toString());
             
             const postId = this.getAttribute('data-post-id');
             const commentInput = this.querySelector('input[name="text"]');
@@ -663,20 +696,44 @@ function initializeCommentForms() {
             
             if (!text) return;
             
+            // Tạo một khóa duy nhất cho yêu cầu này
+            const requestKey = `${postId}-${text}-${parentId || ''}`;
+            
             // Biến để chặn gửi nhiều lần
             if (this.getAttribute('data-submitting') === 'true') {
                 console.log('Đã có một yêu cầu đang được xử lý, bỏ qua');
                 return;
             }
             
+            // Kiểm tra xem yêu cầu này đã được gửi trong 5 giây qua chưa
+            if (window.Hoshi.processedRequests && window.Hoshi.processedRequests.has(requestKey)) {
+                console.log('Request đã được gửi gần đây, bỏ qua để tránh trùng lặp');
+                
+                // Thông báo cho người dùng biết
+                const commentInput = this.querySelector('input[name="text"]');
+                commentInput.classList.add('is-invalid');
+                
+                // Xóa thông báo lỗi sau 2 giây
+                setTimeout(() => {
+                    commentInput.classList.remove('is-invalid');
+                }, 2000);
+                
+                return;
+            }
+            
             // Đánh dấu đang submit
             this.setAttribute('data-submitting', 'true');
+            // Thêm data-processing để phòng chặn triệt để
+            this.setAttribute('data-processing', Date.now().toString());
             
             // Hiển thị loading
             const submitButton = this.querySelector('button[type="submit"]');
             const originalText = submitButton.innerHTML;
             submitButton.disabled = true;
             submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Đang gửi...';
+            
+            // Vô hiệu hóa input để ngăn người dùng thay đổi
+            commentInput.disabled = true;
             
             // Tạo timestamp và request_id duy nhất
             const timestamp = Date.now();
@@ -686,22 +743,9 @@ function initializeCommentForms() {
             if (!window.Hoshi.sentCommentRequests) window.Hoshi.sentCommentRequests = new Set();
             window.Hoshi.sentCommentRequests.add(requestId);
             
-            // Kiểm tra xem đã gửi request này chưa
-            if (window.Hoshi.processedRequests.has(`${postId}-${text}-${parentId || ''}`)) {
-                console.log('Request trùng lặp đã được gửi, bỏ qua');
-                
-                // Bỏ đánh dấu đang submit
-                this.removeAttribute('data-submitting');
-                
-                // Khôi phục nút submit
-                submitButton.disabled = false;
-                submitButton.innerHTML = originalText;
-                
-                return;
-            }
-            
-            // Đánh dấu request này đã được gửi
-            window.Hoshi.processedRequests.add(`${postId}-${text}-${parentId || ''}`);
+            // Đánh dấu request này đã được gửi và lưu trong 5 giây
+            if (!window.Hoshi.processedRequests) window.Hoshi.processedRequests = new Set();
+            window.Hoshi.processedRequests.add(requestKey);
             
             // Gửi bình luận lên server
             fetch('/api/posts/comments/add/', {
@@ -725,25 +769,30 @@ function initializeCommentForms() {
                 
                 // Sau 3 giây, xóa request ID khỏi danh sách đã xử lý để cho phép submit lại
                 setTimeout(() => {
-                    if (window.Hoshi.processedRequests.has(`${postId}-${text}-${parentId || ''}`)) {
-                        window.Hoshi.processedRequests.delete(`${postId}-${text}-${parentId || ''}`);
+                    if (window.Hoshi.processedRequests.has(requestKey)) {
+                        window.Hoshi.processedRequests.delete(requestKey);
+                        console.log(`Đã xóa requestKey ${requestKey} khỏi danh sách đã xử lý`);
                     }
-                }, 3000);
+                }, 5000);
                 
-                // Khôi phục nút submit
+                // Khôi phục nút submit và input
                 submitButton.disabled = false;
                 submitButton.innerHTML = originalText;
+                commentInput.disabled = false;
                 
                 if (data.comment) {
-                    // Kiểm tra xem có phải bình luận trùng lặp không 
-                    if (!data.comment.is_duplicate) {
+                    // Kiểm tra xem đã có comment với ID này trong DOM chưa
+                    const existingComment = document.querySelector(`[data-comment-id="${data.comment.id}"]`);
+                    
+                    // Chỉ xử lý khi không phải bình luận trùng lặp hoặc comment chưa hiển thị trong DOM
+                    if (!data.comment.is_duplicate && !existingComment) {
                         // Thêm bình luận mới vào DOM
                         addCommentToDOM(data.comment, postId, isReply, parentId);
                         
                         // Cập nhật số lượng bình luận
                         updateCommentCount(postId);
                     } else {
-                        console.log('Bình luận này là bản trùng lặp, không hiển thị lại');
+                        console.log('Bình luận này đã tồn tại hoặc là bản trùng lặp, không hiển thị lại');
                     }
                     
                     // Xóa nội dung input và ẩn thông tin trả lời
@@ -759,18 +808,19 @@ function initializeCommentForms() {
                 this.removeAttribute('data-submitting');
                 
                 // Xóa request ID khỏi danh sách đã xử lý để cho phép submit lại
-                if (window.Hoshi.processedRequests.has(`${postId}-${text}-${parentId || ''}`)) {
-                    window.Hoshi.processedRequests.delete(`${postId}-${text}-${parentId || ''}`);
+                if (window.Hoshi.processedRequests.has(requestKey)) {
+                    window.Hoshi.processedRequests.delete(requestKey);
                 }
                 
-                // Khôi phục nút submit
+                // Khôi phục nút submit và input
                 submitButton.disabled = false;
                 submitButton.innerHTML = originalText;
+                commentInput.disabled = false;
                 
                 console.error('Error:', error);
                 alert('Có lỗi xảy ra khi thêm bình luận');
             });
-        }, 500); // 500ms throttle time để ngăn double-click submit
+        }, 1000); // 1000ms throttle time để ngăn double-click submit
         
         // Sử dụng safeAddEventListener thay vì addEventListener trực tiếp
         safeAddEventListener(form, 'submit', handleSubmit, uniqueFormId);
@@ -888,11 +938,55 @@ function debugLogComment(comment, postId, isReply, parentId) {
 function addCommentToDOM(comment, postId, isReply, parentId) {
     console.log('addCommentToDOM được gọi với comment ID:', comment.id);
     
-    // Kiểm tra chính xác xem comment đã tồn tại trong DOM chưa
-    // Tìm kiếm bất kỳ phần tử nào có ID là comment-ID, bất kể là comment hay reply
-    const existingComment = document.getElementById(`comment-${comment.id}`);
-    if (existingComment) {
-        console.log(`Comment với ID ${comment.id} đã tồn tại trong DOM, bỏ qua.`);
+    // Kiểm tra xem comment có thuộc tính is_duplicate không
+    if (comment.is_duplicate) {
+        console.log(`Comment với ID ${comment.id} là bản trùng lặp được đánh dấu bởi server, bỏ qua.`);
+        return;
+    }
+    
+    // Kiểm tra trong danh sách đã xử lý toàn cục
+    if (window.Hoshi.processedComments.has(comment.id.toString())) {
+        console.log(`Comment với ID ${comment.id} đã được xử lý trước đó (processedComments), bỏ qua.`);
+        return;
+    }
+    
+    // Thêm vào danh sách đã xử lý toàn cục
+    window.Hoshi.processedComments.add(comment.id.toString());
+    
+    // KIỂM TRA NGHIÊM NGẶT HƠN
+    // 1. Tìm theo data-comment-id
+    const existingCommentById = document.querySelector(`[data-comment-id="${comment.id}"]`);
+    if (existingCommentById) {
+        console.log(`Comment với ID ${comment.id} đã tồn tại trong DOM theo data-comment-id, bỏ qua.`);
+        return;
+    }
+    
+    // 2. Tìm theo id của phần tử
+    const existingCommentByElementId = document.getElementById(`comment-${comment.id}`);
+    if (existingCommentByElementId) {
+        console.log(`Comment với ID ${comment.id} đã tồn tại trong DOM theo element id, bỏ qua.`);
+        return;
+    }
+    
+    // 3. Tìm theo tác giả + nội dung + thời gian gần đây (2 giây)
+    const author = comment.author ? comment.author.username : comment.author_username;
+    const text = comment.text;
+    
+    const similarComments = Array.from(document.querySelectorAll('.comment, .reply-comment')).filter(el => {
+        const authorEl = el.querySelector('a.text-dark.text-decoration-none.fw-bold');
+        const textEl = el.querySelector('div:first-child div:first-child');
+        
+        return authorEl && 
+               authorEl.textContent.trim() === author && 
+               textEl && 
+               textEl.textContent.includes(text) &&
+               // Kiểm tra thời gian tạo trong vòng 5 giây qua
+               (!el.getAttribute('data-created-at') || 
+                Date.now() - parseInt(el.getAttribute('data-created-at')) < 5000);
+    });
+    
+    if (similarComments.length > 0) {
+        console.log(`Đã tìm thấy comment tương tự (cùng tác giả + nội dung) trong 5 giây qua, bỏ qua để tránh trùng lặp`);
         return;
     }
     
@@ -918,7 +1012,7 @@ function addCommentToDOM(comment, postId, isReply, parentId) {
     
     // Tạo HTML cho comment mới
     const commentHTML = `
-        <div class="comment mb-2" id="comment-${normalizedComment.id}" data-comment-id="${normalizedComment.id}">
+        <div class="comment mb-2" id="comment-${normalizedComment.id}" data-comment-id="${normalizedComment.id}" data-created-at="${Date.now()}">
             <div class="d-flex justify-content-between">
                 <div>
                     <a href="/users/${normalizedComment.author.username}/" 

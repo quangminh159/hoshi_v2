@@ -1,0 +1,37 @@
+/* Ẩn tất cả thông báo tin nhắn */
+[class*="Message from testuser"] {
+    display: none !important;
+}
+
+/* Ẩn theo nội dung cụ thể, không sử dụng selector quá rộng */
+body > div:not(.container):not(.chat-container) {
+    display: none !important;
+}
+
+/* Chỉ ẩn các phần tử thông báo cụ thể */
+.notification-container, 
+.message-notification, 
+.notification-message,
+.notification-item {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    width: 0 !important;
+    overflow: hidden !important;
+    position: absolute !important;
+    left: -9999px !important;
+}
+
+/* Ẩn dựa trên selector cụ thể từ ảnh */
+div[role="alert"]:not(.alert-warning):not(.alert-success):not(.alert-info) {
+    display: none !important;
+}
+
+/* Chỉ ẩn các phần tử thông báo xác định */
+[class*="notification-alert"],
+[class*="message-alert"],
+[id*="notification-alert"],
+[id*="message-notification"] {
+    display: none !important;
+} 
