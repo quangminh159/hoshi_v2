@@ -119,4 +119,12 @@ python manage.py migrate
 echo "Đang thu thập file tĩnh..."
 python manage.py collectstatic --no-input
 
-echo "Quá trình cài đặt đã hoàn tất!" 
+echo "Quá trình cài đặt đã hoàn tất!"
+
+# Đảm bảo fix_socialaccount.py có quyền thực thi
+echo "===== Thiết lập quyền thực thi cho các script ====="
+chmod +x fix_socialaccount.py
+chmod +x app.py
+chmod +x build_files.sh
+
+echo "===== Hoàn tất cài đặt ====="

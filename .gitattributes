@@ -1,17 +1,28 @@
 # Định dạng mặc định cho tất cả văn bản
-* text=auto
+* text=auto eol=lf
 
-# Đảm bảo các script shell luôn có LF line endings, ngay cả trên Windows
-*.sh text eol=lf
-build_files.sh text eol=lf
-
-# Các file cài đặt Python luôn dùng LF
+# Explicitly declare text files to be normalized
 *.py text eol=lf
-*.pyw text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.sh text eol=lf
+*.txt text eol=lf
+*.csv text eol=lf
+*.sql text eol=lf
+*.ini text eol=lf
+*.cfg text eol=lf
+*.conf text eol=lf
+*.xml text eol=lf
 
-# Các file mà Windows sẽ luôn sử dụng CRLF
+# Files that will always have CRLF line endings on checkout
 *.bat text eol=crlf
 *.cmd text eol=crlf
+*.ps1 text eol=crlf
 
 # Files được coi là binary
 *.png binary
@@ -19,5 +30,8 @@ build_files.sh text eol=lf
 *.jpeg binary
 *.gif binary
 *.ico binary
+*.pdf binary
 *.zip binary
-*.pdf binary 
+*.gz binary
+*.tar binary
+*.sqlite3 binary 
