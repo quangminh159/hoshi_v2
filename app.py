@@ -26,6 +26,21 @@ except ImportError:
     logger.error("Không thể import Django. Kiểm tra cài đặt.")
     sys.exit(1)
 
+# Khởi tạo Django
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'hoshi.settings_render')
+try:
+    django.setup()
+    logger.info("Đã khởi tạo Django với settings_render")
+except Exception as e:
+    logger.error(f"Lỗi khi khởi tạo Django với settings_render: {e}")
+    try:
+        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'hoshi.settings')
+        django.setup()
+        logger.info("Đã khởi tạo Django với settings mặc định")
+    except Exception as e:
+        logger.error(f"Lỗi khi khởi tạo Django với settings mặc định: {e}")
+        raise
+
 def run_command(command):
     """Chạy một lệnh shell và hiển thị output."""
     logger.info(f"Chạy lệnh: {' '.join(command)}")
@@ -46,76 +61,48 @@ def run_command(command):
         logger.error(f"Lỗi khi chạy lệnh {' '.join(command)}: {e}")
         return -1
 
-# Khởi tạo Django
+# Sửa lỗi SocialApp trùng lặp nếu file tồn tại
+if os.path.exists("fix_socialaccount.py"):
+    logger.info("Kiểm tra và sửa lỗi SocialApp trùng lặp")
+    run_command([sys.executable, "fix_socialaccount.py"])
+else:
+    logger.warning("Không tìm thấy fix_socialaccount.py, bỏ qua bước sửa lỗi SocialApp")
+
+# Tạo ứng dụng WSGI để Gunicorn có thể sử dụng
 try:
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'hoshi.settings_render')
-    django.setup()
-    logger.info("Đã khởi tạo Django với settings_render")
+    from django.core.wsgi import get_wsgi_application
+    app = get_wsgi_application()  # Đây là biến mà Gunicorn sẽ tìm kiếm
+    logger.info("Đã tạo WSGI application thành công")
 except Exception as e:
-    logger.error(f"Lỗi khi khởi tạo Django: {e}")
-    try:
-        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'hoshi.settings')
-        django.setup()
-        logger.info("Đã khởi tạo Django với settings mặc định")
-    except Exception as e:
-        logger.error(f"Lỗi khi khởi tạo Django với settings mặc định: {e}")
-        raise
+    logger.error(f"Lỗi khi tạo WSGI application: {e}")
+    raise
 
-# Sửa lỗi SocialApp trùng lặp
-logger.info("Kiểm tra và sửa lỗi SocialApp trùng lặp")
-run_command([sys.executable, "fix_socialaccount.py"])
-
-# Thu thập static files
-logger.info("Thu thập static files...")
-try:
-    from django.core.management import call_command
-    call_command('collectstatic', '--noinput')
-    logger.info("Đã thu thập static files thành công")
-except Exception as e:
-    logger.error(f"Lỗi khi thu thập static files: {e}")
-
-# Áp dụng migrations
-logger.info("Áp dụng migrations...")
-try:
-    call_command('migrate', '--noinput')
-    logger.info("Đã áp dụng migrations thành công")
-except Exception as e:
-    logger.error(f"Lỗi khi áp dụng migrations: {e}")
-
-# Khởi động ứng dụng với Gunicorn
-logger.info("Khởi động ứng dụng với Gunicorn...")
-
-port = int(os.environ.get('PORT', 8000))
-workers = int(os.environ.get('WEB_CONCURRENCY', 3))
-
-from gunicorn.app.wsgiapp import WSGIApplication
-
-class HoshiApplication(WSGIApplication):
-    def __init__(self, app_uri, options=None):
-        self.options = options or {}
-        self.app_uri = app_uri
-        super().__init__()
-
-    def load_config(self):
-        config = {
-            'bind': f'0.0.0.0:{port}',
-            'workers': workers,
-            'accesslog': '-',
-            'errorlog': '-',
-            'capture_output': True,
-            'loglevel': 'info',
-            'preload_app': True
-        }
-        
-        for key, value in config.items():
-            if key in self.cfg.settings and value is not None:
-                self.cfg.set(key, value)
-
+# Nếu chạy trực tiếp file này
 if __name__ == '__main__':
+    logger.info("Chạy ứng dụng thông qua file app.py")
+    # Thu thập static files
     try:
-        HoshiApplication('hoshi.wsgi').run()
+        from django.core.management import call_command
+        call_command('collectstatic', '--noinput')
+        logger.info("Đã thu thập static files thành công")
     except Exception as e:
-        logger.error(f"Lỗi khi khởi động Gunicorn: {e}")
-        raise
+        logger.error(f"Lỗi khi thu thập static files: {e}")
+
+    # Áp dụng migrations
+    try:
+        call_command('migrate', '--noinput')
+        logger.info("Đã áp dụng migrations thành công")
+    except Exception as e:
+        logger.error(f"Lỗi khi áp dụng migrations: {e}")
+    
+    # Khởi động server
+    port = int(os.environ.get('PORT', 8000))
+    logger.info(f"Khởi động server tại cổng {port}...")
+    try:
+        call_command('runserver', f"0.0.0.0:{port}")
+    except KeyboardInterrupt:
+        logger.info("Đã nhận lệnh dừng server")
+    except Exception as e:
+        logger.error(f"Lỗi khi khởi động server: {e}")
 
 logger.info("===== KHỞI ĐỘNG HOÀN TẤT =====")

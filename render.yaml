@@ -5,11 +5,17 @@ services:
     runtime: python
     region: singapore
     plan: free
-    buildCommand: ./build_files.sh
-    startCommand: gunicorn app:app
+    buildCommand: chmod +x build_files.sh && ./build_files.sh
+    startCommand: gunicorn wsgi:application
     envVars:
       - key: DJANGO_SETTINGS_MODULE
         value: hoshi.settings_render
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_DEBUG
+        value: "False"
+      - key: DJANGO_ALLOWED_HOSTS
+        value: ".onrender.com"
       - key: PYTHON_VERSION
         value: 3.11.0
       - key: PYTHONUNBUFFERED
@@ -20,6 +26,8 @@ services:
         fromDatabase:
           name: hoshi_db
           property: connectionString
+    healthCheckPath: /health/
+    autoDeploy: true
 
 # Cơ sở dữ liệu PostgreSQL
 databases:

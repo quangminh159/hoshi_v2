@@ -6,6 +6,17 @@ echo "===== Thông tin thư mục ====="
 pwd
 ls -la
 
+echo "===== Sửa line endings cho tất cả file ====="
+if ! command -v dos2unix &> /dev/null; then
+    echo "dos2unix không được cài đặt. Sử dụng sed để thay thế CRLF bằng LF."
+    find . -type f -name "*.py" -exec sed -i 's/\r$//' {} \;
+    find . -type f -name "*.sh" -exec sed -i 's/\r$//' {} \;
+else
+    echo "Sử dụng dos2unix để chuyển đổi các file text sang LF..."
+    find . -name "*.py" -type f -exec dos2unix {} \;
+    find . -name "*.sh" -type f -exec dos2unix {} \;
+fi
+
 echo "===== Cài đặt pip và setuptools mới nhất ====="
 pip install --upgrade pip setuptools wheel
 
@@ -126,5 +137,9 @@ echo "===== Thiết lập quyền thực thi cho các script ====="
 chmod +x fix_socialaccount.py
 chmod +x app.py
 chmod +x build_files.sh
+
+# Tạo health check endpoint
+echo "===== Thiết lập health check endpoint ====="
+python health_check.py
 
 echo "===== Hoàn tất cài đặt ====="
