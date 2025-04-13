@@ -6,11 +6,11 @@ echo "===== Thông tin thư mục ====="
 pwd
 ls -la
 
+echo "===== Cài đặt thư viện dj-database-url trước ====="
+pip install dj-database-url==2.1.0
+
 echo "===== Cài đặt các dependencies ====="
 pip install -r requirements_render.txt
-
-echo "===== Cấu hình dj-database-url ====="
-pip install dj-database-url==2.1.0
 
 echo "===== Tạo thư mục static nếu không tồn tại ====="
 mkdir -p static staticfiles media

@@ -3,7 +3,7 @@ services:
     name: hoshi
     env: python
     buildCommand: sh ./build_files.sh
-    startCommand: gunicorn wsgi:app
+    startCommand: gunicorn app:app
     runtime: python3
     plan: free
     envVars:

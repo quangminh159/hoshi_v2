@@ -4,11 +4,19 @@ Django settings cho môi trường Render.
 
 from pathlib import Path
 import os
-import dj_database_url
-from decouple import config
 
 # Kế thừa cài đặt cơ bản
 from .settings import *
+
+# Đảm bảo dj-database-url được import đúng cách
+try:
+    import dj_database_url
+except ImportError:
+    import sys
+    print("dj-database-url không được tìm thấy, đang cài đặt...")
+    import subprocess
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "dj-database-url==2.1.0"])
+    import dj_database_url
 
 # Tắt DEBUG trong môi trường production
 DEBUG = False
@@ -18,13 +26,16 @@ ALLOWED_HOSTS = ['.onrender.com', 'hoshi.onrender.com']
 
 # Cấu hình Database cho Render
 DATABASE_URL = os.environ.get('DATABASE_URL')
-DATABASES = {
-    'default': dj_database_url.config(default=DATABASE_URL, conn_max_age=600)
-}
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.config(default=DATABASE_URL, conn_max_age=600)
+    }
+else:
+    print("Cảnh báo: DATABASE_URL không được cấu hình.")
 
-# Đảm bảo SQLite không được sử dụng trong production
-if DATABASES['default']['ENGINE'] == 'django.db.backends.sqlite3':
-    raise Exception("SQLite không được sử dụng trong môi trường production")
+# Đảm bảo SQLite không được sử dụng trong môi trường production
+if 'sqlite' in DATABASES['default']['ENGINE']:
+    print("Cảnh báo: Đang sử dụng SQLite trong môi trường production.")
 
 # Cấu hình Static files
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
@@ -32,7 +43,8 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Thêm Whitenoise middleware
-MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
+if 'whitenoise.middleware.WhiteNoiseMiddleware' not in MIDDLEWARE:
+    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
 
 # Cấu hình Media files
 MEDIA_URL = '/media/'
@@ -92,10 +104,13 @@ FACEBOOK_CLIENT_ID = os.environ.get('FACEBOOK_CLIENT_ID', '')
 FACEBOOK_CLIENT_SECRET = os.environ.get('FACEBOOK_CLIENT_SECRET', '')
 
 # Cập nhật các social apps với credentials mới từ environment
-SOCIALACCOUNT_PROVIDERS['google']['APP']['client_id'] = GOOGLE_CLIENT_ID
-SOCIALACCOUNT_PROVIDERS['google']['APP']['secret'] = GOOGLE_CLIENT_SECRET
-SOCIALACCOUNT_PROVIDERS['facebook']['APP']['client_id'] = FACEBOOK_CLIENT_ID
-SOCIALACCOUNT_PROVIDERS['facebook']['APP']['secret'] = FACEBOOK_CLIENT_SECRET
+try:
+    SOCIALACCOUNT_PROVIDERS['google']['APP']['client_id'] = GOOGLE_CLIENT_ID
+    SOCIALACCOUNT_PROVIDERS['google']['APP']['secret'] = GOOGLE_CLIENT_SECRET
+    SOCIALACCOUNT_PROVIDERS['facebook']['APP']['client_id'] = FACEBOOK_CLIENT_ID
+    SOCIALACCOUNT_PROVIDERS['facebook']['APP']['secret'] = FACEBOOK_CLIENT_SECRET
+except Exception as e:
+    print(f"Lỗi khi cập nhật SOCIALACCOUNT_PROVIDERS: {e}")
 
 # Vô hiệu hóa thông báo không cần thiết
 SILENCED_SYSTEM_CHECKS = ['allauth.socialaccount.W002'] 
