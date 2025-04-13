@@ -5,17 +5,195 @@ import django
 import time
 
 # Thiết lập môi trường Django
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'hoshi.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'hoshi.settings_render')
 django.setup()
 
 try:
     from allauth.socialaccount.models import SocialApp
     from django.contrib.sites.models import Site
     from django.db import models
+    from django.core.exceptions import MultipleObjectsReturned
     print("Đã import các module cần thiết thành công")
 except ImportError as e:
     print(f"Lỗi import module: {e}")
     sys.exit(1)
+
+def fix_signup_template():
+    """Kiểm tra và sửa template đăng ký nếu cần"""
+    try:
+        from django.template.loader import get_template
+        from django.template import TemplateDoesNotExist
+        
+        try:
+            # Kiểm tra xem template đăng ký tồn tại không
+            template = get_template('account/signup.html')
+            print("Template đăng ký đã tồn tại")
+        except TemplateDoesNotExist:
+            # Nếu không tìm thấy template, tạo mới
+            import os
+            template_dir = os.path.join('templates', 'account')
+            os.makedirs(template_dir, exist_ok=True)
+            
+            # Tạo template đăng ký cơ bản
+            signup_template = """{% extends "base.html" %}
+
+{% load i18n %}
+{% load account socialaccount %}
+
+{% block head_title %}{% trans "Signup" %}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h1 class="h4 mb-0">{% trans "Sign Up" %}</h1>
+        </div>
+        <div class="card-body">
+          <p>{% blocktrans %}Already have an account? Then please <a href="{{ login_url }}">sign in</a>.{% endblocktrans %}</p>
+
+          <form class="signup" id="signup_form" method="post" action="{% url 'account_signup' %}">
+            {% csrf_token %}
+            {{ form.as_p }}
+            {% if redirect_field_value %}
+            <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+            {% endif %}
+            <button class="btn btn-primary" type="submit">{% trans "Sign Up" %} &raquo;</button>
+          </form>
+
+          {% get_providers as socialaccount_providers %}
+          {% if socialaccount_providers %}
+          <hr>
+          <div class="socialaccount_ballot">
+            <h5 class="mb-3">{% trans "Or sign up with:" %}</h5>
+            <div class="socialaccount_providers">
+              {% include "socialaccount/snippets/provider_list.html" with process="login" %}
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}"""
+            
+            # Lưu template
+            with open(os.path.join(template_dir, 'signup.html'), 'w') as f:
+                f.write(signup_template)
+            print("Đã tạo template đăng ký mới")
+
+        # Kiểm tra template login
+        try:
+            template = get_template('account/login.html')
+            print("Template đăng nhập đã tồn tại")
+        except TemplateDoesNotExist:
+            # Tạo template login nếu cần
+            import os
+            template_dir = os.path.join('templates', 'account')
+            os.makedirs(template_dir, exist_ok=True)
+            
+            login_template = """{% extends "base.html" %}
+
+{% load i18n %}
+{% load account socialaccount %}
+
+{% block head_title %}{% trans "Sign In" %}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h1 class="h4 mb-0">{% trans "Sign In" %}</h1>
+        </div>
+        <div class="card-body">
+          <p>{% blocktrans %}If you have not created an account yet, then please <a href="{{ signup_url }}">sign up</a> first.{% endblocktrans %}</p>
+
+          <form class="login" method="post" action="{% url 'account_login' %}">
+            {% csrf_token %}
+            {{ form.as_p }}
+            {% if redirect_field_value %}
+            <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+            {% endif %}
+            <button class="btn btn-primary" type="submit">{% trans "Sign In" %}</button>
+            <a class="btn btn-link" href="{% url 'account_reset_password' %}">{% trans "Forgot Password?" %}</a>
+          </form>
+
+          {% get_providers as socialaccount_providers %}
+          {% if socialaccount_providers %}
+          <hr>
+          <div class="socialaccount_ballot">
+            <h5 class="mb-3">{% trans "Or login with:" %}</h5>
+            <div class="socialaccount_providers">
+              {% include "socialaccount/snippets/provider_list.html" with process="login" %}
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}"""
+            
+            # Lưu template
+            with open(os.path.join(template_dir, 'login.html'), 'w') as f:
+                f.write(login_template)
+            print("Đã tạo template đăng nhập mới")
+            
+        # Kiểm tra snippet provider_list
+        try:
+            template = get_template('socialaccount/snippets/provider_list.html')
+            print("Template provider_list đã tồn tại")
+        except TemplateDoesNotExist:
+            # Tạo thư mục snippets
+            import os
+            snippet_dir = os.path.join('templates', 'socialaccount', 'snippets')
+            os.makedirs(snippet_dir, exist_ok=True)
+            
+            # Tạo template provider_list
+            provider_list_template = """{% load socialaccount %}
+
+{% get_providers as socialaccount_providers %}
+
+{% for provider in socialaccount_providers %}
+  {% if provider.id == "openid" %}
+    {% for brand in provider.get_brands %}
+    <div>
+      <a title="{{brand.name}}" 
+         class="btn btn-outline-dark mb-2"
+         href="{% provider_login_url provider.id openid=brand.openid_url process=process %}">
+        <i class="fab fa-{{brand.id}}"></i> {{brand.name}}
+      </a>
+    </div>
+    {% endfor %}
+  {% endif %}
+  <div>
+    <a title="{{provider.name}}" class="btn btn-outline-dark mb-2" 
+       href="{% provider_login_url provider.id process=process scope=scope auth_params=auth_params %}">
+      {% if provider.id == 'google' %}
+        <i class="fab fa-google"></i> Google
+      {% elif provider.id == 'facebook' %}
+        <i class="fab fa-facebook"></i> Facebook
+      {% elif provider.id == 'apple' %}
+        <i class="fab fa-apple"></i> Apple
+      {% else %}
+        {{provider.name}}
+      {% endif %}
+    </a>
+  </div>
+{% endfor %}"""
+
+            # Lưu template
+            with open(os.path.join(snippet_dir, 'provider_list.html'), 'w') as f:
+                f.write(provider_list_template)
+            print("Đã tạo template provider_list mới")
+            
+    except Exception as e:
+        print(f"Lỗi khi xử lý templates: {e}")
 
 def fix_duplicate_socialapps():
     """Sửa lỗi nhiều SocialApp cho cùng một provider."""
@@ -110,6 +288,31 @@ def display_socialapps():
         print(f"- ID: {app.id}, Provider: {app.provider}, Tên: {app.name}, Client ID: {app.client_id}")
         print(f"  Sites: {site_names}")
 
+# Patch SocialAccountAdapter để xử lý lỗi MultipleObjectsReturned
+def patch_socialaccount_adapter():
+    from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
+    
+    # Lưu reference đến phương thức gốc
+    original_get_app = DefaultSocialAccountAdapter.get_app
+    
+    def patched_get_app(self, request, provider):
+        try:
+            return original_get_app(self, request, provider)
+        except MultipleObjectsReturned:
+            print(f"Đã phát hiện lỗi MultipleObjectsReturned cho provider {provider}, đang sửa chữa...")
+            fix_duplicate_socialapps()
+            
+            # Lấy app mới nhất sau khi đã sửa chữa
+            from allauth.socialaccount.models import SocialApp
+            app = SocialApp.objects.filter(provider=provider).order_by('-id').first()
+            if app is None:
+                raise Exception(f"Không tìm thấy SocialApp cho provider {provider}")
+            return app
+    
+    # Áp dụng patch
+    DefaultSocialAccountAdapter.get_app = patched_get_app
+    print("Đã patch DefaultSocialAccountAdapter.get_app để xử lý lỗi MultipleObjectsReturned")
+
 if __name__ == "__main__":
     print("=== Bắt đầu sửa chữa cấu hình SocialApp ===")
     
@@ -118,6 +321,12 @@ if __name__ == "__main__":
     
     # Sửa lỗi SocialApp trùng lặp
     fix_duplicate_socialapps()
+    
+    # Patch adapter để xử lý lỗi MultipleObjectsReturned
+    patch_socialaccount_adapter()
+    
+    # Kiểm tra và sửa templates
+    fix_signup_template()
     
     # Hiển thị thông tin sau khi sửa chữa
     display_socialapps()
