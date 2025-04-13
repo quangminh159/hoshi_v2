@@ -24,6 +24,24 @@ except ImportError:
     subprocess.check_call([sys.executable, "-m", "pip", "install", "python-decouple==3.8"])
     from decouple import config
 
+# Kiểm tra crispy_bootstrap5
+try:
+    import crispy_bootstrap5
+    CRISPY_BOOTSTRAP5_INSTALLED = True
+    print("Đã tìm thấy crispy-bootstrap5")
+except ImportError:
+    CRISPY_BOOTSTRAP5_INSTALLED = False
+    print("Không tìm thấy crispy-bootstrap5, đang cố gắng cài đặt...")
+    try:
+        import subprocess
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "crispy-bootstrap5==2022.1"])
+        import crispy_bootstrap5
+        CRISPY_BOOTSTRAP5_INSTALLED = True
+        print("Đã cài đặt và import crispy-bootstrap5 thành công")
+    except Exception as e:
+        print(f"Không thể cài đặt crispy-bootstrap5: {e}")
+        CRISPY_BOOTSTRAP5_INSTALLED = False
+
 # Import settings cơ bản
 import sys
 import importlib
@@ -87,6 +105,17 @@ except Exception as e:
         'google': {'APP': {'client_id': '', 'secret': '', 'key': ''}},
         'facebook': {'APP': {'client_id': '', 'secret': '', 'key': ''}},
     }
+
+# Xử lý crispy_bootstrap5
+if 'INSTALLED_APPS' in locals() and not CRISPY_BOOTSTRAP5_INSTALLED:
+    if 'crispy_bootstrap5' in INSTALLED_APPS:
+        INSTALLED_APPS.remove('crispy_bootstrap5')
+        print("Đã loại bỏ crispy_bootstrap5 khỏi INSTALLED_APPS")
+    
+    # Cập nhật CRISPY_TEMPLATE_PACK nếu cần
+    if 'CRISPY_TEMPLATE_PACK' in locals() and CRISPY_TEMPLATE_PACK == 'bootstrap5':
+        CRISPY_TEMPLATE_PACK = 'bootstrap4'
+        print("Đã thay đổi CRISPY_TEMPLATE_PACK thành bootstrap4")
 
 # Khôi phục sys.path
 sys.path = original_path

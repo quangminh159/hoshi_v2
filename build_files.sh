@@ -6,15 +6,37 @@ echo "===== Thông tin thư mục ====="
 pwd
 ls -la
 
+echo "===== Cài đặt pip và setuptools mới nhất ====="
+pip install --upgrade pip setuptools wheel
+
 echo "===== Cài đặt các thư viện cần thiết trước ====="
 pip install python-decouple==3.8
 pip install dj-database-url==2.1.0
+pip install python-dotenv==1.0.1
+
+# Cài đặt các thư viện crispy forms
+echo "===== Cài đặt thư viện crispy forms ====="
+pip install django-crispy-forms==2.1
+pip install crispy-bootstrap5==2022.1
 
 echo "===== Cài đặt các dependencies ====="
 pip install -r requirements_render.txt
 
+echo "===== Hiển thị thông tin về các packages đã cài đặt ====="
+pip list | grep -i crispy
+pip list | grep -i bootstrap
+pip list | grep -i django
+pip list | grep -i all
+
 echo "===== Tạo thư mục static nếu không tồn tại ====="
 mkdir -p static staticfiles media
+
+echo "===== Kiểm tra cấu trúc và nội dung các tệp quan trọng ====="
+echo "Kiểm tra settings_render.py:"
+head -n 20 hoshi/settings_render.py
+
+echo "Kiểm tra app.py:"
+head -n 20 app.py
 
 echo "===== Thu thập static files ====="
 python manage.py collectstatic --noinput || echo "Lỗi khi thu thập static files, nhưng vẫn tiếp tục..."
@@ -24,7 +46,6 @@ python -c "
 import os
 import sys
 import dj_database_url
-import psycopg2
 
 db_url = os.environ.get('DATABASE_URL')
 if not db_url:
@@ -32,6 +53,7 @@ if not db_url:
     sys.exit(0)
 
 try:
+    import psycopg2
     conn_info = dj_database_url.parse(db_url)
     conn = psycopg2.connect(
         dbname=conn_info['NAME'],
@@ -42,6 +64,10 @@ try:
     )
     conn.close()
     print('Kết nối database thành công')
+except ImportError:
+    print('Không thể import psycopg2, cài đặt...')
+    pip install psycopg2-binary==2.9.9
+    print('Đã cài đặt psycopg2-binary')
 except Exception as e:
     print(f'Lỗi khi kết nối database: {e}')
     print('Tiếp tục quá trình...')
@@ -61,4 +87,10 @@ if [ ! -d "hoshi" ]; then
     done
 fi
 
-echo "===== Cài đặt hoàn tất =====" 
+echo "===== Kiểm tra môi trường Python ====="
+python --version
+pip --version
+which python
+
+echo "===== Cài đặt hoàn tất ====="
+echo "Quá trình build đã hoàn tất, ứng dụng sẵn sàng để chạy" 
