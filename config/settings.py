@@ -165,8 +165,8 @@ EMAIL_HOST_PASSWORD = 'vjmioramcpgxfesp'  # Cần tạo app password trong tài 
 DEFAULT_FROM_EMAIL = 'Hoshi <noreply@hoshi.vn>'  # Tên hiển thị và email gửi
 
 # Crispy Forms
-CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
-CRISPY_TEMPLATE_PACK = "bootstrap4"
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 # Django Debug Toolbar
 INTERNAL_IPS = ['127.0.0.1']
