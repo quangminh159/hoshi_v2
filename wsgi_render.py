@@ -8,4 +8,7 @@ from django.core.wsgi import get_wsgi_application
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'hoshi.settings_render')
 
-application = get_wsgi_application() 
+application = get_wsgi_application()
+
+# Thêm biến app để tương thích với Render
+app = application 

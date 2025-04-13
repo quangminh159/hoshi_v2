@@ -3,8 +3,12 @@ services:
     name: hoshi
     env: python
     buildCommand: sh ./build_files.sh
-    startCommand: gunicorn hoshi.wsgi_render:application
+    startCommand: gunicorn wsgi:app
+    runtime: python3
+    plan: free
     envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
       - key: DJANGO_SECRET_KEY
         generateValue: true
       - key: DJANGO_DEBUG
@@ -37,4 +41,5 @@ services:
 databases:
   - name: hoshi-db
     databaseName: hoshi
-    user: hoshi 
+    user: hoshi
+    plan: free 
