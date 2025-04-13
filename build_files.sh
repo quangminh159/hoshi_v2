@@ -107,6 +107,10 @@ pip install -r requirements.txt
 echo "Đang cài đặt thư viện rich..."
 pip install rich
 
+# Cài đặt drf-nested-routers
+echo "Đang cài đặt drf-nested-routers..."
+pip install drf-nested-routers==0.93.4
+
 # Tạo bảng dữ liệu Django
 echo "Đang tạo bảng dữ liệu..."
 python manage.py migrate

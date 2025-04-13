@@ -56,3 +56,4 @@ django-bootstrap-datepicker-plus==5.0.5
 # Other libraries
 dateutils==0.6.12
 pyotp==2.9.0 
+rich==13.7.0
