@@ -43,6 +43,25 @@ except ImportError:
         print(f"Không thể cài đặt crispy-bootstrap5: {e}")
         CRISPY_BOOTSTRAP5_INSTALLED = False
 
+# Kiểm tra pyotp
+try:
+    import pyotp
+    PYOTP_INSTALLED = True
+    print("Đã tìm thấy pyotp")
+except ImportError:
+    PYOTP_INSTALLED = False
+    print("Không tìm thấy pyotp, đang cố gắng cài đặt...")
+    try:
+        import sys
+        import subprocess
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "pyotp==2.9.0"])
+        import pyotp
+        PYOTP_INSTALLED = True
+        print("Đã cài đặt và import pyotp thành công")
+    except Exception as e:
+        print(f"Không thể cài đặt pyotp: {e}")
+        PYOTP_INSTALLED = False
+
 # Kiểm tra two_factor
 try:
     import two_factor
@@ -120,6 +139,7 @@ except Exception as e:
         },
     ]
     STATIC_URL = '/static/'
+    LOGIN_URL = '/accounts/login/'
     SOCIALACCOUNT_PROVIDERS = {
         'google': {'APP': {'client_id': '', 'secret': '', 'key': ''}},
         'facebook': {'APP': {'client_id': '', 'secret': '', 'key': ''}},
@@ -136,9 +156,10 @@ if 'INSTALLED_APPS' in locals() and not CRISPY_BOOTSTRAP5_INSTALLED:
         CRISPY_TEMPLATE_PACK = 'bootstrap4'
         print("Đã thay đổi CRISPY_TEMPLATE_PACK thành bootstrap4")
 
-# Xử lý two_factor
+# Xử lý two_factor và pyotp
 if 'INSTALLED_APPS' in locals():
-    if not TWO_FACTOR_INSTALLED and 'two_factor' in INSTALLED_APPS:
+    # Nếu không có pyotp, vô hiệu hóa các tính năng xác thực hai yếu tố
+    if not PYOTP_INSTALLED or not TWO_FACTOR_INSTALLED:
         # Loại bỏ tất cả các ứng dụng two_factor
         two_factor_apps = [
             'two_factor',
@@ -159,6 +180,13 @@ if 'INSTALLED_APPS' in locals():
         if 'MIDDLEWARE' in locals() and two_factor_middleware in MIDDLEWARE:
             MIDDLEWARE.remove(two_factor_middleware)
             print(f"Đã loại bỏ {two_factor_middleware} khỏi MIDDLEWARE")
+        
+        # Sửa đổi URLs nếu cần
+        if 'LOGIN_URL' in locals() and 'two_factor' in LOGIN_URL:
+            LOGIN_URL = '/accounts/login/'
+            print("Đã thay đổi LOGIN_URL")
+    else:
+        print("Xác thực hai yếu tố đã sẵn sàng sử dụng")
 
 # Khôi phục sys.path
 sys.path = original_path

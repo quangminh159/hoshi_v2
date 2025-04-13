@@ -21,7 +21,8 @@ try:
         ('whitenoise', 'whitenoise==6.6.0'),
         ('crispy-bootstrap5', 'crispy-bootstrap5==2025.4'),
         ('django-crispy-forms', 'django-crispy-forms==2.1'),
-        ('django-two-factor-auth', 'django-two-factor-auth==1.16.0')
+        ('django-two-factor-auth', 'django-two-factor-auth==1.16.0'),
+        ('pyotp', 'pyotp==2.9.0')
     ]
     
     for package_name, package_install in packages_to_check:

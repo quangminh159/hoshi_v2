@@ -54,4 +54,5 @@ django-notifications-hq==1.8.3
 django-bootstrap-datepicker-plus==5.0.5
 
 # Other libraries
-dateutils==0.6.12 
+dateutils==0.6.12
+pyotp==2.9.0 

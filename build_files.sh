@@ -14,6 +14,7 @@ pip install python-decouple==3.8
 pip install dj-database-url==2.1.0
 pip install python-dotenv==1.0.1
 pip install django-two-factor-auth==1.16.0
+pip install pyotp==2.9.0
 
 # Cài đặt các thư viện crispy forms
 echo "===== Cài đặt thư viện crispy forms ====="
@@ -29,6 +30,7 @@ pip list | grep -i bootstrap
 pip list | grep -i django
 pip list | grep -i all
 pip list | grep -i two-factor
+pip list | grep -i pyotp
 
 echo "===== Tạo thư mục static nếu không tồn tại ====="
 mkdir -p static staticfiles media

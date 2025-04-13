@@ -31,7 +31,8 @@ required_packages = {
     'crispy_forms': 'django-crispy-forms==2.1',
     'whitenoise': 'whitenoise==6.6.0',
     'dotenv': 'python-dotenv==1.0.1',
-    'two_factor': 'django-two-factor-auth==1.16.0'
+    'two_factor': 'django-two-factor-auth==1.16.0',
+    'pyotp': 'pyotp==2.9.0'
 }
 
 for module_name, package_name in required_packages.items():
