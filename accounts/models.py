@@ -1,4 +1,4 @@
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from imagekit.models import ProcessedImageField
@@ -11,6 +11,16 @@ from functools import partial
 from django.utils.safestring import mark_safe
 import hashlib
 import os.path
+
+class ActiveUserManager(UserManager):
+    """Quản lý người dùng đang hoạt động, không bị xóa tạm thời"""
+    def get_queryset(self):
+        return super().get_queryset().filter(is_deleted=False)
+
+class AllUserManager(UserManager):
+    """Quản lý tất cả người dùng, bao gồm cả người dùng đã bị xóa tạm thời"""
+    def get_queryset(self):
+        return super().get_queryset()
 
 class User(AbstractUser):
     email = models.EmailField(_('email address'), unique=True)
@@ -33,6 +43,11 @@ class User(AbstractUser):
     _is_verified = models.BooleanField(_('verified account'), default=False, db_column='is_verified')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    # Soft delete field
+    is_deleted = models.BooleanField(_('deleted account'), default=False)
+    deleted_at = models.DateTimeField(_('deleted at'), null=True, blank=True)
+    deletion_reason = models.TextField(_('deletion reason'), blank=True, null=True)
     
     # Suspension fields
     is_suspended = models.BooleanField(_('suspended account'), default=False)
@@ -74,6 +89,10 @@ class User(AbstractUser):
     
     # Add historical records
     history = HistoricalRecords()
+    
+    # Managers
+    objects = ActiveUserManager()  # Manager mặc định chỉ trả về người dùng chưa bị xóa
+    all_objects = AllUserManager()  # Manager để truy vấn tất cả người dùng, kể cả đã bị xóa
     
     @property
     def is_verified(self):
@@ -213,6 +232,22 @@ class User(AbstractUser):
             return False
             
         # Vẫn đang trong thời gian đình chỉ
+        return True
+    
+    def is_usable(self):
+        """Kiểm tra xem tài khoản có thể sử dụng được không (không bị đình chỉ và không bị xóa)"""
+        # Kiểm tra xem tài khoản có bị xóa không
+        if self.is_deleted:
+            return False
+            
+        # Cập nhật trạng thái đình chỉ (nếu hết hạn sẽ tự động gỡ đình chỉ)
+        is_still_suspended = self.check_suspension_status()
+        
+        # Nếu vẫn bị đình chỉ, tài khoản không thể sử dụng
+        if is_still_suspended:
+            return False
+            
+        # Tài khoản có thể sử dụng
         return True
     
     def suspend(self, reason, days=15):

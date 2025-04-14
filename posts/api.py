@@ -592,7 +592,7 @@ def edit_post(request, post_id):
             'message': f'Có lỗi xảy ra: {str(e)}'
         }, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['POST'])
+@api_view(['POST', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_post(request, post_id):
     """API endpoint để xóa bài viết"""
@@ -623,6 +623,16 @@ def delete_post(request, post_id):
         
         # 5. Xóa hashtags
         post.hashtags.clear()
+        
+        # 6. Xóa thông báo
+        if hasattr(post, 'notifications'):
+            post.notifications.all().delete()
+        
+        # 7. Xóa bài viết được chia sẻ từ bài viết này
+        if hasattr(post, 'shared_posts'):
+            for shared_post in post.shared_posts.all():
+                shared_post.shared_from = None
+                shared_post.save()
         
         # Cuối cùng xóa bài viết
         post.delete()
@@ -745,7 +755,7 @@ def share_post(request):
                 'message': 'Bài viết không tồn tại'
             }, status=404)
         
-        # Kiểm tra người dùng bị chặn - Sửa tên trường từ blocking_user/blocked_user thành blocker/blocked
+        # Kiểm tra người dùng bị chặn
         if UserBlock.objects.filter(
             Q(blocker=original_post.author, blocked=request.user) | 
             Q(blocker=request.user, blocked=original_post.author)
@@ -757,26 +767,12 @@ def share_post(request):
         
         # Nếu chia sẻ như bài viết mới
         if as_new_post:
-            # Tạo nội dung bài viết với định dạng mới
-            # Chỉ thêm caption của người dùng và liên kết đến bài gốc
-            shared_content = caption
-            if caption:
-                shared_content += "\n\n"
-            
-            # Thêm thông tin rằng đây là bài chia sẻ với icon
-            shared_content += f"📄 Đã chia sẻ bài viết của @{original_post.author.username}\n"
-            
-            # Thêm URL bài viết gốc
-            shared_content += f"🔗 /posts/{post_id}/"
-            
-            # Tạo bài viết mới
+            # Tạo bài viết mới với tham chiếu đến bài viết gốc
             new_post = Post.objects.create(
                 author=request.user,
-                caption=shared_content,
-                shared_from=original_post
+                caption=caption,
+                shared_from=original_post  # Thiết lập tham chiếu đến bài viết gốc
             )
-            
-            # Không sao chép media, chỉ tham chiếu đến bài viết gốc
             
             # Tạo thông báo cho chủ bài viết gốc
             if request.user != original_post.author:

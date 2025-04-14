@@ -290,6 +290,19 @@ class PostReport(models.Model):
     details = models.TextField(_('details'), blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     
+    # Thêm trường để theo dõi trạng thái xử lý báo cáo
+    is_resolved = models.BooleanField(_('resolved'), default=False)
+    is_valid = models.BooleanField(_('valid report'), null=True, blank=True)
+    resolved_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.SET_NULL, 
+        related_name='resolved_post_reports',
+        null=True,
+        blank=True
+    )
+    resolved_at = models.DateTimeField(_('resolved at'), null=True, blank=True)
+    admin_notes = models.TextField(_('admin notes'), blank=True, null=True)
+    
     class Meta:
         unique_together = ('user', 'post')
         ordering = ['-created_at']
@@ -297,7 +310,14 @@ class PostReport(models.Model):
         verbose_name_plural = _('post reports')
     
     def __str__(self):
-        return f"Report on {self.post} by {self.user.username}"
+        return f"{self.user} reported {self.post} for {self.get_reason_display()}"
+        
+    def resolve(self, resolved_by):
+        """Đánh dấu báo cáo là đã xử lý"""
+        self.is_resolved = True
+        self.resolved_by = resolved_by
+        self.resolved_at = timezone.now()
+        self.save(update_fields=['is_resolved', 'resolved_by', 'resolved_at'])
 
 class UserInteraction(models.Model):
     """Model lưu trữ các tương tác của người dùng với bài viết"""

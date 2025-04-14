@@ -1,0 +1,63 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static %}
+
+{% block extrahead %}
+    {{ block.super }}
+    {{ form.media }}
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+&rsaquo; <a href="{% url 'admin:accounts_userreport_changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+&rsaquo; {% trans 'Tùy chỉnh thời gian đình chỉ người dùng bị báo cáo' %}
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <form method="post">
+        {% csrf_token %}
+        <div>
+            <h1>Tùy chỉnh thời gian đình chỉ người dùng bị báo cáo</h1>
+            <div class="module aligned">
+                <div class="form-row">
+                    <table>
+                        <tbody>
+                            <tr>
+                                <th>Báo cáo được chọn:</th>
+                                <td>
+                                    <ul>
+                                        {% for report in reports %}
+                                        <li>{{ report.reporter.username }} báo cáo {{ report.reported_user.username }} với lý do: {{ report.reason }}</li>
+                                        <input type="hidden" name="_selected_action" value="{{ report.pk }}" />
+                                        {% endfor %}
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Người dùng sẽ bị đình chỉ:</th>
+                                <td>
+                                    <ul>
+                                        {% for report in reports %}
+                                        {% if not report.reported_user.is_suspended %}
+                                        <li>{{ report.reported_user.username }} ({{ report.reported_user.email }})</li>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </ul>
+                                </td>
+                            </tr>
+                            {{ form.as_table }}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="submit-row">
+                <input type="submit" name="apply" value="Đình chỉ tài khoản" class="default" />
+                <a href="{% url 'admin:accounts_userreport_changelist' %}" class="button cancel-link">Hủy bỏ</a>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %} 

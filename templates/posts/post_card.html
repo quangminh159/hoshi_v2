@@ -68,103 +68,107 @@
     
     <!-- Hiển thị bài viết được chia sẻ nếu có -->
     {% if post.shared_from %}
-    <div class="shared-post-container mx-3 my-2 border rounded bg-white">
-        <div class="shared-post-header border-bottom p-3">
-            <div class="d-flex align-items-center">
-                <img src="{{ post.shared_from.author.get_avatar_url }}" 
-                     class="rounded-circle me-2" 
-                     width="32" 
-                     height="32"
-                     alt="{{ post.shared_from.author.username }}">
-                <div>
-                    <a href="{% url 'accounts:profile' username=post.shared_from.author.username %}" 
-                       class="text-dark text-decoration-none fw-bold">
-                        {{ post.shared_from.author.username }}
-                    </a>
-                    {% if post.shared_from.location %}
-                    <div class="text-muted small">
-                        {{ post.shared_from.location }}
+    <div class="shared-post-container border rounded mx-3 my-2">
+        <a href="{% url 'posts:post_detail' post_id=post.shared_from.id %}" class="text-decoration-none text-dark">
+            <div class="p-3">
+                <!-- Thông tin tác giả bài viết gốc -->
+                <div class="d-flex align-items-center mb-2">
+                    <img src="{{ post.shared_from.author.get_avatar_url }}" 
+                         class="rounded-circle me-2" 
+                         width="24" 
+                         height="24"
+                         alt="{{ post.shared_from.author.username }}">
+                    <div>
+                        <a href="{% url 'accounts:profile' username=post.shared_from.author.username %}" 
+                           class="text-dark text-decoration-none fw-bold small">
+                            {{ post.shared_from.author.username }}
+                        </a>
+                        {% if post.shared_from.location %}
+                        <span class="text-muted small ms-2">
+                            {{ post.shared_from.location }}
+                        </span>
+                        {% endif %}
+                        <span class="text-muted small ms-2">
+                            {{ post.shared_from.created_at|timesince }} trước
+                        </span>
                     </div>
-                    {% endif %}
+                </div>
+                
+                <!-- Caption của bài viết gốc -->
+                {% if post.shared_from.caption %}
+                <p class="card-text small mb-2">
+                    {{ post.shared_from.caption|urlize|linebreaksbr }}
+                </p>
+                {% endif %}
+                
+                <!-- Post Media của bài viết gốc -->
+                {% if post.shared_from.media.exists %}
+                <div class="mb-2">
+                    <div id="carousel-shared-{{ post.id }}" class="carousel slide" data-bs-ride="false">
+                        {% if post.shared_from.media.count > 1 %}
+                        <div class="carousel-indicators">
+                            {% for media in post.shared_from.media.all %}
+                            <button type="button" 
+                                    data-bs-target="#carousel-shared-{{ post.id }}" 
+                                    data-bs-slide-to="{{ forloop.counter0 }}"
+                                    {% if forloop.first %}class="active"{% endif %}
+                                    aria-current="true" 
+                                    aria-label="Slide {{ forloop.counter }}">
+                            </button>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        
+                        <div class="carousel-inner rounded">
+                            {% for media in post.shared_from.media.all %}
+                            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                {% if media.media_type == 'image' %}
+                                <img src="{{ media.file.url }}" 
+                                     class="d-block w-100" 
+                                     alt="Shared post image">
+                                {% else %}
+                                <video class="d-block w-100" controls>
+                                    <source src="{{ media.file.url }}" type="video/mp4">
+                                    Your browser does not support the video tag.
+                                </video>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        {% if post.shared_from.media.count > 1 %}
+                        <button class="carousel-control-prev" 
+                                type="button" 
+                                data-bs-target="#carousel-shared-{{ post.id }}" 
+                                data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" 
+                                type="button" 
+                                data-bs-target="#carousel-shared-{{ post.id }}" 
+                                data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Số liệu tương tác của bài viết gốc -->
+                <div class="d-flex align-items-center small text-muted">
+                    <div class="me-3">
+                        <i class="far fa-heart me-1"></i>
+                        <span>{{ post.shared_from.likes_count }}</span>
+                    </div>
+                    <div>
+                        <i class="far fa-comment me-1"></i>
+                        <span>{{ post.shared_from.comments_count }}</span>
+                    </div>
                 </div>
             </div>
-        </div>
-        
-        <!-- Hiển thị nội dung bài viết được chia sẻ -->
-        {% if post.shared_from.caption %}
-        <div class="card-body py-2">
-            <p class="card-text mb-0">
-                {{ post.shared_from.caption|urlize|linebreaksbr }}
-            </p>
-        </div>
-        {% endif %}
-        
-        <!-- Post Media của bài viết được chia sẻ -->
-        {% if post.shared_from.media.exists %}
-        <div id="carousel-shared-{{ post.id }}" class="carousel slide" data-bs-ride="false">
-            {% if post.shared_from.media.count > 1 %}
-            <div class="carousel-indicators">
-                {% for media in post.shared_from.media.all %}
-                <button type="button" 
-                        data-bs-target="#carousel-shared-{{ post.id }}" 
-                        data-bs-slide-to="{{ forloop.counter0 }}"
-                        {% if forloop.first %}class="active"{% endif %}
-                        aria-current="true" 
-                        aria-label="Slide {{ forloop.counter }}">
-                </button>
-                {% endfor %}
-            </div>
-            {% endif %}
-            
-            <div class="carousel-inner">
-                {% for media in post.shared_from.media.all %}
-                <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                    {% if media.media_type == 'image' %}
-                    <img src="{{ media.file.url }}" 
-                         class="d-block w-100" 
-                         alt="Shared post image">
-                    {% else %}
-                    <video class="d-block w-100" controls>
-                        <source src="{{ media.file.url }}" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                    {% endif %}
-                </div>
-                {% endfor %}
-            </div>
-            
-            {% if post.shared_from.media.count > 1 %}
-            <button class="carousel-control-prev" 
-                    type="button" 
-                    data-bs-target="#carousel-shared-{{ post.id }}" 
-                    data-bs-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Previous</span>
-            </button>
-            <button class="carousel-control-next" 
-                    type="button" 
-                    data-bs-target="#carousel-shared-{{ post.id }}" 
-                    data-bs-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Next</span>
-            </button>
-            {% endif %}
-        </div>
-        {% endif %}
-        
-        <!-- Post Actions của bài viết được chia sẻ -->
-        <div class="card-body border-top">
-            <div class="d-flex">
-                <div class="me-3">
-                    <i class="far fa-heart"></i>
-                    <span>{{ post.shared_from.likes_count }}</span>
-                </div>
-                <div>
-                    <i class="far fa-comment"></i>
-                    <span>{{ post.shared_from.comments_count }}</span>
-                </div>
-            </div>
-        </div>
+        </a>
     </div>
     {% else %}
     <!-- Post Media -->
@@ -563,10 +567,9 @@ function deletePost(postId) {
         }
         
         fetch(`/posts/${postId}/delete/`, {
-            method: 'POST',
+            method: 'DELETE',
             headers: {
-                'X-CSRFToken': '{{ csrf_token }}',
-                'Content-Type': 'application/json'
+                'X-CSRFToken': getCookie('csrftoken')
             }
         })
         .then(response => {

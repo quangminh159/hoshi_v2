@@ -1,0 +1,51 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static %}
+
+{% block extrahead %}
+    {{ block.super }}
+    {{ form.media }}
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+&rsaquo; <a href="{% url 'admin:accounts_user_changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+&rsaquo; {% trans 'Tùy chỉnh thời gian đình chỉ' %}
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <form method="post">
+        {% csrf_token %}
+        <div>
+            <h1>Tùy chỉnh thời gian đình chỉ tài khoản</h1>
+            <div class="module aligned">
+                <div class="form-row">
+                    <table>
+                        <tbody>
+                            <tr>
+                                <th>Người dùng được chọn:</th>
+                                <td>
+                                    <ul>
+                                        {% for user in users %}
+                                        <li>{{ user.username }} ({{ user.email }})</li>
+                                        <input type="hidden" name="_selected_action" value="{{ user.pk }}" />
+                                        {% endfor %}
+                                    </ul>
+                                </td>
+                            </tr>
+                            {{ form.as_table }}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="submit-row">
+                <input type="submit" name="apply" value="Đình chỉ tài khoản" class="default" />
+                <a href="{% url 'admin:accounts_user_changelist' %}" class="button cancel-link">Hủy bỏ</a>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %} 

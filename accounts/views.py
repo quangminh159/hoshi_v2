@@ -628,18 +628,19 @@ password_reset_done = CustomPasswordResetDoneView.as_view()
 
 def suspension_notice(request):
     """Hiển thị thông báo khi tài khoản bị đình chỉ"""
+    # Kiểm tra xem người dùng có đăng nhập không
     if not request.user.is_authenticated:
-        return redirect('home')
+        return redirect('account_login')
         
-    # Kiểm tra lại trạng thái đình chỉ
+    # Kiểm tra trạng thái đình chỉ
     is_suspended = request.user.check_suspension_status()
     
-    # Nếu không còn bị đình chỉ, chuyển hướng về trang chủ
+    # Nếu tài khoản không bị đình chỉ, chuyển hướng về trang chủ
     if not is_suspended:
-        messages.success(request, 'Tài khoản của bạn không còn bị đình chỉ. Bạn có thể tiếp tục sử dụng dịch vụ.')
         return redirect('home')
     
     context = {
+        'user': request.user,
         'suspension_reason': request.user.suspension_reason,
         'suspension_end_date': request.user.suspension_end_date,
     }

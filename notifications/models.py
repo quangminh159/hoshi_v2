@@ -13,6 +13,7 @@ class Notification(models.Model):
         ('follow', _('Follow')),
         ('mention', _('Mention')),
         ('message', _('Message')),
+        ('share', _('Share')),
     )
     
     recipient = models.ForeignKey(
@@ -34,9 +35,10 @@ class Notification(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     
     # Thêm các trường cụ thể cho từng loại thông báo
-    post = models.ForeignKey('posts.Post', on_delete=models.CASCADE, null=True, blank=True)
+    post = models.ForeignKey('posts.Post', on_delete=models.CASCADE, null=True, blank=True, related_name='notifications')
     comment = models.ForeignKey('posts.Comment', on_delete=models.CASCADE, null=True, blank=True)
     message = models.ForeignKey('chat.Message', on_delete=models.CASCADE, null=True, blank=True)
+    original_post = models.ForeignKey('posts.Post', on_delete=models.CASCADE, null=True, blank=True, related_name='shared_notifications')
     
     # Generic relation to the object that created the notification
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True, blank=True)
