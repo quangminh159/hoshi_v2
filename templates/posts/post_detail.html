@@ -589,6 +589,13 @@ function deletePost(postId) {
 }
 
 function deleteComment(commentId) {
+    // Kiểm tra ID có hợp lệ không
+    if (!commentId || commentId === 'undefined') {
+        console.error('Không thể xóa bình luận: ID không hợp lệ');
+        alert('Không thể xóa bình luận. Vui lòng tải lại trang và thử lại.');
+        return;
+    }
+    
     if (confirm('Bạn có chắc chắn muốn xóa bình luận này không?')) {
         fetch(`/api/posts/comments/${commentId}/delete/`, {
             method: 'POST',

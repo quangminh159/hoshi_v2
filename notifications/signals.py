@@ -78,7 +78,7 @@ def send_notification_to_websocket(notification):
             'notification': {
                 'id': notification.id,
                 'sender': notification.sender.username,
-                'sender_avatar': notification.sender.profile.avatar.url if notification.sender.profile.avatar else None,
+                'sender_avatar': notification.sender.get_avatar_url(),
                 'notification_type': notification.notification_type,
                 'text': notification.text,
                 'created_at': notification.created_at.isoformat(),

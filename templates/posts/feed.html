@@ -57,7 +57,7 @@
             {% with post=post_data.post %}
             <div class="card mb-4" id="post-{{ post.id }}">
                 <!-- Post Header -->
-                <div class="card-header bg-white border-0 py-3">
+                <div class="card-header bg-white border-0 py-3" style="cursor: pointer;" onclick="window.location='/posts/{{ post.id }}/';">
                     <div class="d-flex align-items-center justify-content-between">
                         <div class="d-flex align-items-center">
                             <img src="{{ post.author.get_avatar_url }}" 
@@ -68,7 +68,8 @@
                             >
                             <div>
                                 <a href="{% url 'accounts:profile' username=post.author.username %}" 
-                                   class="text-dark text-decoration-none fw-bold">
+                                   class="text-dark text-decoration-none fw-bold"
+                                   onclick="event.stopPropagation();">
                                     {{ post.author.username }}
                                 </a>
                                 {% if post.location %}
@@ -86,7 +87,7 @@
 
                 <!-- Caption -->
                 {% if post.caption %}
-                <div class="card-body py-2">
+                <div class="card-body py-2 post-content" onclick="window.location='/posts/{{ post.id }}/';" style="cursor: pointer;">
                     <p class="card-text mb-0">
                         {{ post.caption }}
                     </p>
@@ -95,7 +96,7 @@
 
                 <!-- Post Media -->
                 {% if post.media.exists %}
-                <div id="carousel-{{ post.id }}" class="carousel slide" data-bs-ride="false">
+                <div id="carousel-{{ post.id }}" class="carousel slide post-content" onclick="window.location='/posts/{{ post.id }}/';" style="cursor: pointer;" data-bs-ride="false">
                     {% if post.media.count > 1 %}
                     <div class="carousel-indicators">
                         {% for media in post.media.all %}
@@ -131,14 +132,16 @@
                     <button class="carousel-control-prev" 
                             type="button" 
                             data-bs-target="#carousel-{{ post.id }}" 
-                            data-bs-slide="prev">
+                            data-bs-slide="prev"
+                            onclick="event.stopPropagation();">
                         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                         <span class="visually-hidden">Previous</span>
                     </button>
                     <button class="carousel-control-next" 
                             type="button" 
                             data-bs-target="#carousel-{{ post.id }}" 
-                            data-bs-slide="next">
+                            data-bs-slide="next"
+                            onclick="event.stopPropagation();">
                         <span class="carousel-control-next-icon" aria-hidden="true"></span>
                         <span class="visually-hidden">Next</span>
                     </button>
@@ -199,23 +202,21 @@
                                         <span>{{ comment.created_at|timesince }} trước</span>
                                         <span class="mx-1">·</span>
                                         <button class="btn btn-link btn-sm p-0 text-muted comment-like-button"
-                                                data-comment-id="{{ comment.id }}"
-                                                onclick="likeComment({{ comment.id }})">
-                                            <span>{% if request.user in comment.likes.all %}Đã thích{% else %}Thích{% endif %}</span>
+                                                data-comment-id="{{ comment.id }}">
+                                            <span>Thích</span>
                                         </button>
                                         <span class="mx-1">·</span>
                                         <button class="btn btn-link btn-sm p-0 text-muted reply-button"
                                                 data-username="{{ comment.author.username }}"
-                                                data-post-id="{{ post.id }}">
+                                                data-post-id="{{ post.id }}"
+                                                data-comment-id="{{ comment.id }}">
                                             Trả lời
                                         </button>
-                                        {% if request.user == comment.author or request.user == post.author %}
                                         <span class="mx-1">·</span>
-                                        <button class="btn btn-link btn-sm p-0 text-muted"
-                                               onclick="deleteComment({{ comment.id }})">
+                                        <button class="btn btn-link btn-sm p-0 text-muted delete-comment-btn"
+                                                data-comment-id="{{ comment.id }}">
                                             Xóa
                                         </button>
-                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
@@ -319,19 +320,19 @@
                                     <span>bây giờ</span>
                                     <span class="mx-1">·</span>
                                     <button class="btn btn-link btn-sm p-0 text-muted comment-like-button"
-                                            data-comment-id="${data.id}"
-                                            onclick="likeComment(${data.id})">
+                                            data-comment-id="${data.id}">
                                         <span>Thích</span>
                                     </button>
                                     <span class="mx-1">·</span>
                                     <button class="btn btn-link btn-sm p-0 text-muted reply-button"
                                             data-username="${data.author.username}"
-                                            data-post-id="${postId}">
+                                            data-post-id="${postId}"
+                                            data-comment-id="${data.id}">
                                         Trả lời
                                     </button>
                                     <span class="mx-1">·</span>
-                                    <button class="btn btn-link btn-sm p-0 text-muted"
-                                           onclick="deleteComment(${data.id})">
+                                    <button class="btn btn-link btn-sm p-0 text-muted delete-comment-btn"
+                                           data-comment-id="${data.id}">
                                         Xóa
                                     </button>
                                 </div>
@@ -423,6 +424,9 @@
 
     // Đảm bảo tất cả các form comment đều có event listener
     document.addEventListener('DOMContentLoaded', function() {
+        // Khởi tạo event listener cho các nút xử lý bình luận ban đầu
+        setupCommentButtons();
+        
         // Form submit prevention for comments
         document.querySelectorAll('.add-comment-form').forEach(form => {
             if (!form.hasAttribute('data-event-initialized')) {
@@ -431,33 +435,6 @@
                     event.preventDefault();
                     const postId = this.getAttribute('data-post-id');
                     handleSubmitComment(postId);
-                });
-            }
-        });
-        
-        // Thêm event cho nút reply có sẵn
-        document.querySelectorAll('.reply-button').forEach(button => {
-            if (!button.hasAttribute('data-event-initialized')) {
-                button.setAttribute('data-event-initialized', 'true');
-                button.addEventListener('click', function() {
-                    const username = this.getAttribute('data-username');
-                    const postId = this.getAttribute('data-post-id');
-                    const commentId = this.closest('.comment').id.replace('comment-', '');
-                    handleReplyComment(username, postId, commentId);
-                });
-            }
-        });
-        
-        // Thêm event cho nút huỷ trả lời
-        document.querySelectorAll('.cancel-reply').forEach(button => {
-            if (!button.hasAttribute('data-event-initialized')) {
-                button.setAttribute('data-event-initialized', 'true');
-                button.addEventListener('click', function() {
-                    const postId = this.getAttribute('data-post-id');
-                    const form = document.querySelector(`form[data-post-id="${postId}"]`);
-                    const replyInfo = form.querySelector('.reply-info');
-                    replyInfo.classList.add('d-none');
-                    form.removeAttribute('data-parent-id');
                 });
             }
         });
@@ -473,6 +450,78 @@
             }
         });
     });
+
+    // Hàm khởi tạo các nút xử lý bình luận
+    function setupCommentButtons() {
+        // Nút thích bình luận
+        document.querySelectorAll('.comment-like-button').forEach(button => {
+            if (!button.hasAttribute('data-event-initialized')) {
+                button.setAttribute('data-event-initialized', 'true');
+                button.addEventListener('click', function() {
+                    const commentId = this.getAttribute('data-comment-id');
+                    if (commentId) {
+                        likeComment(commentId);
+                    }
+                });
+            }
+        });
+        
+        // Nút xóa bình luận
+        document.querySelectorAll('.delete-comment-btn').forEach(button => {
+            if (!button.hasAttribute('data-event-initialized')) {
+                button.setAttribute('data-event-initialized', 'true');
+                button.addEventListener('click', function() {
+                    const commentId = this.getAttribute('data-comment-id');
+                    if (commentId) {
+                        deleteComment(commentId);
+                    }
+                });
+            }
+        });
+        
+        // Nút trả lời bình luận
+        document.querySelectorAll('.reply-button').forEach(button => {
+            if (!button.hasAttribute('data-event-initialized')) {
+                button.setAttribute('data-event-initialized', 'true');
+                button.addEventListener('click', function() {
+                    const username = this.getAttribute('data-username');
+                    const postId = this.getAttribute('data-post-id');
+                    const commentElement = this.closest('.comment');
+                    let commentId;
+                    
+                    if (commentElement) {
+                        commentId = commentElement.id.replace('comment-', '');
+                    } else {
+                        commentId = this.getAttribute('data-comment-id');
+                    }
+                    
+                    if (username && postId && commentId) {
+                        handleReplyComment(username, postId, commentId);
+                    } else {
+                        console.error('Missing data for reply:', { username, postId, commentId });
+                    }
+                });
+            }
+        });
+        
+        // Nút hủy trả lời
+        document.querySelectorAll('.cancel-reply').forEach(button => {
+            if (!button.hasAttribute('data-event-initialized')) {
+                button.setAttribute('data-event-initialized', 'true');
+                button.addEventListener('click', function() {
+                    const postId = this.getAttribute('data-post-id');
+                    const form = document.querySelector(`form[data-post-id="${postId}"]`);
+                    if (form) {
+                        const replyInfo = form.querySelector('.reply-info');
+                        if (replyInfo) {
+                            replyInfo.classList.add('d-none');
+                            form.removeAttribute('data-parent-id');
+                        }
+                    }
+                });
+            }
+        });
+    }
 
     function likePost(postId) {
             fetch(`/posts/${postId}/like/`, {
@@ -597,7 +646,7 @@
     
     // Hàm thích bình luận
     function likeComment(commentId) {
-        fetch(`/posts/comments/${commentId}/like/`, {
+        fetch(`/api/posts/comments/${commentId}/like/`, {
             method: 'POST',
             headers: {
                 'X-CSRFToken': getCookie('csrftoken'),
@@ -656,27 +705,18 @@
     
     // Hàm xóa bình luận
     function deleteComment(commentId) {
+        // Kiểm tra ID có hợp lệ không
+        if (!commentId || commentId === 'undefined') {
+            console.error('Không thể xóa bình luận: ID không hợp lệ');
+            alert('Không thể xóa bình luận. Vui lòng tải lại trang và thử lại.');
+            return;
+        }
+        
         if (!confirm('Bạn có chắc chắn muốn xóa bình luận này?')) {
             return;
         }
         
-        // Tìm thông tin post ID từ element comment
-        const comment = document.getElementById(`comment-${commentId}`);
-        let postId = null;
-        
-        if (comment) {
-            const postElement = comment.closest('.card[id^="post-"]');
-            if (postElement) {
-                postId = postElement.id.replace('post-', '');
-            }
-        }
-        
-        if (!postId) {
-            showNotification('Không thể xác định bài viết', 'error');
-            return;
-        }
-        
-        fetch(`/posts/${postId}/comment/${commentId}/delete/`, {
+        fetch(`/api/posts/comments/${commentId}/delete/`, {
             method: 'POST',
             headers: {
                 'X-CSRFToken': getCookie('csrftoken'),
@@ -874,15 +914,20 @@ document.addEventListener('DOMContentLoaded', function() {
                                         <span>${formatTimeAgo(comment.created_at)}</span>
                                         <span class="mx-1">·</span>
                                         <button class="btn btn-link btn-sm p-0 text-muted comment-like-button"
-                                                data-comment-id="${comment.id}"
-                                                onclick="likeComment(${comment.id})">
+                                                data-comment-id="${comment.id}">
                                             <span>Thích</span>
                                         </button>
                                         <span class="mx-1">·</span>
                                         <button class="btn btn-link btn-sm p-0 text-muted reply-button"
                                                 data-username="${comment.author.username}"
-                                                data-post-id="${post.id}">
+                                                data-post-id="${post.id}"
+                                                data-comment-id="${comment.id}">
                                             Trả lời
+                                        </button>
+                                        <span class="mx-1">·</span>
+                                        <button class="btn btn-link btn-sm p-0 text-muted delete-comment-btn"
+                                                data-comment-id="${comment.id}">
+                                            Xóa
                                         </button>
                                     </div>
                                 </div>
@@ -897,7 +942,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return `
             <div class="card mb-4" id="post-${post.id}">
                 <!-- Post Header -->
-                <div class="card-header bg-white border-0 py-3">
+                <div class="card-header bg-white border-0 py-3" style="cursor: pointer;" onclick="window.location='/posts/${post.id}/';">
                     <div class="d-flex align-items-center justify-content-between">
                         <div class="d-flex align-items-center">
                             <img src="${post.author.avatar || '/static/images/default_avatar.png'}" 
@@ -908,7 +953,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             >
                             <div>
                                 <a href="/users/${post.author.username}/" 
-                                   class="text-dark text-decoration-none fw-bold">
+                                   class="text-dark text-decoration-none fw-bold"
+                                   onclick="event.stopPropagation();">
                                     ${post.author.username}
                                 </a>
                                 ${post.location ? `
@@ -926,7 +972,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 <!-- Caption -->
                 ${post.caption ? `
-                <div class="card-body py-2">
+                <div class="card-body py-2 post-content" onclick="window.location='/posts/${post.id}/';" style="cursor: pointer;">
                     <p class="card-text mb-0">
                         ${post.caption}
                     </p>
@@ -934,7 +980,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 ` : ''}
 
                 <!-- Post Media -->
-                ${mediaHTML}
+                ${mediaHTML ? `
+                <div class="post-content" onclick="window.location='/posts/${post.id}/';" style="cursor: pointer;">
+                    ${mediaHTML.replace(/data-bs-slide="prev"/g, 'data-bs-slide="prev" onclick="event.stopPropagation();"').replace(/data-bs-slide="next"/g, 'data-bs-slide="next" onclick="event.stopPropagation();"')}
+                </div>
+                ` : ''}
 
                 <!-- Post Actions -->
                 <div class="card-body">
@@ -1009,6 +1059,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Setup event listeners for newly added posts
     function setupPostEventListeners() {
+        // Gọi hàm khởi tạo nút bình luận
+        setupCommentButtons();
+        
         // Form comment
         document.querySelectorAll('.add-comment-form').forEach(form => {
             if (!form.hasAttribute('data-event-initialized')) {
@@ -1028,33 +1081,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 button.addEventListener('click', function() {
                     const postId = this.getAttribute('data-post-id');
                     likePost(postId);
-                });
-            }
-        });
-        
-        // Reply buttons
-        document.querySelectorAll('.reply-button').forEach(button => {
-            if (!button.hasAttribute('data-event-initialized')) {
-                button.setAttribute('data-event-initialized', 'true');
-                button.addEventListener('click', function() {
-                    const username = this.getAttribute('data-username');
-                    const postId = this.getAttribute('data-post-id');
-                    const commentId = this.closest('.comment').id.replace('comment-', '');
-                    handleReplyComment(username, postId, commentId);
-                });
-            }
-        });
-        
-        // Cancel reply buttons
-        document.querySelectorAll('.cancel-reply').forEach(button => {
-            if (!button.hasAttribute('data-event-initialized')) {
-                button.setAttribute('data-event-initialized', 'true');
-                button.addEventListener('click', function() {
-                    const postId = this.getAttribute('data-post-id');
-                    const form = document.querySelector(`form[data-post-id="${postId}"]`);
-                    const replyInfo = form.querySelector('.reply-info');
-                    replyInfo.classList.add('d-none');
-                    form.removeAttribute('data-parent-id');
                 });
             }
         });
