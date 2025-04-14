@@ -30,9 +30,25 @@ def chat_home(request):
 def conversation_list(request):
     """Hiển thị danh sách cuộc trò chuyện của người dùng"""
     user = request.user
-    conversations = Conversation.objects.filter(participants=user).order_by('-last_message_time')
+    
+    # Lấy danh sách ID người dùng trong quan hệ chặn (cả hai chiều)
+    from accounts.models import UserBlock
+    blocked_users = UserBlock.objects.filter(blocker=user).values_list('blocked_id', flat=True)
+    blocking_users = UserBlock.objects.filter(blocked=user).values_list('blocker_id', flat=True)
+    
+    # Hợp nhất danh sách các ID người dùng bị chặn hoặc đã chặn user
+    blocked_user_ids = list(blocked_users) + list(blocking_users)
+    
+    # Lấy tất cả cuộc trò chuyện của người dùng
+    all_conversations = Conversation.objects.filter(participants=user).order_by('-last_message_time')
+    
+    # Đánh dấu các cuộc trò chuyện với người dùng bị chặn
+    for conversation in all_conversations:
+        other_participant = conversation.get_other_participant(user)
+        conversation.is_blocked = other_participant.id in blocked_user_ids
+    
     context = {
-        'conversations': conversations
+        'conversations': all_conversations
     }
     return render(request, 'chat/conversation_list.html', context)
 
@@ -47,14 +63,27 @@ def conversation_detail(request, conversation_id):
         raise Http404("Không tìm thấy cuộc trò chuyện")
     
     # Lấy người dùng khác trong cuộc trò chuyện
-    conversation.other_user = conversation.get_other_participant(user)
+    other_user = conversation.get_other_participant(user)
+    conversation.other_user = other_user
+    
+    # Kiểm tra quan hệ chặn giữa hai người dùng
+    from accounts.models import UserBlock
+    
+    block_relationship_exists = (
+        UserBlock.objects.filter(blocker=other_user, blocked=user).exists() or 
+        UserBlock.objects.filter(blocker=user, blocked=other_user).exists()
+    )
+    
+    # Đánh dấu cuộc trò chuyện bị chặn nhưng vẫn hiển thị
+    conversation.is_blocked = block_relationship_exists
     
     # Lấy tin nhắn
     messages = Message.objects.filter(conversation=conversation).order_by('created_at')
     
     context = {
         'conversation': conversation,
-        'messages': messages
+        'messages': messages,
+        'is_blocked': block_relationship_exists
     }
     
     return render(request, 'chat/conversation_detail.html', context)
@@ -69,6 +98,22 @@ def send_message(request, conversation_id):
         # Kiểm tra quyền truy cập
         if not conversation.participants.filter(id=user.id).exists():
             raise Http404("Không tìm thấy cuộc trò chuyện")
+        
+        # Lấy người nhận tin nhắn (người khác trong cuộc trò chuyện)
+        other_participant = conversation.get_other_participant(user)
+        
+        # Kiểm tra quan hệ chặn giữa hai người dùng
+        from accounts.models import UserBlock
+        
+        block_relationship_exists = (
+            UserBlock.objects.filter(blocker=other_participant, blocked=user).exists() or 
+            UserBlock.objects.filter(blocker=user, blocked=other_participant).exists()
+        )
+        
+        if block_relationship_exists:
+            from django.contrib import messages
+            messages.error(request, f'Không thể gửi tin nhắn vì một trong hai người đã chặn người còn lại.')
+            return redirect('chat:conversation_detail', conversation_id=conversation_id)
         
         message_content = request.POST.get('message', '').strip()
         
@@ -97,6 +142,19 @@ def direct_chat(request, username):
     if user == recipient:
         return redirect('chat:conversation_list')
     
+    # Kiểm tra quan hệ chặn giữa hai người dùng
+    from accounts.models import UserBlock
+    
+    block_relationship_exists = (
+        UserBlock.objects.filter(blocker=recipient, blocked=user).exists() or 
+        UserBlock.objects.filter(blocker=user, blocked=recipient).exists()
+    )
+    
+    if block_relationship_exists:
+        from django.contrib import messages
+        messages.error(request, f'Không thể tạo cuộc trò chuyện với {username} do một trong hai người đã chặn người còn lại.')
+        return redirect('chat:conversation_list')
+    
     # Tìm cuộc trò chuyện hiện có hoặc tạo mới
     conversation = Conversation.objects.filter(
         participants=user
@@ -118,6 +176,19 @@ def start_conversation(request):
     if request.method == 'POST':
         user_id = request.POST.get('user_id')
         recipient = get_object_or_404(User, id=user_id)
+        
+        # Kiểm tra quan hệ chặn giữa hai người dùng
+        from accounts.models import UserBlock
+        
+        block_relationship_exists = (
+            UserBlock.objects.filter(blocker=recipient, blocked=request.user).exists() or 
+            UserBlock.objects.filter(blocker=request.user, blocked=recipient).exists()
+        )
+        
+        if block_relationship_exists:
+            from django.contrib import messages
+            messages.error(request, f'Không thể tạo cuộc trò chuyện với {recipient.username} do một trong hai người đã chặn người còn lại.')
+            return redirect('chat:conversation_list')
         
         # Tìm cuộc trò chuyện hiện có hoặc tạo mới
         conversation = Conversation.objects.filter(

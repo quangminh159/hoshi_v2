@@ -113,7 +113,11 @@ class ProfileForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'username', 'email', 'bio', 'website', 'avatar']
+        fields = [
+            'first_name', 'last_name', 'username', 'email', 
+            'bio', 'website', 'facebook', 'twitter', 'instagram', 'linkedin',
+            'avatar'
+        ]
         
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -140,6 +144,22 @@ class ProfileForm(forms.ModelForm):
         })
         self.fields['website'].widget.attrs.update({
             'placeholder': 'Website của bạn',
+            'class': 'form-control'
+        })
+        self.fields['facebook'].widget.attrs.update({
+            'placeholder': 'Link Facebook của bạn',
+            'class': 'form-control'
+        })
+        self.fields['twitter'].widget.attrs.update({
+            'placeholder': 'Link Twitter của bạn',
+            'class': 'form-control'
+        })
+        self.fields['instagram'].widget.attrs.update({
+            'placeholder': 'Link Instagram của bạn',
+            'class': 'form-control'
+        })
+        self.fields['linkedin'].widget.attrs.update({
+            'placeholder': 'Link LinkedIn của bạn',
             'class': 'form-control'
         })
         self.fields['avatar'].widget.attrs.update({

@@ -8,6 +8,9 @@ from django.conf import settings
 from django.utils import timezone
 from simple_history.models import HistoricalRecords
 from functools import partial
+from django.utils.safestring import mark_safe
+import hashlib
+import os.path
 
 class User(AbstractUser):
     email = models.EmailField(_('email address'), unique=True)
@@ -30,6 +33,11 @@ class User(AbstractUser):
     _is_verified = models.BooleanField(_('verified account'), default=False, db_column='is_verified')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    # Suspension fields
+    is_suspended = models.BooleanField(_('suspended account'), default=False)
+    suspension_reason = models.TextField(_('suspension reason'), blank=True, null=True)
+    suspension_end_date = models.DateTimeField(_('suspension end date'), blank=True, null=True)
     
     # Social links
     facebook = models.URLField(_('facebook'), max_length=200, blank=True)
@@ -106,14 +114,57 @@ class User(AbstractUser):
         if self.avatar:
             return self.avatar.url
         
-        # Nếu không có avatar, trả về avatar mặc định dựa trên giới tính
-        if self.gender == 'M':
-            return '/static/img/default-avatar-male.png'
-        elif self.gender == 'F':
-            return '/static/img/default-avatar-female.png'
+        # Tạo URL cho avatar dạng text dựa trên username
+        username = self.username or ''
+        name_hash = hashlib.md5(username.encode('utf-8')).hexdigest()
+        hue = int(name_hash[:8], 16) % 360  # Chọn màu dựa trên hash của tên người dùng
         
-        # Nếu không có giới tính, trả về avatar mặc định chung
-        return '/static/img/default-avatar.png'
+        # Kiểm tra các đường dẫn có file avatar mặc định
+        avatar_base_url = getattr(settings, 'STATIC_URL', '/static/')
+        
+        # Thử với file ảnh mặc định theo giới tính
+        gender_avatar_path = None
+        if self.gender == 'M':
+            gender_avatar_path = os.path.join(settings.BASE_DIR, 'static', 'img', 'default-avatar-male.png')
+            if os.path.exists(gender_avatar_path) and os.path.getsize(gender_avatar_path) > 100:
+                return f"{avatar_base_url}img/default-avatar-male.png"
+        elif self.gender == 'F':
+            gender_avatar_path = os.path.join(settings.BASE_DIR, 'static', 'img', 'default-avatar-female.png')
+            if os.path.exists(gender_avatar_path) and os.path.getsize(gender_avatar_path) > 100:
+                return f"{avatar_base_url}img/default-avatar-female.png"
+        
+        # Thử với file ảnh mặc định chung
+        default_avatar_path = os.path.join(settings.BASE_DIR, 'static', 'img', 'default-avatar.png')
+        if os.path.exists(default_avatar_path) and os.path.getsize(default_avatar_path) > 100:
+            return f"{avatar_base_url}img/default-avatar.png"
+        
+        # Nếu không có file ảnh mặc định hoặc file quá nhỏ, trả về data URL cho avatar text
+        return self.generate_text_avatar()
+        
+    def generate_text_avatar(self):
+        # Tạo avatar dựa trên chữ cái đầu của tên người dùng
+        username = self.username or ''
+        initial = username[0].upper() if username else '?'
+        
+        # Tạo màu ngẫu nhiên nhưng nhất quán dựa trên username
+        name_hash = hashlib.md5(username.encode('utf-8')).hexdigest()
+        hue = int(name_hash[:8], 16) % 360
+        
+        # Tạo data URL với SVG
+        svg = f'''
+        <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">
+            <rect width="100" height="100" fill="hsl({hue}, 70%, 60%)" />
+            <text x="50" y="50" font-family="Arial, sans-serif" font-size="45" 
+                  font-weight="bold" fill="white" text-anchor="middle" dominant-baseline="central">
+                {initial}
+            </text>
+        </svg>
+        '''
+        
+        import base64
+        svg_bytes = svg.encode('utf-8')
+        b64_svg = base64.b64encode(svg_bytes).decode('utf-8')
+        return f"data:image/svg+xml;base64,{b64_svg}"
         
     def is_blocked(self, user):
         """Kiểm tra xem người dùng hiện tại có bị chặn bởi user không"""
@@ -122,6 +173,61 @@ class User(AbstractUser):
     def has_blocked(self, user):
         """Kiểm tra xem người dùng hiện tại có chặn user không"""
         return UserBlock.objects.filter(blocker=self, blocked=user).exists()
+        
+    def has_block_relationship(self, user):
+        """Kiểm tra xem có tồn tại mối quan hệ chặn giữa hai người dùng không (theo cả hai chiều)"""
+        return self.is_blocked(user) or self.has_blocked(user)
+        
+    def get_custom_social_links(self):
+        """Trả về các liên kết mạng xã hội tùy chỉnh"""
+        # Danh sách các trường mạng xã hội tiêu chuẩn
+        standard_fields = ['website', 'facebook', 'twitter', 'instagram', 'linkedin']
+        custom_links = {}
+        
+        # Lấy tất cả các thuộc tính của đối tượng
+        for field in self._meta.fields:
+            field_name = field.name
+            
+            # Kiểm tra nếu là URLField và không phải là trường tiêu chuẩn
+            if isinstance(field, models.URLField) and field_name not in standard_fields:
+                value = getattr(self, field_name)
+                if value:  # Chỉ thêm vào nếu có giá trị
+                    # Chuyển đổi tên trường thành tên hiển thị đẹp hơn
+                    display_name = field_name.replace('_', ' ')
+                    custom_links[display_name] = value
+                    
+        return custom_links
+
+    def check_suspension_status(self):
+        """Kiểm tra và cập nhật trạng thái đình chỉ"""
+        # Nếu không bị đình chỉ, không cần kiểm tra
+        if not self.is_suspended:
+            return False
+            
+        # Nếu đã hết thời gian đình chỉ, cập nhật trạng thái
+        if self.suspension_end_date and timezone.now() >= self.suspension_end_date:
+            self.is_suspended = False
+            self.suspension_reason = None
+            self.suspension_end_date = None
+            self.save(update_fields=['is_suspended', 'suspension_reason', 'suspension_end_date'])
+            return False
+            
+        # Vẫn đang trong thời gian đình chỉ
+        return True
+    
+    def suspend(self, reason, days=15):
+        """Đình chỉ tài khoản người dùng"""
+        self.is_suspended = True
+        self.suspension_reason = reason
+        self.suspension_end_date = timezone.now() + timezone.timedelta(days=days)
+        self.save(update_fields=['is_suspended', 'suspension_reason', 'suspension_end_date'])
+        
+    def unsuspend(self):
+        """Gỡ bỏ đình chỉ tài khoản"""
+        self.is_suspended = False
+        self.suspension_reason = None
+        self.suspension_end_date = None
+        self.save(update_fields=['is_suspended', 'suspension_reason', 'suspension_end_date'])
 
 class UserFollowing(models.Model):
     user = models.ForeignKey(User,
@@ -203,3 +309,59 @@ class DataDownloadRequest(models.Model):
     
     class Meta:
         ordering = ['-created_at']
+
+class UserReport(models.Model):
+    reporter = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='reports_made')
+    reported_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='reports_received')
+    reason = models.CharField(_('reason'), max_length=100)
+    description = models.TextField(_('description'), blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    resolved = models.BooleanField(_('resolved'), default=False)
+    resolved_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.SET_NULL, 
+        related_name='resolved_reports',
+        null=True,
+        blank=True
+    )
+    resolved_at = models.DateTimeField(null=True, blank=True)
+    
+    # Thêm trường mới cho việc đánh giá báo cáo
+    is_valid = models.BooleanField(_('valid report'), null=True, blank=True)
+    admin_notes = models.TextField(_('admin notes'), blank=True, null=True)
+    
+    class Meta:
+        unique_together = ('reporter', 'reported_user')
+        ordering = ['-created_at']
+        verbose_name = _('user report')
+        verbose_name_plural = _('user reports')
+    
+    def __str__(self):
+        return f"{self.reporter} reported {self.reported_user} for {self.reason}"
+        
+    def resolve(self, resolved_by):
+        self.resolved = True
+        self.resolved_by = resolved_by
+        self.resolved_at = timezone.now()
+        self.save()
+        
+    @staticmethod
+    def check_for_automatic_suspension(user):
+        """Kiểm tra và tự động đình chỉ người dùng nếu có quá nhiều báo cáo hợp lệ"""
+        # Lấy số lượng báo cáo hợp lệ trong 30 ngày qua
+        thirty_days_ago = timezone.now() - timezone.timedelta(days=30)
+        valid_reports = UserReport.objects.filter(
+            reported_user=user,
+            is_valid=True,
+            created_at__gte=thirty_days_ago
+        ).count()
+        
+        # Nếu có từ 5 báo cáo hợp lệ trở lên trong 30 ngày, đình chỉ tài khoản 15 ngày
+        if valid_reports >= 5 and not user.is_suspended:
+            user.is_suspended = True
+            user.suspension_reason = "Nhiều báo cáo vi phạm hợp lệ"
+            user.suspension_end_date = timezone.now() + timezone.timedelta(days=15)
+            user.save(update_fields=['is_suspended', 'suspension_reason', 'suspension_end_date'])
+            return True
+        
+        return False

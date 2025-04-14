@@ -168,13 +168,19 @@
                   </span>
                 </div>
                 <div class="conversation-last-message">
-                  {% with last_message=conversation.get_last_message %}
-                    {% if last_message %}
-                      {{ last_message.content|truncatechars:50 }}
-                    {% else %}
-                      <em>Chưa có tin nhắn</em>
-                    {% endif %}
-                  {% endwith %}
+                  {% if conversation.is_blocked %}
+                  <span class="text-danger">
+                    <i class="fas fa-ban"></i> Không thể gửi tin nhắn (Bị chặn)
+                  </span>
+                  {% else %}
+                    {% with last_message=conversation.get_last_message %}
+                      {% if last_message %}
+                        {{ last_message.content|truncatechars:50 }}
+                      {% else %}
+                        <em>Chưa có tin nhắn</em>
+                      {% endif %}
+                    {% endwith %}
+                  {% endif %}
                 </div>
               </div>
             </a>

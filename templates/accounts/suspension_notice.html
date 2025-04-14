@@ -1,0 +1,135 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}Tài khoản bị đình chỉ - Hoshi{% endblock %}
+
+{% block extra_css %}
+<style>
+    .suspension-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 40px 20px;
+    }
+    
+    .suspension-icon {
+        font-size: 4rem;
+        color: #dc3545;
+        margin-bottom: 1.5rem;
+    }
+    
+    .countdown-container {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+        border-left: 4px solid #dc3545;
+    }
+    
+    .countdown-timer {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #dc3545;
+        margin-bottom: 0.5rem;
+    }
+    
+    .suspension-reason {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="suspension-container text-center">
+        <div class="suspension-icon">
+            <i class="fas fa-user-lock"></i>
+        </div>
+        
+        <h1 class="mb-4">Tài khoản bị đình chỉ</h1>
+        
+        <p class="lead mb-4">
+            Tài khoản của bạn đã tạm thời bị đình chỉ do vi phạm điều khoản sử dụng của chúng tôi.
+        </p>
+        
+        <div class="suspension-reason">
+            <h5>Lý do đình chỉ:</h5>
+            <p>{{ suspension_reason }}</p>
+        </div>
+        
+        <div class="countdown-container">
+            <h5>Tài khoản của bạn sẽ được khôi phục vào:</h5>
+            <div class="countdown-timer" id="countdown-timer">
+                {{ suspension_end_date|date:"d/m/Y H:i" }}
+            </div>
+            <p class="text-muted">
+                Còn <span id="days-left">...</span> ngày <span id="hours-left">...</span> giờ <span id="minutes-left">...</span> phút
+            </p>
+        </div>
+        
+        <div class="mt-4">
+            <p>
+                Nếu bạn cho rằng đây là sự nhầm lẫn, vui lòng liên hệ với bộ phận hỗ trợ.
+            </p>
+            
+            <a href="mailto:support@hoshi.example.com" class="btn btn-outline-primary">
+                <i class="fas fa-envelope me-2"></i>Liên hệ hỗ trợ
+            </a>
+            
+            <a href="{% url 'accounts:logout' %}" class="btn btn-outline-secondary ms-2">
+                <i class="fas fa-sign-out-alt me-2"></i>Đăng xuất
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Lấy thời gian kết thúc đình chỉ
+        const endDateStr = "{{ suspension_end_date|date:'Y-m-d H:i:s' }}";
+        const endDate = new Date(endDateStr.replace(/-/g, '/'));
+        
+        // Cập nhật đếm ngược
+        function updateCountdown() {
+            const now = new Date();
+            const timeDiff = endDate - now;
+            
+            if (timeDiff <= 0) {
+                // Hết thời gian đình chỉ
+                document.getElementById('countdown-timer').innerHTML = "Đã hết hạn";
+                document.getElementById('days-left').innerHTML = "0";
+                document.getElementById('hours-left').innerHTML = "0";
+                document.getElementById('minutes-left').innerHTML = "0";
+                
+                // Làm mới trang sau 3 giây
+                setTimeout(function() {
+                    window.location.reload();
+                }, 3000);
+                
+                return;
+            }
+            
+            // Tính toán thời gian còn lại
+            const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+            
+            // Cập nhật UI
+            document.getElementById('days-left').innerHTML = days;
+            document.getElementById('hours-left').innerHTML = hours;
+            document.getElementById('minutes-left').innerHTML = minutes;
+        }
+        
+        // Cập nhật ngay lần đầu
+        updateCountdown();
+        
+        // Cập nhật mỗi phút
+        setInterval(updateCountdown, 60000);
+    });
+</script>
+{% endblock %} 

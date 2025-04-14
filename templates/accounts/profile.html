@@ -211,9 +211,20 @@
                                     Theo dõi
                                 </button>
                             {% endif %}
-                            <a href="{% url 'chat:conversation_list' %}" class="btn btn-outline-primary">
+                            <a href="{% url 'chat:conversation_list' %}" class="btn btn-outline-primary me-2">
                                 <i class="far fa-envelope"></i>
                             </a>
+                            <div class="dropdown d-inline-block">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+                                    <li><a class="dropdown-item" href="#">Báo cáo</a></li>
+                                    <li><a class="dropdown-item" href="#">Chặn</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="#">Tùy chọn khác</a></li>
+                                </ul>
+                            </div>
                         {% elif user == profile_user %}
                             <a href="{% url 'accounts:settings' %}" class="btn btn-outline-secondary me-2">Chỉnh sửa hồ sơ</a>
                         {% endif %}
@@ -228,31 +239,72 @@
                         <p class="text-muted profile-bio">{{ profile_user.bio }}</p>
                         {% endif %}
                         
-                        {% if profile_user.website %}
-                        <p>
-                            <a href="{{ profile_user.website }}" target="_blank" class="text-decoration-none">
-                                <i class="fas fa-link"></i> {{ profile_user.website|slice:":30" }}{% if profile_user.website|length > 30 %}...{% endif %}
-                            </a>
-                        </p>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="profile-stats">
-                        <div class="stat-item">
-                            <div class="stat-value">{{ posts_count }}</div>
-                            <div class="stat-label">Bài viết</div>
+                        <!-- Social Links -->
+                        <div class="mb-3">
+                            {% if profile_user.website %}
+                                <a href="{{ profile_user.website }}" target="_blank" class="btn btn-sm btn-outline-secondary me-2">
+                                    <i class="fas fa-globe me-1"></i>Website
+                                </a>
+                            {% endif %}
+                            
+                            {% if profile_user.facebook %}
+                                <a href="{{ profile_user.facebook }}" target="_blank" class="btn btn-sm btn-outline-primary me-2">
+                                    <i class="fab fa-facebook me-1"></i>Facebook
+                                </a>
+                            {% endif %}
+                            
+                            {% if profile_user.twitter %}
+                                <a href="{{ profile_user.twitter }}" target="_blank" class="btn btn-sm btn-outline-info me-2">
+                                    <i class="fab fa-twitter me-1"></i>Twitter
+                                </a>
+                            {% endif %}
+                            
+                            {% if profile_user.instagram %}
+                                <a href="{{ profile_user.instagram }}" target="_blank" class="btn btn-sm btn-outline-danger me-2">
+                                    <i class="fab fa-instagram me-1"></i>Instagram
+                                </a>
+                            {% endif %}
+                            
+                            {% if profile_user.linkedin %}
+                                <a href="{{ profile_user.linkedin }}" target="_blank" class="btn btn-sm btn-outline-primary me-2">
+                                    <i class="fab fa-linkedin me-1"></i>LinkedIn
+                                </a>
+                            {% endif %}
+                            
+                            <!-- Hiển thị tất cả các liên kết mạng xã hội tùy chỉnh từ user -->
+                            {% for field_name, value in profile_user.get_custom_social_links.items %}
+                                {% if value %}
+                                    <a href="{{ value }}" target="_blank" class="btn btn-sm btn-outline-secondary me-2">
+                                        <i class="fas fa-globe me-1"></i>
+                                        {% if 'social_link_' in field_name or 'custom_' in field_name %}
+                                            {% with value|cut:"https://"|cut:"http://"|cut:"www." as domain %}
+                                                {{ domain|capfirst }}
+                                            {% endwith %}
+                                        {% else %}
+                                            {{ field_name|capfirst }}
+                                        {% endif %}
+                                    </a>
+                                {% endif %}
+                            {% endfor %}
                         </div>
-                        <div class="stat-item">
-                            <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#followersModal">
-                                <div class="stat-value" id="followers-count">{{ followers_count }}</div>
-                                <div class="stat-label">Người theo dõi</div>
-                            </a>
-                        </div>
-                        <div class="stat-item">
-                            <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#followingModal">
-                                <div class="stat-value" id="following-count">{{ following_count }}</div>
-                                <div class="stat-label">Đang theo dõi</div>
-                            </a>
+                        
+                        <div class="profile-stats">
+                            <div class="stat-item">
+                                <div class="stat-value">{{ posts_count }}</div>
+                                <div class="stat-label">Bài viết</div>
+                            </div>
+                            <div class="stat-item">
+                                <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#followersModal">
+                                    <div class="stat-value" id="followers-count">{{ followers_count }}</div>
+                                    <div class="stat-label">Người theo dõi</div>
+                                </a>
+                            </div>
+                            <div class="stat-item">
+                                <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#followingModal">
+                                    <div class="stat-value" id="following-count">{{ following_count }}</div>
+                                    <div class="stat-label">Đang theo dõi</div>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -863,5 +915,172 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// Xử lý chức năng báo cáo người dùng
+document.addEventListener('click', function(event) {
+    if (event.target.closest('.dropdown-item') && event.target.textContent === 'Báo cáo') {
+        event.preventDefault();
+        
+        // Lấy username của người dùng cần báo cáo
+        const username = "{{ profile_user.username }}";
+        
+        // Hiển thị modal báo cáo
+        showReportModal(username);
+    }
+});
+
+// Xử lý chức năng chặn người dùng
+document.addEventListener('click', function(event) {
+    if (event.target.closest('.dropdown-item') && event.target.textContent === 'Chặn') {
+        event.preventDefault();
+        
+        // Lấy username của người dùng cần chặn
+        const username = "{{ profile_user.username }}";
+        
+        // Xác nhận trước khi chặn
+        if (confirm(`Bạn có chắc chắn muốn chặn ${username}? Bạn sẽ không thấy bài viết của họ và họ không thể tương tác với bạn.`)) {
+            blockUser(username);
+        }
+    }
+});
+
+// Hàm hiển thị modal báo cáo
+function showReportModal(username) {
+    // Tạo modal báo cáo
+    const modalHTML = `
+    <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="reportModalLabel">Báo cáo ${username}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="reportForm">
+              <div class="mb-3">
+                <label for="reportReason" class="form-label">Lý do báo cáo</label>
+                <select class="form-select" id="reportReason" required>
+                  <option value="" selected disabled>Chọn lý do</option>
+                  <option value="spam">Spam</option>
+                  <option value="inappropriate">Nội dung không phù hợp</option>
+                  <option value="harassment">Quấy rối</option>
+                  <option value="fake_account">Tài khoản giả mạo</option>
+                  <option value="other">Khác</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="reportDescription" class="form-label">Mô tả chi tiết</label>
+                <textarea class="form-control" id="reportDescription" rows="3" placeholder="Vui lòng cung cấp thêm thông tin..."></textarea>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+            <button type="button" class="btn btn-danger" id="submitReport">Gửi báo cáo</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    `;
+    
+    // Thêm modal vào DOM
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // Khởi tạo modal
+    const reportModal = new bootstrap.Modal(document.getElementById('reportModal'));
+    reportModal.show();
+    
+    // Xử lý sự kiện gửi báo cáo
+    document.getElementById('submitReport').addEventListener('click', function() {
+        const reason = document.getElementById('reportReason').value;
+        const description = document.getElementById('reportDescription').value;
+        
+        if (!reason) {
+            alert('Vui lòng chọn lý do báo cáo.');
+            return;
+        }
+        
+        // Gửi báo cáo lên server
+        submitReport(username, reason, description);
+        
+        // Đóng modal
+        reportModal.hide();
+        
+        // Xóa modal khỏi DOM sau khi đóng
+        document.getElementById('reportModal').addEventListener('hidden.bs.modal', function() {
+            this.remove();
+        });
+    });
+}
+
+// Hàm gửi báo cáo lên server
+function submitReport(username, reason, description) {
+    fetch('/api/accounts/report/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            reported_username: username,
+            reason: reason,
+            description: description
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw new Error(data.error || 'Đã xảy ra lỗi khi gửi báo cáo.');
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            alert('Cảm ơn bạn đã báo cáo. Chúng tôi sẽ xem xét nội dung này trong thời gian sớm nhất.');
+        } else {
+            alert(data.message || 'Đã xảy ra lỗi khi gửi báo cáo. Vui lòng thử lại sau.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert(error.message || 'Đã xảy ra lỗi khi gửi báo cáo. Vui lòng thử lại sau.');
+    });
+}
+
+// Hàm chặn người dùng
+function blockUser(username) {
+    fetch('/api/accounts/block/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            blocked_username: username
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw new Error(data.error || 'Đã xảy ra lỗi khi chặn người dùng.');
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            alert(data.message || `Bạn đã chặn ${username} thành công.`);
+            // Chuyển hướng về trang chủ sau khi chặn
+            window.location.href = '/';
+        } else {
+            alert(data.message || 'Đã xảy ra lỗi khi chặn người dùng. Vui lòng thử lại sau.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert(error.message || 'Đã xảy ra lỗi khi chặn người dùng. Vui lòng thử lại sau.');
+    });
+}
 </script>
 {% endblock %} 

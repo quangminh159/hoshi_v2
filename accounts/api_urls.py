@@ -193,4 +193,7 @@ urlpatterns = [
     path('users/<str:username>/following/', UserFollowingView.as_view(), name='user_following'),
     path('user-suggestions/', api.user_suggestions, name='user_suggestions'),
     path('hashtag-suggestions/', api.hashtag_suggestions, name='hashtag_suggestions'),
+    path('block/', api.block_user, name='block_user'),
+    path('unblock/', api.unblock_user, name='unblock_user'),
+    path('report/', api.report_user, name='report_user'),
 ] 

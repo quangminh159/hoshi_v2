@@ -20,7 +20,7 @@ from .forms import (
     DeleteAccountForm,
     CustomResetPasswordForm
 )
-from .models import Device, DataDownloadRequest, UserFollowing, UserBlock
+from .models import Device, DataDownloadRequest, UserFollowing, UserBlock, UserReport
 import pyotp
 import qrcode
 from posts.models import SavedPost, Post, Comment
@@ -35,13 +35,13 @@ def profile(request, username):
     
     # Kiểm tra xem người dùng có bị chặn không
     if request.user.is_authenticated and not is_own_profile:
-        # Kiểm tra xem người dùng hiện tại có bị chủ tài khoản chặn không
-        is_blocked = UserBlock.objects.filter(
-            blocker=user,
-            blocked=request.user
-        ).exists()
+        # Kiểm tra quan hệ chặn theo cả hai chiều
+        block_relationship_exists = (
+            UserBlock.objects.filter(blocker=user, blocked=request.user).exists() or 
+            UserBlock.objects.filter(blocker=request.user, blocked=user).exists()
+        )
         
-        if is_blocked:
+        if block_relationship_exists:
             messages.error(request, f'Bạn không thể xem trang cá nhân của {username}.')
             return redirect('home')
         
@@ -114,7 +114,19 @@ def settings(request):
                     if request.user.avatar:
                         request.user.avatar.delete()
                 
-                profile_form.save()
+                # Lưu form ban đầu
+                user = profile_form.save()
+                
+                # Xử lý các trường tùy chỉnh từ form
+                for key, value in request.POST.items():
+                    if (key.startswith('custom_') or key.startswith('social_link_')) and value:
+                        field_name = key
+                        # Lưu trực tiếp từ request.POST vào user instance
+                        setattr(user, field_name, value)
+                
+                # Lưu lại user với các trường tùy chỉnh
+                user.save()
+                
                 messages.success(request, 'Hồ sơ của bạn đã được cập nhật thành công.')
                 return redirect('accounts:settings')
                 
@@ -319,8 +331,13 @@ def api_load_profile_posts(request, username):
     # Lấy thông tin người dùng
     user = get_object_or_404(User, username=username)
     
-    # Kiểm tra xem người dùng hiện tại có bị chặn không
-    if UserBlock.objects.filter(blocker=user, blocked=request.user).exists():
+    # Kiểm tra quan hệ chặn theo cả hai chiều
+    block_relationship_exists = (
+        UserBlock.objects.filter(blocker=user, blocked=request.user).exists() or 
+        UserBlock.objects.filter(blocker=request.user, blocked=user).exists()
+    )
+    
+    if block_relationship_exists:
         return JsonResponse({
             'status': 'error',
             'message': 'Bạn không thể xem bài viết từ người dùng này.',
@@ -377,7 +394,14 @@ def block_user(request, user_id):
     if request.method == 'POST':
         try:
             user_to_block = User.objects.get(id=user_id)
-            delete_chat = request.POST.get('delete_chat', 'false')
+            
+            # Xử lý dữ liệu từ cả JSON và form data
+            if request.content_type == 'application/json':
+                import json
+                data = json.loads(request.body)
+                delete_chat = str(data.get('delete_chat', 'false')).lower()
+            else:
+                delete_chat = request.POST.get('delete_chat', 'false').lower()
             
             # Không thể tự chặn chính mình
             if user_to_block == request.user:
@@ -420,7 +444,7 @@ def block_user(request, user_id):
                 participants=user_to_block
             )
             
-            if delete_chat.lower() == 'true':
+            if delete_chat == 'true':
                 # Xóa tất cả các phòng chat 1-1 giữa hai người dùng
                 for room in one_to_one_rooms:
                     room.delete()
@@ -489,6 +513,99 @@ def unblock_user(request, user_id):
     # Xử lý GET request hoặc các method khác
     return redirect('accounts:settings')
 
+@login_required
+def report_user(request):
+    """Báo cáo người dùng"""
+    if request.method == 'POST':
+        try:
+            user_id = request.POST.get('user_id')
+            reason = request.POST.get('reason')
+            description = request.POST.get('description', '')
+            block_user = request.POST.get('block_user') == 'on'
+            
+            if not user_id or not reason:
+                if 'HTTP_X_REQUESTED_WITH' in request.META and request.META['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'status': 'error',
+                        'message': 'Thiếu thông tin cần thiết để báo cáo.'
+                    })
+                else:
+                    messages.error(request, 'Thiếu thông tin cần thiết để báo cáo.')
+                    return redirect('home')
+            
+            reported_user = User.objects.get(id=user_id)
+            
+            # Không thể tự báo cáo chính mình
+            if reported_user == request.user:
+                if 'HTTP_X_REQUESTED_WITH' in request.META and request.META['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'status': 'error',
+                        'message': 'Bạn không thể báo cáo chính mình.'
+                    })
+                else:
+                    messages.error(request, 'Bạn không thể báo cáo chính mình.')
+                    return redirect('home')
+            
+            # Tạo báo cáo mới
+            report = UserReport.objects.create(
+                reporter=request.user,
+                reported_user=reported_user,
+                reason=reason,
+                description=description
+            )
+            
+            # Kiểm tra và đình chỉ người dùng nếu cần thiết
+            # Kiểm tra xem người dùng này đã có đủ báo cáo hợp lệ từ trước chưa
+            UserReport.check_for_automatic_suspension(reported_user)
+            
+            # Chặn người dùng nếu được yêu cầu
+            if block_user:
+                # Kiểm tra nếu đã chặn
+                if not request.user.has_blocked(reported_user):
+                    UserBlock.objects.create(
+                        blocker=request.user,
+                        blocked=reported_user,
+                        reason=f"Báo cáo: {reason}"
+                    )
+            
+            if 'HTTP_X_REQUESTED_WITH' in request.META and request.META['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest':
+                return JsonResponse({
+                    'status': 'success',
+                    'message': 'Báo cáo của bạn đã được gửi. Chúng tôi sẽ xem xét nội dung báo cáo sớm nhất có thể.'
+                })
+            else:
+                messages.success(request, 'Báo cáo của bạn đã được gửi. Chúng tôi sẽ xem xét nội dung báo cáo sớm nhất có thể.')
+                return redirect('home')
+            
+        except User.DoesNotExist:
+            if 'HTTP_X_REQUESTED_WITH' in request.META and request.META['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest':
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Không tìm thấy người dùng được báo cáo.'
+                })
+            else:
+                messages.error(request, 'Không tìm thấy người dùng được báo cáo.')
+                return redirect('home')
+        except Exception as e:
+            if 'HTTP_X_REQUESTED_WITH' in request.META and request.META['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest':
+                return JsonResponse({
+                    'status': 'error',
+                    'message': f'Có lỗi xảy ra: {str(e)}'
+                })
+            else:
+                messages.error(request, f'Có lỗi xảy ra: {str(e)}')
+                return redirect('home')
+    
+    # Phương thức không được hỗ trợ
+    if 'HTTP_X_REQUESTED_WITH' in request.META and request.META['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest':
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Phương thức không được hỗ trợ.'
+        })
+    else:
+        messages.error(request, 'Phương thức không được hỗ trợ.')
+        return redirect('home')
+
 # Custom views cho việc đặt lại mật khẩu
 class CustomPasswordResetView(PasswordResetView):
     template_name = 'accounts/password_reset.html'
@@ -501,3 +618,23 @@ class CustomPasswordResetDoneView(PasswordResetDoneView):
 # Đăng ký các view mới
 password_reset = CustomPasswordResetView.as_view()
 password_reset_done = CustomPasswordResetDoneView.as_view()
+
+def suspension_notice(request):
+    """Hiển thị thông báo khi tài khoản bị đình chỉ"""
+    if not request.user.is_authenticated:
+        return redirect('home')
+        
+    # Kiểm tra lại trạng thái đình chỉ
+    is_suspended = request.user.check_suspension_status()
+    
+    # Nếu không còn bị đình chỉ, chuyển hướng về trang chủ
+    if not is_suspended:
+        messages.success(request, 'Tài khoản của bạn không còn bị đình chỉ. Bạn có thể tiếp tục sử dụng dịch vụ.')
+        return redirect('home')
+    
+    context = {
+        'suspension_reason': request.user.suspension_reason,
+        'suspension_end_date': request.user.suspension_end_date,
+    }
+    
+    return render(request, 'accounts/suspension_notice.html', context)

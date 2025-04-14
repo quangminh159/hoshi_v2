@@ -17,6 +17,7 @@ urlpatterns = [
     # Block/Unblock URLs
     path('block/<int:user_id>/', views.block_user, name='block_user'),
     path('unblock/<int:user_id>/', views.unblock_user, name='unblock_user'),
+    path('report-user/', views.report_user, name='report_user'),
     
     # Password Reset URLs - chuyển hướng đến allauth
     path('password/reset/', RedirectView.as_view(url=reverse_lazy('account_reset_password')), name='account_reset_password'),
@@ -28,4 +29,5 @@ urlpatterns = [
     
     # Profile URL - phải đặt cuối cùng vì nó match mọi string
     path('<str:username>/', views.profile, name='profile'),
+    path('suspension-notice/', views.suspension_notice, name='suspension_notice'),
 ] 

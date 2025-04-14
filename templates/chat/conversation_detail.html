@@ -214,13 +214,19 @@
     </div>
     
     <div class="chat-input">
-      <form method="post" action="{% url 'chat:send_message' conversation.id %}">
-        {% csrf_token %}
-        <input type="text" name="message" placeholder="Nhập tin nhắn..." required>
-        <button type="submit">
-          <i class="fas fa-paper-plane"></i>
-        </button>
-      </form>
+      {% if is_blocked %}
+        <div class="alert alert-warning mb-0 text-center">
+          <i class="fas fa-ban mr-2"></i> Không thể gửi tin nhắn vì một trong hai người đã chặn người còn lại.
+        </div>
+      {% else %}
+        <form method="post" action="{% url 'chat:send_message' conversation.id %}">
+          {% csrf_token %}
+          <input type="text" name="message" placeholder="Nhập tin nhắn..." required>
+          <button type="submit">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </form>
+      {% endif %}
     </div>
   </div>
 </div>

@@ -4,8 +4,9 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import get_user_model
 from django.utils import timezone
+from django.db import models
 
-from .models import Device, DataDownloadRequest, UserFollowing
+from .models import Device, DataDownloadRequest, UserFollowing, UserBlock, UserReport
 from .serializers import (
     UserSerializer,
     DeviceSerializer,
@@ -198,4 +199,168 @@ def hashtag_suggestions(request):
     # Chuyển đổi thành dạng danh sách đơn giản
     result = [hashtag.name for hashtag in hashtags]
     
-    return Response(result) 
+    return Response(result)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def block_user(request):
+    """API endpoint để chặn một người dùng"""
+    blocked_username = request.data.get('blocked_username')
+    reason = request.data.get('reason', '')
+    
+    if not blocked_username:
+        return Response({'error': 'Thiếu tên người dùng cần chặn'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        user_to_block = User.objects.get(username=blocked_username)
+        
+        # Không cho phép chặn chính mình
+        if user_to_block == request.user:
+            return Response(
+                {'error': 'Bạn không thể chặn chính mình'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        # Kiểm tra xem đã chặn chưa
+        block_relationship, created = UserBlock.objects.get_or_create(
+            blocker=request.user,
+            blocked=user_to_block,
+            defaults={'reason': reason}
+        )
+        
+        if not created:
+            # Đã chặn trước đó, cập nhật lý do nếu có
+            if reason:
+                block_relationship.reason = reason
+                block_relationship.save()
+            return Response({
+                'status': 'success',
+                'message': f'Bạn đã chặn {blocked_username} trước đó'
+            })
+            
+        # Tự động hủy follow nếu đang follow
+        UserFollowing.objects.filter(
+            user=request.user,
+            following_user=user_to_block
+        ).delete()
+        
+        UserFollowing.objects.filter(
+            user=user_to_block,
+            following_user=request.user
+        ).delete()
+            
+        # Đã chặn thành công
+        return Response({
+            'status': 'success',
+            'message': f'Bạn đã chặn {blocked_username} thành công'
+        })
+        
+    except User.DoesNotExist:
+        return Response(
+            {'error': 'Không tìm thấy người dùng'}, 
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def unblock_user(request):
+    """API endpoint để bỏ chặn một người dùng"""
+    blocked_username = request.data.get('blocked_username')
+    
+    if not blocked_username:
+        return Response({'error': 'Thiếu tên người dùng cần bỏ chặn'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        user_to_unblock = User.objects.get(username=blocked_username)
+        
+        try:
+            # Tìm và xóa relationship chặn
+            block_relationship = UserBlock.objects.get(
+                blocker=request.user,
+                blocked=user_to_unblock
+            )
+            block_relationship.delete()
+            
+            return Response({
+                'status': 'success',
+                'message': f'Bạn đã bỏ chặn {blocked_username} thành công'
+            })
+            
+        except UserBlock.DoesNotExist:
+            return Response({
+                'error': f'Bạn chưa chặn {blocked_username}',
+                'status': 'not_blocked'
+            }, status=status.HTTP_400_BAD_REQUEST)
+            
+    except User.DoesNotExist:
+        return Response(
+            {'error': 'Không tìm thấy người dùng'}, 
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def report_user(request):
+    """API endpoint để báo cáo một người dùng"""
+    reported_username = request.data.get('reported_username')
+    reason = request.data.get('reason')
+    description = request.data.get('description', '')
+    
+    if not reported_username:
+        return Response({'error': 'Thiếu tên người dùng cần báo cáo'}, status=status.HTTP_400_BAD_REQUEST)
+        
+    if not reason:
+        return Response({'error': 'Vui lòng cung cấp lý do báo cáo'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        user_to_report = User.objects.get(username=reported_username)
+        
+        # Không cho phép báo cáo chính mình
+        if user_to_report == request.user:
+            return Response(
+                {'error': 'Bạn không thể báo cáo chính mình'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        # Tạo hoặc cập nhật báo cáo
+        report, created = UserReport.objects.get_or_create(
+            reporter=request.user,
+            reported_user=user_to_report,
+            defaults={
+                'reason': reason,
+                'description': description
+            }
+        )
+        
+        if not created:
+            # Cập nhật báo cáo đã tồn tại
+            report.reason = reason
+            report.description = description
+            report.resolved = False
+            report.save()
+            
+        # Thông báo cho admin về báo cáo mới
+        from django.core.mail import mail_admins
+        subject = f'Báo cáo mới: {reported_username}'
+        message = f'''
+        Người dùng {request.user.username} đã báo cáo {reported_username}.
+        Lý do: {reason}
+        Mô tả: {description}
+        Thời gian: {timezone.now()}
+        '''
+        try:
+            mail_admins(subject, message, fail_silently=True)
+        except:
+            # Ghi log nếu gửi mail thất bại nhưng không dừng xử lý
+            pass
+            
+        return Response({
+            'status': 'success',
+            'message': 'Báo cáo của bạn đã được gửi đến quản trị viên. Cảm ơn bạn đã giúp cộng đồng tốt đẹp hơn.'
+        })
+            
+    except User.DoesNotExist:
+        return Response(
+            {'error': 'Không tìm thấy người dùng'}, 
+            status=status.HTTP_404_NOT_FOUND
+        ) 

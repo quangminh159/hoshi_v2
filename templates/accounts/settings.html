@@ -240,8 +240,70 @@
                             {{ profile_form.bio|as_crispy_field }}
                         </div>
                         
-                        <div class="mb-3">
-                            {{ profile_form.website|as_crispy_field }}
+                        <h5 class="mb-3 mt-4">Liên kết mạng xã hội</h5>
+                        
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    {{ profile_form.website|as_crispy_field }}
+                                </div>
+                                
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text bg-light">
+                                        <i class="fas fa-link"></i>
+                                    </span>
+                                    <input type="text" class="form-control" id="socialLink" placeholder="Thêm bất kỳ liên kết mạng xã hội nào của bạn">
+                                    <button class="btn btn-outline-primary" type="button" id="addSocialBtn">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                                
+                                <div id="socialLinks" class="mb-3">
+                                    <!-- Các liên kết sẽ được hiển thị ở đây -->
+                                    <input type="hidden" name="facebook" id="id_facebook" value="{{ profile_form.facebook.value|default_if_none:'' }}">
+                                    <input type="hidden" name="twitter" id="id_twitter" value="{{ profile_form.twitter.value|default_if_none:'' }}">
+                                    <input type="hidden" name="instagram" id="id_instagram" value="{{ profile_form.instagram.value|default_if_none:'' }}">
+                                    <input type="hidden" name="linkedin" id="id_linkedin" value="{{ profile_form.linkedin.value|default_if_none:'' }}">
+                                </div>
+                                
+                                <div id="socialLinksDisplay" class="mb-3">
+                                    {% if profile_form.facebook.value %}
+                                    <div class="social-link-item mb-2" data-type="facebook" data-url="{{ profile_form.facebook.value }}">
+                                        <span class="badge bg-primary rounded-pill">
+                                            <i class="fab fa-facebook me-1"></i>Facebook
+                                            <button type="button" class="btn-close btn-close-white ms-2 remove-social" aria-label="Close"></button>
+                                        </span>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if profile_form.twitter.value %}
+                                    <div class="social-link-item mb-2" data-type="twitter" data-url="{{ profile_form.twitter.value }}">
+                                        <span class="badge bg-info rounded-pill">
+                                            <i class="fab fa-twitter me-1"></i>Twitter
+                                            <button type="button" class="btn-close btn-close-white ms-2 remove-social" aria-label="Close"></button>
+                                        </span>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if profile_form.instagram.value %}
+                                    <div class="social-link-item mb-2" data-type="instagram" data-url="{{ profile_form.instagram.value }}">
+                                        <span class="badge bg-danger rounded-pill">
+                                            <i class="fab fa-instagram me-1"></i>Instagram
+                                            <button type="button" class="btn-close btn-close-white ms-2 remove-social" aria-label="Close"></button>
+                                        </span>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if profile_form.linkedin.value %}
+                                    <div class="social-link-item mb-2" data-type="linkedin" data-url="{{ profile_form.linkedin.value }}">
+                                        <span class="badge bg-primary rounded-pill">
+                                            <i class="fab fa-linkedin me-1"></i>LinkedIn
+                                            <button type="button" class="btn-close btn-close-white ms-2 remove-social" aria-label="Close"></button>
+                                        </span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
                         </div>
                         
                         <button type="submit" class="btn btn-primary">
@@ -712,6 +774,189 @@
             };
             reader.readAsDataURL(file);
         }
+    });
+    
+    // Xử lý thêm và xóa các liên kết mạng xã hội
+    document.addEventListener('DOMContentLoaded', function() {
+        const socialLinkInput = document.getElementById('socialLink');
+        const addSocialBtn = document.getElementById('addSocialBtn');
+        const socialLinksDisplay = document.getElementById('socialLinksDisplay');
+        
+        // Các nút xóa liên kết đã có
+        const existingRemoveButtons = document.querySelectorAll('.remove-social');
+        existingRemoveButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const linkItem = this.closest('.social-link-item');
+                const linkType = linkItem.dataset.type;
+                
+                // Xóa input hidden nếu là liên kết tùy chỉnh
+                if (linkType.startsWith('custom_')) {
+                    const hiddenInput = document.getElementById('id_' + linkType);
+                    if (hiddenInput) {
+                        hiddenInput.remove();
+                    }
+                } else {
+                    document.getElementById('id_' + linkType).value = '';
+                }
+                
+                linkItem.remove();
+            });
+        });
+        
+        // Thêm liên kết mới
+        addSocialBtn.addEventListener('click', function() {
+            const url = socialLinkInput.value.trim();
+            if (!url) return;
+            
+            let type = '';
+            let icon = '';
+            let bgClass = '';
+            let label = '';
+            
+            // Xác định loại mạng xã hội
+            if (url.includes('facebook.com') || url.includes('fb.com')) {
+                type = 'facebook';
+                icon = 'fab fa-facebook';
+                bgClass = 'bg-primary';
+                label = 'Facebook';
+            } else if (url.includes('twitter.com') || url.includes('x.com')) {
+                type = 'twitter';
+                icon = 'fab fa-twitter';
+                bgClass = 'bg-info';
+                label = 'Twitter';
+            } else if (url.includes('instagram.com')) {
+                type = 'instagram';
+                icon = 'fab fa-instagram';
+                bgClass = 'bg-danger';
+                label = 'Instagram';
+            } else if (url.includes('linkedin.com')) {
+                type = 'linkedin';
+                icon = 'fab fa-linkedin';
+                bgClass = 'bg-primary';
+                label = 'LinkedIn';
+            } else if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                type = 'youtube';
+                icon = 'fab fa-youtube';
+                bgClass = 'bg-danger';
+                label = 'YouTube';
+            } else if (url.includes('tiktok.com')) {
+                type = 'tiktok';
+                icon = 'fab fa-tiktok';
+                bgClass = 'bg-dark';
+                label = 'TikTok';
+            } else if (url.includes('pinterest.com')) {
+                type = 'pinterest';
+                icon = 'fab fa-pinterest';
+                bgClass = 'bg-danger';
+                label = 'Pinterest';
+            } else if (url.includes('github.com')) {
+                type = 'github';
+                icon = 'fab fa-github';
+                bgClass = 'bg-dark';
+                label = 'GitHub';
+            } else if (url.includes('whatsapp.com')) {
+                type = 'whatsapp';
+                icon = 'fab fa-whatsapp';
+                bgClass = 'bg-success';
+                label = 'WhatsApp';
+            } else if (url.includes('telegram.')) {
+                type = 'telegram';
+                icon = 'fab fa-telegram';
+                bgClass = 'bg-info';
+                label = 'Telegram';
+            } else if (url.includes('snapchat.com')) {
+                type = 'snapchat';
+                icon = 'fab fa-snapchat';
+                bgClass = 'bg-warning';
+                label = 'Snapchat';
+            } else if (url.includes('discord.') || url.includes('discord.gg')) {
+                type = 'discord';
+                icon = 'fab fa-discord';
+                bgClass = 'bg-primary';
+                label = 'Discord';
+            } else {
+                // Mạng xã hội khác hoặc website tùy chỉnh
+                type = 'custom';
+                icon = 'fas fa-globe';
+                bgClass = 'bg-secondary';
+                
+                // Thử lấy tên miền cho label
+                try {
+                    const domain = new URL(url).hostname.replace('www.', '');
+                    label = domain.charAt(0).toUpperCase() + domain.slice(1);
+                } catch (e) {
+                    label = 'Website';
+                }
+            }
+            
+            // Nếu là custom, tạo ID ngẫu nhiên để tránh trùng lặp
+            if (type === 'custom') {
+                // Tạo một ID ngẫu nhiên cho field name
+                const uniqueId = Math.random().toString(36).substring(2, 10);
+                const fieldName = 'social_link_' + uniqueId;
+                
+                // Tạo input hidden mới cho liên kết tùy chỉnh
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = fieldName;
+                hiddenInput.id = 'id_' + fieldName;
+                hiddenInput.value = url;
+                document.getElementById('socialLinks').appendChild(hiddenInput);
+                
+                // Thay đổi type để sử dụng cho data-type
+                type = fieldName;
+            } else {
+                // Kiểm tra nếu đã có liên kết loại này
+                const existingLink = document.querySelector(`.social-link-item[data-type="${type}"]`);
+                if (existingLink) {
+                    existingLink.remove();
+                }
+                
+                // Lưu giá trị vào input hidden
+                document.getElementById('id_' + type).value = url;
+            }
+            
+            // Hiển thị badge
+            const linkHtml = `
+                <div class="social-link-item mb-2" data-type="${type}" data-url="${url}">
+                    <span class="badge ${bgClass} rounded-pill">
+                        <i class="${icon} me-1"></i>${label}
+                        <button type="button" class="btn-close btn-close-white ms-2 remove-social" aria-label="Close"></button>
+                    </span>
+                </div>
+            `;
+            
+            socialLinksDisplay.insertAdjacentHTML('beforeend', linkHtml);
+            socialLinkInput.value = '';
+            
+            // Thêm sự kiện xóa
+            const newRemoveButton = socialLinksDisplay.querySelector(`.social-link-item[data-type="${type}"] .remove-social`);
+            newRemoveButton.addEventListener('click', function() {
+                const linkItem = this.closest('.social-link-item');
+                const linkType = linkItem.dataset.type;
+                
+                // Xóa input hidden
+                if (linkType.startsWith('social_link_') || linkType.startsWith('custom_')) {
+                    const hiddenInput = document.getElementById('id_' + linkType);
+                    if (hiddenInput) {
+                        hiddenInput.remove();
+                    }
+                } else {
+                    document.getElementById('id_' + linkType).value = '';
+                }
+                
+                // Xóa phần tử hiển thị
+                linkItem.remove();
+            });
+        });
+        
+        // Cho phép nhấn Enter để thêm liên kết
+        socialLinkInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addSocialBtn.click();
+            }
+        });
     });
     
     // Xử lý xóa thiết bị
