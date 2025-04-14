@@ -835,13 +835,50 @@ def saved_posts(request):
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
     
+    # Chuẩn bị dữ liệu bài viết cho template feed
+    posts_with_data = []
+    for post in page_obj:
+        posts_with_data.append({
+            'post': post,
+            'post_type': 'saved'
+        })
+    
     context = {
-        'posts': page_obj,
-        'is_saved_posts': True,
-        'title': 'Bài viết đã lưu',
-        'profile_user': request.user  # Thêm profile_user để tránh lỗi username rỗng
+        'posts_with_data': posts_with_data,
+        'page_obj': page_obj,
+        'feed_type': 'saved',
+        'title': 'Bài viết đã lưu'
     }
-    return render(request, 'accounts/profile.html', context)
+    return render(request, 'posts/feed.html', context)
+
+@login_required
+def liked_posts(request):
+    # Lấy các bài viết đã thích
+    liked_posts = Like.objects.filter(user=request.user).select_related('post', 'post__author')
+    
+    # Chuyển đổi thành danh sách các bài viết
+    posts = [like.post for like in liked_posts]
+    
+    # Phân trang
+    paginator = Paginator(posts, settings.POSTS_PER_PAGE if hasattr(settings, 'POSTS_PER_PAGE') else 10)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+    
+    # Chuẩn bị dữ liệu bài viết cho template feed
+    posts_with_data = []
+    for post in page_obj:
+        posts_with_data.append({
+            'post': post,
+            'post_type': 'liked'
+        })
+    
+    context = {
+        'posts_with_data': posts_with_data,
+        'page_obj': page_obj,
+        'feed_type': 'liked',
+        'title': 'Bài viết đã thích'
+    }
+    return render(request, 'posts/feed.html', context)
 
 @login_required
 def get_post_likes(request, post_id):

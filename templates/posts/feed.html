@@ -3,6 +3,50 @@
 
 {% block title %}{% if title %}{{ title }} - {% else %}Trang chủ - {% endif %}{{ block.super }}{% endblock %}
 
+{% block extra_css %}
+<style>
+.feed-dropdown .dropdown-toggle::after {
+    display: none;
+}
+
+.feed-dropdown .btn {
+    display: flex;
+    align-items: center;
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
+    color: #212529;
+    font-weight: 500;
+}
+
+.feed-dropdown .dropdown-menu {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    border: none;
+}
+
+.feed-dropdown .dropdown-item {
+    padding: 0.65rem 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.feed-dropdown .dropdown-item i {
+    margin-right: 0.5rem;
+    width: 20px;
+    text-align: center;
+}
+
+.feed-dropdown .dropdown-item.active,
+.feed-dropdown .dropdown-item:active {
+    background-color: #f8f9fa;
+    color: #212529;
+}
+
+.feed-dropdown .dropdown-item:hover {
+    background-color: #f8f9fa;
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container py-4">
     <div class="row justify-content-center">
@@ -16,13 +60,36 @@
             <div class="mb-3 feed-filter-section">
                 <div class="d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Bảng tin</h5>
-                    <div class="feed-type-selector">
-                        <a href="{% url 'posts:index' %}?feed=diverse" class="btn {% if feed_type == 'diverse' %}btn-primary{% else %}btn-outline-primary{% endif %} me-2">
-                            <i class="fas fa-random me-1"></i> Khám phá
-                        </a>
-                        <a href="{% url 'posts:index' %}?feed=following" class="btn {% if feed_type == 'following' %}btn-primary{% else %}btn-outline-primary{% endif %}">
-                            <i class="fas fa-user-friends me-1"></i> Theo dõi
-                        </a>
+                    <div class="feed-type-selector feed-dropdown">
+                        <div class="dropdown">
+                            <button class="btn dropdown-toggle" type="button" id="feedTypeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                {% if feed_type == 'diverse' %}
+                                    <span>Dành cho bạn</span> <i class="fas fa-chevron-down ms-2"></i>
+                                {% elif feed_type == 'following' %}
+                                    <span>Theo dõi</span> <i class="fas fa-chevron-down ms-2"></i>
+                                {% elif feed_type == 'liked' %}
+                                    <span>Đã thích</span> <i class="fas fa-chevron-down ms-2"></i>
+                                {% elif feed_type == 'saved' %}
+                                    <span>Đã lưu</span> <i class="fas fa-chevron-down ms-2"></i>
+                                {% else %}
+                                    <span>Dành cho bạn</span> <i class="fas fa-chevron-down ms-2"></i>
+                                {% endif %}
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="feedTypeDropdown">
+                                <li>
+                                    <a class="dropdown-item {% if feed_type == 'diverse' %}active{% endif %}" href="{% url 'posts:index' %}?feed=diverse">
+                                        <i class="fas fa-random"></i> Dành cho bạn
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item {% if feed_type == 'following' %}active{% endif %}" href="{% url 'posts:index' %}?feed=following">
+                                        <i class="fas fa-user-friends"></i> Theo dõi
+                                    </a>
+                                </li>
+                                <li><a class="dropdown-item {% if feed_type == 'liked' %}active{% endif %}" href="{% url 'posts:liked_posts' %}"><i class="fas fa-heart"></i> Đã thích</a></li>
+                                <li><a class="dropdown-item {% if feed_type == 'saved' %}active{% endif %}" href="{% url 'posts:saved' %}"><i class="fas fa-bookmark"></i> Đã lưu</a></li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
