@@ -5,9 +5,8 @@ from . import api
 app_name = 'posts'
 
 urlpatterns = [
-    path('', views.home, name='home'),
-    path('feed/', views.feed, name='feed'),
-    path('create/', views.create_post, name='create'),
+    path('', views.index, name='index'),
+    path('create/', views.create, name='create'),
     path('<int:post_id>/', views.post_detail, name='post_detail'),
     path('<int:post_id>/edit/', api.edit_post, name='edit'),
     path('<int:post_id>/delete/', api.delete_post, name='delete'),

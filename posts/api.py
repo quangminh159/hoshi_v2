@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.db.models import Count
 from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
-from .models import Post, Comment, Like, SavedPost, Hashtag, CommentLike, PostMedia, Notification
+from .models import Post, Comment, Like, SavedPost, Hashtag, CommentLike, PostMedia, Notification, UserInteraction
 from .serializers import PostSerializer, CommentSerializer, HashtagSerializer
 from django.conf import settings
 import json
@@ -689,4 +689,40 @@ def user_suggestions(request):
             'full_name': f"{user.first_name} {user.last_name}".strip()
         })
     
-    return JsonResponse(result, safe=False) 
+    return JsonResponse(result, safe=False)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def track_interaction(request):
+    """API endpoint để theo dõi tương tác người dùng với bài viết"""
+    try:
+        post_id = request.data.get('post_id')
+        interaction_type = request.data.get('interaction_type')
+        duration = request.data.get('duration', 0)
+        
+        if not post_id or not interaction_type:
+            return Response({'error': 'Thiếu thông tin bắt buộc'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Kiểm tra xem loại tương tác có hợp lệ không
+        valid_types = [choice[0] for choice in UserInteraction.INTERACTION_TYPES]
+        if interaction_type not in valid_types:
+            return Response({'error': 'Loại tương tác không hợp lệ'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Lấy bài viết
+        try:
+            post = Post.objects.get(id=post_id)
+        except Post.DoesNotExist:
+            return Response({'error': 'Không tìm thấy bài viết'}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Lưu tương tác
+        UserInteraction.objects.create(
+            user=request.user,
+            post=post,
+            interaction_type=interaction_type,
+            duration=duration
+        )
+        
+        return Response({'status': 'success'})
+    
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) 

@@ -5,7 +5,7 @@ from django.db.models import Count, Q
 from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator, EmptyPage
 from django.views.decorators.http import require_POST
-from .models import Post, Comment, Like, SavedPost, Hashtag, Media, Mention, PostReport, PostMedia, CommentLike
+from .models import Post, Comment, Like, SavedPost, Hashtag, Media, Mention, PostReport, PostMedia, CommentLike, UserInteraction
 from django.conf import settings
 from django.urls import reverse
 from django.contrib import messages
@@ -19,6 +19,8 @@ from django.contrib.contenttypes.models import ContentType
 from notifications.models import Notification
 import re
 from datetime import timedelta
+from .forms import PostForm, CommentForm
+from .feed_algorithms import get_diverse_feed
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -305,127 +307,51 @@ def post_detail(request, post_id):
     return render(request, 'posts/post_detail.html', context)
 
 @login_required
-def create_post(request):
+def create(request):
+    """Create a new post"""
     if request.method == 'POST':
-        try:
-            # Log request data for debugging
-            logger.info("POST request received with the following data:")
-            logger.info(f"Request POST: {request.POST}")
-            logger.info(f"Request FILES keys: {list(request.FILES.keys())}")
+        form = PostForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = request.user
+            post.save()
             
-            caption = request.POST.get('caption', '').strip()
-            location = request.POST.get('location', '').strip()
-            
-            # Lấy các file media từ request
-            media_files = []
-            
-            # Kiểm tra các cách khác nhau mà files có thể được gửi đến
-            if 'media[]' in request.FILES:
-                media_files = request.FILES.getlist('media[]')
-                logger.info(f"Found {len(media_files)} files in media[]")
-            elif 'media' in request.FILES:
-                media_files = request.FILES.getlist('media')
-                logger.info(f"Found {len(media_files)} files in media")
-            else:
-                # Kiểm tra nếu không phải là multipart form
-                for key in request.FILES.keys():
-                    if key.startswith('media'):
-                        media_files = request.FILES.getlist(key)
-                        logger.info(f"Found {len(media_files)} files in {key}")
-                        break
-                else:
-                    logger.warning(f"No media files found. Available fields: {list(request.FILES.keys())}")
+            # Xử lý nhiều file đa phương tiện
+            media_files = request.FILES.getlist('media')
+            for index, file in enumerate(media_files):
+                # Kiểm tra loại file
+                if not file.content_type.startswith('image/') and not file.content_type.startswith('video/'):
+                    messages.error(request, f'File {file.name} không hợp lệ. Chỉ chấp nhận file hình ảnh và video.')
+                    continue
                 
-            # Tạo post
-            post = Post.objects.create(
-                author=request.user,
-                caption=caption,
-                location=location
-            )
-            
-            # Xử lý media nếu có
-            if media_files:
-                for index, file in enumerate(media_files):
-                    try:
-                        # Kiểm tra kích thước file
-                        if file.size > settings.MAX_UPLOAD_SIZE:
-                            post.delete()
-                            messages.error(request, f'Kích thước file không được vượt quá {settings.MAX_UPLOAD_SIZE/1024/1024/1024:.2f}GB')
-                            return redirect('posts:create')
-                        
-                        # Kiểm tra định dạng file
-                        if not file.content_type.startswith(('image/', 'video/')):
-                            post.delete()
-                            messages.error(request, 'Chỉ chấp nhận file ảnh hoặc video')
-                            return redirect('posts:create')
-                        
-                        # Xác định loại media
-                        media_type = 'video' if file.content_type.startswith('video') else 'image'
-                        
-                        # Tạo media object
-                        media = PostMedia.objects.create(
-                            post=post,
-                            file=file,
-                            media_type=media_type,
-                            order=index
-                        )
-                        logger.info(f"Created media {media.id} for post {post.id}, type: {media_type}, file: {file.name}")
-                    except Exception as e:
-                        # Nếu có lỗi khi tạo media, xóa post và trả về lỗi
-                        post.delete()
-                        messages.error(request, f'Lỗi khi xử lý file: {str(e)}')
-                        return redirect('posts:create')
+                # Kiểm tra kích thước file (tối đa 10MB)
+                if file.size > 10 * 1024 * 1024:
+                    messages.error(request, f'File {file.name} vượt quá kích thước cho phép (10MB).')
+                    continue
+                
+                # Xác định loại media
+                media_type = 'video' if file.content_type.startswith('video/') else 'image'
+                
+                # Lưu file
+                PostMedia.objects.create(
+                    post=post,
+                    file=file,
+                    media_type=media_type,
+                    order=index
+                )
             
             # Xử lý hashtags
-            hashtags = [word[1:] for word in caption.split() if word.startswith('#')]
-            for tag_name in hashtags:
-                try:
-                    hashtag, _ = Hashtag.objects.get_or_create(name=tag_name)
-                    hashtag.posts.add(post)
-                    hashtag.posts_count = hashtag.posts.count()
-                    hashtag.save()
-                except Exception as e:
-                    # Nếu có lỗi khi tạo hashtag, chỉ log lỗi và tiếp tục
-                    print(f"Error creating hashtag {tag_name}: {str(e)}")
-            
-            # Xử lý mentions (@username) và tạo thông báo
-            mentions = re.findall(r'@(\w+)', caption)
-            for username in mentions:
-                try:
-                    mentioned_user = User.objects.get(username=username)
-                    # Nếu user tồn tại, tạo mention
-                    mention = Mention.objects.create(
-                        user=mentioned_user,
-                        post=post
-                    )
-                    
-                    # Tạo thông báo cho người được tag
-                    if mentioned_user != request.user:
-                        Notification.objects.create(
-                            recipient=mentioned_user,
-                            sender=request.user,
-                            notification_type='mention',
-                            text=f"{request.user.username} đã nhắc đến bạn trong một bài viết",
-                            post=post,
-                            content_type=ContentType.objects.get_for_model(post),
-                            object_id=post.id
-                        )
-                        
-                except User.DoesNotExist:
-                    # Nếu user không tồn tại, chỉ log lỗi và tiếp tục
-                    logger.warning(f"User {username} not found when creating mention")
-                except Exception as e:
-                    # Nếu có lỗi khác, chỉ log lỗi và tiếp tục
-                    logger.error(f"Error creating mention for {username}: {str(e)}")
-            
-            messages.success(request, 'Đăng bài thành công!')
-            return redirect('home')
-            
-        except Exception as e:
-            messages.error(request, f'Lỗi khi tạo bài viết: {str(e)}')
-            return redirect('posts:create')
+            if post.caption:
+                process_hashtags(post)
+                
+            messages.success(request, 'Bài viết đã được đăng thành công!')
+            return redirect('posts:feed')
+    else:
+        form = PostForm()
     
-    return render(request, 'posts/create_post.html')
+    return render(request, 'posts/create.html', {
+        'form': form
+    })
 
 @login_required
 def edit_post(request, post_id):
@@ -1132,3 +1058,144 @@ def api_load_posts(request):
         'posts': posts_data,
         'has_next': page_obj.has_next()
     })
+
+@login_required
+def index(request):
+    """Display the user's feed"""
+    user = request.user
+    # Lấy trang hiện tại từ tham số URL
+    page = request.GET.get('page', 1)
+    
+    # Nếu người dùng yêu cầu chỉ xem bài viết của người đã theo dõi
+    feed_type = request.GET.get('feed', 'diverse')
+    
+    if feed_type == 'following':
+        # Lấy bài viết từ người dùng đã theo dõi (cách cũ)
+        following_users = user.following.all()
+        posts_query = Post.objects.filter(
+            author__in=following_users,
+            is_archived=False
+        ).order_by('-created_at')
+    else:
+        # Sử dụng thuật toán đa dạng hóa bài viết (mặc định)
+        posts = get_diverse_feed(user, page_size=10, page=int(page))
+        
+        # Đánh dấu bài viết theo loại để hiển thị nhãn
+        posts_with_data = []
+        for post in posts:
+            # Điền các thông tin chi tiết
+            post_data = {
+                'post': post,
+                'comments_data': get_post_comments(post)[:3],  # 3 comments gần nhất
+                'total_comments': post.comments.count(),
+                'total_likes': post.post_likes.count(),
+                'is_liked': post.post_likes.filter(user=user).exists(),
+                'is_saved': post.saved_by.filter(user=user).exists(),
+                'post_type': determine_post_type(user, post)  # Xác định loại bài viết
+            }
+            posts_with_data.append(post_data)
+        
+        # Tracking trải nghiệm feed của người dùng
+        track_feed_impression(user, posts)
+        
+        return render(request, 'posts/feed.html', {
+            'posts_with_data': posts_with_data,
+            'feed_type': feed_type,
+            'page': page
+        })
+    
+    # Xử lý phân trang (cho feed_type == 'following')
+    paginator = Paginator(posts_query, 10)
+    posts_page = paginator.get_page(page)
+    
+    posts_with_data = []
+    for post in posts_page:
+        post_data = {
+            'post': post,
+            'comments_data': get_post_comments(post)[:3],
+            'total_comments': post.comments.count(),
+            'total_likes': post.post_likes.count(),
+            'is_liked': post.post_likes.filter(user=user).exists(),
+            'is_saved': post.saved_by.filter(user=user).exists(),
+            'post_type': 'following'  # Tất cả đều là từ người theo dõi
+        }
+        posts_with_data.append(post_data)
+    
+    return render(request, 'posts/feed.html', {
+        'posts_with_data': posts_with_data,
+        'feed_type': feed_type,
+        'page': page
+    })
+
+def determine_post_type(user, post):
+    """Xác định loại bài viết để hiển thị nhãn"""
+    if post.author in user.following.all():
+        return 'following'
+    
+    # Kiểm tra hashtag phổ biến mà người dùng thích
+    user_liked_posts = Post.objects.filter(post_likes__user=user)
+    user_hashtags = set()
+    for liked_post in user_liked_posts:
+        user_hashtags.update(liked_post.hashtags.all())
+    
+    if any(hashtag in post.hashtags.all() for hashtag in user_hashtags):
+        return 'recommended'
+    
+    # Kiểm tra nếu là bài viết có lượt tương tác cao gần đây
+    time_threshold = timezone.now() - timezone.timedelta(hours=48)
+    recent_likes = post.post_likes.filter(created_at__gte=time_threshold).count()
+    recent_comments = post.comments.filter(created_at__gte=time_threshold).count()
+    
+    if recent_likes >= 10 or recent_comments >= 5:
+        return 'trending'
+    
+    return 'discover'
+
+def track_feed_impression(user, posts):
+    """Theo dõi các bài viết được hiển thị cho người dùng"""
+    for post in posts:
+        # Ghi lại bài viết đã hiển thị
+        UserInteraction.objects.create(
+            user=user,
+            post=post,
+            interaction_type='view'
+        )
+
+def get_post_comments(post):
+    """Helper để lấy comments cho bài viết kèm với thông tin replies"""
+    comments = Comment.objects.filter(
+        post=post,
+        parent=None
+    ).select_related('author').order_by('-created_at')
+    
+    comments_data = []
+    for comment in comments:
+        replies = Comment.objects.filter(
+            parent=comment
+        ).select_related('author').order_by('created_at')
+        
+        data = {
+            'comment': comment,
+            'replies': replies,
+            'replies_count': replies.count()
+        }
+        comments_data.append(data)
+    
+    return comments_data
+
+def process_hashtags(post):
+    """Extract and process hashtags from post caption"""
+    if not post.caption:
+        return
+    
+    # Tìm tất cả các hashtag trong caption
+    hashtags = [word[1:] for word in post.caption.split() if word.startswith('#')]
+    
+    # Tạo hoặc lấy hashtag objects và liên kết với bài viết
+    for tag_name in hashtags:
+        if tag_name:  # Chỉ xử lý nếu tag không rỗng
+            try:
+                hashtag, created = Hashtag.objects.get_or_create(name=tag_name)
+                hashtag.posts.add(post)
+            except Exception as e:
+                print(f"Error processing hashtag {tag_name}: {str(e)}")

@@ -12,6 +12,21 @@
             <h4 class="mb-4">{{ title }}</h4>
             {% endif %}
 
+            <!-- Chế độ hiển thị feed -->
+            <div class="mb-3 feed-filter-section">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Bảng tin</h5>
+                    <div class="feed-type-selector">
+                        <a href="{% url 'posts:index' %}?feed=diverse" class="btn {% if feed_type == 'diverse' %}btn-primary{% else %}btn-outline-primary{% endif %} me-2">
+                            <i class="fas fa-random me-1"></i> Khám phá
+                        </a>
+                        <a href="{% url 'posts:index' %}?feed=following" class="btn {% if feed_type == 'following' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                            <i class="fas fa-user-friends me-1"></i> Theo dõi
+                        </a>
+                    </div>
+                </div>
+            </div>
+
             <!-- Create Post Card -->
             <div class="card mb-4">
                 <div class="card-body">
@@ -79,8 +94,29 @@
                                 {% endif %}
                             </div>
                         </div>
-                        <div class="text-muted small">
-                            {{ post.created_at|timesince }} trước
+                        <div class="d-flex align-items-center">
+                            <!-- Loại bài viết -->
+                            {% if post_data.post_type != 'following' and feed_type == 'diverse' %}
+                            <div class="post-type-badge me-2">
+                                {% if post_data.post_type == 'trending' %}
+                                <span class="badge bg-danger">
+                                    <i class="fas fa-fire"></i> Thịnh hành
+                                </span>
+                                {% elif post_data.post_type == 'recommended' %}
+                                <span class="badge bg-success">
+                                    <i class="fas fa-thumbs-up"></i> Gợi ý
+                                </span>
+                                {% elif post_data.post_type == 'discover' %}
+                                <span class="badge bg-info">
+                                    <i class="fas fa-compass"></i> Khám phá
+                                </span>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                            <!-- Thời gian đăng -->
+                            <div class="text-muted small">
+                                {{ post.created_at|timesince }} trước
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1113,5 +1149,127 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize event listeners for existing elements
     setupPostEventListeners();
 });
+</script>
+
+<script>
+    // Thêm CSS cho badge
+    document.addEventListener('DOMContentLoaded', function() {
+        // Thêm style cho các badge
+        const style = document.createElement('style');
+        style.textContent = `
+            .post-type-badge .badge {
+                font-size: 0.7rem;
+                padding: 0.25rem 0.5rem;
+            }
+            .feed-filter-section {
+                border-bottom: 1px solid #eee;
+                padding-bottom: 15px;
+            }
+            .feed-type-selector .btn {
+                font-size: 0.9rem;
+                padding: 0.25rem 0.75rem;
+            }
+        `;
+        document.head.appendChild(style);
+    });
+</script>
+
+<script>
+    // Tracking thời gian xem bài viết
+    let postViewStartTime = {};
+    let postVisibility = {};
+    
+    function trackPostView(postId) {
+        postViewStartTime[postId] = Date.now();
+        
+        // Tạo yêu cầu nhìn thấy bài viết
+        if (!postVisibility[postId]) {
+            postVisibility[postId] = true;
+            fetch('/api/posts/track-interaction/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    post_id: postId,
+                    interaction_type: 'view',
+                    duration: 0
+                })
+            });
+        }
+    }
+    
+    function recordPostViewDuration(postId) {
+        if (postViewStartTime[postId]) {
+            const duration = Math.floor((Date.now() - postViewStartTime[postId]) / 1000);
+            if (duration >= 3) { // Chỉ ghi nhận nếu xem > 3 giây
+                fetch('/api/posts/track-interaction/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({
+                        post_id: postId,
+                        interaction_type: 'view',
+                        duration: duration
+                    })
+                });
+            }
+            delete postViewStartTime[postId];
+        }
+    }
+    
+    // Theo dõi bài viết hiển thị bằng Intersection Observer
+    document.addEventListener('DOMContentLoaded', function() {
+        if ('IntersectionObserver' in window) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const postElement = entry.target;
+                    const postId = postElement.id.replace('post-', '');
+                    
+                    if (entry.isIntersecting) {
+                        trackPostView(postId);
+                    } else {
+                        recordPostViewDuration(postId);
+                    }
+                });
+            }, { threshold: 0.5 }); // Phải nhìn thấy 50% bài viết
+            
+            // Theo dõi tất cả bài viết
+            document.querySelectorAll('.card[id^="post-"]').forEach(post => {
+                observer.observe(post);
+            });
+            
+            // Theo dõi thêm bài viết mới thêm vào DOM
+            // (Sẽ được gọi trong hàm load thêm bài viết)
+            window.observeNewPosts = function() {
+                document.querySelectorAll('.card[id^="post-"]:not([data-observed])').forEach(post => {
+                    post.setAttribute('data-observed', 'true');
+                    observer.observe(post);
+                });
+            };
+        }
+    });
+    
+    // Ghi nhận sự kiện click vào bài viết
+    document.addEventListener('click', function(e) {
+        const postCard = e.target.closest('.card[id^="post-"]');
+        if (postCard && !e.target.closest('button') && !e.target.closest('a')) {
+            const postId = postCard.id.replace('post-', '');
+            fetch('/api/posts/track-interaction/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    post_id: postId,
+                    interaction_type: 'click'
+                })
+            });
+        }
+    });
 </script>
 {% endblock %} 

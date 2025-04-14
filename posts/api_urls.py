@@ -28,4 +28,7 @@ urlpatterns = [
     path('comments/add/', api.add_comment, name='add_comment'),
     path('comments/<int:pk>/delete/', api.delete_comment, name='delete_comment'),
     path('comments/<int:pk>/like/', api.like_comment, name='like_comment'),
+    path('track-interaction/', api.track_interaction, name='track_interaction'),
+    path('hashtag-suggestions/', api.hashtag_suggestions, name='hashtag_suggestions'),
+    path('user-suggestions/', api.user_suggestions, name='user_suggestions'),
 ] 

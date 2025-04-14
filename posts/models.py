@@ -29,6 +29,7 @@ class Post(models.Model):
     # Settings
     disable_comments = models.BooleanField(default=False)
     hide_likes = models.BooleanField(default=False)
+    is_archived = models.BooleanField(default=False)
     
     # For notifications
     notifications = GenericRelation(Notification)
@@ -290,3 +291,32 @@ class PostReport(models.Model):
     
     def __str__(self):
         return f"Report on {self.post} by {self.user.username}"
+
+class UserInteraction(models.Model):
+    """Model lưu trữ các tương tác của người dùng với bài viết"""
+    INTERACTION_TYPES = (
+        ('view', 'Xem'),
+        ('like', 'Thích'),
+        ('comment', 'Bình luận'),
+        ('share', 'Chia sẻ'),
+        ('save', 'Lưu'),
+        ('click', 'Click vào chi tiết')
+    )
+    
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='interactions')
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='user_interactions')
+    interaction_type = models.CharField(max_length=20, choices=INTERACTION_TYPES)
+    
+    # Thời gian tương tác (chỉ dùng cho tương tác 'view')
+    duration = models.PositiveIntegerField(default=0, help_text='Thời gian tương tác tính bằng giây')
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        """Meta for UserInteraction model"""
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['user', 'interaction_type']),
+            models.Index(fields=['post', 'interaction_type']),
+        ]
+        verbose_name = 'Tương tác người dùng'
+        verbose_name_plural = 'Tương tác người dùng'
