@@ -31,6 +31,13 @@ class Post(models.Model):
     hide_likes = models.BooleanField(default=False)
     is_archived = models.BooleanField(default=False)
     
+    # Chia sẻ bài viết
+    shared_from = models.ForeignKey('self', 
+                                  on_delete=models.SET_NULL, 
+                                  null=True, 
+                                  blank=True, 
+                                  related_name='shared_posts')
+    
     # For notifications
     notifications = GenericRelation(Notification)
     

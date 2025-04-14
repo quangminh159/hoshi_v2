@@ -725,4 +725,90 @@ def track_interaction(request):
         return Response({'status': 'success'})
     
     except Exception as e:
-        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def share_post(request):
+    try:
+        data = request.data
+        post_id = data.get('post_id')
+        caption = data.get('caption', '')
+        as_new_post = data.get('as_new_post', True)
+        
+        # Kiểm tra bài viết tồn tại
+        try:
+            original_post = Post.objects.get(pk=post_id)
+        except Post.DoesNotExist:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Bài viết không tồn tại'
+            }, status=404)
+        
+        # Kiểm tra người dùng bị chặn - Sửa tên trường từ blocking_user/blocked_user thành blocker/blocked
+        if UserBlock.objects.filter(
+            Q(blocker=original_post.author, blocked=request.user) | 
+            Q(blocker=request.user, blocked=original_post.author)
+        ).exists():
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Không thể chia sẻ bài viết này'
+            }, status=403)
+        
+        # Nếu chia sẻ như bài viết mới
+        if as_new_post:
+            # Tạo nội dung bài viết với định dạng mới
+            # Chỉ thêm caption của người dùng và liên kết đến bài gốc
+            shared_content = caption
+            if caption:
+                shared_content += "\n\n"
+            
+            # Thêm thông tin rằng đây là bài chia sẻ với icon
+            shared_content += f"📄 Đã chia sẻ bài viết của @{original_post.author.username}\n"
+            
+            # Thêm URL bài viết gốc
+            shared_content += f"🔗 /posts/{post_id}/"
+            
+            # Tạo bài viết mới
+            new_post = Post.objects.create(
+                author=request.user,
+                caption=shared_content,
+                shared_from=original_post
+            )
+            
+            # Không sao chép media, chỉ tham chiếu đến bài viết gốc
+            
+            # Tạo thông báo cho chủ bài viết gốc
+            if request.user != original_post.author:
+                from notifications.models import Notification
+                from django.contrib.contenttypes.models import ContentType
+                Notification.objects.create(
+                    recipient=original_post.author,
+                    sender=request.user,
+                    notification_type='share',
+                    text=f"{request.user.username} đã chia sẻ bài viết của bạn",
+                    post=new_post,
+                    original_post=original_post,
+                    content_type=ContentType.objects.get_for_model(new_post),
+                    object_id=new_post.id
+                )
+            
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Đã chia sẻ bài viết thành công',
+                'post_id': new_post.id
+            })
+        else:
+            # Chức năng chia sẻ nhanh (hiện chưa triển khai)
+            # Có thể thêm chức năng chia sẻ qua tin nhắn hoặc trên profile
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Đã chia sẻ bài viết thành công'
+            })
+            
+    except Exception as e:
+        print(f"Error sharing post: {str(e)}")
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Có lỗi xảy ra khi chia sẻ bài viết'
+        }, status=500) 

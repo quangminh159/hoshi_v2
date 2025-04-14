@@ -61,11 +61,112 @@
     {% if post.caption %}
     <div class="card-body py-2">
         <p class="card-text mb-0">
-            {{ post.caption }}
+            {{ post.caption|urlize|linebreaksbr }}
         </p>
     </div>
     {% endif %}
-
+    
+    <!-- Hiển thị bài viết được chia sẻ nếu có -->
+    {% if post.shared_from %}
+    <div class="shared-post-container mx-3 my-2 border rounded bg-white">
+        <div class="shared-post-header border-bottom p-3">
+            <div class="d-flex align-items-center">
+                <img src="{{ post.shared_from.author.get_avatar_url }}" 
+                     class="rounded-circle me-2" 
+                     width="32" 
+                     height="32"
+                     alt="{{ post.shared_from.author.username }}">
+                <div>
+                    <a href="{% url 'accounts:profile' username=post.shared_from.author.username %}" 
+                       class="text-dark text-decoration-none fw-bold">
+                        {{ post.shared_from.author.username }}
+                    </a>
+                    {% if post.shared_from.location %}
+                    <div class="text-muted small">
+                        {{ post.shared_from.location }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Hiển thị nội dung bài viết được chia sẻ -->
+        {% if post.shared_from.caption %}
+        <div class="card-body py-2">
+            <p class="card-text mb-0">
+                {{ post.shared_from.caption|urlize|linebreaksbr }}
+            </p>
+        </div>
+        {% endif %}
+        
+        <!-- Post Media của bài viết được chia sẻ -->
+        {% if post.shared_from.media.exists %}
+        <div id="carousel-shared-{{ post.id }}" class="carousel slide" data-bs-ride="false">
+            {% if post.shared_from.media.count > 1 %}
+            <div class="carousel-indicators">
+                {% for media in post.shared_from.media.all %}
+                <button type="button" 
+                        data-bs-target="#carousel-shared-{{ post.id }}" 
+                        data-bs-slide-to="{{ forloop.counter0 }}"
+                        {% if forloop.first %}class="active"{% endif %}
+                        aria-current="true" 
+                        aria-label="Slide {{ forloop.counter }}">
+                </button>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <div class="carousel-inner">
+                {% for media in post.shared_from.media.all %}
+                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                    {% if media.media_type == 'image' %}
+                    <img src="{{ media.file.url }}" 
+                         class="d-block w-100" 
+                         alt="Shared post image">
+                    {% else %}
+                    <video class="d-block w-100" controls>
+                        <source src="{{ media.file.url }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            
+            {% if post.shared_from.media.count > 1 %}
+            <button class="carousel-control-prev" 
+                    type="button" 
+                    data-bs-target="#carousel-shared-{{ post.id }}" 
+                    data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" 
+                    type="button" 
+                    data-bs-target="#carousel-shared-{{ post.id }}" 
+                    data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+            {% endif %}
+        </div>
+        {% endif %}
+        
+        <!-- Post Actions của bài viết được chia sẻ -->
+        <div class="card-body border-top">
+            <div class="d-flex">
+                <div class="me-3">
+                    <i class="far fa-heart"></i>
+                    <span>{{ post.shared_from.likes_count }}</span>
+                </div>
+                <div>
+                    <i class="far fa-comment"></i>
+                    <span>{{ post.shared_from.comments_count }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
     <!-- Post Media -->
     {% if post.media.exists %}
     <div id="carousel-{{ post.id }}" class="carousel slide" data-bs-ride="false">
@@ -118,6 +219,7 @@
         {% endif %}
     </div>
     {% endif %}
+    {% endif %}
 
     <!-- Post Actions -->
     <div class="card-body">
@@ -131,6 +233,12 @@
                     onclick="window.location.href='{% url 'posts:post_detail' post_id=post.id %}'">
                 <i class="far fa-comment"></i>
                 <span>{{ post.comments_count }}</span>
+            </button>
+            <button class="btn btn-link text-dark p-0 me-3 share-button" 
+                    data-post-id="{{ post.id }}"
+                    data-bs-toggle="modal" 
+                    data-bs-target="#sharePostModal-{{ post.id }}">
+                <i class="far fa-share-square"></i>
             </button>
             <button class="btn btn-link text-dark p-0 save-button" 
                     data-post-id="{{ post.id }}">
@@ -372,6 +480,77 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     });
+
+    // Xử lý khi nhấn nút chia sẻ trong modal
+    document.querySelectorAll('.share-post-button').forEach(button => {
+        button.addEventListener('click', function() {
+            const postId = this.getAttribute('data-post-id');
+            
+            // Disable nút để tránh submit nhiều lần
+            this.disabled = true;
+            const btnText = this.querySelector('.btn-text');
+            const btnSpinner = this.querySelector('.spinner-border');
+            btnText.classList.add('d-none');
+            btnSpinner.classList.remove('d-none');
+            
+            // Lấy dữ liệu từ form
+            const caption = document.getElementById(`share-caption-${postId}`).value;
+            const asNewPost = document.getElementById(`share-as-new-post-${postId}`).checked;
+            
+            // Gửi request chia sẻ bài viết
+            fetch('/posts/share/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    post_id: postId,
+                    caption: caption,
+                    as_new_post: asNewPost
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Có lỗi xảy ra khi chia sẻ bài viết.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Khôi phục nút
+                this.disabled = false;
+                btnText.classList.remove('d-none');
+                btnSpinner.classList.add('d-none');
+                
+                if (data.status === 'success') {
+                    // Đóng modal
+                    const shareModal = bootstrap.Modal.getInstance(document.getElementById(`sharePostModal-${postId}`));
+                    shareModal.hide();
+                    
+                    // Hiển thị thông báo thành công
+                    alert('Đã chia sẻ bài viết thành công!');
+                    
+                    // Nếu chia sẻ dưới dạng bài viết mới, chuyển hướng đến bài viết mới
+                    if (data.post_id) {
+                        window.location.href = `/posts/${data.post_id}/`;
+                    } else {
+                        // Tải lại trang để hiển thị thay đổi
+                        window.location.reload();
+                    }
+                } else {
+                    alert(data.message || 'Có lỗi xảy ra khi chia sẻ bài viết.');
+                }
+            })
+            .catch(error => {
+                console.error('Error sharing post:', error);
+                // Khôi phục nút
+                this.disabled = false;
+                btnText.classList.remove('d-none');
+                btnSpinner.classList.add('d-none');
+                alert(error.message || 'Có lỗi xảy ra khi chia sẻ bài viết.');
+            });
+        });
+    });
 });
 
 // Function to delete post
@@ -521,6 +700,88 @@ function getCookie(name) {
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
                 <button type="button" class="btn btn-primary save-post-changes" data-post-id="{{ post.id }}">Lưu thay đổi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Chia sẻ bài viết -->
+<div class="modal fade" id="sharePostModal-{{ post.id }}" tabindex="-1" aria-labelledby="sharePostModalLabel-{{ post.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="sharePostModalLabel-{{ post.id }}">Chia sẻ bài viết</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="sharePostForm-{{ post.id }}">
+                    <input type="hidden" id="share-post-id-{{ post.id }}" value="{{ post.id }}">
+                    
+                    <!-- Hiển thị bài viết gốc -->
+                    <div class="original-post mb-3 border p-2 rounded">
+                        <div class="d-flex align-items-center mb-2">
+                            <img src="{{ post.author.get_avatar_url }}" 
+                                class="rounded-circle me-2" 
+                                width="32" 
+                                height="32"
+                                alt="{{ post.author.username }}">
+                            <div>
+                                <a href="{% url 'accounts:profile' username=post.author.username %}" 
+                                    class="text-dark text-decoration-none fw-bold">
+                                    {{ post.author.username }}
+                                </a>
+                            </div>
+                        </div>
+                        
+                        {% if post.media.exists %}
+                        <div class="original-post-media mb-2">
+                            {% with first_media=post.media.first %}
+                            {% if first_media.media_type == 'image' %}
+                            <img src="{{ first_media.file.url }}" 
+                                 class="img-fluid rounded" 
+                                 style="max-height: 150px; width: auto;"
+                                 alt="Post image">
+                            {% else %}
+                            <video class="img-fluid rounded" style="max-height: 150px; width: auto;">
+                                <source src="{{ first_media.file.url }}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                            {% endif %}
+                            {% endwith %}
+                            {% if post.media.count > 1 %}
+                            <span class="badge bg-dark position-absolute bottom-0 end-0 m-2">+{{ post.media.count|add:"-1" }}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                        
+                        {% if post.caption %}
+                        <div class="original-post-caption">
+                            <p class="small mb-0">{{ post.caption|truncatechars:100 }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Caption cho bài viết chia sẻ -->
+                    <div class="mb-3">
+                        <label for="share-caption-{{ post.id }}" class="form-label">Viết gì đó về bài viết này</label>
+                        <textarea class="form-control" id="share-caption-{{ post.id }}" rows="3" placeholder="Bạn đang nghĩ gì về bài viết này?"></textarea>
+                    </div>
+                    
+                    <!-- Tùy chọn chia sẻ -->
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="share-as-new-post-{{ post.id }}" checked>
+                            <label class="form-check-label" for="share-as-new-post-{{ post.id }}">Đăng như bài viết mới</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary share-post-button" data-post-id="{{ post.id }}">
+                    <span class="btn-text">Chia sẻ</span>
+                    <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                </button>
             </div>
         </div>
     </div>

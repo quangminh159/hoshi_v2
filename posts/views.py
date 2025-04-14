@@ -345,11 +345,11 @@ def create(request):
                 process_hashtags(post)
                 
             messages.success(request, 'Bài viết đã được đăng thành công!')
-            return redirect('posts:feed')
+            return redirect('posts:index')
     else:
         form = PostForm()
     
-    return render(request, 'posts/create.html', {
+    return render(request, 'posts/create_post.html', {
         'form': form
     })
 
@@ -1107,12 +1107,35 @@ def index(request):
     feed_type = request.GET.get('feed', 'diverse')
     
     if feed_type == 'following':
-        # Lấy bài viết từ người dùng đã theo dõi (cách cũ)
+        # Lấy bài viết từ người dùng đã theo dõi
         following_users = user.following.all()
         posts_query = Post.objects.filter(
             author__in=following_users,
             is_archived=False
         ).order_by('-created_at')
+        
+        # Xử lý phân trang (cho feed_type == 'following')
+        paginator = Paginator(posts_query, 10)
+        posts_page = paginator.get_page(page)
+        
+        posts_with_data = []
+        for post in posts_page:
+            post_data = {
+                'post': post,
+                'comments_data': get_post_comments(post)[:3],
+                'total_comments': post.comments.count(),
+                'total_likes': post.post_likes.count(),
+                'is_liked': post.post_likes.filter(user=user).exists(),
+                'is_saved': post.saved_by.filter(user=user).exists(),
+                'post_type': 'following'  # Tất cả đều là từ người theo dõi
+            }
+            posts_with_data.append(post_data)
+        
+        return render(request, 'posts/feed.html', {
+            'posts_with_data': posts_with_data,
+            'feed_type': feed_type,
+            'page': page
+        })
     else:
         # Sử dụng thuật toán đa dạng hóa bài viết (mặc định)
         posts = get_diverse_feed(user, page_size=10, page=int(page))
@@ -1140,29 +1163,6 @@ def index(request):
             'feed_type': feed_type,
             'page': page
         })
-    
-    # Xử lý phân trang (cho feed_type == 'following')
-    paginator = Paginator(posts_query, 10)
-    posts_page = paginator.get_page(page)
-    
-    posts_with_data = []
-    for post in posts_page:
-        post_data = {
-            'post': post,
-            'comments_data': get_post_comments(post)[:3],
-            'total_comments': post.comments.count(),
-            'total_likes': post.post_likes.count(),
-            'is_liked': post.post_likes.filter(user=user).exists(),
-            'is_saved': post.saved_by.filter(user=user).exists(),
-            'post_type': 'following'  # Tất cả đều là từ người theo dõi
-        }
-        posts_with_data.append(post_data)
-    
-    return render(request, 'posts/feed.html', {
-        'posts_with_data': posts_with_data,
-        'feed_type': feed_type,
-        'page': page
-    })
 
 def determine_post_type(user, post):
     """Xác định loại bài viết để hiển thị nhãn"""

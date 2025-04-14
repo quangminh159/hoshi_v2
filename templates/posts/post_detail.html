@@ -122,7 +122,7 @@
                                 
                                 {% if post.caption %}
                                 <p class="card-text">
-                                    {{ post.caption }}
+                                    {{ post.caption|urlize|linebreaksbr }}
                                 </p>
                                 {% endif %}
                                 
@@ -143,6 +143,12 @@
                                         <i class="far fa-comment"></i>
                                         <span>{{ post.comments_count }}</span>
                                     </button>
+                                    <button class="btn btn-link text-dark p-0 me-3 share-button" 
+                                            data-post-id="{{ post.id }}"
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#sharePostModal">
+                                        <i class="far fa-share-square"></i>
+                                    </button>
                                     <button class="btn btn-link text-dark p-0 save-button" 
                                             data-post-id="{{ post.id }}">
                                         <i class="{% if request.user in post.saved_by.all %}fas{% else %}far{% endif %} fa-bookmark"></i>
@@ -160,7 +166,7 @@
                             <div class="overflow-auto flex-grow-1 mb-3" style="max-height: 300px;">
                                 {% for comment_item in comments_data %}
                                 {% with comment=comment_item.comment %}
-                                <div class="d-flex mb-3 comment" id="comment-{{ comment.id }}">
+                                <div class="d-flex mb-3 comment" id="comment-{{ comment.id }}" data-comment-id="{{ comment.id }}">
                                     <img src="{{ comment.author.get_avatar_url }}" 
                                          class="rounded-circle me-2" 
                                          width="32" 
@@ -173,7 +179,7 @@
                                                    class="text-dark text-decoration-none fw-bold">
                                                     {{ comment.author.username }}
                                                 </a>
-                                                {{ comment.text }}
+                                                {{ comment.text|urlize|linebreaksbr }}
                                             </div>
                                             <div class="dropdown">
                                                 <button class="btn btn-link btn-sm p-0 text-muted dropdown-toggle" 
@@ -229,7 +235,7 @@
                                         {% if comment_item.replies %}
                                         <div class="comment-replies ps-4 mt-2">
                                             {% for reply in comment_item.replies %}
-                                            <div class="reply-comment mb-2" id="comment-{{ reply.id }}">
+                                            <div class="reply-comment mb-2" id="comment-{{ reply.id }}" data-comment-id="{{ reply.id }}">
                                                 <div class="d-flex justify-content-between">
                                                     <div>
                                                         <a href="{% url 'accounts:profile' username=reply.author.username %}" 
@@ -238,7 +244,7 @@
                                                         </a>
                                                         <span class="text-muted small me-1">đã trả lời</span>
                                                         <a href="#comment-{{ comment.id }}" class="text-dark fw-bold small">@{{ comment.author.username }}</a>:
-                                                        {{ reply.text }}
+                                                        {{ reply.text|urlize|linebreaksbr }}
                                                     </div>
                                                     <div class="dropdown">
                                                         <button class="btn btn-link btn-sm p-0 text-muted dropdown-toggle" 
@@ -368,6 +374,88 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
                 <button type="button" class="btn btn-primary" id="savePostChanges">Lưu thay đổi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Chia sẻ bài viết -->
+<div class="modal fade" id="sharePostModal" tabindex="-1" aria-labelledby="sharePostModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="sharePostModalLabel">Chia sẻ bài viết</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="sharePostForm">
+                    <input type="hidden" id="share-post-id" value="{{ post.id }}">
+                    
+                    <!-- Hiển thị bài viết gốc -->
+                    <div class="original-post mb-3 border p-2 rounded">
+                        <div class="d-flex align-items-center mb-2">
+                            <img src="{{ post.author.get_avatar_url }}" 
+                                class="rounded-circle me-2" 
+                                width="32" 
+                                height="32"
+                                alt="{{ post.author.username }}">
+                            <div>
+                                <a href="{% url 'accounts:profile' username=post.author.username %}" 
+                                    class="text-dark text-decoration-none fw-bold">
+                                    {{ post.author.username }}
+                                </a>
+                            </div>
+                        </div>
+                        
+                        {% if post.media.exists %}
+                        <div class="original-post-media mb-2">
+                            {% with first_media=post.media.first %}
+                            {% if first_media.media_type == 'image' %}
+                            <img src="{{ first_media.file.url }}" 
+                                 class="img-fluid rounded" 
+                                 style="max-height: 150px; width: auto;"
+                                 alt="Post image">
+                            {% else %}
+                            <video class="img-fluid rounded" style="max-height: 150px; width: auto;">
+                                <source src="{{ first_media.file.url }}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                            {% endif %}
+                            {% endwith %}
+                            {% if post.media.count > 1 %}
+                            <span class="badge bg-dark position-absolute bottom-0 end-0 m-2">+{{ post.media.count|add:"-1" }}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                        
+                        {% if post.caption %}
+                        <div class="original-post-caption">
+                            <p class="small mb-0">{{ post.caption|truncatechars:100 }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Caption cho bài viết chia sẻ -->
+                    <div class="mb-3">
+                        <label for="share-caption" class="form-label">Viết gì đó về bài viết này</label>
+                        <textarea class="form-control" id="share-caption" rows="3" placeholder="Bạn đang nghĩ gì về bài viết này?"></textarea>
+                    </div>
+                    
+                    <!-- Tùy chọn chia sẻ -->
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="share-as-new-post" checked>
+                            <label class="form-check-label" for="share-as-new-post">Đăng như bài viết mới</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" id="sharePostButton">
+                    <span class="btn-text">Chia sẻ</span>
+                    <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                </button>
             </div>
         </div>
     </div>
@@ -848,6 +936,18 @@ function generateRequestId(postId, text) {
     return `req_${Math.abs(hash).toString(36)}`;
 }
 
+// Hàm chuyển URL thành liên kết có thể nhấp và giữ nguyên dòng mới
+function urlify(text) {
+    if (!text) return '';
+    // Thay thế URL thành liên kết
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const withLinks = text.replace(urlRegex, function(url) {
+        return '<a href="' + url + '" target="_blank" class="text-primary">' + url + '</a>';
+    });
+    // Thay thế dòng mới bằng thẻ <br>
+    return withLinks.replace(/\n/g, '<br>');
+}
+
 // Hàm thêm bình luận vào DOM
 function addCommentToDOM(comment, postId, parentId) {
     // Tăng số lượng bình luận hiển thị
@@ -856,6 +956,12 @@ function addCommentToDOM(comment, postId, parentId) {
         let count = parseInt(commentCountElement.textContent) || 0;
         commentCountElement.textContent = count + 1;
     }
+    
+    // Lấy đường dẫn avatar
+    const avatarUrl = comment.author_avatar || 
+                     (comment.author && comment.author.avatar) || 
+                     `/static/images/profiles/avatars/${comment.author_username || comment.author.username}.jpg` ||
+                     '/static/images/default-avatar.png';
     
     // Nếu là reply cho comment khác
     if (parentId) {
@@ -875,13 +981,13 @@ function addCommentToDOM(comment, postId, parentId) {
             <div class="reply-comment mb-2" id="comment-${comment.id}" data-comment-id="${comment.id}">
                 <div class="d-flex justify-content-between">
                     <div>
-                        <a href="/users/${comment.author_username || comment.author.username}/" 
+                        <a href="/accounts/profile/${comment.author_username || comment.author.username}/" 
                            class="text-dark text-decoration-none fw-bold">
                             ${comment.author_username || comment.author.username}
                         </a>
                         <span class="text-muted small me-1">đã trả lời</span>
                         <a href="#comment-${parentId}" class="text-dark fw-bold small">@${document.querySelector(`#comment-${parentId} a.text-dark.text-decoration-none.fw-bold`).textContent}</a>:
-                        ${comment.text}
+                        <span class="comment-text">${urlify(comment.text)}</span>
                     </div>
                     <div class="dropdown">
                         <button class="btn btn-link btn-sm p-0 text-muted dropdown-toggle" 
@@ -900,7 +1006,7 @@ function addCommentToDOM(comment, postId, parentId) {
                             </li>
                             <li>
                                 <button class="dropdown-item text-danger" 
-                                       onclick="deleteComment({{ comment.id }})">
+                                       onclick="deleteComment(${comment.id})">
                                     <i class="fas fa-trash-alt me-2"></i>Xóa
                                 </button>
                             </li>
@@ -929,7 +1035,7 @@ function addCommentToDOM(comment, postId, parentId) {
         // Tạo HTML cho bình luận mới
         const commentHTML = `
         <div class="d-flex mb-3 comment" id="comment-${comment.id}" data-comment-id="${comment.id}">
-            <img src="${comment.author_avatar || (comment.author && comment.author.avatar) || '/static/images/default-avatar.png'}" 
+            <img src="${avatarUrl}" 
                  class="rounded-circle me-2" 
                  width="32" 
                  height="32"
@@ -937,11 +1043,11 @@ function addCommentToDOM(comment, postId, parentId) {
             <div class="flex-grow-1">
                 <div class="d-flex justify-content-between">
                     <div>
-                        <a href="/users/${comment.author_username || comment.author.username}/" 
+                        <a href="/accounts/profile/${comment.author_username || comment.author.username}/" 
                            class="text-dark text-decoration-none fw-bold">
                             ${comment.author_username || comment.author.username}
                         </a>
-                        ${comment.text}
+                        <span class="comment-text">${urlify(comment.text)}</span>
                     </div>
                     <div class="dropdown">
                         <button class="btn btn-link btn-sm p-0 text-muted dropdown-toggle" 
@@ -960,7 +1066,7 @@ function addCommentToDOM(comment, postId, parentId) {
                             </li>
                             <li>
                                 <button class="dropdown-item text-danger" 
-                                       onclick="deleteComment({{ comment.id }})">
+                                       onclick="deleteComment(${comment.id})">
                                     <i class="fas fa-trash-alt me-2"></i>Xóa
                                 </button>
                             </li>
@@ -1170,6 +1276,89 @@ document.querySelectorAll('.edit-post-btn').forEach(button => {
         // Hiển thị modal
         editModal.show();
     });
+});
+
+// Xử lý chia sẻ bài viết
+document.addEventListener('DOMContentLoaded', function() {
+    // Xử lý khi mở modal chia sẻ bài viết
+    document.body.addEventListener('click', function(e) {
+        const shareButton = e.target.closest('.share-button');
+        if (shareButton) {
+            const postId = shareButton.getAttribute('data-post-id');
+            document.getElementById('share-post-id').value = postId;
+        }
+    });
+    
+    // Xử lý khi nhấn nút chia sẻ trong modal
+    const sharePostButton = document.getElementById('sharePostButton');
+    if (sharePostButton) {
+        sharePostButton.addEventListener('click', function() {
+            // Disable nút để tránh submit nhiều lần
+            this.disabled = true;
+            const btnText = this.querySelector('.btn-text');
+            const btnSpinner = this.querySelector('.spinner-border');
+            btnText.classList.add('d-none');
+            btnSpinner.classList.remove('d-none');
+            
+            // Lấy dữ liệu từ form
+            const postId = document.getElementById('share-post-id').value;
+            const caption = document.getElementById('share-caption').value;
+            const asNewPost = document.getElementById('share-as-new-post').checked;
+            
+            // Gửi request chia sẻ bài viết
+            fetch('/posts/share/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    post_id: postId,
+                    caption: caption,
+                    as_new_post: asNewPost
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Có lỗi xảy ra khi chia sẻ bài viết.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Khôi phục nút
+                this.disabled = false;
+                btnText.classList.remove('d-none');
+                btnSpinner.classList.add('d-none');
+                
+                if (data.status === 'success') {
+                    // Đóng modal
+                    const shareModal = bootstrap.Modal.getInstance(document.getElementById('sharePostModal'));
+                    shareModal.hide();
+                    
+                    // Hiển thị thông báo thành công
+                    alert('Đã chia sẻ bài viết thành công!');
+                    
+                    // Nếu chia sẻ dưới dạng bài viết mới, chuyển hướng đến bài viết mới
+                    if (data.post_id) {
+                        window.location.href = `/posts/${data.post_id}/`;
+                    } else {
+                        // Tải lại trang để hiển thị thay đổi
+                        window.location.reload();
+                    }
+                } else {
+                    alert(data.message || 'Có lỗi xảy ra khi chia sẻ bài viết.');
+                }
+            })
+            .catch(error => {
+                console.error('Error sharing post:', error);
+                // Khôi phục nút
+                this.disabled = false;
+                btnText.classList.remove('d-none');
+                btnSpinner.classList.add('d-none');
+                alert(error.message || 'Có lỗi xảy ra khi chia sẻ bài viết.');
+            });
+        });
+    }
 });
 </script>
 {% endblock %} 

@@ -72,6 +72,13 @@ def profile(request, username):
     paginator = Paginator(posts, 12)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+    
+    # Đảm bảo các bài viết đều có likes_count và comments_count
+    for post in page_obj:
+        if not hasattr(post, 'likes_count') or not post.likes_count:
+            post.likes_count = post.post_likes.count()
+        if not hasattr(post, 'comments_count') or not post.comments_count:
+            post.comments_count = post.comments.count()
 
     context = {
         'profile_user': user,

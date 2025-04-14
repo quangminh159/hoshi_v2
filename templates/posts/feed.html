@@ -192,7 +192,7 @@
                 {% if post.caption %}
                 <div class="card-body py-2 post-content" onclick="window.location='/posts/{{ post.id }}/';" style="cursor: pointer;">
                     <p class="card-text mb-0">
-                        {{ post.caption }}
+                        {{ post.caption|urlize|linebreaksbr }}
                     </p>
                 </div>
                 {% endif %}
@@ -1077,7 +1077,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 ${post.caption ? `
                 <div class="card-body py-2 post-content" onclick="window.location='/posts/${post.id}/';" style="cursor: pointer;">
                     <p class="card-text mb-0">
-                        ${post.caption}
+                        ${post.caption|urlize|linebreaksbr}
                     </p>
                 </div>
                 ` : ''}
