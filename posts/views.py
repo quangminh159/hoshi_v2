@@ -1185,12 +1185,12 @@ def index(request):
             # Điền các thông tin chi tiết
             post_data = {
                 'post': post,
-                'comments_data': get_post_comments(post)[:3],  # 3 comments gần nhất
+                'comments_data': get_post_comments(post)[:3],  
                 'total_comments': post.comments.count(),
                 'total_likes': post.post_likes.count(),
                 'is_liked': post.post_likes.filter(user=user).exists(),
                 'is_saved': post.saved_by.filter(user=user).exists(),
-                'post_type': determine_post_type(user, post)  # Xác định loại bài viết
+                'post_type': determine_post_type(user, post)  
             }
             posts_with_data.append(post_data)
         
