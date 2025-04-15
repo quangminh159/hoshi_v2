@@ -231,7 +231,7 @@
                                     Theo dõi
                                 </button>
                             {% endif %}
-                            <a href="{% url 'chat:conversation_list' %}" class="btn btn-outline-primary me-2">
+                            <a href="{% url 'chat:direct_chat' username=profile_user.username %}" class="btn btn-outline-primary me-2">
                                 <i class="far fa-envelope"></i>
                             </a>
                             <div class="dropdown d-inline-block">

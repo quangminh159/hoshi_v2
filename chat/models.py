@@ -14,6 +14,12 @@ def random_file_name(instance, filename):
     filename = "%s.%s" % (uuid.uuid4(), ext)
     return os.path.join('profile-pics', filename)
 
+def message_file_path(instance, filename):
+    """Tạo đường dẫn ngẫu nhiên cho tệp đính kèm tin nhắn"""
+    ext = filename.split('.')[-1]
+    filename = f"{uuid.uuid4()}.{ext}"
+    return os.path.join('chat_attachments', filename)
+
 class UserSetting(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE)
     username = models.CharField(max_length=32, default="")
@@ -111,11 +117,33 @@ class ConversationMessage(models.Model):
     is_read = models.BooleanField(default=False)
     isread = models.BooleanField(default=False)
     
+    # Trường đính kèm
+    image = models.ImageField(upload_to=message_file_path, blank=True, null=True)
+    video = models.FileField(upload_to=message_file_path, blank=True, null=True)
+    document = models.FileField(upload_to=message_file_path, blank=True, null=True)
+    file_name = models.CharField(max_length=255, blank=True, null=True)
+    file_size = models.IntegerField(blank=True, null=True)
+    file_type = models.CharField(max_length=50, blank=True, null=True)
+    
     class Meta:
         ordering = ['created_at']
     
     def __str__(self):
         return f"Message from {self.sender.username} in {self.conversation}"
+    
+    def has_attachment(self):
+        """Kiểm tra xem tin nhắn có đính kèm tệp không"""
+        return bool(self.image or self.video or self.document)
+    
+    def get_attachment_url(self):
+        """Lấy URL của tệp đính kèm"""
+        if self.image:
+            return self.image.url
+        elif self.video:
+            return self.video.url
+        elif self.document:
+            return self.document.url
+        return None
     
     def mark_as_read(self, user):
         """Đánh dấu tin nhắn là đã đọc"""

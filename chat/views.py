@@ -116,14 +116,43 @@ def send_message(request, conversation_id):
             return redirect('chat:conversation_detail', conversation_id=conversation_id)
         
         message_content = request.POST.get('message', '').strip()
+        has_attachment = 'image' in request.FILES or 'video' in request.FILES or 'document' in request.FILES
         
-        if message_content:
+        # Tạo tin nhắn mới nếu có nội dung hoặc đính kèm
+        if message_content or has_attachment:
             # Tạo tin nhắn mới
             message = Message.objects.create(
                 conversation=conversation,
                 sender=user,
                 content=message_content
             )
+            
+            # Xử lý đính kèm hình ảnh
+            if 'image' in request.FILES:
+                image_file = request.FILES['image']
+                message.image = image_file
+                message.file_name = image_file.name
+                message.file_size = image_file.size
+                message.file_type = 'image'
+                
+            # Xử lý đính kèm video
+            elif 'video' in request.FILES:
+                video_file = request.FILES['video']
+                message.video = video_file
+                message.file_name = video_file.name
+                message.file_size = video_file.size
+                message.file_type = 'video'
+                
+            # Xử lý đính kèm tài liệu
+            elif 'document' in request.FILES:
+                document_file = request.FILES['document']
+                message.document = document_file
+                message.file_name = document_file.name
+                message.file_size = document_file.size
+                message.file_type = 'document'
+            
+            # Lưu tin nhắn sau khi đã xử lý đính kèm
+            message.save()
             
             # Cập nhật thời gian tin nhắn cuối cùng của cuộc trò chuyện
             conversation.last_message_time = message.created_at
