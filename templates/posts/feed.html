@@ -65,7 +65,7 @@
                             <button class="btn dropdown-toggle" type="button" id="feedTypeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                 {% if feed_type == 'diverse' %}
                                     <span>Dành cho bạn</span> <i class="fas fa-chevron-down ms-2"></i>
-                                {% elif feed_type == 'following' %}
+                                {% elif feed_type == 'flowed' %}
                                     <span>Theo dõi</span> <i class="fas fa-chevron-down ms-2"></i>
                                 {% elif feed_type == 'liked' %}
                                     <span>Đã thích</span> <i class="fas fa-chevron-down ms-2"></i>
@@ -82,7 +82,7 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item {% if feed_type == 'following' %}active{% endif %}" href="{% url 'posts:index' %}?feed=following">
+                                    <a class="dropdown-item {% if feed_type == 'flowed' %}active{% endif %}" href="{% url 'posts:index' %}?feed=flowed">
                                         <i class="fas fa-user-friends"></i> Theo dõi
                                     </a>
                                 </li>
@@ -164,7 +164,7 @@
                         </div>
                         <div class="d-flex align-items-center">
                             <!-- Loại bài viết -->
-                            {% if post_data.post_type != 'following' and feed_type == 'diverse' %}
+                            {% if post_data.post_type != 'flowed' and feed_type == 'diverse' %}
                             <div class="post-type-badge me-2">
                                 {% if post_data.post_type == 'trending' %}
                                 <span class="badge bg-danger">

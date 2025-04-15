@@ -1145,7 +1145,7 @@ def index(request):
     # Nếu người dùng yêu cầu chỉ xem bài viết của người đã theo dõi
     feed_type = request.GET.get('feed', 'diverse')
     
-    if feed_type == 'following':
+    if feed_type == 'flowed':
         # Lấy bài viết từ người dùng đã theo dõi
         following_users = user.following.all()
         posts_query = Post.objects.filter(
@@ -1153,7 +1153,7 @@ def index(request):
             is_archived=False
         ).order_by('-created_at')
         
-        # Xử lý phân trang (cho feed_type == 'following')
+        # Xử lý phân trang (cho feed_type == 'flowed')
         paginator = Paginator(posts_query, 10)
         posts_page = paginator.get_page(page)
         
@@ -1166,7 +1166,7 @@ def index(request):
                 'total_likes': post.post_likes.count(),
                 'is_liked': post.post_likes.filter(user=user).exists(),
                 'is_saved': post.saved_by.filter(user=user).exists(),
-                'post_type': 'following'  # Tất cả đều là từ người theo dõi
+                'post_type': 'flowed'  # Tất cả đều là từ người theo dõi
             }
             posts_with_data.append(post_data)
         
@@ -1206,7 +1206,7 @@ def index(request):
 def determine_post_type(user, post):
     """Xác định loại bài viết để hiển thị nhãn"""
     if post.author in user.following.all():
-        return 'following'
+        return 'flowed'
     
     # Kiểm tra hashtag phổ biến mà người dùng thích
     user_liked_posts = Post.objects.filter(post_likes__user=user)
