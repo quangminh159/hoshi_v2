@@ -317,7 +317,13 @@ class PostReport(models.Model):
         self.is_resolved = True
         self.resolved_by = resolved_by
         self.resolved_at = timezone.now()
-        self.save(update_fields=['is_resolved', 'resolved_by', 'resolved_at'])
+        
+        # Đảm bảo post đã được lưu trước
+        if self.post and self.post.pk:
+            self.save(update_fields=['is_resolved', 'resolved_by', 'resolved_at'])
+        else:
+            # Trường hợp post chưa được lưu, lưu toàn bộ đối tượng
+            self.save()
 
 class UserInteraction(models.Model):
     """Model lưu trữ các tương tác của người dùng với bài viết"""

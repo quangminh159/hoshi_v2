@@ -117,6 +117,22 @@
                                             </li>
                                         </ul>
                                     </div>
+                                    {% else %}
+                                    <div class="post-actions">
+                                        <button class="btn btn-link text-dark p-1" 
+                                                type="button" 
+                                                data-bs-toggle="dropdown" 
+                                                aria-expanded="false">
+                                            <i class="fas fa-ellipsis-h"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li>
+                                                <button class="dropdown-item text-danger report-btn" data-post-id="{{ post.id }}" data-bs-toggle="modal" data-bs-target="#reportModal">
+                                                    <i class="fas fa-flag me-2"></i>Báo cáo bài viết
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </div>
                                     {% endif %}
                                 </div>
                                 
@@ -456,6 +472,26 @@
                     <span class="btn-text">Chia sẻ</span>
                     <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
                 </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Báo cáo bài viết -->
+<div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reportModalLabel">Báo cáo bài viết</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body report-form-container">
+                <!-- Form sẽ được tải qua AJAX -->
+                <div class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Đang tải...</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -1359,6 +1395,57 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+});
+
+// Xử lý báo cáo bài viết
+document.addEventListener('DOMContentLoaded', function() {
+    // Tải form báo cáo khi modal được hiển thị
+    document.addEventListener('click', function(e) {
+        const reportBtn = e.target.closest('.report-btn');
+        if (reportBtn) {
+            const postId = reportBtn.getAttribute('data-post-id');
+            const reportFormContainer = document.querySelector('.report-form-container');
+            
+            // Tải form báo cáo
+            reportFormContainer.innerHTML = `<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Đang tải...</span></div></div>`;
+            
+            fetch(`/posts/${postId}/report-modal/`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    reportFormContainer.innerHTML = data.html;
+                    
+                    // Thực thi script trong HTML một cách trực tiếp
+                    const scriptContent = reportFormContainer.querySelector('script')?.textContent;
+                    if (scriptContent) {
+                        setTimeout(() => {
+                            try {
+                                // Tạo và thực thi script
+                                const scriptFunc = new Function(scriptContent);
+                                scriptFunc();
+                                console.log('Report form script executed successfully');
+                            } catch (error) {
+                                console.error('Error executing report form script:', error);
+                            }
+                        }, 100); // Đợi một chút để DOM được cập nhật đầy đủ
+                    } else {
+                        console.warn('No script found in report form HTML');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading report form:', error);
+                    reportFormContainer.innerHTML = `
+                        <div class="alert alert-danger">
+                            Có lỗi xảy ra khi tải form báo cáo. Vui lòng thử lại sau. Chi tiết: ${error.message}
+                        </div>
+                    `;
+                });
+        }
+    });
 });
 </script>
 {% endblock %} 

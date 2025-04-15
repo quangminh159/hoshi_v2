@@ -88,6 +88,7 @@
                                 </li>
                                 <li><a class="dropdown-item {% if feed_type == 'liked' %}active{% endif %}" href="{% url 'posts:liked_posts' %}"><i class="fas fa-heart"></i> Đã thích</a></li>
                                 <li><a class="dropdown-item {% if feed_type == 'saved' %}active{% endif %}" href="{% url 'posts:saved' %}"><i class="fas fa-bookmark"></i> Đã lưu</a></li>
+                                <li><a class="dropdown-item report-btn" href="#" data-post-id="{{ post.id }}"><i class="fas fa-flag me-2"></i>Báo cáo</a></li>
                             </ul>
                         </div>
                     </div>
@@ -367,6 +368,28 @@
             
             <!-- Load More Trigger -->
             <div id="load-more-trigger" class="py-4"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Thêm modal báo cáo bài viết -->
+<div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reportModalLabel">Báo cáo bài viết</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Nội dung form báo cáo sẽ được nạp qua AJAX -->
+                <div id="report-form-container">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Đang tải...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -1338,5 +1361,88 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     });
+</script>
+
+<script>
+    // Xử lý nút báo cáo bài viết
+    const reportButtons = document.querySelectorAll('.report-btn');
+    reportButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const postId = this.dataset.postId;
+            const reportModal = new bootstrap.Modal(document.getElementById('reportModal'));
+            
+            // Lấy form báo cáo qua AJAX
+            fetch(`/posts/${postId}/report-modal/`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('report-form-container').innerHTML = data.html;
+                    
+                    // Thực thi script trong HTML một cách trực tiếp
+                    const scriptContent = document.getElementById('report-form-container').querySelector('script')?.textContent;
+                    if (scriptContent) {
+                        setTimeout(() => {
+                            try {
+                                // Tạo và thực thi script
+                                const scriptFunc = new Function(scriptContent);
+                                scriptFunc();
+                                console.log('Report form script executed successfully');
+                            } catch (error) {
+                                console.error('Error executing report form script:', error);
+                            }
+                        }, 100); // Đợi một chút để DOM được cập nhật đầy đủ
+                    } else {
+                        console.warn('No script found in report form HTML');
+                    }
+                    
+                    reportModal.show();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Có lỗi xảy ra khi tải form báo cáo. Vui lòng thử lại sau.');
+                });
+        });
+    });
+
+    // Thêm event listener cho các nút báo cáo được tạo động
+    function addReportButtonListeners() {
+        document.querySelectorAll('.report-btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const postId = this.dataset.postId;
+                const reportModal = new bootstrap.Modal(document.getElementById('reportModal'));
+                
+                // Tải form báo cáo
+                fetch(`/posts/${postId}/report-modal/`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('report-form-container').innerHTML = data.html;
+                    
+                    // Thực thi script trong HTML một cách trực tiếp
+                    const scriptContent = document.getElementById('report-form-container').querySelector('script')?.textContent;
+                    if (scriptContent) {
+                        setTimeout(() => {
+                            try {
+                                // Tạo và thực thi script
+                                const scriptFunc = new Function(scriptContent);
+                                scriptFunc();
+                                console.log('Report form script executed successfully');
+                            } catch (error) {
+                                console.error('Error executing report form script:', error);
+                            }
+                        }, 100); // Đợi một chút để DOM được cập nhật đầy đủ
+                    } else {
+                        console.warn('No script found in report form HTML');
+                    }
+                    
+                    reportModal.show();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Có lỗi xảy ra khi tải form báo cáo. Vui lòng thử lại sau.');
+                });
+            });
+        });
+    }
 </script>
 {% endblock %} 

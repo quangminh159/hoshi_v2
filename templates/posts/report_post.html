@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}Báo cáo bài viết - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Báo cáo bài viết vi phạm</h4>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4 p-3 bg-light rounded">
+                        <div class="d-flex align-items-center mb-2">
+                            <img src="{{ post.author.get_avatar_url }}" alt="{{ post.author.username }}" class="rounded-circle me-2" width="40" height="40">
+                            <div>
+                                <h6 class="mb-0">{{ post.author.username }}</h6>
+                                <small class="text-muted">{{ post.created_at|date:"d/m/Y H:i" }}</small>
+                            </div>
+                        </div>
+                        <p class="mb-0">{{ post.caption|truncatechars:150 }}</p>
+                        {% if post.media.all %}
+                            <div class="mt-2">
+                                <img src="{{ post.media.first.file.url }}" alt="Post media" class="img-fluid rounded" style="max-height: 200px; width: auto;">
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.reason.id_for_label }}" class="form-label">{{ form.reason.label }}</label>
+                            {{ form.reason }}
+                            {% if form.reason.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.reason.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.details.id_for_label }}" class="form-label">{{ form.details.label }}</label>
+                            {{ form.details }}
+                            {% if form.details.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.details.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Vui lòng cung cấp chi tiết về vấn đề này để giúp chúng tôi xem xét báo cáo của bạn tốt hơn.</div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'posts:post_detail' post_id=post.id %}" class="btn btn-outline-secondary">Hủy bỏ</a>
+                            <button type="submit" class="btn btn-danger">Báo cáo bài viết</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Hiển thị/ẩn trường chi tiết dựa trên lý do được chọn
+    document.addEventListener('DOMContentLoaded', function() {
+        const reasonSelect = document.getElementById('{{ form.reason.id_for_label }}');
+        const detailsField = document.getElementById('{{ form.details.id_for_label }}').parentNode;
+        
+        function toggleDetailsField() {
+            if (reasonSelect.value === 'other') {
+                detailsField.style.display = 'block';
+                document.getElementById('{{ form.details.id_for_label }}').setAttribute('required', 'required');
+            } else {
+                detailsField.style.display = 'block'; // Luôn hiển thị nhưng không bắt buộc
+                document.getElementById('{{ form.details.id_for_label }}').removeAttribute('required');
+            }
+        }
+        
+        // Chạy lần đầu để thiết lập trạng thái ban đầu
+        toggleDetailsField();
+        
+        // Thêm sự kiện thay đổi
+        reasonSelect.addEventListener('change', toggleDetailsField);
+    });
+</script>
+{% endblock %} 

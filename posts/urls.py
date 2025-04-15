@@ -18,7 +18,7 @@ urlpatterns = [
     path('explore/', views.explore, name='explore'),
     path('saved/', views.saved_posts, name='saved'),
     path('liked/', views.liked_posts, name='liked_posts'),
-    path('<int:post_id>/report/', views.report_post, name='report'),
+    path('<int:post_id>/report/', views.report_post, name='report_post'),
     path('<int:post_id>/likes/', views.get_post_likes, name='post_likes'),
     path('search/', views.search, name='search'),
     # API endpoints
@@ -29,4 +29,7 @@ urlpatterns = [
     path('api/user-suggestions/', api.user_suggestions, name='user_suggestions'),
     # Endpoint chia sẻ bài viết
     path('share/', api.share_post, name='share_post'),
+    # Report URLs
+    path('<int:post_id>/report-modal/', views.report_post_modal, name='report_post_modal'),
+    path('<int:post_id>/report-ajax/', views.report_post_ajax, name='report_post_ajax'),
 ] 

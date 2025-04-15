@@ -1,0 +1,12 @@
+{% extends "admin/index.html" %}
+{% load i18n %}
+
+{% block sidebar %}
+{{ block.super }}
+<div class="module" style="margin-top: 20px;">
+    <h2>{% trans 'Thống kê báo cáo' %}</h2>
+    <ul>
+        <li><a href="{% url 'admin:report_statistics' %}">{% trans 'Xem thống kê báo cáo' %}</a></li>
+    </ul>
+</div>
+{% endblock %} 

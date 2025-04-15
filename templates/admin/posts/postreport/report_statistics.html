@@ -1,0 +1,287 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_list %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static "admin/css/changelists.css" %}">
+  <style>
+    .stats-container {
+      display: flex;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .stats-box {
+      flex: 1;
+      min-width: 250px;
+      margin: 10px;
+      padding: 15px;
+      border-radius: 5px;
+      background-color: #f8f9fa;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .stats-count {
+      font-size: 32px;
+      font-weight: bold;
+      color: #417690;
+      margin-bottom: 10px;
+    }
+    .stats-label {
+      font-size: 14px;
+      color: #666;
+    }
+    .stats-header {
+      font-size: 18px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 5px;
+      color: #417690;
+    }
+    .stats-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .stats-table th, .stats-table td {
+      padding: 8px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    .stats-table th {
+      background-color: #f1f1f1;
+    }
+    .stats-progress {
+      height: 5px;
+      background-color: #e9ecef;
+      border-radius: 3px;
+      margin-top: 5px;
+    }
+    .stats-progress-bar {
+      height: 100%;
+      border-radius: 3px;
+      background-color: #417690;
+    }
+  </style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+  &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+  &rsaquo; <a href="{% url 'admin:posts_postreport_changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+  &rsaquo; {% trans 'Thống kê báo cáo' %}
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+  <h1>{% trans 'Thống kê báo cáo' %}</h1>
+  
+  <!-- Tổng quan báo cáo -->
+  <div class="stats-container">
+    <div class="stats-box">
+      <div class="stats-count">{{ report_status.total }}</div>
+      <div class="stats-label">Tổng số báo cáo</div>
+    </div>
+    <div class="stats-box">
+      <div class="stats-count">{{ report_status.pending }}</div>
+      <div class="stats-label">Chưa xử lý</div>
+    </div>
+    <div class="stats-box">
+      <div class="stats-count">{{ report_status.resolved }}</div>
+      <div class="stats-label">Đã xử lý</div>
+    </div>
+    <div class="stats-box">
+      <div class="stats-count">{{ report_status.valid }}</div>
+      <div class="stats-label">Báo cáo hợp lệ</div>
+    </div>
+    <div class="stats-box">
+      <div class="stats-count">{{ report_status.invalid }}</div>
+      <div class="stats-label">Báo cáo không hợp lệ</div>
+    </div>
+  </div>
+  
+  <div class="stats-container">
+    <!-- Bài viết bị báo cáo nhiều nhất -->
+    <div class="stats-box" style="flex: 2;">
+      <h3 class="stats-header">Bài viết bị báo cáo nhiều nhất</h3>
+      <table class="stats-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Tác giả</th>
+            <th>Nội dung</th>
+            <th>Số báo cáo</th>
+            <th>Hành động</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for post in most_reported_posts %}
+          <tr>
+            <td>{{ post.id }}</td>
+            <td>{{ post.author.username }}</td>
+            <td>{{ post.caption|truncatechars:50 }}</td>
+            <td>{{ post.report_count }}</td>
+            <td>
+              <a href="{% url 'admin:posts_post_change' post.id %}" class="button">Xem</a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5">Không có dữ liệu</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- Thống kê theo lý do báo cáo -->
+    <div class="stats-box">
+      <h3 class="stats-header">Lý do báo cáo phổ biến</h3>
+      <table class="stats-table">
+        <thead>
+          <tr>
+            <th>Lý do</th>
+            <th>Số lượng</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for reason in report_reasons %}
+          <tr>
+            <td>
+              {% if reason.reason == 'spam' %}
+                Spam
+              {% elif reason.reason == 'inappropriate' %}
+                Nội dung không phù hợp
+              {% elif reason.reason == 'violence' %}
+                Bạo lực
+              {% elif reason.reason == 'hate_speech' %}
+                Ngôn từ thù địch
+              {% elif reason.reason == 'other' %}
+                Khác
+              {% else %}
+                {{ reason.reason }}
+              {% endif %}
+            </td>
+            <td>{{ reason.count }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="2">Không có dữ liệu</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
+  <div class="stats-container">
+    <!-- Người dùng có bài viết bị báo cáo nhiều nhất -->
+    <div class="stats-box">
+      <h3 class="stats-header">Người dùng bị báo cáo nhiều nhất</h3>
+      <table class="stats-table">
+        <thead>
+          <tr>
+            <th>Người dùng</th>
+            <th>Số báo cáo</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for author in most_reported_authors %}
+          <tr>
+            <td>{{ author.username }}</td>
+            <td>{{ author.post_report_count }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="2">Không có dữ liệu</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- Người hay báo cáo nhất -->
+    <div class="stats-box">
+      <h3 class="stats-header">Người hay báo cáo nhất</h3>
+      <table class="stats-table">
+        <thead>
+          <tr>
+            <th>Người dùng</th>
+            <th>Số báo cáo</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in most_reporting_users %}
+          <tr>
+            <td>{{ user.username }}</td>
+            <td>{{ user.report_count }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="2">Không có dữ liệu</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
+  <!-- Báo cáo gần đây -->
+  <div class="stats-box">
+    <h3 class="stats-header">Báo cáo gần đây</h3>
+    <table class="stats-table">
+      <thead>
+        <tr>
+          <th>Người báo cáo</th>
+          <th>Bài viết</th>
+          <th>Lý do</th>
+          <th>Thời gian</th>
+          <th>Trạng thái</th>
+          <th>Hành động</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for report in recent_reports %}
+        <tr>
+          <td>{{ report.user.username }}</td>
+          <td>{{ report.post.id }} - {{ report.post.caption|truncatechars:30 }}</td>
+          <td>
+            {% if report.reason == 'spam' %}
+              Spam
+            {% elif report.reason == 'inappropriate' %}
+              Nội dung không phù hợp
+            {% elif report.reason == 'violence' %}
+              Bạo lực
+            {% elif report.reason == 'hate_speech' %}
+              Ngôn từ thù địch
+            {% elif report.reason == 'other' %}
+              Khác
+            {% else %}
+              {{ report.reason }}
+            {% endif %}
+          </td>
+          <td>{{ report.created_at|date:"d/m/Y H:i" }}</td>
+          <td>
+            {% if report.is_resolved %}
+              {% if report.is_valid %}
+                <span style="color: green;">Hợp lệ</span>
+              {% else %}
+                <span style="color: red;">Không hợp lệ</span>
+              {% endif %}
+            {% else %}
+              <span style="color: orange;">Chưa xử lý</span>
+            {% endif %}
+          </td>
+          <td>
+            <a href="{% url 'admin:posts_postreport_change' report.id %}" class="button">Xem</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6">Không có dữ liệu</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %} 

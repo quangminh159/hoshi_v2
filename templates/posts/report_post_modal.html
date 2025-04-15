@@ -1,0 +1,234 @@
+<div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Báo cáo bài viết</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form id="report-form" method="post" action="{% url 'posts:report_post_ajax' post_id=post.id %}">
+                {% csrf_token %}
+                
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {% for error in form.non_field_errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                
+                <div class="mb-3">
+                    <label for="{{ form.reason.id_for_label }}" class="form-label">{{ form.reason.label }}</label>
+                    {{ form.reason }}
+                    <div class="invalid-feedback reason-error"></div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="{{ form.details.id_for_label }}" class="form-label">{{ form.details.label }}</label>
+                    {{ form.details }}
+                    <div class="invalid-feedback details-error"></div>
+                    <div class="form-text">Vui lòng cung cấp chi tiết về vấn đề này để giúp chúng tôi xem xét báo cáo của bạn tốt hơn.</div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy bỏ</button>
+            <button type="button" id="submit-report" class="btn btn-danger">Báo cáo</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Hàm khởi tạo các sự kiện cho form báo cáo
+    function initReportForm() {
+        console.log('Initializing report form...');
+        const reportForm = document.getElementById('report-form');
+        const submitButton = document.getElementById('submit-report');
+        const reasonSelect = document.getElementById('{{ form.reason.id_for_label }}');
+        const detailsField = document.getElementById('{{ form.details.id_for_label }}');
+        const reasonError = document.querySelector('.reason-error');
+        const detailsError = document.querySelector('.details-error');
+        
+        if (!reportForm || !submitButton || !reasonSelect) {
+            console.error('Missing form elements:', { 
+                reportForm: Boolean(reportForm), 
+                submitButton: Boolean(submitButton), 
+                reasonSelect: Boolean(reasonSelect) 
+            });
+            return;
+        }
+        
+        console.log('Form elements found, attaching events...');
+        
+        // Hiển thị/ẩn trường chi tiết dựa trên lý do được chọn
+        function toggleDetailsField() {
+            if (reasonSelect.value === 'other') {
+                detailsField.setAttribute('required', 'required');
+            } else {
+                detailsField.removeAttribute('required');
+            }
+        }
+        
+        // Thiết lập trạng thái ban đầu
+        toggleDetailsField();
+        
+        // Thêm sự kiện thay đổi
+        reasonSelect.addEventListener('change', toggleDetailsField);
+        
+        // Xử lý gửi form
+        submitButton.addEventListener('click', function() {
+            console.log('Report submit button clicked');
+            // Reset lỗi
+            reasonSelect.classList.remove('is-invalid');
+            if (detailsField) detailsField.classList.remove('is-invalid');
+            if (reasonError) reasonError.textContent = '';
+            if (detailsError) detailsError.textContent = '';
+            
+            // Kiểm tra dữ liệu
+            let isValid = true;
+            
+            if (!reasonSelect.value) {
+                reasonSelect.classList.add('is-invalid');
+                if (reasonError) reasonError.textContent = 'Vui lòng chọn lý do báo cáo.';
+                isValid = false;
+            }
+            
+            if (detailsField && reasonSelect.value === 'other' && !detailsField.value.trim()) {
+                detailsField.classList.add('is-invalid');
+                if (detailsError) detailsError.textContent = 'Vui lòng cung cấp chi tiết khi chọn "Khác" làm lý do báo cáo.';
+                isValid = false;
+            }
+            
+            if (!isValid) return;
+            
+            // Gửi form qua AJAX
+            const formData = new FormData(reportForm);
+            
+            // Đảm bảo gửi đến đúng URL endpoint
+            const actionUrl = reportForm.action;
+            
+            console.log('Sending report to URL:', actionUrl);
+            
+            fetch(actionUrl, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        try {
+                            return JSON.parse(text);
+                        } catch (e) {
+                            throw new Error(`Server error: ${response.status} - ${text}`);
+                        }
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Đóng modal
+                    const reportModal = bootstrap.Modal.getInstance(document.getElementById('reportModal'));
+                    if (reportModal) {
+                        reportModal.hide();
+                    } else {
+                        console.warn('Could not find reportModal instance');
+                        // Đóng modal theo cách thủ công
+                        const modalElement = document.getElementById('reportModal');
+                        if (modalElement) {
+                            const modal = new bootstrap.Modal(modalElement);
+                            modal.hide();
+                        }
+                    }
+                    
+                    // Hiển thị thông báo thành công
+                    showToast('success', 'Báo cáo thành công', data.success);
+                } else if (data.error) {
+                    if (typeof data.error === 'object') {
+                        // Hiển thị lỗi validation
+                        if (data.error.reason) {
+                            reasonSelect.classList.add('is-invalid');
+                            if (reasonError) reasonError.textContent = data.error.reason;
+                        }
+                        if (data.error.details && detailsField) {
+                            detailsField.classList.add('is-invalid');
+                            if (detailsError) detailsError.textContent = data.error.details;
+                        }
+                    } else {
+                        // Hiển thị lỗi chung
+                        showToast('error', 'Lỗi', data.error);
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('error', 'Lỗi', 'Đã xảy ra lỗi khi gửi báo cáo. Vui lòng thử lại sau.');
+            });
+        });
+    }
+    
+    // Hàm hiển thị thông báo
+    function showToast(type, title, message) {
+        if (typeof Toastify === 'function') {
+            Toastify({
+                text: message,
+                duration: 3000,
+                close: true,
+                gravity: 'top',
+                position: 'right',
+                backgroundColor: type === 'success' ? '#28a745' : '#dc3545',
+            }).showToast();
+        } else {
+            // Tạo thông báo nếu không có Toastify
+            const toastContainer = document.getElementById('toast-container') || createToastContainer();
+            const toast = document.createElement('div');
+            toast.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show`;
+            toast.innerHTML = `
+                <strong>${title}:</strong> ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            toastContainer.appendChild(toast);
+            
+            // Tự động ẩn toast sau 3 giây
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 150);
+            }, 3000);
+        }
+    }
+    
+    // Tạo container cho toast nếu chưa có
+    function createToastContainer() {
+        const container = document.createElement('div');
+        container.id = 'toast-container';
+        container.style.position = 'fixed';
+        container.style.top = '20px';
+        container.style.right = '20px';
+        container.style.zIndex = '9999';
+        document.body.appendChild(container);
+        return container;
+    }
+    
+    // Hàm lấy CSRF token từ cookies
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    // Gọi hàm khởi tạo khi tài liệu đã sẵn sàng
+    initReportForm();
+</script> 

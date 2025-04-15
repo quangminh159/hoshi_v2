@@ -1,6 +1,12 @@
 from django.contrib import admin
 from django.utils import timezone
+from django.db.models import Count
+from django.shortcuts import render
+from django.urls import path
+from django.contrib.auth import get_user_model
 from .models import Post, Media, PostMedia, Like, Comment, SavedPost, Hashtag, Mention, CommentLike, Story, StoryView, PostReport, UserInteraction
+
+User = get_user_model()
 
 # Register your models here.
 
@@ -68,6 +74,64 @@ class PostReportAdmin(admin.ModelAdmin):
     
     actions = ['mark_as_valid', 'mark_as_invalid', 'delete_reported_posts']
     
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path('report-statistics/', self.admin_site.admin_view(self.report_statistics_view), name='report_statistics'),
+        ]
+        return custom_urls + urls
+    
+    def report_statistics_view(self, request):
+        # Thống kê bài viết bị báo cáo nhiều nhất
+        most_reported_posts = Post.objects.annotate(
+            report_count=Count('reports')
+        ).filter(report_count__gt=0).order_by('-report_count')[:10]
+        
+        # Thống kê người dùng có bài viết bị báo cáo nhiều nhất
+        most_reported_authors = User.objects.annotate(
+            post_report_count=Count('posts__reports')
+        ).filter(post_report_count__gt=0).order_by('-post_report_count')[:10]
+        
+        # Thống kê người hay báo cáo nhất
+        most_reporting_users = User.objects.annotate(
+            report_count=Count('post_reports')
+        ).filter(report_count__gt=0).order_by('-report_count')[:10]
+        
+        # Thống kê theo lý do báo cáo
+        report_reasons = PostReport.objects.values('reason').annotate(
+            count=Count('id')
+        ).order_by('-count')
+        
+        # Thống kê báo cáo theo thời gian
+        recent_reports = PostReport.objects.all().order_by('-created_at')[:20]
+        
+        # Thống kê trạng thái báo cáo
+        report_status = {
+            'total': PostReport.objects.count(),
+            'resolved': PostReport.objects.filter(is_resolved=True).count(),
+            'valid': PostReport.objects.filter(is_valid=True).count(),
+            'invalid': PostReport.objects.filter(is_valid=False).count(),
+            'pending': PostReport.objects.filter(is_resolved=False).count(),
+        }
+        
+        context = {
+            'title': 'Thống kê báo cáo',
+            'most_reported_posts': most_reported_posts,
+            'most_reported_authors': most_reported_authors,
+            'most_reporting_users': most_reporting_users,
+            'report_reasons': report_reasons,
+            'recent_reports': recent_reports,
+            'report_status': report_status,
+            'opts': self.model._meta,
+        }
+        
+        return render(request, 'admin/posts/postreport/report_statistics.html', context)
+    
+    def changelist_view(self, request, extra_context=None):
+        extra_context = extra_context or {}
+        extra_context['show_statistics_link'] = True
+        return super().changelist_view(request, extra_context=extra_context)
+    
     def mark_as_valid(self, request, queryset):
         """Đánh dấu báo cáo là hợp lệ"""
         for report in queryset.filter(is_resolved=False):
@@ -93,20 +157,26 @@ class PostReportAdmin(admin.ModelAdmin):
     def delete_reported_posts(self, request, queryset):
         """Xóa bài viết bị báo cáo"""
         posts_to_delete = set()
+        reports_to_update = []
+        
+        # Thu thập thông tin về các báo cáo và bài viết
         for report in queryset:
             posts_to_delete.add(report.post)
+            reports_to_update.append(report)
         
-        # Xóa bài viết
-        posts_count = len(posts_to_delete)
-        for post in posts_to_delete:
-            post.delete()
-        
-        # Đánh dấu báo cáo là đã xử lý
-        for report in queryset:
-            report.resolve(request.user)
+        # Đánh dấu báo cáo là đã xử lý trước khi xóa bài viết
+        for report in reports_to_update:
+            report.is_resolved = True
+            report.resolved_by = request.user
+            report.resolved_at = timezone.now()
             report.is_valid = True
             report.admin_notes = 'Bài viết đã bị xóa do vi phạm quy định'
             report.save()
+        
+        # Xóa bài viết sau khi đã xử lý báo cáo
+        posts_count = len(posts_to_delete)
+        for post in posts_to_delete:
+            post.delete()
         
         self.message_user(request, f'Đã xóa {posts_count} bài viết bị báo cáo.')
     delete_reported_posts.short_description = "Xóa bài viết bị báo cáo được chọn"

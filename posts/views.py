@@ -19,8 +19,9 @@ from django.contrib.contenttypes.models import ContentType
 from notifications.models import Notification
 import re
 from datetime import timedelta
-from .forms import PostForm, CommentForm
+from .forms import PostForm, CommentForm, PostReportForm
 from .feed_algorithms import get_diverse_feed
+from django.db import IntegrityError
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -805,22 +806,89 @@ def explore(request):
 
 @login_required
 def report_post(request, post_id):
+    """View để báo cáo bài viết vi phạm"""
+    post = get_object_or_404(Post, id=post_id)
+    
+    # Kiểm tra xem người dùng có báo cáo bài viết này trước đó không
+    existing_report = PostReport.objects.filter(user=request.user, post=post).exists()
+    if existing_report:
+        messages.info(request, 'Bạn đã báo cáo bài viết này trước đó. Chúng tôi đang xem xét báo cáo của bạn.')
+        return redirect('posts:post_detail', post_id=post.id)
+    
+    # Kiểm tra xem người dùng có báo cáo bài viết của chính họ không
+    if post.author == request.user:
+        messages.error(request, 'Bạn không thể báo cáo bài viết của chính mình.')
+        return redirect('posts:post_detail', post_id=post.id)
+    
+    if request.method == 'POST':
+        form = PostReportForm(request.POST)
+        if form.is_valid():
+            report = form.save(commit=False)
+            report.user = request.user
+            report.post = post
+            
+            try:
+                report.save()
+                messages.success(request, 'Cảm ơn bạn đã báo cáo bài viết này. Chúng tôi sẽ xem xét báo cáo của bạn.')
+                return redirect('posts:post_detail', post_id=post.id)
+            except IntegrityError:
+                # Trong trường hợp unique constraint bị vi phạm
+                messages.info(request, 'Bạn đã báo cáo bài viết này trước đó.')
+                return redirect('posts:post_detail', post_id=post.id)
+    else:
+        form = PostReportForm()
+    
+    return render(request, 'posts/report_post.html', {
+        'form': form,
+        'post': post
+    })
+
+@login_required
+def report_post_modal(request, post_id):
+    """API để hiển thị modal báo cáo bài viết"""
+    if request.method == 'GET':
+        post = get_object_or_404(Post, id=post_id)
+        form = PostReportForm()
+        
+        html = render(request, 'posts/report_post_modal.html', {
+            'form': form,
+            'post': post
+        }).content.decode('utf-8')
+        
+        return JsonResponse({'html': html})
+    
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+@login_required
+def report_post_ajax(request, post_id):
+    """API để báo cáo bài viết qua AJAX"""
     if request.method != 'POST':
         return JsonResponse({'error': 'Method not allowed'}, status=405)
-        
+    
     post = get_object_or_404(Post, id=post_id)
-    reason = request.POST.get('reason')
     
-    if not reason:
-        return JsonResponse({'error': 'Report reason is required'}, status=400)
+    # Kiểm tra xem người dùng có báo cáo bài viết của chính họ không
+    if post.author == request.user:
+        return JsonResponse({'error': 'Bạn không thể báo cáo bài viết của chính mình.'}, status=403)
+    
+    # Kiểm tra xem người dùng có báo cáo bài viết này trước đó không
+    existing_report = PostReport.objects.filter(user=request.user, post=post).exists()
+    if existing_report:
+        return JsonResponse({'error': 'Bạn đã báo cáo bài viết này trước đó.'}, status=400)
+    
+    form = PostReportForm(request.POST)
+    if form.is_valid():
+        report = form.save(commit=False)
+        report.user = request.user
+        report.post = post
         
-    PostReport.objects.create(
-        user=request.user,
-        post=post,
-        reason=reason
-    )
-    
-    return JsonResponse({'status': 'success'})
+        try:
+            report.save()
+            return JsonResponse({'success': 'Cảm ơn bạn đã báo cáo bài viết này. Chúng tôi sẽ xem xét báo cáo của bạn.'})
+        except IntegrityError:
+            return JsonResponse({'error': 'Bạn đã báo cáo bài viết này trước đó.'}, status=400)
+    else:
+        return JsonResponse({'error': form.errors}, status=400)
 
 @login_required
 def saved_posts(request):
