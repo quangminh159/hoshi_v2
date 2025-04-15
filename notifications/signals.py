@@ -83,6 +83,11 @@ def send_notification_to_websocket(notification):
                 'text': notification.text,
                 'created_at': notification.created_at.isoformat(),
                 'is_read': notification.is_read,
+                'post_id': notification.post.id if notification.post else None,
+                'comment_id': notification.comment.id if notification.comment else None,
+                'conversation_id': notification.message.conversation.id if notification.message else None,
+                'object_id': notification.object_id,
+                'content_type': str(notification.content_type) if notification.content_type else None,
             },
             'unread_count': unread_count
         }

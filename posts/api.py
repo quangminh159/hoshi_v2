@@ -661,7 +661,7 @@ def hashtag_suggestions(request):
     suggestions = Hashtag.objects.filter(name__icontains=query)
     
     # Sắp xếp theo số lượng bài viết sử dụng hashtag này
-    suggestions = suggestions.annotate(posts_count=Count('posts')).order_by('-posts_count')[:10]
+    suggestions = suggestions.annotate(posts_count_total=Count('posts')).order_by('-posts_count_total')[:10]
     
     # Chỉ trả về tên hashtag
     result = [tag.name for tag in suggestions]
@@ -673,6 +673,7 @@ def hashtag_suggestions(request):
 def user_suggestions(request):
     """API endpoint để gợi ý người dùng khi người dùng nhập @mention"""
     query = request.GET.get('q', '')
+    following_only = request.GET.get('following_only', 'false').lower() == 'true'
     
     if not query:
         return JsonResponse([], safe=False)
@@ -682,7 +683,15 @@ def user_suggestions(request):
         Q(username__icontains=query) | 
         Q(first_name__icontains=query) | 
         Q(last_name__icontains=query)
-    ).distinct()[:10]
+    ).distinct()
+    
+    # Lọc theo người đang follow nếu có yêu cầu
+    if following_only:
+        following_users = request.user.following.all()
+        suggestions = suggestions.filter(id__in=[user.id for user in following_users])
+    
+    # Giới hạn số lượng gợi ý
+    suggestions = suggestions[:10]
     
     # Lấy danh sách những người đã chặn người dùng hiện tại
     blocked_by_users = UserBlock.objects.filter(blocked=request.user).values_list('blocker_id', flat=True)
@@ -696,7 +705,8 @@ def user_suggestions(request):
         result.append({
             'username': user.username,
             'avatar_url': user.profile.avatar.url if hasattr(user, 'profile') and user.profile.avatar else '/static/images/default-avatar.png',
-            'full_name': f"{user.first_name} {user.last_name}".strip()
+            'full_name': f"{user.first_name} {user.last_name}".strip(),
+            'is_following': request.user.following.filter(id=user.id).exists()
         })
     
     return JsonResponse(result, safe=False)

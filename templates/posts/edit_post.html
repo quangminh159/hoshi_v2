@@ -161,6 +161,9 @@
                             </div>
                         </div>
                         
+                        <!-- Input ẩn lưu ID của các media đã xóa -->
+                        <input type="hidden" name="deleted_media" id="deleted_media" value="[]">
+                        
                         <!-- Media Previews -->
                         <div class="media-previews mb-3">
                             <!-- Previews will be added here -->
@@ -316,6 +319,35 @@ document.addEventListener('DOMContentLoaded', function() {
         
         previewContainer.appendChild(previewItem);
         {% endfor %}
+        
+        // Thêm sự kiện xóa media
+        document.querySelectorAll('.media-preview-item .remove-media').forEach(button => {
+            button.addEventListener('click', function() {
+                const mediaId = this.getAttribute('data-id');
+                removeExistingMedia(mediaId, this.closest('.media-preview-item'));
+            });
+        });
+    }
+    
+    // Function để xóa media đã tồn tại
+    function removeExistingMedia(mediaId, element) {
+        if (!mediaId) return;
+        
+        // Lấy giá trị hiện tại của trường deleted_media
+        let deletedMediaIds = JSON.parse(document.getElementById('deleted_media').value || '[]');
+        
+        // Thêm ID của media cần xóa
+        if (!deletedMediaIds.includes(mediaId)) {
+            deletedMediaIds.push(mediaId);
+        }
+        
+        // Cập nhật giá trị của trường deleted_media
+        document.getElementById('deleted_media').value = JSON.stringify(deletedMediaIds);
+        
+        // Xóa phần tử hiển thị
+        if (element) {
+            element.remove();
+        }
     }
     
     // Function to update media previews

@@ -64,6 +64,19 @@
         .notification-sound {
             display: none;
         }
+        
+        .notification-dropdown a {
+            display: block;
+            color: inherit;
+        }
+        
+        .notification-dropdown a:hover {
+            text-decoration: none;
+        }
+        
+        #notification-list a:hover .notification-item {
+            background-color: #e9ecef;
+        }
     </style>
 </head>
 <body>
@@ -188,18 +201,41 @@
                     $('#notification-list').empty();
                 }
                 
+                // Tạo URL dẫn đến nội dung liên quan dựa vào loại thông báo
+                let redirectUrl = '#';
+                let targetType = '';
+                
+                if (notification.notification_type === 'like' || notification.notification_type === 'comment') {
+                    redirectUrl = `/posts/${notification.post_id}/`;
+                    targetType = 'bài viết';
+                } else if (notification.notification_type === 'follow') {
+                    redirectUrl = `/accounts/profile/${notification.sender}/`;
+                    targetType = 'hồ sơ người dùng';
+                } else if (notification.notification_type === 'message') {
+                    redirectUrl = `/chat/conversation/${notification.conversation_id}/`;
+                    targetType = 'cuộc trò chuyện';
+                } else if (notification.notification_type === 'share') {
+                    redirectUrl = `/posts/${notification.post_id}/`;
+                    targetType = 'bài viết được chia sẻ';
+                } else if (notification.notification_type === 'mention') {
+                    redirectUrl = `/posts/${notification.post_id}/`;
+                    targetType = 'bài viết bạn được nhắc đến';
+                }
+                
                 // Tạo HTML cho thông báo mới
                 const avatarUrl = notification.sender_avatar || "{% static 'img/default-avatar.png' %}";
                 const notificationHtml = `
-                    <div class="notification-item unread" data-id="${notification.id}">
-                        <div class="d-flex">
-                            <img src="${avatarUrl}" class="avatar me-2" alt="${notification.sender}">
-                            <div>
-                                <div class="notification-text">${notification.text}</div>
-                                <div class="time">${formatTimeAgo(new Date(notification.created_at))}</div>
+                    <a href="${redirectUrl}" class="text-decoration-none">
+                        <div class="notification-item unread" data-id="${notification.id}">
+                            <div class="d-flex">
+                                <img src="${avatarUrl}" class="avatar me-2" alt="${notification.sender}">
+                                <div>
+                                    <div class="notification-text">${notification.text}</div>
+                                    <div class="time">${formatTimeAgo(new Date(notification.created_at))}</div>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 `;
                 
                 // Thêm thông báo vào đầu danh sách
@@ -254,6 +290,20 @@
                 
                 // Cập nhật giao diện
                 $(this).removeClass('unread');
+            });
+            
+            // Đánh dấu đã đọc khi click vào liên kết thông báo
+            $(document).on('click', '#notification-list a', function() {
+                const notificationItem = $(this).find('.notification-item');
+                const notificationId = notificationItem.data('id');
+                
+                notificationSocket.send(JSON.stringify({
+                    'command': 'mark_as_read',
+                    'notification_id': notificationId
+                }));
+                
+                // Cập nhật giao diện
+                notificationItem.removeClass('unread');
             });
         });
     </script>

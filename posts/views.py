@@ -369,16 +369,19 @@ def edit_post(request, post_id):
             # Xử lý media mới (nếu có)
             new_media_files = []
             
-            # Xử lý media từ FilePond
-            if 'media[]' in request.FILES:
-                new_media_files = request.FILES.getlist('media[]')
-            # Fallback cho trường hợp form thông thường
-            elif 'media' in request.FILES:
+            # Xử lý media từ form
+            if 'media' in request.FILES:
                 new_media_files = request.FILES.getlist('media')
+            # Fallback cho các tên field khác có thể được sử dụng
+            elif 'media[]' in request.FILES:
+                new_media_files = request.FILES.getlist('media[]')
+            elif 'new_media' in request.FILES:
+                new_media_files = request.FILES.getlist('new_media')
                 
             if new_media_files:
-                # Xóa media cũ
-                PostMedia.objects.filter(post=post).delete()
+                # Không xóa media cũ, chỉ thêm media mới
+                # Lấy số thứ tự cuối cùng hiện tại
+                last_order = PostMedia.objects.filter(post=post).count()
                 
                 # Thêm media mới
                 for index, file in enumerate(new_media_files):
@@ -399,67 +402,35 @@ def edit_post(request, post_id):
                         post=post,
                         file=file,
                         media_type=media_type,
-                        order=index
+                        order=last_order + index
                     )
-                    logger.info(f"Created media {media.id} for post {post.id}, type: {media_type}, file: {file.name}")
             
-            # Lưu bài viết
+            # Xử lý xóa media nếu có request xóa
+            deleted_media_ids = request.POST.get('deleted_media')
+            if deleted_media_ids:
+                try:
+                    deleted_ids = json.loads(deleted_media_ids)
+                    if deleted_ids:
+                        PostMedia.objects.filter(id__in=deleted_ids, post=post).delete()
+                except json.JSONDecodeError:
+                    pass
+            
+            # Cập nhật hashtags nếu caption thay đổi
+            if post.caption != old_caption:
+                post.hashtags.clear()
+                process_hashtags(post)
+            
+            # Lưu các thay đổi
             post.save()
             
-            # Xử lý hashtags
-            # Xóa hashtags cũ
-            post.hashtags.clear()
-            
-            # Thêm hashtags mới
-            hashtags = [word[1:] for word in post.caption.split() if word.startswith('#')]
-            for tag_name in hashtags:
-                hashtag, _ = Hashtag.objects.get_or_create(name=tag_name)
-                hashtag.posts.add(post)
-            
-            # Xử lý mentions
-            # Xóa mentions cũ
-            Mention.objects.filter(post=post).delete()
-            
-            # Thêm mentions mới và tạo thông báo
-            mentions = re.findall(r'@(\w+)', post.caption)
-            for username in mentions:
-                try:
-                    mentioned_user = User.objects.get(username=username)
-                    # Tạo mention mới
-                    mention = Mention.objects.create(
-                        user=mentioned_user,
-                        post=post
-                    )
-                    
-                    # Tạo thông báo nếu đây là mention mới (không có trong caption cũ)
-                    if mentioned_user != request.user and f'@{username}' not in old_caption:
-                        Notification.objects.create(
-                            recipient=mentioned_user,
-                            sender=request.user,
-                            notification_type='mention',
-                            text=f"{request.user.username} đã nhắc đến bạn trong một bài viết",
-                            post=post,
-                            content_type=ContentType.objects.get_for_model(post),
-                            object_id=post.id
-                        )
-                        
-                except User.DoesNotExist:
-                    logger.warning(f"User {username} not found when updating mention")
-                except Exception as e:
-                    logger.error(f"Error updating mention for {username}: {str(e)}")
-            
-            messages.success(request, 'Bài viết đã được cập nhật thành công.')
+            messages.success(request, 'Bài viết đã được cập nhật thành công!')
             return redirect('posts:post_detail', post_id=post.id)
-        
+            
         except Exception as e:
-            messages.error(request, f'Có lỗi xảy ra: {str(e)}')
+            messages.error(request, f'Lỗi: {str(e)}')
             return redirect('posts:edit', post_id=post.id)
     
-    # Nếu là GET request, hiển thị form chỉnh sửa
-    return render(request, 'posts/edit_post.html', {
-        'post': post,
-        'media_files': post.media.all()
-    })
+    return render(request, 'posts/edit_post.html', {'post': post})
 
 @login_required
 def delete_post(request, post_id):

@@ -364,15 +364,87 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="editPostForm">
-                    <div class="mb-3">
+                <form id="editPostForm" enctype="multipart/form-data">
+                    <!-- Phần nhập caption và hiển thị gợi ý -->
+                    <div class="mb-3 position-relative">
                         <label for="edit-caption" class="form-label">Nội dung</label>
                         <textarea class="form-control" id="edit-caption" rows="5">{{ post.caption }}</textarea>
+                        
+                        <!-- Gợi ý hashtag -->
+                        <div id="hashtag-suggestions" class="suggestion-box d-none">
+                            <div class="list-group">
+                                <!-- Các gợi ý hashtag sẽ được thêm vào đây -->
+                            </div>
+                        </div>
+                        
+                        <!-- Gợi ý người dùng -->
+                        <div id="user-suggestions" class="suggestion-box d-none">
+                            <div class="list-group">
+                                <!-- Các gợi ý người dùng sẽ được thêm vào đây -->
+                            </div>
+                        </div>
+                        
+                        <div class="form-text">
+                            Sử dụng # để thêm hashtag và @ để gắn thẻ người dùng
+                        </div>
                     </div>
+                    
                     <div class="mb-3">
                         <label for="edit-location" class="form-label">Địa điểm</label>
                         <input type="text" class="form-control" id="edit-location" value="{{ post.location }}">
                     </div>
+                    
+                    <!-- Hiển thị media hiện tại -->
+                    <div class="mb-3">
+                        <label class="form-label">Phương tiện hiện tại</label>
+                        <div class="current-media-container d-flex flex-wrap gap-2">
+                            {% for media in post.media.all %}
+                            <div class="media-item position-relative" data-media-id="{{ media.id }}">
+                                {% if media.media_type == 'image' %}
+                                <img src="{{ media.file.url }}" alt="Post media" style="width: 100px; height: 100px; object-fit: cover;">
+                                {% else %}
+                                <video style="width: 100px; height: 100px; object-fit: cover;">
+                                    <source src="{{ media.file.url }}" type="video/mp4">
+                                </video>
+                                {% endif %}
+                                <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 delete-media-btn" data-media-id="{{ media.id }}">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Thêm media mới -->
+                    <div class="mb-3">
+                        <label class="form-label">Thêm ảnh/video mới</label>
+                        
+                        <div class="d-flex flex-wrap gap-2 mb-2">
+                            <div class="me-2">
+                                <label for="edit-new-media" class="btn btn-outline-primary">
+                                    <i class="fas fa-images me-1"></i> Chọn nhiều ảnh
+                                </label>
+                                <input type="file" class="d-none" id="edit-new-media" name="new_media" multiple accept="image/*,video/*">
+                            </div>
+                            
+                            <div>
+                                <label for="edit-single-media" class="btn btn-outline-secondary">
+                                    <i class="fas fa-image me-1"></i> Thêm từng ảnh
+                                </label>
+                                <input type="file" class="d-none" id="edit-single-media" name="single_media" accept="image/*,video/*">
+                            </div>
+                            
+                            <button type="button" class="btn btn-outline-success" id="add-more-media">
+                                <i class="fas fa-plus"></i> Thêm ảnh mới
+                            </button>
+                        </div>
+                        
+                        <div class="form-text mb-2">Bạn có thể chọn nhiều ảnh hoặc video cùng lúc, hoặc thêm từng ảnh một.</div>
+                        
+                        <!-- Preview media mới -->
+                        <div class="new-media-preview d-flex flex-wrap gap-2 mt-2"></div>
+                    </div>
+                    
                     <div class="mb-3">
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" id="edit-disable-comments" {% if post.disable_comments %}checked{% endif %}>
@@ -385,7 +457,63 @@
                             <label class="form-check-label" for="edit-hide-likes">Ẩn lượt thích</label>
                         </div>
                     </div>
+                    
+                    <!-- Input ẩn lưu IDs của các media đã xóa -->
+                    <input type="hidden" name="deleted_media" id="deleted-media-ids" value="[]">
                 </form>
+                
+                <style>
+                    .suggestion-box {
+                        position: absolute;
+                        z-index: 1000;
+                        width: 100%;
+                        max-height: 200px;
+                        overflow-y: auto;
+                        background-color: white;
+                        border: 1px solid #dee2e6;
+                        border-radius: 0.25rem;
+                        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+                    }
+                    
+                    .suggestion-item {
+                        padding: 0.5rem 1rem;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        text-decoration: none;
+                        color: #212529;
+                    }
+                    
+                    .suggestion-item:hover {
+                        background-color: #f8f9fa;
+                    }
+                    
+                    .suggestion-item img {
+                        width: 32px;
+                        height: 32px;
+                        border-radius: 50%;
+                        margin-right: 10px;
+                    }
+                    
+                    .suggestion-item .username {
+                        font-weight: bold;
+                    }
+                    
+                    .suggestion-item .full-name {
+                        font-size: 0.875rem;
+                        color: #6c757d;
+                    }
+                    
+                    .suggestion-item .hashtag {
+                        font-weight: bold;
+                        color: #0d6efd;
+                    }
+                    
+                    .suggestion-item .post-count {
+                        font-size: 0.875rem;
+                        color: #6c757d;
+                    }
+                </style>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
@@ -1235,6 +1363,108 @@ document.querySelectorAll('.edit-post-btn').forEach(button => {
         document.getElementById('edit-caption').value = currentCaption;
         document.getElementById('edit-location').value = currentLocation;
         
+        // Xử lý preview ảnh mới
+        const newMediaInput = document.getElementById('edit-new-media');
+        const singleMediaInput = document.getElementById('edit-single-media');
+        const addMoreMediaBtn = document.getElementById('add-more-media');
+        const newMediaPreview = document.querySelector('.new-media-preview');
+        
+        // Reset preview khi mở modal
+        newMediaPreview.innerHTML = '';
+        
+        // Thêm sự kiện khi chọn nhiều file cùng lúc
+        newMediaInput.addEventListener('change', function() {
+            handleFileSelection(this.files);
+        });
+        
+        // Thêm sự kiện khi chọn từng file một
+        singleMediaInput.addEventListener('change', function() {
+            if (this.files && this.files.length > 0) {
+                handleFileSelection(this.files);
+                // Reset input để cho phép chọn lại cùng file
+                this.value = '';
+            }
+        });
+        
+        // Sự kiện nút thêm ảnh mới (mở dialog chọn file)
+        addMoreMediaBtn.addEventListener('click', function() {
+            singleMediaInput.click();
+        });
+        
+        // Hàm xử lý các file đã chọn và tạo preview
+        function handleFileSelection(files) {
+            if (!files || files.length === 0) return;
+            
+            // Tạo preview cho các file đã chọn
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const mediaPreview = document.createElement('div');
+                    mediaPreview.className = 'position-relative';
+                    mediaPreview.style.width = '100px';
+                    mediaPreview.style.height = '100px';
+                    
+                    // Lưu file vào một object để sử dụng khi submit
+                    mediaPreview.file = file;
+                    
+                    if (file.type.startsWith('image/')) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.style.width = '100px';
+                        img.style.height = '100px';
+                        img.style.objectFit = 'cover';
+                        mediaPreview.appendChild(img);
+                    } else if (file.type.startsWith('video/')) {
+                        const video = document.createElement('video');
+                        video.style.width = '100px';
+                        video.style.height = '100px';
+                        video.style.objectFit = 'cover';
+                        
+                        const source = document.createElement('source');
+                        source.src = e.target.result;
+                        source.type = file.type;
+                        video.appendChild(source);
+                        mediaPreview.appendChild(video);
+                    }
+                    
+                    const removeButton = document.createElement('button');
+                    removeButton.className = 'btn btn-sm btn-danger position-absolute top-0 end-0';
+                    removeButton.innerHTML = '<i class="fas fa-times"></i>';
+                    removeButton.addEventListener('click', function() {
+                        mediaPreview.remove();
+                    });
+                    
+                    mediaPreview.appendChild(removeButton);
+                    newMediaPreview.appendChild(mediaPreview);
+                }
+                
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        // Xử lý xóa media hiện có
+        document.querySelectorAll('.delete-media-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const mediaId = this.getAttribute('data-media-id');
+                const mediaItem = this.closest('.media-item');
+                
+                if (confirm('Bạn có chắc chắn muốn xóa phương tiện này không?')) {
+                    // Đánh dấu media đã xóa
+                    mediaItem.classList.add('opacity-50');
+                    mediaItem.setAttribute('data-deleted', 'true');
+                    
+                    // Thêm ID vào danh sách media đã xóa
+                    const deletedMediaIds = JSON.parse(document.getElementById('deleted-media-ids').value || '[]');
+                    if (!deletedMediaIds.includes(mediaId)) {
+                        deletedMediaIds.push(mediaId);
+                        document.getElementById('deleted-media-ids').value = JSON.stringify(deletedMediaIds);
+                    }
+                }
+            });
+        });
+        
         // Xóa event listener cũ nếu có
         const saveButton = document.getElementById('savePostChanges');
         const newSaveButton = saveButton.cloneNode(true);
@@ -1246,25 +1476,44 @@ document.querySelectorAll('.edit-post-btn').forEach(button => {
             this.disabled = true;
             this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Đang lưu...';
             
-            // Lấy dữ liệu từ form
-            const caption = document.getElementById('edit-caption').value;
-            const location = document.getElementById('edit-location').value;
-            const disableComments = document.getElementById('edit-disable-comments').checked;
-            const hideLikes = document.getElementById('edit-hide-likes').checked;
+            // Tạo FormData để hỗ trợ việc tải file
+            const formData = new FormData();
+            
+            // Thêm các thông tin cơ bản
+            formData.append('caption', document.getElementById('edit-caption').value);
+            formData.append('location', document.getElementById('edit-location').value);
+            formData.append('disable_comments', document.getElementById('edit-disable-comments').checked);
+            formData.append('hide_likes', document.getElementById('edit-hide-likes').checked);
+            
+            // Thêm danh sách media đã xóa
+            const deletedMediaIds = document.getElementById('deleted-media-ids').value;
+            formData.append('deleted_media', deletedMediaIds);
+            
+            // Thêm các file mới
+            const fileInput = document.getElementById('edit-new-media');
+            const singleFileInput = document.getElementById('edit-single-media');
+
+            // Trước tiên, thêm các files từ input nhiều files
+            if (fileInput.files.length > 0) {
+                for (let i = 0; i < fileInput.files.length; i++) {
+                    formData.append('new_media', fileInput.files[i]);
+                }
+            }
+
+            // Thêm các files từ các preview (cho trường hợp chọn từng file một)
+            document.querySelectorAll('.new-media-preview > div').forEach(function(previewDiv) {
+                if (previewDiv.file) {
+                    formData.append('new_media', previewDiv.file);
+                }
+            });
             
             // Gửi request cập nhật bài viết
             fetch(`/posts/${postId}/edit/`, {
                 method: 'POST',
                 headers: {
-                    'X-CSRFToken': getCookie('csrftoken'),
-                    'Content-Type': 'application/json'
+                    'X-CSRFToken': getCookie('csrftoken')
                 },
-                body: JSON.stringify({
-                    caption: caption,
-                    location: location,
-                    disable_comments: disableComments,
-                    hide_likes: hideLikes
-                })
+                body: formData
             })
             .then(response => {
                 if (!response.ok) {
@@ -1282,20 +1531,14 @@ document.querySelectorAll('.edit-post-btn').forEach(button => {
                 this.innerHTML = 'Lưu thay đổi';
                 
                 if (data.status === 'success') {
-                    // Cập nhật thông tin trên trang
-                    document.querySelector('.card-text').textContent = caption;
-                    
-                    // Cập nhật địa điểm nếu có
-                    const locationElement = document.querySelector('.text-muted.small:not(.card-text)');
-                    if (locationElement) {
-                        locationElement.textContent = location || '';
-                    }
-                    
                     // Đóng modal
                     editModal.hide();
                     
                     // Hiển thị thông báo thành công
                     alert('Đã cập nhật bài viết thành công!');
+                    
+                    // Tải lại trang để hiển thị các thay đổi
+                    window.location.reload();
                 } else {
                     alert(data.message || 'Có lỗi xảy ra khi cập nhật bài viết.');
                 }
@@ -1447,5 +1690,240 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+// Xử lý gợi ý hashtag và người dùng khi nhập caption
+const captionTextarea = document.getElementById('edit-caption');
+const hashtagSuggestions = document.getElementById('hashtag-suggestions');
+const userSuggestions = document.getElementById('user-suggestions');
+
+let currentQuery = '';
+let currentQueryType = null; // 'hashtag' hoặc 'user'
+let currentCaretPosition = 0;
+let selectedSuggestionIndex = -1;
+
+// Hàm lấy từ hiện tại ở vị trí con trỏ
+function getCurrentWord(text, caretPos) {
+    const textBeforeCaret = text.substring(0, caretPos);
+    const words = textBeforeCaret.split(/\s+/);
+    return words[words.length - 1];
+}
+
+// Xử lý khi nhập văn bản vào textarea
+captionTextarea.addEventListener('input', function(e) {
+    const caretPos = this.selectionStart;
+    const text = this.value;
+    currentCaretPosition = caretPos;
+    
+    const currentWord = getCurrentWord(text, caretPos);
+    
+    // Xử lý gợi ý hashtag
+    if (currentWord.startsWith('#') && currentWord.length > 1) {
+        const hashtag = currentWord.substring(1); // Bỏ ký tự #
+        if (hashtag.length > 0) {
+            currentQuery = hashtag;
+            currentQueryType = 'hashtag';
+            fetchHashtagSuggestions(hashtag);
+        } else {
+            hideHashtagSuggestions();
+        }
+    } else {
+        hideHashtagSuggestions();
+    }
+    
+    // Xử lý gợi ý người dùng
+    if (currentWord.startsWith('@') && currentWord.length > 1) {
+        const username = currentWord.substring(1); // Bỏ ký tự @
+        if (username.length > 0) {
+            currentQuery = username;
+            currentQueryType = 'user';
+            fetchUserSuggestions(username);
+        } else {
+            hideUserSuggestions();
+        }
+    } else {
+        hideUserSuggestions();
+    }
+});
+
+// Xử lý phím mũi tên để di chuyển giữa các gợi ý
+captionTextarea.addEventListener('keydown', function(e) {
+    // Chỉ xử lý khi có gợi ý đang hiển thị
+    if (currentQueryType === 'hashtag' && !hashtagSuggestions.classList.contains('d-none')) {
+        const suggestions = hashtagSuggestions.querySelectorAll('.suggestion-item');
+        
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            selectedSuggestionIndex = Math.min(selectedSuggestionIndex + 1, suggestions.length - 1);
+            highlightSuggestion(suggestions);
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            selectedSuggestionIndex = Math.max(selectedSuggestionIndex - 1, -1);
+            highlightSuggestion(suggestions);
+        } else if (e.key === 'Enter' && selectedSuggestionIndex >= 0) {
+            e.preventDefault();
+            suggestions[selectedSuggestionIndex].click();
+        } else if (e.key === 'Escape') {
+            hideHashtagSuggestions();
+        }
+    } else if (currentQueryType === 'user' && !userSuggestions.classList.contains('d-none')) {
+        const suggestions = userSuggestions.querySelectorAll('.suggestion-item');
+        
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            selectedSuggestionIndex = Math.min(selectedSuggestionIndex + 1, suggestions.length - 1);
+            highlightSuggestion(suggestions);
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            selectedSuggestionIndex = Math.max(selectedSuggestionIndex - 1, -1);
+            highlightSuggestion(suggestions);
+        } else if (e.key === 'Enter' && selectedSuggestionIndex >= 0) {
+            e.preventDefault();
+            suggestions[selectedSuggestionIndex].click();
+        } else if (e.key === 'Escape') {
+            hideUserSuggestions();
+        }
+    }
+});
+
+// Hàm làm nổi bật gợi ý đã chọn
+function highlightSuggestion(suggestions) {
+    suggestions.forEach((item, index) => {
+        if (index === selectedSuggestionIndex) {
+            item.classList.add('active', 'bg-light');
+        } else {
+            item.classList.remove('active', 'bg-light');
+        }
+    });
+}
+
+// Lấy gợi ý hashtag từ server
+function fetchHashtagSuggestions(query) {
+    fetch(`/posts/api/hashtag-suggestions/?q=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.length > 0 && currentQueryType === 'hashtag') {
+                displayHashtagSuggestions(data);
+            } else {
+                hideHashtagSuggestions();
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching hashtag suggestions:', error);
+            hideHashtagSuggestions();
+        });
+}
+
+// Lấy gợi ý người dùng từ server (chỉ hiển thị người đang follow)
+function fetchUserSuggestions(query) {
+    fetch(`/posts/api/user-suggestions/?q=${encodeURIComponent(query)}&following_only=true`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.length > 0 && currentQueryType === 'user') {
+                displayUserSuggestions(data);
+            } else {
+                hideUserSuggestions();
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching user suggestions:', error);
+            hideUserSuggestions();
+        });
+}
+
+// Hiển thị gợi ý hashtag
+function displayHashtagSuggestions(hashtags) {
+    const hashtagList = hashtagSuggestions.querySelector('.list-group');
+    hashtagList.innerHTML = '';
+    selectedSuggestionIndex = -1;
+    
+    hashtags.forEach(hashtag => {
+        const hashtagItem = document.createElement('a');
+        hashtagItem.className = 'suggestion-item list-group-item';
+        hashtagItem.innerHTML = `
+            <div>
+                <span class="hashtag">#${hashtag}</span>
+            </div>
+        `;
+        
+        // Xử lý khi click vào gợi ý hashtag
+        hashtagItem.addEventListener('click', function() {
+            replaceCurrentWord(`#${hashtag} `);
+            hideHashtagSuggestions();
+            captionTextarea.focus();
+        });
+        
+        hashtagList.appendChild(hashtagItem);
+    });
+    
+    // Hiển thị gợi ý hashtag
+    hashtagSuggestions.classList.remove('d-none');
+    // Ẩn gợi ý người dùng
+    userSuggestions.classList.add('d-none');
+}
+
+// Hiển thị gợi ý người dùng
+function displayUserSuggestions(users) {
+    const userList = userSuggestions.querySelector('.list-group');
+    userList.innerHTML = '';
+    selectedSuggestionIndex = -1;
+    
+    users.forEach(user => {
+        const userItem = document.createElement('a');
+        userItem.className = 'suggestion-item list-group-item';
+        userItem.innerHTML = `
+            <img src="${user.avatar_url || '/static/images/default-avatar.png'}" alt="${user.username}">
+            <div>
+                <div class="username">@${user.username}</div>
+                <div class="full-name">${user.full_name || ''}</div>
+            </div>
+        `;
+        
+        // Xử lý khi click vào gợi ý người dùng
+        userItem.addEventListener('click', function() {
+            replaceCurrentWord(`@${user.username} `);
+            hideUserSuggestions();
+            captionTextarea.focus();
+        });
+        
+        userList.appendChild(userItem);
+    });
+    
+    // Hiển thị gợi ý người dùng
+    userSuggestions.classList.remove('d-none');
+    // Ẩn gợi ý hashtag
+    hashtagSuggestions.classList.add('d-none');
+}
+
+// Ẩn gợi ý hashtag
+function hideHashtagSuggestions() {
+    hashtagSuggestions.classList.add('d-none');
+    currentQueryType = null;
+}
+
+// Ẩn gợi ý người dùng
+function hideUserSuggestions() {
+    userSuggestions.classList.add('d-none');
+    currentQueryType = null;
+}
+
+// Thay thế từ hiện tại bằng từ được chọn từ gợi ý
+function replaceCurrentWord(replacement) {
+    const text = captionTextarea.value;
+    const caretPos = currentCaretPosition;
+    
+    // Tìm vị trí bắt đầu của từ hiện tại
+    let startPos = caretPos;
+    while (startPos > 0 && !/\s/.test(text.charAt(startPos - 1))) {
+        startPos--;
+    }
+    
+    // Thay thế từ hiện tại bằng từ được chọn
+    const newText = text.substring(0, startPos) + replacement + text.substring(caretPos);
+    captionTextarea.value = newText;
+    
+    // Đặt con trỏ vào cuối từ mới
+    const newCaretPos = startPos + replacement.length;
+    captionTextarea.setSelectionRange(newCaretPos, newCaretPos);
+}
 </script>
 {% endblock %} 
