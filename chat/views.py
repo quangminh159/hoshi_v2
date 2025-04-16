@@ -235,7 +235,16 @@ def start_conversation(request):
         return redirect('chat:conversation_detail', conversation_id=conversation.id)
     
     # Hiển thị form chọn người dùng
-    users = User.objects.exclude(id=request.user.id)
+    # Chỉ hiển thị những người mà người dùng hiện tại đang theo dõi (following)
+    from accounts.models import UserFollowing
+    
+    # Lấy ID của những người mà người dùng hiện tại đang theo dõi
+    following_ids = UserFollowing.objects.filter(
+        user=request.user
+    ).values_list('following_user_id', flat=True)
+    
+    users = User.objects.filter(id__in=following_ids)
+    
     context = {
         'users': users
     }

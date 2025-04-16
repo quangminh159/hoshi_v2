@@ -117,7 +117,7 @@
               {% endif %}
             </div>
             <div class="user-name">{{ user.username }}</div>
-            <div class="user-email">{{ user.email }}</div>
+            <!--<div class="user-email">{{ user.email }}</div>-->
             <form method="post" action="{% url 'chat:start_conversation' %}">
               {% csrf_token %}
               <input type="hidden" name="user_id" value="{{ user.id }}">
@@ -131,8 +131,11 @@
     {% else %}
       <div class="no-users">
         <i class="fas fa-users fa-4x mb-3"></i>
-        <h5>Không tìm thấy người dùng</h5>
-        <p>Hiện tại không có người dùng nào khả dụng để bắt đầu cuộc trò chuyện</p>
+        <h5>Không tìm thấy người bạn đang theo dõi</h5>
+        <p>Bạn chưa theo dõi ai. Hãy theo dõi người dùng trước khi bắt đầu cuộc trò chuyện.</p>
+        <a href="/" class="btn btn-primary mt-3">
+          <i class="fas fa-user-plus"></i> Về trang chủ
+        </a>
       </div>
     {% endif %}
   </div>
