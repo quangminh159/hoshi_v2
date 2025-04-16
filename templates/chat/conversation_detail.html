@@ -152,6 +152,33 @@
     max-width: 100%;
   }
   
+  /* Style cho tin nhắn reply */
+  .message-reply-info {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+  
+  .message-replied-text {
+    background-color: #f0f0f0;
+    color: #333;
+    padding: 8px 12px;
+    border-radius: 16px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    display: inline-block;
+    max-width: 80%;
+  }
+  
+  .message.sent .message-reply-info {
+    text-align: right;
+  }
+  
+  .message.sent .message-replied-text {
+    float: right;
+  }
+  
   .message.sent .message-content {
     background-color: var(--chat-primary);
     color: white;
@@ -166,6 +193,53 @@
   
   .message-content:hover {
     box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+  }
+  
+  /* CSS cho menu tùy chọn tin nhắn */
+  .message-options {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: -30px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 18px;
+    padding: 4px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    z-index: 5;
+    transition: all 0.2s ease;
+  }
+  
+  .message.received .message-options {
+    right: auto;
+    left: 0;
+  }
+  
+  .message:hover .message-options {
+    display: flex;
+  }
+  
+  .message-option-btn {
+    background: transparent;
+    border: none;
+    color: var(--chat-gray);
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin: 0 2px;
+    transition: all 0.2s;
+  }
+  
+  .message-option-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--chat-primary);
+  }
+  
+  .message-option-btn.delete:hover {
+    color: #ea4335;
   }
   
   .message-time {
@@ -555,6 +629,54 @@
       padding: 10px 15px;
     }
   }
+  
+  /* CSS cho phần hiển thị tin nhắn đang trả lời */
+  .reply-preview {
+    position: relative;
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    display: none;
+  }
+  
+  .reply-preview.active {
+    display: block;
+  }
+  
+  .reply-preview-header {
+    font-size: 14px;
+    color: var(--chat-primary);
+    margin-bottom: 5px;
+    font-weight: 500;
+  }
+  
+  .reply-preview-content {
+    font-size: 13px;
+    color: #666;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-left: 5px;
+    border-left: 2px solid var(--chat-primary);
+    margin: 5px 0;
+  }
+  
+  .reply-preview-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  
+  .reply-preview-close:hover {
+    color: #333;
+  }
 </style>
 {% endblock %}
 
@@ -588,7 +710,7 @@
     <div class="chat-messages" id="chat-messages">
       {% if messages %}
         {% for message in messages %}
-          <div class="message {% if message.sender == request.user %}sent{% else %}received{% endif %}">
+          <div class="message {% if message.sender == request.user %}sent{% else %}received{% endif %}" data-message-id="{{ message.id }}">
             <div class="message-content">
               {% if message.image %}
                 <div class="message-media">
@@ -636,6 +758,19 @@
                 <div class="message-text">{{ message.content }}</div>
               {% endif %}
             </div>
+            
+            <div class="message-options">
+              <button class="message-option-btn reply" title="Trả lời tin nhắn" onclick="replyToMessage({{ message.id }}, '{{ message.content|escapejs }}', {{ message.sender.id }})">
+                <i class="fas fa-reply"></i>
+              </button>
+              
+              {% if message.sender == request.user %}
+                <button class="message-option-btn delete" title="Xóa tin nhắn" onclick="deleteMessage({{ message.id }})">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              {% endif %}
+            </div>
+            
             <div class="message-time">
               {{ message.created_at|date:"H:i, d/m/Y" }}
             </div>
@@ -662,6 +797,18 @@
         <form id="messageForm" class="message-form">
           {% csrf_token %}
           <div class="attachment-preview" id="attachmentPreview"></div>
+          
+          <div class="reply-preview" id="replyPreview">
+            <div class="reply-preview-header" id="replyHeader">Replying to ngoquangduy_</div>
+            <div class="reply-preview-content" id="replyContent">Anh lớn nhưng banking anh lớn zai ơi</div>
+            <button type="button" class="reply-preview-close" onclick="cancelReply()">
+              <i class="fas fa-times"></i>
+            </button>
+            <input type="hidden" id="replyToId" name="reply_to">
+            <input type="hidden" id="replyToUsername" name="reply_to_username">
+            <input type="hidden" id="replyToContent" name="reply_to_content">
+          </div>
+          
           <div class="chat-input-wrapper">
             <button type="button" class="attachment-btn" id="attachmentBtn">
               <i class="fas fa-paperclip"></i>
@@ -721,19 +868,22 @@
 </div>
 
 <script>
+  let messageInput;
+  let chatSocket;
+
   document.addEventListener('DOMContentLoaded', function() {
     // Khởi tạo kết nối WebSocket
     const conversationId = {{ conversation.id }};
     const currentUserId = {{ request.user.id }};
     const wsProtocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
-    const chatSocket = new WebSocket(
+    chatSocket = new WebSocket(
       wsProtocol + window.location.host + '/ws/chat/' + conversationId + '/'
     );
     
     // Lấy tham chiếu đến các phần tử DOM
     const chatMessages = document.getElementById('chat-messages');
     const messageForm = document.getElementById('messageForm');
-    const messageInput = document.getElementById('messageInput');
+    messageInput = document.getElementById('messageInput');
     const typingIndicator = document.getElementById('typingIndicator');
     const typingUsername = document.getElementById('typingUsername');
     
@@ -794,6 +944,13 @@
       else if (data.type === 'message_read') {
         // Cập nhật trạng thái đã đọc cho tin nhắn
         updateMessageReadStatus(data.message_id, data.read_by);
+      }
+      else if (data.type === 'message_deleted') {
+        // Xóa tin nhắn khỏi giao diện nếu đã bị xóa bởi người dùng
+        const messageElement = document.querySelector(`.message[data-message-id="${data.message_id}"]`);
+        if (messageElement) {
+          messageElement.remove();
+        }
       }
       else if (data.type === 'history') {
         // Xóa tất cả tin nhắn hiện tại
@@ -953,13 +1110,27 @@
           });
         } else {
           // Gửi tin nhắn qua WebSocket
-          chatSocket.send(JSON.stringify({
+          const replyToId = document.getElementById('replyToId').value;
+          let messageData = {
             'type': 'message',
-            'message': messageText,
-          }));
+            'message': messageText
+          };
           
-          // Xóa input và focus lại vào ô nhập
+          // Nếu đang trả lời tin nhắn, thêm thông tin reply
+          if (replyToId) {
+            messageData.reply_to = {
+              id: replyToId,
+              sender_id: (replyToId == {{ request.user.id }}) ? {{ request.user.id }} : {{ conversation.other_user.id }},
+              sender_username: document.getElementById('replyToUsername').value,
+              content: document.getElementById('replyToContent').value
+            };
+          }
+          
+          chatSocket.send(JSON.stringify(messageData));
+          
+          // Xóa input, ẩn reply preview và focus lại vào ô nhập
           messageInput.value = '';
+          cancelReply();
           messageInput.focus();
           
           // Hủy trạng thái đang nhập
@@ -1034,6 +1205,36 @@
       const messageElement = document.createElement('div');
       messageElement.className = `message ${message.sender_id == currentUserId ? 'sent' : 'received'}`;
       messageElement.dataset.messageId = message.id;
+      
+      // Hiển thị thông tin reply nếu có
+      if (message.reply_to) {
+        // Thêm phần hiển thị reply
+        const replyInfo = document.createElement('div');
+        replyInfo.className = 'message-reply-info';
+        
+        // Xác định tên người được reply
+        if (message.sender_id == currentUserId) {
+          if (message.reply_to.sender_id == currentUserId) {
+            replyInfo.textContent = 'You replied to yourself';
+          } else {
+            replyInfo.textContent = `You replied to ${message.reply_to.sender_username || 'someone'}`;
+          }
+        } else {
+          if (message.reply_to.sender_id == currentUserId) {
+            replyInfo.textContent = `${message.sender_username} replied to you`;
+          } else {
+            replyInfo.textContent = `${message.sender_username} replied to ${message.reply_to.sender_username}`;
+          }
+        }
+        
+        // Thêm nội dung tin nhắn được reply
+        const repliedText = document.createElement('div');
+        repliedText.className = 'message-replied-text';
+        repliedText.textContent = message.reply_to.content || '[Media message]';
+        
+        messageElement.appendChild(replyInfo);
+        messageElement.appendChild(repliedText);
+      }
       
       const messageContent = document.createElement('div');
       messageContent.className = 'message-content';
@@ -1163,7 +1364,35 @@
       const formattedTime = `${createdDate.getHours().toString().padStart(2, '0')}:${createdDate.getMinutes().toString().padStart(2, '0')}, ${createdDate.getDate().toString().padStart(2, '0')}/${(createdDate.getMonth() + 1).toString().padStart(2, '0')}/${createdDate.getFullYear()}`;
       messageTime.textContent = formattedTime;
       
+      // Thêm các tùy chọn cho tin nhắn (trả lời và xóa)
+      const messageOptions = document.createElement('div');
+      messageOptions.className = 'message-options';
+      
+      // Nút trả lời tin nhắn
+      const replyBtn = document.createElement('button');
+      replyBtn.className = 'message-option-btn reply';
+      replyBtn.innerHTML = '<i class="fas fa-reply"></i>';
+      replyBtn.title = 'Trả lời tin nhắn';
+      replyBtn.onclick = function() {
+        replyToMessage(message.id, message.content, message.sender_id);
+      };
+      
+      // Nút xóa tin nhắn (chỉ hiển thị với tin nhắn của người dùng hiện tại)
+      if (message.sender_id == currentUserId) {
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'message-option-btn delete';
+        deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+        deleteBtn.title = 'Xóa tin nhắn';
+        deleteBtn.onclick = function() {
+          deleteMessage(message.id);
+        };
+        messageOptions.appendChild(deleteBtn);
+      }
+      
+      messageOptions.appendChild(replyBtn);
+      
       messageElement.appendChild(messageContent);
+      messageElement.appendChild(messageOptions);
       messageElement.appendChild(messageTime);
       
       chatMessages.appendChild(messageElement);
@@ -1324,6 +1553,95 @@
     
     const imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
     imageModal.show();
+  }
+  
+  // Hàm xử lý trả lời tin nhắn
+  function replyToMessage(messageId, content, senderId) {
+    console.log('Đang trả lời tin nhắn:', messageId, content, senderId);
+    
+    // Focus vào ô nhập tin nhắn
+    if (!messageInput) {
+      messageInput = document.getElementById('messageInput');
+      console.log('Lấy messageInput:', messageInput);
+    }
+    
+    if (!messageInput) {
+      console.error('Không tìm thấy ô nhập tin nhắn');
+      return;
+    }
+    
+    // Hiển thị container tin nhắn đang trả lời
+    const replyPreview = document.getElementById('replyPreview');
+    const replyHeader = document.getElementById('replyHeader');
+    const replyContent = document.getElementById('replyContent');
+    const replyToIdInput = document.getElementById('replyToId');
+    const replyToUsernameInput = document.getElementById('replyToUsername');
+    const replyToContentInput = document.getElementById('replyToContent');
+    
+    // Lưu ID tin nhắn đang trả lời
+    replyToIdInput.value = messageId;
+    
+    // Thiết lập thông tin người được trả lời
+    const currentUserId = {{ request.user.id }};
+    let username = '';
+    
+    if (senderId != currentUserId) {
+      const otherUsername = document.querySelector('.user-name').textContent.trim();
+      replyHeader.textContent = `Replying to ${otherUsername}`;
+      username = otherUsername;
+    } else {
+      replyHeader.textContent = 'Replying to yourself';
+      username = '{{ request.user.username }}';
+    }
+    
+    // Lưu tên người dùng
+    replyToUsernameInput.value = username;
+    
+    // Thiết lập nội dung tin nhắn được trả lời
+    if (content) {
+      replyContent.textContent = content;
+      replyToContentInput.value = content;
+    } else {
+      replyContent.textContent = '[Media message]';
+      replyToContentInput.value = '';
+    }
+    
+    // Hiển thị container
+    replyPreview.classList.add('active');
+    
+    // Focus vào ô nhập tin nhắn
+    messageInput.focus();
+  }
+  
+  // Hàm hủy trả lời
+  function cancelReply() {
+    const replyPreview = document.getElementById('replyPreview');
+    const replyToIdInput = document.getElementById('replyToId');
+    const replyToUsernameInput = document.getElementById('replyToUsername');
+    const replyToContentInput = document.getElementById('replyToContent');
+    
+    // Ẩn container và xóa ID
+    replyPreview.classList.remove('active');
+    replyToIdInput.value = '';
+    replyToUsernameInput.value = '';
+    replyToContentInput.value = '';
+  }
+  
+  // Hàm xử lý xóa tin nhắn
+  function deleteMessage(messageId) {
+    if (confirm('Bạn có chắc chắn muốn xóa tin nhắn này không?')) {
+      // Gửi yêu cầu xóa qua WebSocket
+      chatSocket.send(JSON.stringify({
+        'type': 'delete_message',
+        'message_id': messageId,
+      }));
+      
+      // Xóa tin nhắn khỏi giao diện
+      const messageElement = document.querySelector(`.message[data-message-id="${messageId}"]`);
+      if (messageElement) {
+        messageElement.remove();
+      }
+    }
   }
 </script>
 {% endblock %}

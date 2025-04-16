@@ -7,6 +7,7 @@ import json
 from rich.console import Console
 from channels.generic.websocket import AsyncWebsocketConsumer
 from django.utils import timezone
+import os
 console = Console(style='bold green')
 
 online_users = []
@@ -80,10 +81,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if message_type == 'message':
             # Xử lý tin nhắn văn bản
             message_content = data.get('message', '').strip()
+            reply_to = data.get('reply_to', None)
             
             if message_content:
                 # Lưu tin nhắn vào database
-                message = await self.save_message(message_content)
+                message = await self.save_message(message_content, reply_to)
                 
                 # Gửi tin nhắn đến nhóm
                 await self.channel_layer.group_send(
@@ -100,6 +102,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                             'attachment_url': message['attachment_url'] if message['has_attachment'] else None,
                             'attachment_type': message['attachment_type'] if message['has_attachment'] else None,
                             'file_name': message['file_name'] if message['has_attachment'] else None,
+                            'reply_to': reply_to
                         }
                     }
                 )
@@ -133,6 +136,24 @@ class ChatConsumer(AsyncWebsocketConsumer):
                         'read_by': self.user.id
                     }
                 )
+        elif message_type == 'delete_message':
+            # Xử lý xóa tin nhắn
+            message_id = data.get('message_id')
+            
+            if message_id:
+                # Xóa tin nhắn nếu người dùng là người gửi
+                deleted = await self.delete_message(message_id)
+                
+                if deleted:
+                    # Thông báo cho tất cả người dùng rằng tin nhắn đã bị xóa
+                    await self.channel_layer.group_send(
+                        self.room_group_name,
+                        {
+                            'type': 'message_deleted',
+                            'message_id': message_id,
+                            'deleted_by': self.user.id
+                        }
+                    )
     
     # Nhận tin nhắn từ room group và gửi đến WebSocket
     async def chat_message(self, event):
@@ -170,6 +191,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'type': 'message_read',
             'message_id': event['message_id'],
             'read_by': event['read_by']
+        }))
+    
+    # Xử lý sự kiện tin nhắn đã bị xóa
+    async def message_deleted(self, event):
+        # Gửi thông báo đến WebSocket
+        await self.send(text_data=json.dumps({
+            'type': 'message_deleted',
+            'message_id': event['message_id'],
+            'deleted_by': event['deleted_by']
         }))
     
     # Database helper methods
@@ -239,7 +269,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         return result
     
     @database_sync_to_async
-    def save_message(self, content):
+    def save_message(self, content, reply_to=None):
         # Lưu tin nhắn mới vào database
         conversation = Conversation.objects.get(id=self.conversation_id)
         message = ConversationMessage.objects.create(
@@ -288,6 +318,37 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 message.save()
             return True
         except ConversationMessage.DoesNotExist:
+            return False
+
+    @database_sync_to_async
+    def delete_message(self, message_id):
+        """Xóa tin nhắn nếu người dùng là người gửi"""
+        try:
+            # Lấy tin nhắn từ ID
+            message = ConversationMessage.objects.get(id=message_id)
+            
+            # Chỉ cho phép xóa nếu người dùng hiện tại là người gửi tin nhắn
+            if message.sender and message.sender.id == self.user.id:
+                # Xóa các tệp đính kèm nếu có
+                if message.image:
+                    if os.path.isfile(message.image.path):
+                        os.remove(message.image.path)
+                if message.video:
+                    if os.path.isfile(message.video.path):
+                        os.remove(message.video.path)
+                if message.document:
+                    if os.path.isfile(message.document.path):
+                        os.remove(message.document.path)
+                
+                # Xóa tin nhắn
+                message.delete()
+                return True
+            
+            return False
+        except ConversationMessage.DoesNotExist:
+            return False
+        except Exception as e:
+            console.print(f"Lỗi khi xóa tin nhắn: {e}", style="bold red")
             return False
 
 

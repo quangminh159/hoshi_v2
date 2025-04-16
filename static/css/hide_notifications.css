@@ -1,5 +1,14 @@
 /* Ẩn tất cả thông báo tin nhắn */
-[class*="Message from testuser"] {
+[class*="Message from"] {
+    display: none !important;
+}
+
+/* Ẩn các thông báo từ cuộc trò chuyện */
+div[role="alert"] button.btn-close {
+    display: none !important;
+}
+
+div[role="alert"] {
     display: none !important;
 }
 

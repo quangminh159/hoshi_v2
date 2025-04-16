@@ -19,6 +19,9 @@
     <!-- Custom CSS -->
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
     
+    <!-- Thêm CSS để ẩn thông báo -->
+    <link rel="stylesheet" href="{% static 'css/hide_notifications.css' %}">
+    
     {% if user.is_authenticated %}
     <meta name="user-id" content="{{ user.id }}">
     {% endif %}
