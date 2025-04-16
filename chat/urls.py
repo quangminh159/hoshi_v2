@@ -9,8 +9,9 @@ urlpatterns = [
     path('conversations/', views.conversation_list, name='conversation_list'),
     path('conversations/<int:conversation_id>/', views.conversation_detail, name='conversation_detail'),
     path('conversations/<int:conversation_id>/send/', views.send_message, name='send_message'),
+    path('upload_attachment/<int:conversation_id>/', views.upload_attachment, name='upload_attachment'),
+    path('start/', views.start_conversation, name='start_conversation'),
     path('direct/<str:username>/', views.direct_chat, name='direct_chat'),
-    path('start-conversation/', views.start_conversation, name='start_conversation'),
     path('delete/<int:conversation_id>/', views.delete_conversation, name='delete_conversation'),
     
     # Giao diện chat mới

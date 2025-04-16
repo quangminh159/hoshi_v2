@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.http import Http404, JsonResponse, HttpResponse
 from django.db.models import Q, Max, Count, Exists, OuterRef, Subquery
-from .models import Conversation, ConversationMessage as Message, ConversationParticipant, Thread, UserSetting
+from .models import Conversation, ConversationMessage, ConversationParticipant, Thread, UserSetting
 import json
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
@@ -78,7 +78,7 @@ def conversation_detail(request, conversation_id):
     conversation.is_blocked = block_relationship_exists
     
     # Lấy tin nhắn
-    messages = Message.objects.filter(conversation=conversation).order_by('created_at')
+    messages = ConversationMessage.objects.filter(conversation=conversation).order_by('created_at')
     
     context = {
         'conversation': conversation,
@@ -121,7 +121,7 @@ def send_message(request, conversation_id):
         # Tạo tin nhắn mới nếu có nội dung hoặc đính kèm
         if message_content or has_attachment:
             # Tạo tin nhắn mới
-            message = Message.objects.create(
+            message = ConversationMessage.objects.create(
                 conversation=conversation,
                 sender=user,
                 content=message_content
@@ -277,7 +277,7 @@ def api_chat_messages(request, id):
     try:
         thread = Thread.objects.filter(users=request.user).filter(users__id=id).first()
         if thread:
-            messages = Message.objects.filter(thread=thread).order_by('-id')
+            messages = ConversationMessage.objects.filter(thread=thread).order_by('-id')
             
             for i, message in enumerate(messages, start=1):
                 messages_json[message.id] = {
@@ -439,7 +439,7 @@ def delete_conversation(request, conversation_id):
     
     try:
         # Xóa tất cả tin nhắn trong cuộc trò chuyện
-        Message.objects.filter(conversation=conversation).delete()
+        ConversationMessage.objects.filter(conversation=conversation).delete()
         
         # Xóa tất cả người tham gia 
         ConversationParticipant.objects.filter(conversation=conversation).delete()
@@ -451,3 +451,94 @@ def delete_conversation(request, conversation_id):
     except Exception as e:
         console.print(f"Error deleting conversation: {e}")
         return JsonResponse({"error": "Đã xảy ra lỗi khi xóa cuộc trò chuyện"}, status=500)
+
+@login_required
+def upload_attachment(request, conversation_id):
+    """Xử lý tải lên tệp đính kèm thông qua AJAX"""
+    if request.method == 'POST':
+        user = request.user
+        conversation = get_object_or_404(Conversation, id=conversation_id)
+        
+        # Kiểm tra quyền truy cập
+        if not conversation.participants.filter(id=user.id).exists():
+            return JsonResponse({'status': 'error', 'message': 'Không có quyền truy cập'}, status=403)
+        
+        # Kiểm tra quan hệ chặn
+        other_participant = conversation.get_other_participant(user)
+        from accounts.models import UserBlock
+        
+        block_relationship_exists = (
+            UserBlock.objects.filter(blocker=other_participant, blocked=user).exists() or 
+            UserBlock.objects.filter(blocker=user, blocked=other_participant).exists()
+        )
+        
+        if block_relationship_exists:
+            return JsonResponse({'status': 'error', 'message': 'Không thể gửi tin nhắn do bị chặn'}, status=403)
+        
+        # Tạo tin nhắn mới
+        message_content = request.POST.get('message', '').strip()
+        message = ConversationMessage.objects.create(
+            conversation=conversation,
+            sender=user,
+            content=message_content
+        )
+        
+        # Xử lý tệp đính kèm
+        if 'image' in request.FILES:
+            image_file = request.FILES['image']
+            message.image = image_file
+            message.file_name = image_file.name
+            message.file_size = image_file.size
+            message.file_type = 'image'
+        elif 'video' in request.FILES:
+            video_file = request.FILES['video']
+            message.video = video_file
+            message.file_name = video_file.name
+            message.file_size = video_file.size
+            message.file_type = 'video'
+        elif 'document' in request.FILES:
+            document_file = request.FILES['document']
+            message.document = document_file
+            message.file_name = document_file.name
+            message.file_size = document_file.size
+            message.file_type = 'document'
+        
+        # Lưu tin nhắn
+        message.save()
+        
+        # Cập nhật thời gian tin nhắn cuối cùng
+        conversation.last_message_time = message.created_at
+        conversation.save()
+        
+        # Chuẩn bị dữ liệu phản hồi
+        has_attachment = bool(message.image or message.video or message.document)
+        attachment_type = None
+        attachment_url = None
+        
+        if message.image:
+            attachment_type = 'image'
+            attachment_url = message.image.url
+        elif message.video:
+            attachment_type = 'video'
+            attachment_url = message.video.url
+        elif message.document:
+            attachment_type = 'document'
+            attachment_url = message.document.url
+            
+        # Trả về thông tin tin nhắn dưới dạng JSON
+        return JsonResponse({
+            'status': 'success',
+            'message': {
+                'id': message.id,
+                'content': message.content,
+                'sender_id': user.id,
+                'sender_username': user.username,
+                'created_at': message.created_at.isoformat(),
+                'has_attachment': has_attachment,
+                'attachment_type': attachment_type,
+                'attachment_url': attachment_url,
+                'file_name': message.file_name,
+            }
+        })
+        
+    return JsonResponse({'status': 'error', 'message': 'Phương thức không được hỗ trợ'}, status=405)

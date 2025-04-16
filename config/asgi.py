@@ -1,10 +1,12 @@
 import os
+import sys
 import django
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+print("Loading config/asgi.py - forwarding to hoshi/asgi.py", file=sys.stderr)
+
+# Thiết lập môi trường đúng
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'hoshi.settings')
 django.setup()
 
-from django.core.asgi import get_asgi_application
-
-# Chỉ sử dụng ứng dụng ASGI tiêu chuẩn của Django
-application = get_asgi_application() 
+# Import application từ hoshi/asgi.py sau khi đã cấu hình Django
+from hoshi.asgi import application 

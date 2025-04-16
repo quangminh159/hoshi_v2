@@ -3,3 +3,7 @@ https://console.cloud.google.com/apis/credentials?invt=AbunUQ&project=hoshi-4567
 
 link facebook client
 https://developers.facebook.com/apps/?show_reminder=true
+
+
+chạy để có thể chat trực tiếp
+python -m daphne -p 8000 hoshi.asgi:application
