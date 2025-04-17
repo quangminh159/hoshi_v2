@@ -36,8 +36,8 @@ def home(request):
     logger.info(f"Người dùng: {request.user}")
     logger.info(f"Người dùng đã xác thực: {request.user.is_authenticated}")
     
-    # Lấy tất cả bài viết, sắp xếp theo thời gian tạo mới nhất
-    posts = Post.objects.all().order_by('-created_at')
+    # Lấy tất cả bài viết, sắp xếp ngẫu nhiên mỗi lần tải lại trang
+    posts = Post.objects.all().order_by('?')
     logger.info(f"Tổng số bài viết ban đầu: {posts.count()}")
     
     # Lấy danh sách người đã chặn người dùng hiện tại
@@ -346,7 +346,7 @@ def create(request):
                 process_hashtags(post)
                 
             messages.success(request, 'Bài viết đã được đăng thành công!')
-            return redirect('posts:index')
+            return HttpResponseRedirect('/')
     else:
         form = PostForm()
     

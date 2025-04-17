@@ -1,0 +1,260 @@
+{% for post_data in posts_with_data %}
+{% with post=post_data.post %}
+<div class="card mb-4" id="post-{{ post.id }}">
+    <!-- Post Header -->
+    <div class="card-header bg-white border-0 py-3">
+        <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center">
+                <img src="{{ post.author.get_avatar_url }}" 
+                     class="rounded-circle me-2" 
+                     width="32" 
+                     height="32"
+                     alt="{{ post.author.username }}">
+                <div>
+                    <a href="{% url 'accounts:profile' username=post.author.username %}" 
+                       class="text-dark text-decoration-none fw-bold">
+                        {{ post.author.username }}
+                    </a>
+                    {% if post.location %}
+                    <div class="text-muted small">
+                        {{ post.location }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="d-flex align-items-center">
+                <!-- Loại bài viết -->
+                {% if post_data.post_type != 'flowed' %}
+                <div class="post-type-badge me-2">
+                    {% if post_data.post_type == 'trending' %}
+                    <span class="badge bg-danger">
+                        <i class="fas fa-fire"></i> Thịnh hành
+                    </span>
+                    {% elif post_data.post_type == 'recommended' %}
+                    <span class="badge bg-success">
+                        <i class="fas fa-thumbs-up"></i> Gợi ý
+                    </span>
+                    {% elif post_data.post_type == 'discover' %}
+                    <span class="badge bg-info">
+                        <i class="fas fa-compass"></i> Khám phá
+                    </span>
+                    {% endif %}
+                </div>
+                {% endif %}
+                <!-- Thời gian đăng -->
+                <div class="text-muted small">
+                    {{ post.created_at|timesince }} trước
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Caption -->
+    {% if post.caption %}
+    <div class="card-body py-2">
+        <p class="card-text mb-0">
+            {{ post.caption|urlize|linebreaksbr }}
+        </p>
+    </div>
+    {% endif %}
+
+    <!-- Post Media -->
+    {% if post.media.exists %}
+    <div id="carousel-{{ post.id }}" class="carousel slide" data-bs-ride="false">
+        {% if post.media.count > 1 %}
+        <div class="carousel-indicators">
+            {% for media in post.media.all %}
+            <button type="button" 
+                    data-bs-target="#carousel-{{ post.id }}" 
+                    data-bs-slide-to="{{ forloop.counter0 }}"
+                    {% if forloop.first %}class="active"{% endif %}
+                    aria-current="true" 
+                    aria-label="Slide {{ forloop.counter }}">
+            </button>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <div class="carousel-inner">
+            {% for media in post.media.all %}
+            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                {% if media.media_type == 'image' %}
+                <img src="{{ media.file.url }}" 
+                     class="d-block w-100" 
+                     alt="Post image">
+                {% else %}
+                <video class="d-block w-100" controls>
+                    <source src="{{ media.file.url }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        
+        {% if post.media.count > 1 %}
+        <button class="carousel-control-prev" 
+                type="button" 
+                data-bs-target="#carousel-{{ post.id }}" 
+                data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" 
+                type="button" 
+                data-bs-target="#carousel-{{ post.id }}" 
+                data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Post Actions -->
+    <div class="card-footer bg-white border-0 pt-0">
+        <!-- Action Buttons -->
+        <div class="d-flex justify-content-between mb-2">
+            <div>
+                <button class="btn btn-link p-0 me-3 like-button {% if post_data.is_liked %}liked{% endif %}" 
+                        data-post-id="{{ post.id }}">
+                    <i class="{% if post_data.is_liked %}fas{% else %}far{% endif %} fa-heart fa-lg"></i>
+                    <span class="likes-count">{{ post_data.total_likes }}</span>
+                </button>
+                <button class="btn btn-link p-0 me-3 comment-button"
+                        data-post-id="{{ post.id }}">
+                    <i class="far fa-comment fa-lg"></i>
+                    <span>{{ post.comments.count }}</span>
+                </button>
+                <button class="btn btn-link p-0 share-button"
+                        data-post-id="{{ post.id }}">
+                    <i class="far fa-paper-plane fa-lg"></i>
+                </button>
+            </div>
+            <div>
+                <button class="btn btn-link p-0 save-button {% if post_data.is_saved %}saved{% endif %}"
+                        data-post-id="{{ post.id }}">
+                    <i class="{% if post_data.is_saved %}fas{% else %}far{% endif %} fa-bookmark fa-lg"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Hiển thị comments -->
+        {% if post_data.comments_data %}
+        <div class="comments-section">
+            {% if post.comments.count > 3 %}
+            <p class="text-muted small mb-2">
+                <a href="{% url 'posts:post_detail' post_id=post.id %}" class="text-decoration-none">
+                    Xem tất cả {{ post.comments.count }} bình luận
+                </a>
+            </p>
+            {% endif %}
+            
+            {% for comment_data in post_data.comments_data %}
+            {% with comment=comment_data.comment %}
+            <div class="comment mb-2" id="comment-{{ comment.id }}">
+                <div class="d-flex">
+                    <div class="flex-grow-1">
+                        <a href="{% url 'accounts:profile' username=comment.author.username %}" 
+                           class="text-dark text-decoration-none fw-bold">
+                            {{ comment.author.username }}
+                        </a>
+                        {{ comment.text }}
+                        
+                        <div class="text-muted small d-flex align-items-center mt-1">
+                            <span>{{ comment.created_at|timesince }} trước</span>
+                            <span class="mx-1">·</span>
+                            <button class="btn btn-link btn-sm p-0 text-muted comment-like-button"
+                                    data-comment-id="{{ comment.id }}">
+                                <span>Thích</span>
+                            </button>
+                            <span class="mx-1">·</span>
+                            <button class="btn btn-link btn-sm p-0 text-muted reply-button"
+                                    data-username="{{ comment.author.username }}"
+                                    data-post-id="{{ post.id }}"
+                                    data-comment-id="{{ comment.id }}">
+                                <span>Trả lời</span>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Delete button for comment author -->
+                    {% if comment.author == request.user %}
+                    <div>
+                        <button class="btn btn-link text-danger p-0 delete-comment-button"
+                                data-comment-id="{{ comment.id }}">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Hiển thị replies -->
+                {% if comment_data.replies %}
+                <div class="replies ms-4 mt-2">
+                    {% for reply in comment_data.replies %}
+                    <div class="reply mb-2" id="comment-{{ reply.id }}">
+                        <div class="d-flex">
+                            <div class="flex-grow-1">
+                                <a href="{% url 'accounts:profile' username=reply.author.username %}" 
+                                   class="text-dark text-decoration-none fw-bold">
+                                    {{ reply.author.username }}
+                                </a>
+                                {{ reply.text }}
+                                
+                                <div class="text-muted small d-flex align-items-center mt-1">
+                                    <span>{{ reply.created_at|timesince }} trước</span>
+                                </div>
+                            </div>
+                            <!-- Delete button for reply author -->
+                            {% if reply.author == request.user %}
+                            <div>
+                                <button class="btn btn-link text-danger p-0 delete-comment-button"
+                                        data-comment-id="{{ reply.id }}">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                    {% if comment_data.replies_count > 2 %}
+                    <p class="text-muted small mb-0">
+                        <a href="{% url 'posts:post_detail' post_id=post.id %}" class="text-decoration-none">
+                            Xem thêm {{ comment_data.replies_count|add:"-2" }} trả lời
+                        </a>
+                    </p>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+            {% endwith %}
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <!-- Thêm comment form -->
+        <form class="d-flex mt-3 comment-form" 
+              data-post-id="{{ post.id }}" 
+              method="post" 
+              action="{% url 'posts:comment' post_id=post.id %}">
+            {% csrf_token %}
+            <div class="flex-grow-1 position-relative">
+                <div class="reply-info d-none bg-light text-small p-1 mb-1 rounded">
+                    Trả lời <span class="reply-to-username fw-bold"></span>
+                    <button type="button" class="btn-close btn-close-sm float-end cancel-reply"></button>
+                </div>
+                <input type="text" 
+                       name="text" 
+                       class="form-control comment-input" 
+                       placeholder="Thêm bình luận..." 
+                       required>
+            </div>
+            <button type="submit" class="btn btn-link text-primary">
+                Đăng
+            </button>
+        </form>
+    </div>
+</div>
+{% endwith %}
+{% endfor %} 
