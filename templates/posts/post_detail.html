@@ -152,7 +152,7 @@
                                 <div class="d-flex mb-2">
                                     <button class="btn btn-link text-dark p-0 me-3 like-button" 
                                             data-post-id="{{ post.id }}">
-                                        <i class="{% if request.user in post.post_likes.all %}fas{% else %}far{% endif %} fa-heart"></i>
+                                        <i class="{% if is_liked %}fas text-danger{% else %}far{% endif %} fa-heart"></i>
                                         <span class="likes-count" data-post-id="{{ post.id }}">{{ post.likes_count }}</span>
                                     </button>
                                     <button class="btn btn-link text-dark p-0 me-3">
@@ -227,7 +227,7 @@
                                             {{ comment.created_at|timesince }} trước · 
                                             <button class="btn btn-link btn-sm p-0 text-muted like-comment-button" 
                                                     data-comment-id="{{ comment.id }}">
-                                                {% if request.user in comment.likes.all %}
+                                                {% if comment_item.is_liked %}
                                                 <span class="text-primary">Đã thích</span>
                                                 {% else %}
                                                 <span>Thích</span>
@@ -251,16 +251,16 @@
                                         {% if comment_item.replies %}
                                         <div class="comment-replies ps-4 mt-2">
                                             {% for reply in comment_item.replies %}
-                                            <div class="reply-comment mb-2" id="comment-{{ reply.id }}" data-comment-id="{{ reply.id }}">
+                                            <div class="reply-comment mb-2" id="comment-{{ reply.reply.id }}" data-comment-id="{{ reply.reply.id }}">
                                                 <div class="d-flex justify-content-between">
                                                     <div>
-                                                        <a href="{% url 'accounts:profile' username=reply.author.username %}" 
+                                                        <a href="{% url 'accounts:profile' username=reply.reply.author.username %}" 
                                                            class="text-dark text-decoration-none fw-bold">
-                                                            {{ reply.author.username }}
+                                                            {{ reply.reply.author.username }}
                                                         </a>
                                                         <span class="text-muted small me-1">đã trả lời</span>
                                                         <a href="#comment-{{ comment.id }}" class="text-dark fw-bold small">@{{ comment.author.username }}</a>:
-                                                        {{ reply.text|urlize|linebreaksbr }}
+                                                        {{ reply.reply.text|urlize|linebreaksbr }}
                                                     </div>
                                                     <div class="dropdown">
                                                         <button class="btn btn-link btn-sm p-0 text-muted dropdown-toggle" 
@@ -272,15 +272,15 @@
                                                         <ul class="dropdown-menu dropdown-menu-end">
                                                             <li>
                                                                 <button class="dropdown-item reply-button" 
-                                                                        data-username="{{ reply.author.username }}"
+                                                                        data-username="{{ reply.reply.author.username }}"
                                                                         data-post-id="{{ post.id }}">
                                                                     <i class="fas fa-reply me-2"></i>Trả lời
                                                                 </button>
                                                             </li>
-                                                            {% if request.user == reply.author or request.user == post.author %}
+                                                            {% if request.user == reply.reply.author or request.user == post.author %}
                                                             <li>
                                                                 <button class="dropdown-item text-danger" 
-                                                                       onclick="deleteComment({{ reply.id }})">
+                                                                       onclick="deleteComment({{ reply.reply.id }})">
                                                                     <i class="fas fa-trash-alt me-2"></i>Xóa
                                                                 </button>
                                                             </li>
@@ -289,10 +289,10 @@
                                                     </div>
                                                 </div>
                                                 <div class="text-muted small">
-                                                    {{ reply.created_at|timesince }} trước · 
+                                                    {{ reply.reply.created_at|timesince }} trước · 
                                                     <button class="btn btn-link btn-sm p-0 text-muted like-comment-button" 
-                                                            data-comment-id="{{ reply.id }}">
-                                                        {% if request.user in reply.likes.all %}
+                                                            data-comment-id="{{ reply.reply.id }}">
+                                                        {% if reply.is_liked %}
                                                         <span class="text-primary">Đã thích</span>
                                                         {% else %}
                                                         <span>Thích</span>
@@ -300,14 +300,14 @@
                                                     </button>
                                                     <span class="ms-1">·</span>
                                                     <button class="btn btn-link btn-sm p-0 text-muted reply-button ms-1" 
-                                                            data-username="{{ reply.author.username }}"
+                                                            data-username="{{ reply.reply.author.username }}"
                                                             data-post-id="{{ post.id }}">
                                                         Trả lời
                                                     </button>
-                                                    {% if reply.likes_count > 0 %}
+                                                    {% if reply.reply.likes_count > 0 %}
                                                     <span class="ms-2">
                                                         <i class="fas fa-heart text-danger small"></i>
-                                                        <span class="comment-likes-count" data-comment-id="{{ reply.id }}">{{ reply.likes_count }}</span>
+                                                        <span class="comment-likes-count" data-comment-id="{{ reply.reply.id }}">{{ reply.reply.likes_count }}</span>
                                                     </span>
                                                     {% endif %}
                                                 </div>

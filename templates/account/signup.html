@@ -86,6 +86,28 @@
                             </div>
 
                             <div class="mb-4">
+                                <label for="id_phone_number" class="form-label">Số điện thoại</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-phone"></i>
+                                    </span>
+                                    <input type="tel" 
+                                           class="form-control {% if form.phone_number.errors %}is-invalid{% endif %}" 
+                                           id="id_phone_number" 
+                                           name="phone_number" 
+                                           placeholder="Nhập số điện thoại của bạn"
+                                           required>
+                                    {% if form.phone_number.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.phone_number.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
                                 <label for="id_birth_date" class="form-label">Ngày sinh</label>
                                 <div class="input-group">
                                     <span class="input-group-text">

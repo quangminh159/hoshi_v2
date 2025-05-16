@@ -6,6 +6,7 @@ from allauth.account.forms import SignupForm as AllAuthSignupForm
 from allauth.account.forms import ResetPasswordForm as AllAuthResetPasswordForm
 from allauth.account.forms import ResetPasswordKeyForm as AllAuthResetPasswordKeyForm
 from .models import User
+from phonenumber_field.formfields import PhoneNumberField
 
 User = get_user_model()
 
@@ -23,6 +24,15 @@ class CustomSignupForm(AllAuthSignupForm):
         widget=forms.EmailInput(attrs={
             'placeholder': 'Email',
             'class': 'form-control'
+        })
+    )
+    phone_number = PhoneNumberField(
+        label='Số điện thoại',
+        required=True,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Số điện thoại',
+            'class': 'form-control',
+            'type': 'tel'
         })
     )
     password1 = forms.CharField(
@@ -71,6 +81,12 @@ class CustomSignupForm(AllAuthSignupForm):
             raise ValidationError('Email này đã được sử dụng.')
         return email
 
+    def clean_phone_number(self):
+        phone_number = self.cleaned_data['phone_number']
+        if User.objects.filter(phone_number=phone_number).exists():
+            raise ValidationError('Số điện thoại này đã được sử dụng.')
+        return phone_number
+
     def clean(self):
         cleaned_data = super().clean()
         password1 = cleaned_data.get('password1')
@@ -98,6 +114,10 @@ class CustomSignupForm(AllAuthSignupForm):
         
         # Lưu giới tính
         user.gender = self.cleaned_data.get('gender')
+        
+        # Lưu số điện thoại
+        user.phone_number = self.cleaned_data.get('phone_number')
+        
         user.save()
         
         return user

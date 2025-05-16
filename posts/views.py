@@ -83,13 +83,23 @@ def home(request):
         
         comments_with_replies = []
         for comment in root_comments:
-            # Lấy tối đa 2 trả lời cho mỗi bình luận
-            replies = Comment.objects.filter(parent=comment).order_by('-created_at')[:2]
+            # Lấy replies cho mỗi comment
+            replies = Comment.objects.filter(parent=comment).order_by('created_at')
+            replies_with_like = []
+            for reply in replies:
+                replies_with_like.append({
+                    'reply': reply,
+                    'is_liked': CommentLike.objects.filter(user=request.user, comment=reply).exists()
+                })
             comments_with_replies.append({
                 'comment': comment,
-                'replies': replies,
-                'replies_count': Comment.objects.filter(parent=comment).count()
+                'is_liked': CommentLike.objects.filter(user=request.user, comment=comment).exists(),
+                'replies': replies_with_like,
+                'replies_count': replies.count()
             })
+        
+        # Thêm trường is_liked cho post
+        post.is_liked = Like.objects.filter(user=request.user, post=post).exists()
         
         posts_with_comments.append({
             'post': post,
@@ -256,9 +266,16 @@ def feed(request):
         for comment in root_comments:
             # Lấy tối đa 2 trả lời cho mỗi bình luận
             replies = Comment.objects.filter(parent=comment).order_by('-created_at')[:2]
+            replies_with_like = []
+            for reply in replies:
+                replies_with_like.append({
+                    'reply': reply,
+                    'is_liked': CommentLike.objects.filter(user=request.user, comment=reply).exists()
+                })
             comments_with_replies.append({
                 'comment': comment,
-                'replies': replies,
+                'is_liked': CommentLike.objects.filter(user=request.user, comment=comment).exists(),
+                'replies': replies_with_like,
                 'replies_count': replies.count()
             })
         
@@ -294,16 +311,24 @@ def post_detail(request, post_id):
     for comment in root_comments:
         # Lấy replies cho mỗi comment
         replies = Comment.objects.filter(parent=comment).order_by('created_at')
+        replies_with_like = []
+        for reply in replies:
+            replies_with_like.append({
+                'reply': reply,
+                'is_liked': CommentLike.objects.filter(user=request.user, comment=reply).exists()
+            })
         comments_with_replies.append({
             'comment': comment,
-            'replies': replies,
+            'is_liked': CommentLike.objects.filter(user=request.user, comment=comment).exists(),
+            'replies': replies_with_like,
             'replies_count': replies.count()
         })
     
     context = {
         'post': post,
         'comments_data': comments_with_replies,
-        'total_comments': Comment.objects.filter(post=post).count()
+        'total_comments': Comment.objects.filter(post=post).count(),
+        'is_liked': Like.objects.filter(user=request.user, post=post).exists(),
     }
     return render(request, 'posts/post_detail.html', context)
 
@@ -1073,31 +1098,17 @@ def api_load_posts(request):
         for comment in root_comments:
             # Lấy tối đa 2 trả lời cho mỗi bình luận
             replies = Comment.objects.filter(parent=comment).order_by('-created_at')[:1]
+            replies_with_like = []
+            for reply in replies:
+                replies_with_like.append({
+                    'reply': reply,
+                    'is_liked': CommentLike.objects.filter(user=request.user, comment=reply).exists()
+                })
             comments_with_replies.append({
-                'comment': {
-                    'id': comment.id,
-                    'text': comment.text,
-                    'created_at': comment.created_at.isoformat(),
-                    'author': {
-                        'id': comment.author.id,
-                        'username': comment.author.username,
-                        'avatar': comment.author.avatar.url if comment.author.avatar else None,
-                    },
-                    'likes_count': comment.likes_count,
-                },
-                'replies': [{
-                    'id': reply.id,
-                    'text': reply.text, 
-                    'created_at': reply.created_at.isoformat(),
-                    'author': {
-                        'id': reply.author.id,
-                        'username': reply.author.username,
-                        'avatar': reply.author.avatar.url if reply.author.avatar else None,
-                    },
-                    'likes_count': reply.likes_count,
-                    'parent_id': reply.parent_id,
-                } for reply in replies],
-                'replies_count': Comment.objects.filter(parent=comment).count()
+                'comment': comment,
+                'is_liked': CommentLike.objects.filter(user=request.user, comment=comment).exists(),
+                'replies': replies_with_like,
+                'replies_count': replies.count()
             })
         
         # Lấy thông tin về media của bài viết

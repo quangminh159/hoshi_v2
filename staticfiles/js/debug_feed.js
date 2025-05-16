@@ -1,4 +1,3 @@
-
 /**
  * Debug script để kiểm tra lỗi hiển thị feed
  */
@@ -35,19 +34,4 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error(`Ảnh lỗi: ${img.src}`);
         }
     }
-    
-    // Thử reload và clear cache
-    document.getElementById('reload-btn')?.addEventListener('click', function() {
-        location.reload(true);
-    });
 });
-
-// Thêm nút reload vào trang
-setTimeout(function() {
-    const reloadBtn = document.createElement('button');
-    reloadBtn.id = 'reload-btn';
-    reloadBtn.className = 'btn btn-primary position-fixed';
-    reloadBtn.style.cssText = 'bottom: 20px; right: 20px; z-index: 9999;';
-    reloadBtn.textContent = 'Reload Page';
-    document.body.appendChild(reloadBtn);
-}, 1000);

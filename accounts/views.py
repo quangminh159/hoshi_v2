@@ -172,6 +172,27 @@ def settings(request):
                 request.user.delete()
                 messages.success(request, 'Tài khoản của bạn đã được xóa.')
                 return redirect('home')
+                
+        elif 'request_data_download' in request.POST:
+            include_media = request.POST.get('include_media', '') == 'on'
+            
+            # Kiểm tra xem có yêu cầu nào đang xử lý không
+            if DataDownloadRequest.objects.filter(
+                user=request.user,
+                status='pending',
+                created_at__gte=timezone.now() - timezone.timedelta(days=1)
+            ).exists():
+                messages.error(request, 'Bạn đã có một yêu cầu đang được xử lý. Vui lòng thử lại sau.')
+                return redirect('accounts:settings')
+            
+            # Tạo yêu cầu mới
+            DataDownloadRequest.objects.create(
+                user=request.user,
+                include_media=include_media
+            )
+            
+            messages.success(request, 'Yêu cầu của bạn đã được ghi nhận. Chúng tôi sẽ thông báo khi dữ liệu sẵn sàng để tải xuống.')
+            return redirect('accounts:settings')
     
     # Lấy danh sách thiết bị
     devices = Device.objects.filter(user=request.user).order_by('-last_active')
@@ -184,6 +205,28 @@ def settings(request):
     # Lấy danh sách người dùng đã bị chặn
     blocked_users = UserBlock.objects.filter(blocker=request.user).select_related('blocked').order_by('-created_at')
     
+    # Thiết lập mặc định cho thông báo
+    notification_settings = {
+        'push': request.user.push_notifications if hasattr(request.user, 'push_notifications') else False,
+        'email': request.user.email_notifications if hasattr(request.user, 'email_notifications') else False,
+        'likes': request.user.like_notifications if hasattr(request.user, 'like_notifications') else False,
+        'comments': request.user.comment_notifications if hasattr(request.user, 'comment_notifications') else False,
+        'follows': request.user.follow_notifications if hasattr(request.user, 'follow_notifications') else False,
+        'mentions': request.user.mention_notifications if hasattr(request.user, 'mention_notifications') else False,
+    }
+    
+    # Thiết lập mặc định cho quyền riêng tư
+    privacy_settings = {
+        'private_account': request.user.private_account if hasattr(request.user, 'private_account') else False,
+        'hide_activity': request.user.hide_activity if hasattr(request.user, 'hide_activity') else False,
+        'block_messages': request.user.block_messages if hasattr(request.user, 'block_messages') else False,
+    }
+    
+    # Thiết lập mặc định cho bảo mật
+    security_settings = {
+        'two_factor': request.user.two_factor_auth if hasattr(request.user, 'two_factor_auth') else False,
+    }
+    
     context = {
         'active_tab': active_tab,
         'profile_form': profile_form,
@@ -195,22 +238,9 @@ def settings(request):
         'devices': devices,
         'data_requests': data_requests,
         'blocked_users': blocked_users,
-        'notifications': {
-            'push': request.user.notification_settings.push_enabled if hasattr(request.user, 'notification_settings') else False,
-            'email': request.user.notification_settings.email_enabled if hasattr(request.user, 'notification_settings') else False,
-            'likes': request.user.notification_settings.likes_enabled if hasattr(request.user, 'notification_settings') else False,
-            'comments': request.user.notification_settings.comments_enabled if hasattr(request.user, 'notification_settings') else False,
-            'follows': request.user.notification_settings.follows_enabled if hasattr(request.user, 'notification_settings') else False,
-            'mentions': request.user.notification_settings.mentions_enabled if hasattr(request.user, 'notification_settings') else False,
-        },
-        'privacy': {
-            'private_account': request.user.privacy_settings.private_account if hasattr(request.user, 'privacy_settings') else False,
-            'hide_activity': request.user.privacy_settings.hide_activity if hasattr(request.user, 'privacy_settings') else False,
-            'block_messages': request.user.privacy_settings.block_messages if hasattr(request.user, 'privacy_settings') else False,
-        },
-        'security': {
-            'two_factor': request.user.two_factor_auth if hasattr(request.user, 'two_factor_auth') else False,
-        }
+        'notifications': notification_settings,
+        'privacy': privacy_settings,
+        'security': security_settings
     }
     
     return render(request, 'accounts/settings.html', context)
@@ -226,29 +256,6 @@ def revoke_device(request, device_id):
         return JsonResponse({'status': 'error', 'message': 'Không thể đăng xuất khỏi thiết bị hiện tại'})
     except Device.DoesNotExist:
         return JsonResponse({'status': 'error', 'message': 'Thiết bị không tồn tại'})
-
-@login_required
-@require_POST
-def request_data_download(request):
-    include_media = request.POST.get('include_media', False)
-    
-    # Kiểm tra xem có yêu cầu nào đang xử lý không
-    if DataDownloadRequest.objects.filter(
-        user=request.user,
-        status='pending',
-        created_at__gte=timezone.now() - timezone.timedelta(days=1)
-    ).exists():
-        messages.error(request, 'Bạn đã có một yêu cầu đang được xử lý. Vui lòng thử lại sau.')
-        return redirect('accounts:settings')
-    
-    # Tạo yêu cầu mới
-    DataDownloadRequest.objects.create(
-        user=request.user,
-        include_media=include_media
-    )
-    
-    messages.success(request, 'Yêu cầu của bạn đã được ghi nhận. Chúng tôi sẽ thông báo khi dữ liệu sẵn sàng để tải xuống.')
-    return redirect('accounts:settings')
 
 @login_required
 @require_POST

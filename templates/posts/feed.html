@@ -258,7 +258,7 @@
                     <div class="d-flex mb-2">
                         <button class="btn btn-link text-dark p-0 me-3 like-button" 
                                 data-post-id="{{ post.id }}">
-                            <i class="{% if request.user in post.post_likes.all %}fas{% else %}far{% endif %} fa-heart"></i>
+                            <i class="{% if post.is_liked %}fas text-danger{% else %}far{% endif %} fa-heart"></i>
                             <span class="likes-count" data-post-id="{{ post.id }}">{{ post.likes_count }}</span>
                         </button>
                         <button class="btn btn-link text-dark p-0 me-3 comment-button"
@@ -301,7 +301,6 @@
                                     {% if comment.text|length > 80 %}
                                     <a href="{% url 'posts:post_detail' post.id %}" class="text-muted small text-decoration-none">thêm</a>
                                     {% endif %}
-                                    
                                     <div class="text-muted small d-flex align-items-center mt-1">
                                         <span>{{ comment.created_at|timesince }} trước</span>
                                         <span class="mx-1">·</span>
@@ -322,6 +321,7 @@
                                             Xóa
                                         </button>
                                     </div>
+                                    <div class="comment-replies ps-4 mt-2"></div>
                                 </div>
                             </div>
                         </div>
@@ -469,18 +469,16 @@
                 
                 // Xử lý thêm comment
                 if (isReply) {
-                    // Nếu là trả lời, thêm vào sau comment cha
+                    // Nếu là trả lời, thêm vào cuối khối replies của comment cha
                     const parentComment = document.getElementById(`comment-${parentId}`);
                     if (parentComment) {
-                        const parentReplies = document.querySelectorAll(`[data-parent-id="${parentId}"]`);
-                        if (parentReplies.length > 0) {
-                            // Chèn vào sau phần trả lời cuối cùng
-                            const lastReply = parentReplies[parentReplies.length - 1];
-                            lastReply.insertAdjacentHTML('afterend', commentHtml);
-                        } else {
-                            // Chèn ngay sau comment cha
-                            parentComment.insertAdjacentHTML('afterend', commentHtml);
+                        let repliesSection = parentComment.querySelector('.comment-replies');
+                        if (!repliesSection) {
+                            repliesSection = document.createElement('div');
+                            repliesSection.className = 'comment-replies ps-4 mt-2';
+                            parentComment.querySelector('.flex-grow-1').appendChild(repliesSection);
                         }
+                        repliesSection.insertAdjacentHTML('beforeend', commentHtml);
                     }
                 } else {
                     // Nếu là comment gốc
