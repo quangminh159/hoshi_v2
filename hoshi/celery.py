@@ -28,6 +28,14 @@ app.conf.beat_schedule = {
         'task': 'accounts.tasks.cleanup_inactive_sessions',
         'schedule': 60 * 60 * 24 * 7,  # Run weekly
     },
+    'process-data-download-requests': {
+        'task': 'accounts.tasks.process_data_download_requests',
+        'schedule': 60 * 30,  # Run every 30 minutes
+    },
+    'cleanup-expired-data-downloads': {
+        'task': 'accounts.tasks.cleanup_expired_data_downloads',
+        'schedule': 60 * 60 * 12,  # Run twice daily
+    },
 }
 
 @app.task(bind=True)

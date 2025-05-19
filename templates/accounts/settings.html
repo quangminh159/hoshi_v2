@@ -236,6 +236,53 @@
         border-color: #0d6efd;
         box-shadow: 0 0.125rem 0.25rem rgba(13, 110, 253, 0.15);
     }
+    
+    .notification-section .card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    
+    .notification-section .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    
+    .notification-section .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+    
+    .notification-section .form-check-input {
+        width: 3em;
+        height: 1.5em;
+    }
+    
+    .notification-section h6 {
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .notification-section .btn-primary {
+        background: linear-gradient(135deg, #4d7cff, #5e3aff);
+        border: none;
+        border-radius: 30px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(94, 58, 255, 0.3);
+    }
+    
+    .notification-section .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(94, 58, 255, 0.4);
+    }
+    
+    .notification-section .alert-info {
+        background-color: rgba(77, 124, 255, 0.1);
+        border-color: rgba(77, 124, 255, 0.3);
+        color: #4d7cff;
+        border-radius: 10px;
+    }
 </style>
 {% endblock %}
 
@@ -247,35 +294,35 @@
             <div class="settings-sidebar">
                 <nav class="settings-nav nav flex-column">
                     <a class="nav-link {% if active_tab == 'profile' %}active{% endif %}" 
-                       href="#profile">
+                       href="#profile" data-tab="profile">
                         <i class="fas fa-user me-2"></i>Chỉnh sửa hồ sơ
                     </a>
                     <a class="nav-link {% if active_tab == 'password' %}active{% endif %}" 
-                       href="#password">
+                       href="#password" data-tab="password">
                         <i class="fas fa-lock me-2"></i>Đổi mật khẩu
                     </a>
                     <a class="nav-link {% if active_tab == 'notifications' %}active{% endif %}" 
-                       href="#notifications">
+                       href="#notifications" data-tab="notifications">
                         <i class="fas fa-bell me-2"></i>Thông báo
                     </a>
                     <a class="nav-link {% if active_tab == 'privacy' %}active{% endif %}" 
-                       href="#privacy">
+                       href="#privacy" data-tab="privacy">
                         <i class="fas fa-shield-alt me-2"></i>Quyền riêng tư
                     </a>
                     <a class="nav-link {% if active_tab == 'security' %}active{% endif %}" 
-                       href="#security">
+                       href="#security" data-tab="security">
                         <i class="fas fa-fingerprint me-2"></i>Bảo mật
                     </a>
                     <a class="nav-link {% if active_tab == 'devices' %}active{% endif %}" 
-                       href="#devices">
+                       href="#devices" data-tab="devices">
                         <i class="fas fa-mobile-alt me-2"></i>Thiết bị đăng nhập
                     </a>
                     <a class="nav-link {% if active_tab == 'data' %}active{% endif %}" 
-                       href="#data">
+                       href="#data" data-tab="data">
                         <i class="fas fa-download me-2"></i>Tải xuống dữ liệu
                     </a>
                     <a class="nav-link text-danger {% if active_tab == 'delete' %}active{% endif %}" 
-                       href="#delete">
+                       href="#delete" data-tab="delete">
                         <i class="fas fa-trash-alt me-2"></i>Xóa tài khoản
                     </a>
                 </nav>
@@ -440,106 +487,147 @@
                 </div>
                 
                 <!-- Notifications Section -->
-                <div class="settings-section" id="notifications">
-                    <h4 class="mb-4">Cài đặt thông báo</h4>
+                <div class="settings-section notification-section" id="notifications">
+                    <h4 class="mb-4 text-primary">Cài đặt thông báo</h4>
+                    
+                    <div class="alert alert-info mb-4">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Tùy chỉnh cách bạn nhận thông báo từ Hoshi
+                    </div>
                     
                     <form method="post">
                         {% csrf_token %}
                         <input type="hidden" name="update_notifications" value="1">
                         
                         <div class="card mb-4">
-                            <div class="card-header">
-                                <h5>Tùy chọn thông báo</h5>
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Phương thức nhận thông báo</h5>
                             </div>
                             <div class="card-body">
-                                <div class="mb-3">
-                                    <div class="form-check">
-                                        <input type="checkbox" 
-                                               class="form-check-input" 
-                                               id="pushNotifications"
-                                               name="push_notifications"
-                                               {% if notifications.push %}checked{% endif %}>
-                                        <label class="form-check-label" for="pushNotifications">
-                                            <strong>Thông báo đẩy</strong> - Nhận thông báo ngay cả khi không mở ứng dụng
-                                        </label>
+                                <div class="mb-4">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div>
+                                            <h6 class="mb-0">Thông báo đẩy</h6>
+                                            <p class="text-muted small mb-0">Nhận thông báo ngay cả khi không mở ứng dụng</p>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="pushNotifications" name="push_notifications" checked>
+                                            <label class="form-check-label" for="pushNotifications"></label>
+                                        </div>
                                     </div>
                                 </div>
                                 
-                                <div class="mb-3">
-                                    <div class="form-check">
-                                        <input type="checkbox" 
-                                               class="form-check-input" 
-                                               id="emailNotifications"
-                                               name="email_notifications"
-                                               {% if notifications.email %}checked{% endif %}>
-                                        <label class="form-check-label" for="emailNotifications">
-                                            <strong>Thông báo qua email</strong> - Nhận thông báo qua email
-                                        </label>
+                                <div class="mb-4">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-0">Thông báo qua email</h6>
+                                            <p class="text-muted small mb-0">Nhận thông báo qua địa chỉ email của bạn</p>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="emailNotifications" name="email_notifications" checked>
+                                            <label class="form-check-label" for="emailNotifications"></label>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         
                         <div class="card mb-4">
-                            <div class="card-header">
-                                <h5>Loại thông báo</h5>
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Loại thông báo</h5>
                             </div>
                             <div class="card-body">
-                                <div class="mb-3">
-                                    <div class="form-check">
-                                        <input type="checkbox" 
-                                               class="form-check-input" 
-                                               id="likeNotifications"
-                                               name="like_notifications"
-                                               {% if notifications.likes %}checked{% endif %}>
-                                        <label class="form-check-label" for="likeNotifications">
-                                            <strong>Lượt thích</strong> - Khi có người thích bài viết của bạn
-                                        </label>
+                                <div class="mb-4">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div>
+                                            <h6 class="mb-0">Lượt thích</h6>
+                                            <p class="text-muted small mb-0">Khi có người thích bài viết hoặc bình luận của bạn</p>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="likeNotifications" name="like_notifications" checked>
+                                            <label class="form-check-label" for="likeNotifications"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div>
+                                            <h6 class="mb-0">Bình luận</h6>
+                                            <p class="text-muted small mb-0">Khi có người bình luận bài viết của bạn hoặc trả lời bình luận của bạn</p>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="commentNotifications" name="comment_notifications" checked>
+                                            <label class="form-check-label" for="commentNotifications"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div>
+                                            <h6 class="mb-0">Theo dõi</h6>
+                                            <p class="text-muted small mb-0">Khi có người theo dõi bạn</p>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="followNotifications" name="follow_notifications" checked>
+                                            <label class="form-check-label" for="followNotifications"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div>
+                                            <h6 class="mb-0">Nhắc đến</h6>
+                                            <p class="text-muted small mb-0">Khi có người nhắc đến bạn trong bài viết hoặc bình luận</p>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="mentionNotifications" name="mention_notifications" checked>
+                                            <label class="form-check-label" for="mentionNotifications"></label>
+                                        </div>
                                     </div>
                                 </div>
                                 
                                 <div class="mb-3">
-                                    <div class="form-check">
-                                        <input type="checkbox" 
-                                               class="form-check-input" 
-                                               id="commentNotifications"
-                                               name="comment_notifications"
-                                               {% if notifications.comments %}checked{% endif %}>
-                                        <label class="form-check-label" for="commentNotifications">
-                                            <strong>Bình luận</strong> - Khi có người bình luận bài viết của bạn
-                                        </label>
-                                    </div>
-                                </div>
-                                
-                                <div class="mb-3">
-                                    <div class="form-check">
-                                        <input type="checkbox" 
-                                               class="form-check-input" 
-                                               id="followNotifications"
-                                               name="follow_notifications"
-                                               {% if notifications.follows %}checked{% endif %}>
-                                        <label class="form-check-label" for="followNotifications">
-                                            <strong>Theo dõi</strong> - Khi có người theo dõi bạn
-                                        </label>
-                                    </div>
-                                </div>
-                                
-                                <div class="mb-3">
-                                    <div class="form-check">
-                                        <input type="checkbox" 
-                                               class="form-check-input" 
-                                               id="mentionNotifications"
-                                               name="mention_notifications"
-                                               {% if notifications.mentions %}checked{% endif %}>
-                                        <label class="form-check-label" for="mentionNotifications">
-                                            <strong>Nhắc đến</strong> - Khi có người nhắc đến bạn trong bài viết hoặc bình luận
-                                        </label>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-0">Tin nhắn</h6>
+                                            <p class="text-muted small mb-0">Khi có người gửi tin nhắn cho bạn</p>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="messageNotifications" name="message_notifications" checked>
+                                            <label class="form-check-label" for="messageNotifications"></label>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         
-                        <button type="submit" class="btn btn-primary btn-lg">
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Tùy chọn thông báo khác</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="summaryNotifications" name="summary_notifications" checked>
+                                    <label class="form-check-label" for="summaryNotifications">
+                                        <strong>Gửi tóm tắt hàng ngày</strong>
+                                        <div class="text-muted small">Nhận email tóm tắt các hoạt động mỗi ngày</div>
+                                    </label>
+                                </div>
+                                
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="inactiveNotifications" name="inactive_notifications" checked>
+                                    <label class="form-check-label" for="inactiveNotifications">
+                                        <strong>Thông báo khi không hoạt động</strong>
+                                        <div class="text-muted small">Nhận thông báo sau 30 ngày không hoạt động</div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-lg w-100">
                             <i class="fas fa-save me-2"></i>Lưu thay đổi thông báo
                         </button>
                     </form>
@@ -551,104 +639,85 @@
                     
                     <div class="alert alert-info mb-4">
                         <i class="fas fa-info-circle me-2"></i>
-                        Chọn các tùy chọn quyền riêng tư bằng cách bật/tắt công tắc bên dưới, sau đó nhấn nút "Lưu thay đổi quyền riêng tư".
+                        Chọn các tùy chọn quyền riêng tư bằng cách bật/tắt công tắc bên dưới.
                     </div>
                     
-                    <form method="post">
+                    <form method="post" action="{% url 'accounts:settings' %}">
                         {% csrf_token %}
                         <input type="hidden" name="update_privacy" value="1">
                         
-                        <div class="notification-item border-primary">
-                            <div class="notification-header">
-                                <h5 class="notification-title">Tài khoản riêng tư</h5>
-                                <div class="custom-switch">
-                                    <input type="checkbox" 
-                                           class="custom-switch-input" 
-                                           id="privateAccount"
-                                           name="private_account"
-                                           {% if privacy.private_account %}checked{% endif %}>
-                                    <span class="slider"></span>
-                                    <span class="slider-label">Bật/Tắt</span>
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Cài đặt tài khoản</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        {{ privacy_form.private_account }}
+                                        <label class="form-check-label" for="privateAccount">
+                                            <strong>Tài khoản riêng tư</strong> - Chỉ những người theo dõi mới có thể xem bài viết của bạn
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        {{ privacy_form.hide_activity }}
+                                        <label class="form-check-label" for="hideActivity">
+                                            <strong>Ẩn trạng thái hoạt động</strong> - Không hiển thị trạng thái hoạt động của bạn
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        {{ privacy_form.block_messages }}
+                                        <label class="form-check-label" for="blockMessages">
+                                            <strong>Chặn tin nhắn</strong> - Chỉ nhận tin nhắn từ người bạn theo dõi
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
-                            <p class="notification-description">
-                                Chỉ những người theo dõi mới có thể xem bài viết của bạn
-                            </p>
-                        </div>
-                        
-                        <div class="notification-item border-primary">
-                            <div class="notification-header">
-                                <h5 class="notification-title">Ẩn trạng thái hoạt động</h5>
-                                <div class="custom-switch">
-                                    <input type="checkbox" 
-                                           class="custom-switch-input" 
-                                           id="hideActivity"
-                                           name="hide_activity"
-                                           {% if privacy.hide_activity %}checked{% endif %}>
-                                    <span class="slider"></span>
-                                    <span class="slider-label">Bật/Tắt</span>
-                                </div>
-                            </div>
-                            <p class="notification-description">
-                                Không hiển thị trạng thái hoạt động của bạn
-                            </p>
-                        </div>
-                        
-                        <div class="notification-item border-primary">
-                            <div class="notification-header">
-                                <h5 class="notification-title">Chặn tin nhắn</h5>
-                                <div class="custom-switch">
-                                    <input type="checkbox" 
-                                           class="custom-switch-input" 
-                                           id="blockMessages"
-                                           name="block_messages"
-                                           {% if privacy.block_messages %}checked{% endif %}>
-                                    <span class="slider"></span>
-                                    <span class="slider-label">Bật/Tắt</span>
-                                </div>
-                            </div>
-                            <p class="notification-description">
-                                Chỉ nhận tin nhắn từ người bạn theo dõi
-                            </p>
                         </div>
                         
                         <!-- Danh sách người dùng đã bị chặn -->
-                        <div class="notification-item">
-                            <div class="notification-header">
-                                <h5 class="notification-title">Người dùng đã bị chặn</h5>
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Người dùng đã bị chặn</h5>
                             </div>
-                            <p class="notification-description">
-                                Quản lý danh sách người dùng mà bạn đã chặn
-                            </p>
-                            
-                            {% if blocked_users %}
-                                <div class="list-group mt-3">
-                                    {% for blocked_user in blocked_users %}
-                                    <div class="list-group-item d-flex justify-content-between align-items-center">
-                                        <div class="d-flex align-items-center">
-                                            <img src="{{ blocked_user.blocked.get_avatar_url }}" alt="{{ blocked_user.blocked.username }}" 
-                                                 class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">
-                                            <div>
-                                                <h6 class="mb-0">{{ blocked_user.blocked.username }}</h6>
-                                                <small class="text-muted">Bị chặn từ {{ blocked_user.created_at|date:"d/m/Y" }}</small>
+                            <div class="card-body">
+                                <p class="card-text text-muted mb-3">
+                                    Quản lý danh sách người dùng mà bạn đã chặn
+                                </p>
+                                
+                                {% if blocked_users %}
+                                    <div class="list-group">
+                                        {% for blocked_user in blocked_users %}
+                                        <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center">
+                                                <img src="{{ blocked_user.blocked.get_avatar_url }}" alt="{{ blocked_user.blocked.username }}" 
+                                                     class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">
+                                                <div>
+                                                    <h6 class="mb-0">{{ blocked_user.blocked.username }}</h6>
+                                                    <small class="text-muted">Bị chặn từ {{ blocked_user.created_at|date:"d/m/Y" }}</small>
+                                                </div>
                                             </div>
+                                            <a href="#" onclick="unblockUser({{ blocked_user.blocked.id }}, '{{ blocked_user.blocked.username }}'); return false;" class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-user-times me-1"></i> Bỏ chặn
+                                            </a>
                                         </div>
-                                        <a href="#" onclick="unblockUser({{ blocked_user.blocked.id }}, '{{ blocked_user.blocked.username }}'); return false;" class="btn btn-sm btn-outline-danger">
-                                            <i class="fas fa-user-times me-1"></i> Bỏ chặn
-                                        </a>
+                                        {% endfor %}
                                     </div>
-                                    {% endfor %}
-                                </div>
-                            {% else %}
-                                <div class="alert alert-info mt-3">
-                                    Bạn chưa chặn người dùng nào.
-                                </div>
-                            {% endif %}
+                                {% else %}
+                                    <div class="alert alert-info">
+                                        Bạn chưa chặn người dùng nào.
+                                    </div>
+                                {% endif %}
+                            </div>
                         </div>
                         
-                        <button type="submit" class="btn btn-primary btn-lg mt-3 w-100">
+                        <button type="submit" class="btn btn-primary btn-lg w-100">
                             <i class="fas fa-save me-2"></i>Lưu thay đổi quyền riêng tư
-                            <i class="fas fa-arrow-right ms-2"></i>
                         </button>
                     </form>
                 </div>
@@ -662,98 +731,165 @@
                         Quản lý cài đặt bảo mật cho tài khoản của bạn. Bật xác thực hai yếu tố để tăng cường bảo mật.
                     </div>
                     
-                    <form method="post">
+                    <form method="post" action="{% url 'accounts:settings' %}">
                         {% csrf_token %}
                         <input type="hidden" name="update_security" value="1">
                     
-                        <div class="notification-item border-primary">
-                            <div class="notification-header">
-                                <h5 class="notification-title">Xác thực hai yếu tố</h5>
-                                <div class="custom-switch">
-                                    <input type="checkbox" 
-                                           class="custom-switch-input" 
-                                           id="twoFactor"
-                                           name="two_factor"
-                                           {% if security.two_factor %}checked{% endif %}>
-                                    <span class="slider"></span>
-                                    <span class="slider-label">Bật/Tắt</span>
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Xác thực hai yếu tố</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        {{ security_form.two_factor_auth }}
+                                        <label class="form-check-label" for="twoFactor">
+                                            <strong>Bảo vệ tài khoản bằng mã xác thực</strong> - Cung cấp lớp bảo mật bổ sung cho tài khoản của bạn
+                                        </label>
+                                    </div>
+                                    <p class="text-muted small mb-0 mt-2">Khi bật, bạn sẽ cần nhập mã xác thực từ ứng dụng xác thực mỗi khi đăng nhập.</p>
+                                </div>
+                                
+                                {% if not security_form.two_factor_auth.value %}
+                                    <button type="button" 
+                                            class="btn btn-outline-primary mt-3"
+                                            onclick="setupTwoFactor()">
+                                        <i class="fas fa-shield-alt me-2"></i>Thiết lập xác thực hai yếu tố
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Đăng nhập bằng mạng xã hội</h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted mb-3">Quản lý các tài khoản mạng xã hội được liên kết với tài khoản Hoshi của bạn</p>
+                                
+                                <div class="d-flex flex-wrap gap-2">
+                                    <button type="button" 
+                                            class="btn btn-outline-danger"
+                                            onclick="unlinkSocial('google')">
+                                        <i class="fab fa-google me-2"></i>Hủy liên kết Google
+                                    </button>
+                                    <button type="button" 
+                                            class="btn btn-outline-primary"
+                                            onclick="unlinkSocial('facebook')">
+                                        <i class="fab fa-facebook me-2"></i>Hủy liên kết Facebook
+                                    </button>
+                                    <button type="button" 
+                                            class="btn btn-outline-dark"
+                                            onclick="unlinkSocial('apple')">
+                                        <i class="fab fa-apple me-2"></i>Hủy liên kết Apple
+                                    </button>
                                 </div>
                             </div>
-                            <p class="notification-description">
-                                Bảo vệ tài khoản bằng mã xác thực
-                            </p>
-                            {% if not security.two_factor %}
-                                <button type="button" 
-                                        class="btn btn-outline-primary btn-sm mt-2"
-                                        onclick="setupTwoFactor()">
-                                    <i class="fas fa-shield-alt me-2"></i>Thiết lập
-                                </button>
-                            {% endif %}
                         </div>
                         
-                        <div class="notification-item border-primary">
-                            <div class="notification-header">
-                                <h5 class="notification-title">Đăng nhập bằng mạng xã hội</h5>
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Mật khẩu và đăng nhập</h5>
                             </div>
-                            <div class="mt-3">
-                                <button type="button" 
-                                        class="btn btn-outline-danger btn-sm me-2"
-                                        onclick="unlinkSocial('google')">
-                                    <i class="fab fa-google me-2"></i>Hủy liên kết Google
-                                </button>
-                                <button type="button" 
-                                        class="btn btn-outline-primary btn-sm me-2"
-                                        onclick="unlinkSocial('facebook')">
-                                    <i class="fab fa-facebook me-2"></i>Hủy liên kết Facebook
-                                </button>
-                                <button type="button" 
-                                        class="btn btn-outline-dark btn-sm"
-                                        onclick="unlinkSocial('apple')">
-                                    <i class="fab fa-apple me-2"></i>Hủy liên kết Apple
-                                </button>
+                            <div class="card-body">
+                                <p class="text-muted mb-3">Đảm bảo sử dụng mật khẩu mạnh và không sử dụng lại ở các trang web khác</p>
+                                
+                                <a href="#password" class="btn btn-outline-primary" data-tab="password">
+                                    <i class="fas fa-key me-2"></i>Đổi mật khẩu
+                                </a>
                             </div>
                         </div>
                         
-                        <button type="submit" class="btn btn-primary btn-lg mt-3 w-100">
+                        <button type="submit" class="btn btn-primary btn-lg w-100">
                             <i class="fas fa-save me-2"></i>Lưu thay đổi bảo mật
-                            <i class="fas fa-arrow-right ms-2"></i>
                         </button>
                     </form>
                 </div>
                 
                 <!-- Devices Section -->
-                <div class="settings-section" id="devices">
-                    <h4 class="mb-4">Thiết bị đăng nhập</h4>
+                <div class="settings-section security-section" id="devices">
+                    <h4 class="mb-4 text-primary">Thiết bị đăng nhập</h4>
+                    
+                    <div class="alert alert-info mb-4">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Thiết bị của bạn đã đăng nhập. Bạn có thể đăng xuất khỏi các thiết bị khác từ đây.
+                    </div>
                     
                     {% if devices %}
-                        {% for device in devices %}
-                            <div class="device-item">
-                                <div class="device-icon">
-                                    <i class="fas {% if device.type == 'mobile' %}fa-mobile-alt{% else %}fa-laptop{% endif %} fa-lg"></i>
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Thiết bị hiện tại</h5>
+                            </div>
+                            <div class="card-body">
+                                {% for device in devices %}
+                                    {% if device.is_current %}
+                                    <div class="d-flex align-items-center">
+                                        <div class="device-icon me-3 bg-primary text-white">
+                                            <i class="fas {% if device.device_type == 'mobile' %}fa-mobile-alt{% else %}fa-laptop{% endif %} fa-lg"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="mb-1">{{ device.device_name }}</h5>
+                                            <p class="text-muted mb-0">
+                                                <small>
+                                                    <i class="fas fa-map-marker-alt me-1"></i>{{ device.ip_address }}
+                                                    <span class="mx-2">•</span>
+                                                    <i class="fas fa-clock me-1"></i>{{ device.last_active|timesince }} trước
+                                                </small>
+                                            </p>
+                                            <span class="badge bg-success mt-2">
+                                                <i class="fas fa-circle me-1"></i>Thiết bị hiện tại
+                                            </span>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Thiết bị khác</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="list-group">
+                                {% for device in devices %}
+                                    {% if not device.is_current %}
+                                    <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" data-device-id="{{ device.id }}">
+                                        <div class="d-flex align-items-center">
+                                            <div class="device-icon me-3 bg-light rounded p-2">
+                                                <i class="fas {% if device.device_type == 'mobile' %}fa-mobile-alt{% elif device.device_type == 'tablet' %}fa-tablet-alt{% else %}fa-laptop{% endif %} fa-lg"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0">{{ device.device_name }}</h6>
+                                                <small class="text-muted">
+                                                    {{ device.browser }} • {{ device.os }}
+                                                </small>
+                                                <div class="mt-1">
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-map-marker-alt me-1"></i>{{ device.ip_address }}
+                                                        <span class="mx-2">•</span>
+                                                        <i class="fas fa-clock me-1"></i>{{ device.last_active|timesince }} trước
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button type="button" 
+                                                class="btn btn-outline-danger btn-sm"
+                                                onclick="revokeDevice('{{ device.id }}')">
+                                            <i class="fas fa-sign-out-alt me-1"></i>Đăng xuất
+                                        </button>
+                                    </div>
+                                    {% endif %}
+                                {% endfor %}
                                 </div>
-                                <div class="device-info">
-                                    <h5 class="mb-1">{{ device.name }}</h5>
-                                    <p class="text-muted mb-0">
-                                        <small>
-                                            <i class="fas fa-map-marker-alt me-1"></i>{{ device.location }}
-                                            <span class="mx-2">•</span>
-                                            <i class="fas fa-clock me-1"></i>{{ device.last_active|timesince }} trước
-                                        </small>
-                                    </p>
+                                
+                                {% if not devices|length > 1 %}
+                                <div class="alert alert-info mt-3">
+                                    Không có thiết bị nào khác đăng nhập vào tài khoản của bạn.
                                 </div>
-                                {% if device.is_current %}
-                                    <span class="device-current">
-                                        <i class="fas fa-circle me-1"></i>Hiện tại
-                                    </span>
-                                {% else %}
-                                    <button type="button" 
-                                            class="btn btn-outline-danger btn-sm"
-                                            onclick="revokeDevice('{{ device.id }}')">
-                                        <i class="fas fa-sign-out-alt"></i>
-                                    </button>
                                 {% endif %}
                             </div>
-                        {% endfor %}
+                        </div>
                     {% else %}
                         <div class="alert alert-info">
                             Không có thiết bị đăng nhập nào được ghi nhận
@@ -1209,5 +1345,37 @@
             });
         }
     }
+    
+    // Xử lý tab bằng hash, luôn hiển thị đúng section
+    document.addEventListener('DOMContentLoaded', function() {
+        const navLinks = document.querySelectorAll('.settings-nav .nav-link');
+        const settingsSections = document.querySelectorAll('.settings-section');
+
+        function showSectionByHash() {
+            const hash = window.location.hash ? window.location.hash.substring(1) : 'profile';
+            settingsSections.forEach(section => {
+                section.style.display = (section.id === hash) ? 'block' : 'none';
+            });
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === '#' + hash) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        }
+
+        // Hiển thị đúng section khi load trang hoặc đổi hash
+        showSectionByHash();
+        window.addEventListener('hashchange', showSectionByHash);
+
+        // Khi click tab thì đổi hash
+        navLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                window.location.hash = this.getAttribute('href');
+            });
+        });
+    });
 </script>
 {% endblock %} 

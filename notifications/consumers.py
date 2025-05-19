@@ -8,71 +8,79 @@ User = get_user_model()
 
 class NotificationConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        self.user = self.scope["user"]
-        
-        if not self.user.is_authenticated:
-            await self.close()
-            return
-            
-        self.notification_group_name = f'notifications_{self.user.id}'
-        
-        # Tham gia vào nhóm thông báo
+        self.user_id = self.scope['url_route']['kwargs']['user_id']
+        self.room_group_name = f'notifications_{self.user_id}'
+
+        # Join room group
         await self.channel_layer.group_add(
-            self.notification_group_name,
+            self.room_group_name,
             self.channel_name
         )
-        
+
         await self.accept()
-        
-        # Gửi thông báo chưa đọc khi kết nối
-        unread_count = await self.get_unread_count()
-        await self.send(text_data=json.dumps({
-            'type': 'unread_count',
-            'count': unread_count
-        }))
-    
+
     async def disconnect(self, close_code):
-        # Rời khỏi nhóm thông báo
-        if hasattr(self, 'notification_group_name'):
-            await self.channel_layer.group_discard(
-                self.notification_group_name,
-                self.channel_name
-            )
-    
+        # Leave room group
+        await self.channel_layer.group_discard(
+            self.room_group_name,
+            self.channel_name
+        )
+
+    # Receive message from WebSocket
     async def receive(self, text_data):
-        data = json.loads(text_data)
-        command = data.get('command')
-        
-        if command == 'mark_as_read':
-            notification_id = data.get('notification_id')
-            if notification_id:
-                await self.mark_notification_as_read(notification_id)
-            else:
-                await self.mark_all_as_read()
-            
-            # Gửi lại số lượng thông báo chưa đọc
-            unread_count = await self.get_unread_count()
+        text_data_json = json.loads(text_data)
+        message = text_data_json.get('message', '')
+
+        # Process any client-side messages if needed
+        if message == 'ping':
             await self.send(text_data=json.dumps({
-                'type': 'unread_count',
-                'count': unread_count
+                'message': 'pong'
             }))
-    
+
+    # Receive message from room group
     async def notification_message(self, event):
-        # Gửi thông báo đến WebSocket
-        await self.send(text_data=json.dumps(event))
-    
+        message = event['message']
+        notification_id = event.get('notification_id')
+        
+        # If we have a notification ID, fetch details
+        notification_data = {}
+        if notification_id:
+            notification_data = await self.get_notification_data(notification_id)
+            
+        # Get unread count
+        unread_count = await self.get_unread_count(self.user_id)
+        
+        # Send message to WebSocket
+        await self.send(text_data=json.dumps({
+            'message': message,
+            'notification': notification_data,
+            'unread_count': unread_count
+        }))
+
     @database_sync_to_async
-    def get_unread_count(self):
-        return Notification.objects.filter(recipient=self.user, is_read=False).count()
-    
-    @database_sync_to_async
-    def mark_notification_as_read(self, notification_id):
+    def get_notification_data(self, notification_id):
         try:
-            notification = Notification.objects.get(id=notification_id, recipient=self.user)
-            notification.mark_as_read()
+            notification = Notification.objects.get(id=notification_id)
+            
+            # Build detailed notification data
+            return {
+                'id': notification.id,
+                'notification_type': notification.notification_type,
+                'text': notification.text,
+                'created_at': notification.created_at.isoformat(),
+                'is_read': notification.is_read,
+                'sender_id': notification.sender.id,
+                'sender_username': notification.sender.username,
+                'sender_avatar': notification.sender.get_avatar_url(),
+                'link': notification.link
+            }
         except Notification.DoesNotExist:
-            pass
-    
+            return {}
+
     @database_sync_to_async
-    def mark_all_as_read(self):
-        Notification.objects.filter(recipient=self.user, is_read=False).update(is_read=True) 
+    def get_unread_count(self, user_id):
+        try:
+            user = User.objects.get(id=user_id)
+            return Notification.objects.filter(recipient=user, is_read=False).count()
+        except User.DoesNotExist:
+            return 0 

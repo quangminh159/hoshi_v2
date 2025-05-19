@@ -58,4 +58,22 @@ class Notification(models.Model):
     def mark_as_read(self):
         if not self.is_read:
             self.is_read = True
-            self.save() 
+            self.save()
+            
+    @property
+    def link(self):
+        """Trả về link để chuyển hướng người dùng khi nhấp vào thông báo"""
+        if self.notification_type == 'like' and self.post:
+            return f"/posts/{self.post.id}/"
+        elif self.notification_type == 'comment' and self.post:
+            return f"/posts/{self.post.id}/"
+        elif self.notification_type == 'follow' and self.sender:
+            return f"/profile/{self.sender.username}/"
+        elif self.notification_type == 'mention' and self.post:
+            return f"/posts/{self.post.id}/"
+        elif self.notification_type == 'message' and self.message and self.message.conversation:
+            return f"/chat/{self.message.conversation.id}/"
+        elif self.notification_type == 'share' and self.post:
+            return f"/posts/{self.post.id}/"
+        else:
+            return "#" 

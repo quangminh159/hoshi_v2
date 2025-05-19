@@ -75,9 +75,12 @@ def send_notification_to_websocket(notification):
         # Chuẩn bị dữ liệu thông báo
         notification_data = {
             'type': 'notification_message',
+            'message': 'new_notification',
+            'notification_id': notification.id,
             'notification': {
                 'id': notification.id,
-                'sender': notification.sender.username,
+                'sender_id': notification.sender.id,
+                'sender_username': notification.sender.username,
                 'sender_avatar': notification.sender.get_avatar_url(),
                 'notification_type': notification.notification_type,
                 'text': notification.text,

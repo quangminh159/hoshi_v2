@@ -2,6 +2,7 @@ from django.urls import path, include
 from . import views
 from django.views.generic import RedirectView
 from django.urls import reverse_lazy
+from django.contrib.auth import views as auth_views
 
 app_name = 'accounts'
 
@@ -29,4 +30,7 @@ urlpatterns = [
     # Profile URL - phải đặt cuối cùng vì nó match mọi string
     path('<str:username>/', views.profile, name='profile'),
     path('suspension-notice/', views.suspension_notice, name='suspension_notice'),
+    
+    # Download data
+    path('download-data/<int:request_id>/', views.download_user_data, name='download_data'),
 ] 

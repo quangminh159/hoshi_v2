@@ -11,6 +11,7 @@ from functools import partial
 from django.utils.safestring import mark_safe
 import hashlib
 import os.path
+from django.urls import reverse
 
 class ActiveUserManager(UserManager):
     """Quản lý người dùng đang hoạt động, không bị xóa tạm thời"""
@@ -61,13 +62,15 @@ class User(AbstractUser):
     linkedin = models.URLField(_('linkedin'), max_length=200, blank=True)
     
     # Notification settings
-    push_notifications = models.BooleanField(_('push notifications'), default=False)
-    email_notifications = models.BooleanField(_('email notifications'), default=False)
-    like_notifications = models.BooleanField(_('like notifications'), default=False)
-    comment_notifications = models.BooleanField(_('comment notifications'), default=False)
-    follow_notifications = models.BooleanField(_('follow notifications'), default=False)
-    mention_notifications = models.BooleanField(_('mention notifications'), default=False)
-    message_notifications = models.BooleanField(_('message notifications'), default=False)
+    push_notifications = models.BooleanField(_('push notifications'), default=True)
+    email_notifications = models.BooleanField(_('email notifications'), default=True)
+    like_notifications = models.BooleanField(_('like notifications'), default=True)
+    comment_notifications = models.BooleanField(_('comment notifications'), default=True)
+    follow_notifications = models.BooleanField(_('follow notifications'), default=True)
+    mention_notifications = models.BooleanField(_('mention notifications'), default=True)
+    message_notifications = models.BooleanField(_('message notifications'), default=True)
+    summary_notifications = models.BooleanField(_('summary notifications'), default=True)
+    inactive_notifications = models.BooleanField(_('inactive notifications'), default=True)
     
     # Privacy settings
     private_account = models.BooleanField(_('private account'), default=False)
@@ -341,6 +344,13 @@ class DataDownloadRequest(models.Model):
     
     def __str__(self):
         return f"Data request for {self.user.username} ({self.status})"
+    
+    @property
+    def download_url(self):
+        """Trả về URL tải xuống file dữ liệu người dùng."""
+        if self.status == 'ready' and self.file_path:
+            return reverse('accounts:download_data', args=[self.id])
+        return None
     
     class Meta:
         ordering = ['-created_at']

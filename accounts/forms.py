@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.forms import PasswordChangeForm, AuthenticationForm
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from allauth.account.forms import SignupForm as AllAuthSignupForm
@@ -9,6 +9,25 @@ from .models import User
 from phonenumber_field.formfields import PhoneNumberField
 
 User = get_user_model()
+
+class CustomLoginForm(AuthenticationForm):
+    username = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Tên người dùng hoặc email'
+        })
+    )
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Mật khẩu'
+        })
+    )
+
+    error_messages = {
+        'invalid_login': 'Tên đăng nhập hoặc mật khẩu không chính xác. Vui lòng thử lại.',
+        'inactive': 'Tài khoản này đã bị vô hiệu hóa.',
+    }
 
 class CustomSignupForm(AllAuthSignupForm):
     username = forms.CharField(
@@ -117,6 +136,17 @@ class CustomSignupForm(AllAuthSignupForm):
         
         # Lưu số điện thoại
         user.phone_number = self.cleaned_data.get('phone_number')
+        
+        # Đảm bảo tất cả các thông báo được bật mặc định
+        user.push_notifications = True
+        user.email_notifications = True
+        user.like_notifications = True
+        user.comment_notifications = True
+        user.follow_notifications = True
+        user.mention_notifications = True
+        user.message_notifications = True
+        user.summary_notifications = True
+        user.inactive_notifications = True
         
         user.save()
         
@@ -235,8 +265,28 @@ class NotificationSettingsForm(forms.ModelForm):
             'like_notifications',
             'comment_notifications',
             'follow_notifications',
-            'mention_notifications'
+            'mention_notifications',
+            'message_notifications'
         ]
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Thiết lập widget và label cho từng trường
+        self.fields['push_notifications'].widget = forms.CheckboxInput(attrs={'class': 'form-check-input', 'id': 'pushNotifications'})
+        self.fields['email_notifications'].widget = forms.CheckboxInput(attrs={'class': 'form-check-input', 'id': 'emailNotifications'})
+        self.fields['like_notifications'].widget = forms.CheckboxInput(attrs={'class': 'form-check-input', 'id': 'likeNotifications'})
+        self.fields['comment_notifications'].widget = forms.CheckboxInput(attrs={'class': 'form-check-input', 'id': 'commentNotifications'})
+        self.fields['follow_notifications'].widget = forms.CheckboxInput(attrs={'class': 'form-check-input', 'id': 'followNotifications'})
+        self.fields['mention_notifications'].widget = forms.CheckboxInput(attrs={'class': 'form-check-input', 'id': 'mentionNotifications'})
+        self.fields['message_notifications'].widget = forms.CheckboxInput(attrs={'class': 'form-check-input', 'id': 'messageNotifications'})
+        
+        self.fields['push_notifications'].label = 'Thông báo đẩy'
+        self.fields['email_notifications'].label = 'Thông báo qua email'
+        self.fields['like_notifications'].label = 'Lượt thích'
+        self.fields['comment_notifications'].label = 'Bình luận'
+        self.fields['follow_notifications'].label = 'Theo dõi'
+        self.fields['mention_notifications'].label = 'Nhắc đến'
+        self.fields['message_notifications'].label = 'Tin nhắn'
 
 class PrivacySettingsForm(forms.ModelForm):
     class Meta:
@@ -246,11 +296,26 @@ class PrivacySettingsForm(forms.ModelForm):
             'hide_activity',
             'block_messages'
         ]
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['private_account'].widget = forms.CheckboxInput(attrs={'class': 'form-check-input', 'id': 'privateAccount'})
+        self.fields['hide_activity'].widget = forms.CheckboxInput(attrs={'class': 'form-check-input', 'id': 'hideActivity'})
+        self.fields['block_messages'].widget = forms.CheckboxInput(attrs={'class': 'form-check-input', 'id': 'blockMessages'})
+        
+        self.fields['private_account'].label = 'Tài khoản riêng tư'
+        self.fields['hide_activity'].label = 'Ẩn trạng thái hoạt động'
+        self.fields['block_messages'].label = 'Chặn tin nhắn'
 
 class SecuritySettingsForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['two_factor_auth']
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['two_factor_auth'].widget = forms.CheckboxInput(attrs={'class': 'form-check-input', 'id': 'twoFactor'})
+        self.fields['two_factor_auth'].label = 'Xác thực hai yếu tố'
 
 class DeleteAccountForm(forms.Form):
     DELETE_REASONS = (

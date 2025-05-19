@@ -31,7 +31,7 @@ def mark_as_read(request, notification_id):
     )
     notification.is_read = True
     notification.save()
-    return JsonResponse({'status': 'success'})
+    return JsonResponse({'success': True})
 
 @login_required
 def mark_all_as_read(request):
@@ -49,11 +49,12 @@ def mark_all_as_read(request):
         notifications = notifications.filter(notification_type=notification_type)
     
     # Cập nhật tất cả các thông báo chưa đọc thành đã đọc
+    count = notifications.count()
     notifications.update(is_read=True)
     
     return JsonResponse({
-        'status': 'success', 
-        'count': notifications.count()
+        'success': True, 
+        'count': count
     })
 
 @login_required

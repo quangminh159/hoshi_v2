@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import update_session_auth_hash, get_user_model
 from django.contrib import messages
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse, FileResponse
 from django.views.decorators.http import require_POST
 from django.core.paginator import Paginator, EmptyPage
 from django.utils import timezone
@@ -24,6 +24,8 @@ from .models import Device, DataDownloadRequest, UserFollowing, UserBlock, UserR
 import pyotp
 import qrcode
 from posts.models import SavedPost, Post, Comment
+import os
+import mimetypes
 
 User = get_user_model()
 
@@ -148,7 +150,13 @@ def settings(request):
         elif 'update_notifications' in request.POST:
             notification_form = NotificationSettingsForm(request.POST, instance=request.user)
             if notification_form.is_valid():
-                notification_form.save()
+                user = notification_form.save(commit=False)
+                
+                # Xử lý các trường bổ sung
+                user.summary_notifications = request.POST.get('summary_notifications') == 'on'
+                user.inactive_notifications = request.POST.get('inactive_notifications') == 'on'
+                
+                user.save()
                 messages.success(request, 'Cài đặt thông báo đã được cập nhật.')
                 return redirect('accounts:settings')
                 
@@ -158,6 +166,10 @@ def settings(request):
                 privacy_form.save()
                 messages.success(request, 'Cài đặt quyền riêng tư đã được cập nhật.')
                 return redirect('accounts:settings')
+            else:
+                # Nếu form không hợp lệ, hiển thị lỗi
+                messages.error(request, 'Có lỗi khi cập nhật cài đặt quyền riêng tư.')
+                # Không redirect để giữ lại form với thông báo lỗi
                 
         elif 'update_security' in request.POST:
             security_form = SecuritySettingsForm(request.POST, instance=request.user)
@@ -165,6 +177,10 @@ def settings(request):
                 security_form.save()
                 messages.success(request, 'Cài đặt bảo mật đã được cập nhật.')
                 return redirect('accounts:settings')
+            else:
+                # Nếu form không hợp lệ, hiển thị lỗi
+                messages.error(request, 'Có lỗi khi cập nhật cài đặt bảo mật.')
+                # Không redirect để giữ lại form với thông báo lỗi
                 
         elif 'delete_account' in request.POST:
             delete_form = DeleteAccountForm(request.user, request.POST)
@@ -213,13 +229,16 @@ def settings(request):
         'comments': request.user.comment_notifications if hasattr(request.user, 'comment_notifications') else False,
         'follows': request.user.follow_notifications if hasattr(request.user, 'follow_notifications') else False,
         'mentions': request.user.mention_notifications if hasattr(request.user, 'mention_notifications') else False,
+        'messages': request.user.message_notifications if hasattr(request.user, 'message_notifications') else False,
+        'summary': getattr(request.user, 'summary_notifications', False),
+        'inactive': getattr(request.user, 'inactive_notifications', False)
     }
     
     # Thiết lập mặc định cho quyền riêng tư
     privacy_settings = {
-        'private_account': request.user.private_account if hasattr(request.user, 'private_account') else False,
-        'hide_activity': request.user.hide_activity if hasattr(request.user, 'hide_activity') else False,
-        'block_messages': request.user.block_messages if hasattr(request.user, 'block_messages') else False,
+        'private_account': getattr(request.user, 'private_account', False),
+        'hide_activity': getattr(request.user, 'hide_activity', False),
+        'block_messages': getattr(request.user, 'block_messages', False),
     }
     
     # Thiết lập mặc định cho bảo mật
@@ -238,8 +257,6 @@ def settings(request):
         'devices': devices,
         'data_requests': data_requests,
         'blocked_users': blocked_users,
-        'notifications': notification_settings,
-        'privacy': privacy_settings,
         'security': security_settings
     }
     
@@ -653,3 +670,69 @@ def suspension_notice(request):
     }
     
     return render(request, 'accounts/suspension_notice.html', context)
+
+@login_required
+def download_user_data(request, request_id):
+    """Tải xuống file dữ liệu người dùng đã được tạo."""
+    data_request = get_object_or_404(DataDownloadRequest, id=request_id, user=request.user)
+    
+    # Kiểm tra trạng thái yêu cầu
+    if data_request.status != 'ready':
+        messages.error(request, 'Dữ liệu của bạn chưa sẵn sàng hoặc đã hết hạn.')
+        return redirect('accounts:settings')
+    
+    # Kiểm tra thời gian hết hạn
+    if data_request.expires_at and data_request.expires_at < timezone.now():
+        data_request.status = 'expired'
+        data_request.save()
+        messages.error(request, 'Liên kết tải xuống đã hết hạn. Vui lòng yêu cầu lại.')
+        return redirect('accounts:settings')
+    
+    # Kiểm tra xem file có tồn tại không
+    if not data_request.file_path or not os.path.exists(data_request.file_path):
+        messages.error(request, 'File dữ liệu không tồn tại. Vui lòng yêu cầu lại.')
+        return redirect('accounts:settings')
+    
+    # Lấy tên file từ đường dẫn
+    file_name = os.path.basename(data_request.file_path)
+    
+    # Mở file để gửi đến người dùng
+    try:
+        response = FileResponse(open(data_request.file_path, 'rb'))
+        response['Content-Type'] = mimetypes.guess_type(data_request.file_path)[0] or 'application/octet-stream'
+        response['Content-Disposition'] = f'attachment; filename="{file_name}"'
+        return response
+    except Exception as e:
+        print(f"Error downloading file: {str(e)}")
+        messages.error(request, 'Đã xảy ra lỗi khi tải xuống file. Vui lòng thử lại sau.')
+        return redirect('accounts:settings')
+
+def save(self, request):
+    # Lưu user từ form cha
+    user = super().save(request)
+    
+    # Xử lý avatar
+    avatar = self.cleaned_data.get('avatar')
+    if avatar:
+        user.avatar = avatar
+    
+    # Lưu giới tính
+    user.gender = self.cleaned_data.get('gender')
+    
+    # Lưu số điện thoại
+    user.phone_number = self.cleaned_data.get('phone_number')
+    
+    # Đảm bảo tất cả các thông báo được bật mặc định
+    user.push_notifications = True
+    user.email_notifications = True
+    user.like_notifications = True
+    user.comment_notifications = True
+    user.follow_notifications = True
+    user.mention_notifications = True
+    user.message_notifications = True
+    user.summary_notifications = True
+    user.inactive_notifications = True
+    
+    user.save()
+    
+    return user
