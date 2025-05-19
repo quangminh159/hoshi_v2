@@ -16,6 +16,8 @@ import hashlib
 from django.http import JsonResponse
 from django.db.models import Q
 from accounts.models import UserBlock
+from django.contrib.contenttypes.models import ContentType
+from notifications.models import Notification
 
 User = get_user_model()
 
@@ -755,7 +757,7 @@ def share_post(request):
         post_id = data.get('post_id')
         caption = data.get('caption', '')
         as_new_post = data.get('as_new_post', True)
-        
+
         # Kiểm tra bài viết tồn tại
         try:
             original_post = Post.objects.get(pk=post_id)
@@ -764,30 +766,28 @@ def share_post(request):
                 'status': 'error',
                 'message': 'Bài viết không tồn tại'
             }, status=404)
-        
+
         # Kiểm tra người dùng bị chặn
         if UserBlock.objects.filter(
-            Q(blocker=original_post.author, blocked=request.user) | 
+            Q(blocker=original_post.author, blocked=request.user) |
             Q(blocker=request.user, blocked=original_post.author)
         ).exists():
             return JsonResponse({
                 'status': 'error',
                 'message': 'Không thể chia sẻ bài viết này'
             }, status=403)
-        
+
         # Nếu chia sẻ như bài viết mới
         if as_new_post:
-            # Tạo bài viết mới với tham chiếu đến bài viết gốc
-            new_post = Post.objects.create(
-                author=request.user,
-                caption=caption,
-                shared_from=original_post  # Thiết lập tham chiếu đến bài viết gốc
-            )
-            
-            # Tạo thông báo cho chủ bài viết gốc
-            if request.user != original_post.author:
-                from notifications.models import Notification
-                from django.contrib.contenttypes.models import ContentType
+            try:
+                # Tạo bài viết mới với tham chiếu đến bài viết gốc
+                new_post = Post.objects.create(
+                    author=request.user,
+                    caption=caption,
+                    shared_from=original_post  # Thiết lập tham chiếu đến bài viết gốc
+                )
+                
+                # Tạo thông báo cho người dùng
                 Notification.objects.create(
                     recipient=original_post.author,
                     sender=request.user,
@@ -795,26 +795,39 @@ def share_post(request):
                     text=f"{request.user.username} đã chia sẻ bài viết của bạn",
                     post=new_post,
                     original_post=original_post,
-                    content_type=ContentType.objects.get_for_model(new_post),
+                    content_type=ContentType.objects.get_for_model(Post),
                     object_id=new_post.id
                 )
+                
+                # Lưu tương tác
+                UserInteraction.objects.create(
+                    user=request.user,
+                    post=original_post,
+                    interaction_type='share'
+                )
+                
+                # Trả về thông tin bài viết mới
+                return JsonResponse({
+                    'status': 'success',
+                    'message': 'Đã chia sẻ bài viết thành công',
+                    'post_id': new_post.id
+                })
+            except Exception as e:
+                print(f"Error in share_post (creating post): {e}")
+                return JsonResponse({
+                    'status': 'error',
+                    'message': f'Có lỗi xảy ra khi chia sẻ bài viết: {str(e)}'
+                }, status=500)
             
-            return JsonResponse({
-                'status': 'success',
-                'message': 'Đã chia sẻ bài viết thành công',
-                'post_id': new_post.id
-            })
-        else:
-            # Chức năng chia sẻ nhanh (hiện chưa triển khai)
-            # Có thể thêm chức năng chia sẻ qua tin nhắn hoặc trên profile
-            return JsonResponse({
-                'status': 'success',
-                'message': 'Đã chia sẻ bài viết thành công'
-            })
+        # TODO: Xử lý trường hợp không tạo bài viết mới (nếu cần)
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Đã chia sẻ bài viết thành công'
+        })
             
     except Exception as e:
-        print(f"Error sharing post: {str(e)}")
+        print(f"Error sharing post: {e}")
         return JsonResponse({
             'status': 'error',
-            'message': 'Có lỗi xảy ra khi chia sẻ bài viết'
+            'message': f'Có lỗi xảy ra khi chia sẻ bài viết: {str(e)}'
         }, status=500) 

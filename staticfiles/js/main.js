@@ -1038,8 +1038,7 @@ function addCommentToDOM(comment, postId, isReply, parentId) {
                             </button>
                         </li>
                         <li>
-                            <button class="dropdown-item text-danger" 
-                                   onclick="deleteComment(${normalizedComment.id})">
+                            <button class="dropdown-item text-danger delete-comment-btn" data-comment-id="${normalizedComment.id}">
                                 <i class="fas fa-trash-alt me-2"></i>Xóa
                             </button>
                         </li>
@@ -1203,6 +1202,20 @@ function initializeNewCommentButtons(commentElement) {
             });
         });
     });
+    
+    // Khởi tạo nút Delete
+    const deleteButtons = commentElement.querySelectorAll('.delete-comment-btn');
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const commentId = this.getAttribute('data-comment-id');
+            if (commentId) {
+                deleteComment(commentId);
+            } else {
+                console.error('Không thể xóa bình luận: ID không hợp lệ');
+                alert('Không thể xóa bình luận. Vui lòng tải lại trang và thử lại.');
+            }
+        });
+    });
 }
 
 // Hiển thị thông tin bài viết đã lưu
@@ -1220,6 +1233,13 @@ function displayFileNames(input) {
 
 // Hàm xóa comment
 function deleteComment(commentId) {
+    // Kiểm tra ID có hợp lệ không
+    if (!commentId || commentId === 'undefined') {
+        console.error('Không thể xóa bình luận: ID không hợp lệ');
+        alert('Không thể xóa bình luận. Vui lòng tải lại trang và thử lại.');
+        return;
+    }
+    
     if (!confirm('Bạn có chắc chắn muốn xóa bình luận này?')) {
         return;
     }

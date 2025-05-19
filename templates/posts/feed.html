@@ -44,6 +44,44 @@
 .feed-dropdown .dropdown-item:hover {
     background-color: #f8f9fa;
 }
+
+.post-card {
+    margin-bottom: 1.5rem;
+}
+.post-author-avatar {
+    width: 40px;
+    height: 40px;
+}
+.comment-author-avatar {
+    width: 32px;
+    height: 32px;
+}
+.carousel-item {
+    max-height: 500px;
+}
+.carousel-item img, .carousel-item video {
+    object-fit: contain;
+    max-height: 500px;
+}
+/* CSS cho bài viết chia sẻ */
+.shared-post-container {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+.share-title {
+    border-bottom: 1px solid #e0e0e0;
+}
+.original-post {
+    border-radius: 8px;
+}
+/* CSS cho nút tương tác */
+.like-button .fas.text-danger {
+    color: #dc3545 !important;
+}
+.save-button .fas.text-primary {
+    color: #0d6efd !important;
+}
+/* End CSS cho bài viết chia sẻ */
 </style>
 {% endblock %}
 
@@ -198,6 +236,123 @@
                 </div>
                 {% endif %}
 
+                <!-- Hiển thị bài viết được chia sẻ nếu có -->
+                {% if post.shared_from %}
+                <div class="shared-post-container mx-3 my-2">
+                    <!-- Thêm phần tiêu đề chia sẻ -->
+                    <div class="share-title p-2">
+                        <i class="fas fa-retweet text-primary me-1"></i>
+                        <span class="text-muted">{{ post.author.username }} đã chia sẻ</span>
+                    </div>
+                    <div class="p-3">
+                        <!-- Bài viết gốc (được chia sẻ) -->
+                        <div class="original-post border rounded p-3 shadow-sm bg-white">
+                            <!-- Thông tin tác giả bài viết gốc -->
+                            <div class="d-flex align-items-center mb-3">
+                                <img src="{{ post.shared_from.author.get_avatar_url }}" 
+                                     class="rounded-circle me-2 border" 
+                                     width="40" 
+                                     height="40"
+                                     alt="{{ post.shared_from.author.username }}">
+                                <div>
+                                    <a href="{% url 'accounts:profile' username=post.shared_from.author.username %}" 
+                                       class="text-dark text-decoration-none fw-bold">
+                                        {{ post.shared_from.author.username }}
+                                    </a>
+                                    <div class="d-flex text-muted small">
+                                        {% if post.shared_from.location %}
+                                        <span class="me-2">
+                                            <i class="fas fa-map-marker-alt me-1"></i>{{ post.shared_from.location }}
+                                        </span>
+                                        {% endif %}
+                                        <span>
+                                            <i class="far fa-clock me-1"></i>{{ post.shared_from.created_at|timesince }} trước
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Caption của bài viết gốc -->
+                            {% if post.shared_from.caption %}
+                            <p class="card-text mb-3">
+                                {{ post.shared_from.caption|urlize|linebreaksbr }}
+                            </p>
+                            {% endif %}
+                            
+                            <!-- Post Media của bài viết gốc -->
+                            {% if post.shared_from.media.exists %}
+                            <div class="mb-3">
+                                <div id="carousel-shared-{{ post.id }}" class="carousel slide rounded overflow-hidden shadow-sm" data-bs-ride="false">
+                                    {% if post.shared_from.media.count > 1 %}
+                                    <div class="carousel-indicators">
+                                        {% for media in post.shared_from.media.all %}
+                                        <button type="button" 
+                                                data-bs-target="#carousel-shared-{{ post.id }}" 
+                                                data-bs-slide-to="{{ forloop.counter0 }}"
+                                                {% if forloop.first %}class="active"{% endif %}
+                                                aria-current="true" 
+                                                aria-label="Slide {{ forloop.counter }}">
+                                        </button>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                    
+                                    <div class="carousel-inner">
+                                        {% for media in post.shared_from.media.all %}
+                                        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                            {% if media.media_type == 'image' %}
+                                            <img src="{{ media.file.url }}" 
+                                                 class="d-block w-100" 
+                                                 alt="Shared post image">
+                                            {% else %}
+                                            <video class="d-block w-100" controls>
+                                                <source src="{{ media.file.url }}" type="video/mp4">
+                                                Your browser does not support the video tag.
+                                            </video>
+                                            {% endif %}
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    
+                                    {% if post.shared_from.media.count > 1 %}
+                                    <button class="carousel-control-prev" 
+                                            type="button" 
+                                            data-bs-target="#carousel-shared-{{ post.id }}" 
+                                            data-bs-slide="prev">
+                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                        <span class="visually-hidden">Previous</span>
+                                    </button>
+                                    <button class="carousel-control-next" 
+                                            type="button" 
+                                            data-bs-target="#carousel-shared-{{ post.id }}" 
+                                            data-bs-slide="next">
+                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                        <span class="visually-hidden">Next</span>
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Số liệu tương tác của bài viết gốc -->
+                            <div class="d-flex align-items-center small text-muted border-top pt-2">
+                                <div class="me-3">
+                                    <i class="far fa-heart me-1"></i>
+                                    <span>{{ post.shared_from.likes_count }} lượt thích</span>
+                                </div>
+                                <div class="me-3">
+                                    <i class="far fa-comment me-1"></i>
+                                    <span>{{ post.shared_from.comments_count }} bình luận</span>
+                                </div>
+                                <div>
+                                    <i class="far fa-share-square me-1"></i>
+                                    <a href="{% url 'posts:post_detail' post_id=post.shared_from.id %}" class="text-muted text-decoration-none">Xem bài viết gốc</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
                 <!-- Post Media -->
                 {% if post.media.exists %}
                 <div id="carousel-{{ post.id }}" class="carousel slide post-content" onclick="window.location='/posts/{{ post.id }}/';" style="cursor: pointer;" data-bs-ride="false">
@@ -252,108 +407,142 @@
                     {% endif %}
                 </div>
                 {% endif %}
+                {% endif %}
 
                 <!-- Post Actions -->
-                <div class="card-body">
-                    <div class="d-flex mb-2">
-                        <button class="btn btn-link text-dark p-0 me-3 like-button" 
-                                data-post-id="{{ post.id }}">
-                            <i class="{% if post.is_liked %}fas text-danger{% else %}far{% endif %} fa-heart"></i>
-                            <span class="likes-count" data-post-id="{{ post.id }}">{{ post.likes_count }}</span>
+                <div class="card-footer d-flex justify-content-between py-2 bg-white">
+                     <div class="d-flex align-items-center">
+                        <button class="btn btn-light btn-sm me-2 like-button" data-post-id="{{ post.id }}">
+                           <i class="{% if post_data.is_liked %}fas text-danger{% else %}far{% endif %} fa-heart"></i>
+                           <span class="likes-count" data-post-id="{{ post.id }}">{{ post.likes_count }}</span>
                         </button>
-                        <button class="btn btn-link text-dark p-0 me-3 comment-button"
-                                onclick="document.getElementById('comment-input-{{ post.id }}').focus();">
-                            <i class="far fa-comment"></i>
-                            <span>{{ post.comments_count }}</span>
+                        <button class="btn btn-light btn-sm me-2 comment-button" data-post-id="{{ post.id }}">
+                           <i class="far fa-comment"></i>
+                           <span>{{ post.comments_count }}</span>
                         </button>
-                        <button class="btn btn-link text-dark p-0 save-button" 
-                                data-post-id="{{ post.id }}">
-                            <i class="{% if request.user in post.saved_by.all %}fas{% else %}far{% endif %} fa-bookmark"></i>
+                        <button class="btn btn-light btn-sm share-button" data-post-id="{{ post.id }}" data-bs-toggle="modal" data-bs-target="#sharePostModal-{{ post.id }}">
+                           <i class="far fa-share-square"></i>
+                           <span>Chia sẻ</span>
                         </button>
-                    </div>
+                     </div>
+                     <div>
+                        <button class="btn btn-light btn-sm save-button" data-post-id="{{ post.id }}">
+                           <i class="{% if post_data.is_saved %}fas text-primary{% else %}far{% endif %} fa-bookmark"></i>
+                        </button>
+                     </div>
+                  </div>
 
-                    <p class="mb-2 likes-count-display">
-                        <a href="#" class="text-dark text-decoration-none fw-bold show-likes-button" data-post-id="{{ post.id }}">
-                            {{ post.likes_count }} lượt thích
+                <!-- Comments -->
+                {% if post.comments.exists %}
+                <div class="comments-section">
+                    {% if post.comments.count > 3 %}
+                    <p class="text-muted small mb-2">
+                        <a href="{% url 'posts:post_detail' post.id %}" class="text-decoration-none">
+                            Xem tất cả {{ post.comments.count }} bình luận
                         </a>
                     </p>
-
-                    <!-- Comments -->
-                    {% if post.comments.exists %}
-                    <div class="comments-section">
-                        {% if post.comments.count > 3 %}
-                        <p class="text-muted small mb-2">
-                            <a href="{% url 'posts:post_detail' post.id %}" class="text-decoration-none">
-                                Xem tất cả {{ post.comments.count }} bình luận
-                            </a>
-                        </p>
-                        {% endif %}
-                        
-                        {% for comment in post.comments.all|slice:":3" %}
-                        <div class="comment mb-2" id="comment-{{ comment.id }}">
-                            <div class="d-flex">
-                                <div class="flex-grow-1">
-                                    <a href="{% url 'accounts:profile' username=comment.author.username %}" 
-                                       class="text-dark text-decoration-none fw-bold">
-                                        {{ comment.author.username }}
-                                    </a>
-                                    {{ comment.text|truncatechars:80 }}
-                                    {% if comment.text|length > 80 %}
-                                    <a href="{% url 'posts:post_detail' post.id %}" class="text-muted small text-decoration-none">thêm</a>
-                                    {% endif %}
-                                    <div class="text-muted small d-flex align-items-center mt-1">
-                                        <span>{{ comment.created_at|timesince }} trước</span>
-                                        <span class="mx-1">·</span>
-                                        <button class="btn btn-link btn-sm p-0 text-muted comment-like-button"
-                                                data-comment-id="{{ comment.id }}">
-                                            <span>Thích</span>
-                                        </button>
-                                        <span class="mx-1">·</span>
-                                        <button class="btn btn-link btn-sm p-0 text-muted reply-button"
-                                                data-username="{{ comment.author.username }}"
-                                                data-post-id="{{ post.id }}"
-                                                data-comment-id="{{ comment.id }}">
-                                            Trả lời
-                                        </button>
-                                        <span class="mx-1">·</span>
-                                        <button class="btn btn-link btn-sm p-0 text-muted delete-comment-btn"
-                                                data-comment-id="{{ comment.id }}">
-                                            Xóa
-                                        </button>
+                    {% endif %}
+                    
+                    {% for comment in post.comments.all|slice:":3" %}
+                    <div class="comment mb-2" id="comment-{{ comment.id }}">
+                        <div class="d-flex">
+                            <img src="{{ comment.author.get_avatar_url }}" 
+                                 class="rounded-circle me-2" 
+                                 width="32" 
+                                 height="32"
+                                 alt="{{ comment.author.username }}">
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <a href="{% url 'accounts:profile' username=comment.author.username %}" 
+                                           class="text-dark text-decoration-none fw-bold">
+                                            {{ comment.author.username }}
+                                        </a>
+                                        {{ comment.text|truncatechars:80 }}
+                                        {% if comment.text|length > 80 %}
+                                        <a href="{% url 'posts:post_detail' post.id %}" class="text-muted small text-decoration-none">thêm</a>
+                                        {% endif %}
                                     </div>
-                                    <div class="comment-replies ps-4 mt-2"></div>
+                                    <div class="dropdown">
+                                        <button class="btn btn-link btn-sm p-0 text-muted dropdown-toggle" 
+                                                type="button" 
+                                                data-bs-toggle="dropdown" 
+                                                aria-expanded="false">
+                                            <i class="fas fa-ellipsis-h"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li>
+                                                <button class="dropdown-item reply-button" 
+                                                        data-username="{{ comment.author.username }}"
+                                                        data-post-id="{{ post.id }}"
+                                                        data-comment-id="{{ comment.id }}">
+                                                    <i class="fas fa-reply me-2"></i>Trả lời
+                                                </button>
+                                            </li>
+                                            {% if request.user == comment.author or request.user == post.author %}
+                                            <li>
+                                                <button class="dropdown-item text-danger delete-comment-btn" 
+                                                       data-comment-id="{{ comment.id }}">
+                                                    <i class="fas fa-trash-alt me-2"></i>Xóa
+                                                </button>
+                                            </li>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
                                 </div>
+                                <div class="text-muted small d-flex align-items-center mt-1">
+                                    <span>{{ comment.created_at|timesince }} trước</span>
+                                    <span class="mx-1">·</span>
+                                    <button class="btn btn-link btn-sm p-0 text-muted comment-like-button"
+                                            data-comment-id="{{ comment.id }}">
+                                        <span>{% if comment.is_liked_by_user %}Đã thích{% else %}Thích{% endif %}</span>
+                                    </button>
+                                    <span class="mx-1">·</span>
+                                    <button class="btn btn-link btn-sm p-0 text-muted reply-button"
+                                            data-username="{{ comment.author.username }}"
+                                            data-post-id="{{ post.id }}"
+                                            data-comment-id="{{ comment.id }}">
+                                        Trả lời
+                                    </button>
+                                    {% if comment.likes_count > 0 %}
+                                    <span class="ms-2">
+                                        <i class="fas fa-heart text-danger small"></i>
+                                        <span class="comment-likes-count" data-comment-id="{{ comment.id }}">{{ comment.likes_count }}</span>
+                                    </span>
+                                    {% endif %}
+                                </div>
+                                <div class="comment-replies ps-4 mt-2"></div>
                             </div>
                         </div>
-                        {% endfor %}
                     </div>
-                    {% endif %}
-
-                    <!-- Comment Input -->
-                    <form action="{% url 'posts:comment' post.id %}" 
-                          method="post" 
-                          class="mt-3 add-comment-form" 
-                          data-post-id="{{ post.id }}">
-                        {% csrf_token %}
-                        <div class="input-group">
-                            <input type="text" 
-                                   id="comment-input-{{ post.id }}"
-                                   name="text"
-                                   class="form-control comment-input" 
-                                   placeholder="Viết bình luận..."
-                                   aria-label="Comment input">
-                            <button class="btn btn-primary" type="submit">Gửi</button>
-                        </div>
-                        <div class="reply-info d-none">
-                            <small>
-                                Trả lời: <span class="reply-to-username"></span>
-                                <button type="button" class="btn btn-link btn-sm p-0 text-muted cancel-reply" data-post-id="{{ post.id }}">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </small>
-                        </div>
-                    </form>
+                    {% endfor %}
                 </div>
+                {% endif %}
+
+                <!-- Comment Input -->
+                <form action="{% url 'posts:comment' post.id %}" 
+                      method="post" 
+                      class="mt-3 add-comment-form" 
+                      data-post-id="{{ post.id }}">
+                    {% csrf_token %}
+                    <div class="input-group">
+                        <input type="text" 
+                               id="comment-input-{{ post.id }}"
+                               name="text"
+                               class="form-control comment-input" 
+                               placeholder="Viết bình luận..."
+                               aria-label="Comment input">
+                        <button class="btn btn-primary" type="submit">Gửi</button>
+                    </div>
+                    <div class="reply-info d-none">
+                        <small>
+                            Trả lời: <span class="reply-to-username"></span>
+                            <button type="button" class="btn btn-link btn-sm p-0 text-muted cancel-reply" data-post-id="{{ post.id }}">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </small>
+                    </div>
+                </form>
             </div>
             {% endwith %}
             {% endfor %}
@@ -393,6 +582,93 @@
         </div>
     </div>
 </div>
+
+<!-- Thêm modal chia sẻ bài viết -->
+{% for post_data in posts_with_data %}
+{% with post=post_data.post %}
+<!-- Modal Chia sẻ bài viết -->
+<div class="modal fade" id="sharePostModal-{{ post.id }}" tabindex="-1" aria-labelledby="sharePostModalLabel-{{ post.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="sharePostModalLabel-{{ post.id }}">Chia sẻ bài viết</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="sharePostForm-{{ post.id }}">
+                    <input type="hidden" id="share-post-id-{{ post.id }}" value="{{ post.id }}">
+                    
+                    <!-- Hiển thị bài viết gốc -->
+                    <div class="original-post mb-3 border p-2 rounded">
+                        <div class="d-flex align-items-center mb-2">
+                            <img src="{{ post.author.get_avatar_url }}" 
+                                class="rounded-circle me-2" 
+                                width="32" 
+                                height="32"
+                                alt="{{ post.author.username }}">
+                            <div>
+                                <a href="{% url 'accounts:profile' username=post.author.username %}" 
+                                    class="text-dark text-decoration-none fw-bold">
+                                    {{ post.author.username }}
+                                </a>
+                            </div>
+                        </div>
+                        
+                        {% if post.media.exists %}
+                        <div class="original-post-media mb-2">
+                            {% with first_media=post.media.first %}
+                            {% if first_media.media_type == 'image' %}
+                            <img src="{{ first_media.file.url }}" 
+                                 class="img-fluid rounded" 
+                                 style="max-height: 150px; width: auto;"
+                                 alt="Post image">
+                            {% else %}
+                            <video class="img-fluid rounded" style="max-height: 150px; width: auto;">
+                                <source src="{{ first_media.file.url }}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                            {% endif %}
+                            {% endwith %}
+                            {% if post.media.count > 1 %}
+                            <span class="badge bg-dark position-absolute bottom-0 end-0 m-2">+{{ post.media.count|add:"-1" }}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                        
+                        {% if post.caption %}
+                        <div class="original-post-caption">
+                            <p class="small mb-0">{{ post.caption|truncatechars:100 }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Caption cho bài viết chia sẻ -->
+                    <div class="mb-3">
+                        <label for="share-caption-{{ post.id }}" class="form-label">Viết gì đó về bài viết này</label>
+                        <textarea class="form-control" id="share-caption-{{ post.id }}" rows="3" placeholder="Bạn đang nghĩ gì về bài viết này?"></textarea>
+                    </div>
+                    
+                    <!-- Tùy chọn chia sẻ -->
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="share-as-new-post-{{ post.id }}" checked>
+                            <label class="form-check-label" for="share-as-new-post-{{ post.id }}">Đăng như bài viết mới</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary share-post-button" data-post-id="{{ post.id }}">
+                    <span class="btn-text">Chia sẻ</span>
+                    <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endwith %}
+{% endfor %}
 {% endblock %}
 
 {% block scripts %}
@@ -412,11 +688,19 @@
         
         if (!text) return;
         
+        // Disable UI để tránh submit nhiều lần
+        const submitButton = form.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        
         // Tạo form data và thêm parent_id nếu có
         const formData = new FormData(form);
         if (parentId) {
             formData.append('parent_id', parentId);
         }
+        
+        // Tạo request ID duy nhất
+        const requestId = generateRequestId(postId, text);
+        formData.append('request_id', requestId);
         
         // Thêm header để server biết đây là AJAX request
         fetch(form.action, {
@@ -429,18 +713,54 @@
         })
         .then(response => response.json())
         .then(data => {
+            // Khôi phục UI
+            submitButton.disabled = false;
+            
             if (data.success) {
                 // Tạo phần tử comment mới
                 const isReply = !!parentId;
-                const commentHtml = `
+                const newCommentHtml = `
                     <div class="comment mb-2 ${isReply ? 'ms-4' : ''}" id="comment-${data.id}" ${isReply ? `data-parent-id="${parentId}"` : ''}>
                         <div class="d-flex">
+                            <img src="${data.author.avatar || data.author.avatar_url || '/static/images/default-avatar.png'}" 
+                                 class="rounded-circle me-2" 
+                                 width="32" 
+                                 height="32"
+                                 alt="${data.author.username}">
                             <div class="flex-grow-1">
-                                <a href="/users/${data.author.username}/" class="text-dark text-decoration-none fw-bold">
-                                    ${data.author.username}
-                                </a>
-                                ${isReply ? `<span class="text-muted mx-1">trả lời</span>` : ''}
-                                ${data.text}
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <a href="/users/${data.author.username}/" class="text-dark text-decoration-none fw-bold">
+                                            ${data.author.username}
+                                        </a>
+                                        ${isReply ? `<span class="text-muted mx-1">trả lời</span>` : ''}
+                                        ${data.text}
+                                    </div>
+                                    <div class="dropdown">
+                                        <button class="btn btn-link btn-sm p-0 text-muted dropdown-toggle" 
+                                                type="button" 
+                                                data-bs-toggle="dropdown" 
+                                                aria-expanded="false">
+                                            <i class="fas fa-ellipsis-h"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li>
+                                                <button class="dropdown-item reply-button" 
+                                                        data-username="${data.author.username}"
+                                                        data-post-id="${postId}"
+                                                        data-comment-id="${data.id}">
+                                                    <i class="fas fa-reply me-2"></i>Trả lời
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button class="dropdown-item text-danger delete-comment-btn" 
+                                                       data-comment-id="${data.id}">
+                                                    <i class="fas fa-trash-alt me-2"></i>Xóa
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
                                 
                                 <div class="text-muted small d-flex align-items-center mt-1">
                                     <span>bây giờ</span>
@@ -456,12 +776,8 @@
                                             data-comment-id="${data.id}">
                                         Trả lời
                                     </button>
-                                    <span class="mx-1">·</span>
-                                    <button class="btn btn-link btn-sm p-0 text-muted delete-comment-btn"
-                                           data-comment-id="${data.id}">
-                                        Xóa
-                                    </button>
                                 </div>
+                                <div class="comment-replies ps-4 mt-2"></div>
                             </div>
                         </div>
                     </div>
@@ -478,7 +794,7 @@
                             repliesSection.className = 'comment-replies ps-4 mt-2';
                             parentComment.querySelector('.flex-grow-1').appendChild(repliesSection);
                         }
-                        repliesSection.insertAdjacentHTML('beforeend', commentHtml);
+                        repliesSection.insertAdjacentHTML('beforeend', newCommentHtml);
                     }
                 } else {
                     // Nếu là comment gốc
@@ -494,7 +810,7 @@
                     }
                     
                     // Thêm comment vào đầu danh sách
-                    commentsSection.insertAdjacentHTML('afterbegin', commentHtml);
+                    commentsSection.insertAdjacentHTML('afterbegin', newCommentHtml);
                 }
                 
                 // Cập nhật số lượng comment
@@ -507,23 +823,7 @@
                 // Thêm event listener cho comment mới
                 const newComment = document.getElementById(`comment-${data.id}`);
                 if (newComment) {
-                    const newReplyButton = newComment.querySelector('.reply-button');
-                    if (newReplyButton) {
-                        newReplyButton.addEventListener('click', function() {
-                            const username = this.getAttribute('data-username');
-                            const postId = this.getAttribute('data-post-id');
-                            const commentId = data.id;
-                            handleReplyComment(username, postId, commentId);
-                        });
-                    }
-                    
-                    const newLikeButton = newComment.querySelector('.comment-like-button');
-                    if (newLikeButton) {
-                        newLikeButton.addEventListener('click', function() {
-                            const commentId = this.getAttribute('data-comment-id');
-                            likeComment(commentId);
-                        });
-                    }
+                    initializeCommentButtons(data.id);
                 }
                 
                 // Reset form
@@ -543,13 +843,35 @@
         .catch(error => {
             console.error('Lỗi khi thêm bình luận:', error);
             showNotification('Có lỗi xảy ra khi thêm bình luận', 'error');
+            submitButton.disabled = false;
         });
+    }
+
+    // Hàm tạo request ID duy nhất
+    function generateRequestId(postId, text) {
+        // Tạo hash từ nội dung comment và timestamp
+        const hashInput = `${postId}-${text}-${Date.now()}-${Math.random().toString(36).substring(2, 10)}`;
+        let hash = 0;
+        for (let i = 0; i < hashInput.length; i++) {
+            hash = ((hash << 5) - hash) + hashInput.charCodeAt(i);
+            hash |= 0; // Convert to 32bit integer
+        }
+        return `req_${Math.abs(hash).toString(36)}`;
     }
 
     // Đảm bảo tất cả các form comment đều có event listener
     document.addEventListener('DOMContentLoaded', function() {
-        // Khởi tạo event listener cho các nút xử lý bình luận ban đầu
+        console.log('DOM loaded - initializing comment functions');
+        
+        // Gán sự kiện cho tất cả các nút comment hiện có
         setupCommentButtons();
+        
+        // Khởi tạo sự kiện cho từng comment
+        document.querySelectorAll('.comment').forEach(comment => {
+            const commentId = comment.id.replace('comment-', '');
+            console.log(`Initializing comment ID: ${commentId}`);
+            initializeCommentButtons(commentId);
+        });
         
         // Form submit prevention for comments
         document.querySelectorAll('.add-comment-form').forEach(form => {
@@ -573,16 +895,119 @@
                 });
             }
         });
-    });
-
-    // Hàm khởi tạo các nút xử lý bình luận
-    function setupCommentButtons() {
-        // Nút thích bình luận
-        document.querySelectorAll('.comment-like-button').forEach(button => {
+        
+        // Thêm event cho nút Save
+        document.querySelectorAll('.save-button').forEach(button => {
             if (!button.hasAttribute('data-event-initialized')) {
                 button.setAttribute('data-event-initialized', 'true');
                 button.addEventListener('click', function() {
+                    const postId = this.getAttribute('data-post-id');
+                    savePost(postId);
+                });
+            }
+        });
+        
+        // Thêm event cho nút share
+        document.querySelectorAll('.share-post-button').forEach(button => {
+            if (!button.hasAttribute('data-event-initialized')) {
+                button.setAttribute('data-event-initialized', 'true');
+                button.addEventListener('click', function() {
+                    const postId = this.getAttribute('data-post-id');
+                    sharePost(postId);
+                });
+            }
+        });
+        
+        // Fix loading issue
+        window.addEventListener('load', function() {
+            console.log('Window fully loaded - reinitializing buttons');
+            // Re-attach event listeners after page fully loads
+            document.querySelectorAll('.like-button').forEach(button => {
+                button.removeAttribute('data-event-initialized');
+            });
+            document.querySelectorAll('.save-button').forEach(button => {
+                button.removeAttribute('data-event-initialized');
+            });
+            
+            // Reattach events
+            document.querySelectorAll('.like-button').forEach(button => {
+                if (!button.hasAttribute('data-event-initialized')) {
+                    button.setAttribute('data-event-initialized', 'true');
+                    button.addEventListener('click', function() {
+                        const postId = this.getAttribute('data-post-id');
+                        likePost(postId);
+                    });
+                }
+            });
+            
+            document.querySelectorAll('.save-button').forEach(button => {
+                if (!button.hasAttribute('data-event-initialized')) {
+                    button.setAttribute('data-event-initialized', 'true');
+                    button.addEventListener('click', function() {
+                        const postId = this.getAttribute('data-post-id');
+                        savePost(postId);
+                    });
+                }
+            });
+        });
+    });
+
+    // Hàm khởi tạo các nút xử lý bình luận cụ thể cho một comment
+    function initializeCommentButtons(commentId) {
+        // Tìm phần tử comment
+        const commentElement = document.getElementById(`comment-${commentId}`);
+        if (!commentElement) {
+            console.error(`Comment element with ID comment-${commentId} not found`);
+            return;
+        }
+
+        // Tìm nút like
+        const likeButton = commentElement.querySelector(`.comment-like-button[data-comment-id="${commentId}"]`);
+        if (likeButton) {
+            console.log(`Found like button for comment ${commentId}`);
+            likeButton.addEventListener('click', function() {
+                console.log(`Like button clicked for comment ${commentId}`);
+                likeComment(commentId);
+            });
+        } else {
+            console.error(`Like button for comment ${commentId} not found`);
+        }
+
+        // Tìm nút delete
+        const deleteButton = commentElement.querySelector(`.delete-comment-btn[data-comment-id="${commentId}"]`);
+        if (deleteButton) {
+            console.log(`Found delete button for comment ${commentId}`);
+            deleteButton.addEventListener('click', function() {
+                console.log(`Delete button clicked for comment ${commentId}`);
+                deleteComment(commentId);
+            });
+        }
+
+        // Tìm nút reply
+        const replyButtons = commentElement.querySelectorAll('.reply-button');
+        replyButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const username = this.getAttribute('data-username');
+                const postId = this.getAttribute('data-post-id');
+                handleReplyComment(username, postId, commentId);
+            });
+        });
+    }
+
+    // Hàm khởi tạo các nút xử lý bình luận
+    function setupCommentButtons() {
+        console.log('Setting up comment buttons');
+        
+        // Nút thích bình luận
+        document.querySelectorAll('.comment-like-button').forEach(button => {
+            if (!button.hasAttribute('data-event-initialized')) {
+                const commentId = button.getAttribute('data-comment-id');
+                console.log(`Setting up like button for comment ${commentId}`);
+                
+                button.setAttribute('data-event-initialized', 'true');
+                button.addEventListener('click', function() {
                     const commentId = this.getAttribute('data-comment-id');
+                    console.log(`Like button clicked for comment ${commentId}`);
                     if (commentId) {
                         likeComment(commentId);
                     }
@@ -593,9 +1018,13 @@
         // Nút xóa bình luận
         document.querySelectorAll('.delete-comment-btn').forEach(button => {
             if (!button.hasAttribute('data-event-initialized')) {
+                const commentId = button.getAttribute('data-comment-id');
+                console.log(`Setting up delete button for comment ${commentId}`);
+                
                 button.setAttribute('data-event-initialized', 'true');
                 button.addEventListener('click', function() {
                     const commentId = this.getAttribute('data-comment-id');
+                    console.log(`Delete button clicked for comment ${commentId}`);
                     if (commentId) {
                         deleteComment(commentId);
                     }
@@ -648,63 +1077,88 @@
     }
 
     function likePost(postId) {
-            fetch(`/posts/${postId}/like/`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': getCookie('csrftoken'),
-                    'Content-Type': 'application/json'
+        fetch(`/posts/${postId}/like/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
             }
         })
-        .then(response => {
-            // Kiểm tra trạng thái phản hồi
-            if (!response.ok) {
-                // Nếu phản hồi không thành công, ném ra lỗi
-                return response.json().then(errorData => {
-                    throw new Error(errorData.message || 'Không thể thực hiện thao tác like');
-                });
-            }
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
-            // Tìm tất cả các nút like cho bài post này
-            const likeButtons = document.querySelectorAll(`.like-button[data-post-id="${postId}"]`);
-            const likeCountElements = document.querySelectorAll(`.likes-count[data-post-id="${postId}"]`);
-            
-            likeButtons.forEach(likeButton => {
-                const heartIcon = likeButton.querySelector('i');
-            if (data.status === 'liked') {
-                    // Thêm hiệu ứng like 
-                    heartIcon.classList.remove('far');
-                    heartIcon.classList.add('fas', 'text-danger');
+            // Cập nhật UI cho tất cả các nút like của post này
+            document.querySelectorAll(`.like-button[data-post-id="${postId}"]`).forEach(button => {
+                const icon = button.querySelector('i');
+                const count = button.querySelector('.likes-count');
+                
+                if (data.status === 'liked') {
+                    // Đã thích - đổi sang icon solid và màu đỏ
+                    icon.className = 'fas fa-heart text-danger';
+                    
+                    // Lưu trạng thái liked vào localStorage
+                    localStorage.setItem(`post_${postId}_liked`, 'true');
                     
                     // Hiển thị thông báo like thành công
                     showNotification('Đã thích bài viết', 'success');
-                } else if (data.status === 'unliked') {
-                    heartIcon.classList.remove('fas', 'text-danger');
-                    heartIcon.classList.add('far');
+                } else {
+                    // Bỏ thích - đổi về icon regular
+                    icon.className = 'far fa-heart';
+                    
+                    // Xóa trạng thái liked từ localStorage
+                    localStorage.removeItem(`post_${postId}_liked`);
                     
                     // Hiển thị thông báo bỏ like
                     showNotification('Đã bỏ thích bài viết', 'info');
                 }
-            });
-
-            // Cập nhật số lượng like
-            likeCountElements.forEach(likeCount => {
-                likeCount.textContent = data.likes_count;
+                
+                // Cập nhật số lượng like
+                if (count) {
+                    count.textContent = data.likes_count;
+                }
             });
         })
         .catch(error => {
-            // Xử lý các lỗi chi tiết
             console.error('Lỗi khi like bài viết:', error);
-            
-            // Hiển thị thông báo lỗi cụ thể
-            if (error.message.includes('authentication')) {
-                showNotification('Vui lòng đăng nhập để thực hiện thao tác', 'warning');
-            } else if (error.message.includes('permission')) {
-                showNotification('Bạn không có quyền thực hiện thao tác này', 'error');
-            } else {
-                showNotification('Có lỗi xảy ra. Vui lòng thử lại sau', 'error');
+            showNotification('Có lỗi xảy ra khi thích bài viết', 'error');
+        });
+    }
+
+    function savePost(postId) {
+        fetch(`/posts/${postId}/save/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
             }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Cập nhật UI cho tất cả các nút save của post này
+            document.querySelectorAll(`.save-button[data-post-id="${postId}"]`).forEach(button => {
+                const icon = button.querySelector('i');
+                
+                if (data.status === 'saved') {
+                    // Đã lưu - đổi sang icon solid và màu xanh
+                    icon.className = 'fas fa-bookmark text-primary';
+                    
+                    // Lưu trạng thái saved vào localStorage
+                    localStorage.setItem(`post_${postId}_saved`, 'true');
+                    
+                    // Hiển thị thông báo lưu thành công
+                    showNotification('Đã lưu bài viết', 'success');
+                } else {
+                    // Bỏ lưu - đổi về icon regular
+                    icon.className = 'far fa-bookmark';
+                    
+                    // Xóa trạng thái saved từ localStorage
+                    localStorage.removeItem(`post_${postId}_saved`);
+                    
+                    // Hiển thị thông báo bỏ lưu
+                    showNotification('Đã bỏ lưu bài viết', 'info');
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Lỗi khi lưu bài viết:', error);
+            showNotification('Có lỗi xảy ra khi lưu bài viết', 'error');
         });
     }
 
@@ -770,31 +1224,66 @@
     
     // Hàm thích bình luận
     function likeComment(commentId) {
-        fetch(`/api/posts/comments/${commentId}/like/`, {
+        console.log(`Attempting to like comment ID: ${commentId}`);
+        // Kiểm tra lại đường dẫn API cho đúng
+        fetch(`/comments/${commentId}/like/`, {
             method: 'POST',
             headers: {
                 'X-CSRFToken': getCookie('csrftoken'),
                 'Content-Type': 'application/json'
-            }
+            },
+            // Thêm body rỗng để đảm bảo request hợp lệ
+            body: JSON.stringify({})
         })
         .then(response => {
+            console.log(`Like comment response status: ${response.status}`);
             if (!response.ok) {
                 return response.json().then(errorData => {
+                    console.error('Error response:', errorData);
                     throw new Error(errorData.message || 'Không thể thực hiện thao tác');
                 });
             }
             return response.json();
         })
         .then(data => {
+            console.log('Like comment success data:', data);
             const likeButton = document.querySelector(`.comment-like-button[data-comment-id="${commentId}"]`);
             if (likeButton) {
                 const likeText = likeButton.querySelector('span');
                 if (data.status === 'liked') {
                     likeText.textContent = 'Đã thích';
                     likeButton.classList.add('text-primary');
+                    showNotification('Đã thích bình luận', 'success');
                 } else {
                     likeText.textContent = 'Thích';
                     likeButton.classList.remove('text-primary');
+                    showNotification('Đã bỏ thích bình luận', 'info');
+                }
+
+                // Cập nhật số lượng likes hiển thị
+                const commentElement = document.getElementById(`comment-${commentId}`);
+                if (commentElement) {
+                    let likesCountElement = commentElement.querySelector('.comment-likes-count');
+                    
+                    if (data.likes_count > 0) {
+                        if (likesCountElement) {
+                            // Nếu đã có phần tử hiển thị số lượng like, cập nhật giá trị
+                            likesCountElement.textContent = data.likes_count;
+                        } else {
+                            // Nếu chưa có phần tử hiển thị số lượng like, tạo mới
+                            const parentElement = likeButton.parentElement;
+                            const likesDisplay = document.createElement('span');
+                            likesDisplay.className = 'ms-2';
+                            likesDisplay.innerHTML = `
+                                <i class="fas fa-heart text-danger small"></i>
+                                <span class="comment-likes-count" data-comment-id="${commentId}">${data.likes_count}</span>
+                            `;
+                            parentElement.appendChild(likesDisplay);
+                        }
+                    } else if (likesCountElement) {
+                        // Nếu số lượng like = 0 và có phần tử hiển thị, xóa bỏ nó
+                        likesCountElement.parentElement.remove();
+                    }
                 }
             }
         })
@@ -829,6 +1318,7 @@
     
     // Hàm xóa bình luận
     function deleteComment(commentId) {
+        console.log(`Attempting to delete comment ID: ${commentId}`);
         // Kiểm tra ID có hợp lệ không
         if (!commentId || commentId === 'undefined') {
             console.error('Không thể xóa bình luận: ID không hợp lệ');
@@ -840,22 +1330,45 @@
             return;
         }
         
-        fetch(`/api/posts/comments/${commentId}/delete/`, {
+        // Tìm post id từ DOM
+        const comment = document.getElementById(`comment-${commentId}`);
+        if (!comment) {
+            console.error('Không tìm thấy phần tử bình luận trong DOM');
+            showNotification('Không thể xóa bình luận', 'error');
+            return;
+        }
+        
+        const postCard = comment.closest('.card');
+        if (!postCard) {
+            console.error('Không tìm thấy card chứa bình luận');
+            showNotification('Không thể xóa bình luận', 'error');
+            return;
+        }
+        
+        const postId = postCard.id.replace('post-', '');
+        console.log(`Found post ID for comment: ${postId}`);
+        
+        fetch(`/posts/${postId}/comment/${commentId}/delete/`, {
             method: 'POST',
             headers: {
                 'X-CSRFToken': getCookie('csrftoken'),
                 'Content-Type': 'application/json'
-            }
+            },
+            // Thêm body rỗng để đảm bảo request hợp lệ
+            body: JSON.stringify({})
         })
         .then(response => {
+            console.log(`Delete comment response status: ${response.status}`);
             if (!response.ok) {
                 return response.json().then(errorData => {
+                    console.error('Error response:', errorData);
                     throw new Error(errorData.message || 'Không thể xóa bình luận');
                 });
             }
             return response.json();
         })
         .then(data => {
+            console.log('Delete comment success data:', data);
             // Xóa comment khỏi DOM
             const comment = document.getElementById(`comment-${commentId}`);
             if (comment) {
@@ -989,7 +1502,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         `).join('')}
                     </div>
                     
-                    ${post.media.length > 1 ? `
+                    {% if post.media.count > 1 %}
                     <button class="carousel-control-prev" 
                             type="button" 
                             data-bs-target="#carousel-${post.id}" 
@@ -1004,7 +1517,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <span class="carousel-control-next-icon" aria-hidden="true"></span>
                         <span class="visually-hidden">Next</span>
                     </button>
-                    ` : ''}
+                    {% endif %}
                 </div>
             `;
         }
@@ -1048,11 +1561,13 @@ document.addEventListener('DOMContentLoaded', function() {
                                                 data-comment-id="${comment.id}">
                                             Trả lời
                                         </button>
+                                        {% if request.user == comment.author or request.user == post.author %}
                                         <span class="mx-1">·</span>
                                         <button class="btn btn-link btn-sm p-0 text-muted delete-comment-btn"
                                                 data-comment-id="${comment.id}">
                                             Xóa
                                         </button>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
@@ -1062,6 +1577,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             `;
         }
+        
+        // Kiểm tra trạng thái like và save từ localStorage
+        const isLiked = localStorage.getItem(`post_${post.id}_liked`) === 'true';
+        const isSaved = localStorage.getItem(`post_${post.id}_saved`) === 'true';
+        
+        // Chuẩn bị các class cho icon
+        const likeIconClass = isLiked ? 'fas fa-heart text-danger' : 'far fa-heart';
+        const saveIconClass = isSaved ? 'fas fa-bookmark text-primary' : 'far fa-bookmark';
         
         return `
             <div class="card mb-4" id="post-${post.id}">
@@ -1111,58 +1634,55 @@ document.addEventListener('DOMContentLoaded', function() {
                 ` : ''}
 
                 <!-- Post Actions -->
-                <div class="card-body">
-                    <div class="d-flex mb-2">
-                        <button class="btn btn-link text-dark p-0 me-3 like-button" 
-                                data-post-id="${post.id}">
-                            <i class="${post.is_liked ? 'fas' : 'far'} fa-heart"></i>
-                            <span class="likes-count" data-post-id="${post.id}">${post.likes_count}</span>
+                <div class="card-footer d-flex justify-content-between py-2 bg-white">
+                     <div class="d-flex align-items-center">
+                        <button class="btn btn-light btn-sm me-2 like-button" data-post-id="${post.id}">
+                           <i class="${likeIconClass}"></i>
+                           <span class="likes-count">${post.likes_count}</span>
                         </button>
-                        <button class="btn btn-link text-dark p-0 me-3 comment-button"
-                                onclick="document.getElementById('comment-input-${post.id}').focus();">
-                            <i class="far fa-comment"></i>
-                            <span>${post.comments_count}</span>
+                        <button class="btn btn-light btn-sm me-2 comment-button" data-post-id="${post.id}">
+                           <i class="far fa-comment"></i>
+                           <span>${post.comments_count}</span>
                         </button>
-                        <button class="btn btn-link text-dark p-0 save-button" 
-                                data-post-id="${post.id}">
-                            <i class="${post.is_saved ? 'fas' : 'far'} fa-bookmark"></i>
+                        <button class="btn btn-light btn-sm share-button" data-post-id="${post.id}" data-bs-toggle="modal" data-bs-target="#sharePostModal-${post.id}">
+                           <i class="far fa-share-square"></i>
+                           <span>Chia sẻ</span>
                         </button>
+                     </div>
+                     <div>
+                        <button class="btn btn-light btn-sm save-button" data-post-id="${post.id}">
+                           <i class="${saveIconClass}"></i>
+                        </button>
+                     </div>
+                  </div>
+
+                <!-- Comments -->
+                ${commentsHTML}
+
+                <!-- Comment Input -->
+                <form action="/posts/${post.id}/comment/" 
+                      method="post" 
+                      class="mt-3 add-comment-form" 
+                      data-post-id="${post.id}">
+                    <input type="hidden" name="csrfmiddlewaretoken" value="${getCookie('csrftoken')}">
+                    <div class="input-group">
+                        <input type="text" 
+                               id="comment-input-${post.id}"
+                               name="text"
+                               class="form-control comment-input" 
+                               placeholder="Viết bình luận..."
+                               aria-label="Comment input">
+                        <button class="btn btn-primary" type="submit">Gửi</button>
                     </div>
-
-                    <p class="mb-2 likes-count-display">
-                        <a href="#" class="text-dark text-decoration-none fw-bold show-likes-button" data-post-id="${post.id}">
-                            ${post.likes_count} lượt thích
-                        </a>
-                    </p>
-
-                    <!-- Comments -->
-                    ${commentsHTML}
-
-                    <!-- Comment Input -->
-                    <form action="/posts/${post.id}/comment/" 
-                          method="post" 
-                          class="mt-3 add-comment-form" 
-                          data-post-id="${post.id}">
-                        <input type="hidden" name="csrfmiddlewaretoken" value="${getCookie('csrftoken')}">
-                        <div class="input-group">
-                            <input type="text" 
-                                   id="comment-input-${post.id}"
-                                   name="text"
-                                   class="form-control comment-input" 
-                                   placeholder="Viết bình luận..."
-                                   aria-label="Comment input">
-                            <button class="btn btn-primary" type="submit">Gửi</button>
-                        </div>
-                        <div class="reply-info d-none">
-                            <small>
-                                Trả lời: <span class="reply-to-username"></span>
-                                <button type="button" class="btn btn-link btn-sm p-0 text-muted cancel-reply" data-post-id="${post.id}">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </small>
-                        </div>
-                    </form>
-                </div>
+                    <div class="reply-info d-none">
+                        <small>
+                            Trả lời: <span class="reply-to-username"></span>
+                            <button type="button" class="btn btn-link btn-sm p-0 text-muted cancel-reply" data-post-id="${post.id}">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </small>
+                    </div>
+                </form>
             </div>
         `;
     }
@@ -1183,31 +1703,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Setup event listeners for newly added posts
     function setupPostEventListeners() {
-        // Gọi hàm khởi tạo nút bình luận
-        setupCommentButtons();
+        console.log('Setting up post event listeners');
         
-        // Form comment
-        document.querySelectorAll('.add-comment-form').forEach(form => {
-            if (!form.hasAttribute('data-event-initialized')) {
-                form.setAttribute('data-event-initialized', 'true');
-                form.addEventListener('submit', function(event) {
-                    event.preventDefault();
-                    const postId = this.getAttribute('data-post-id');
-                    handleSubmitComment(postId);
-                });
-            }
-        });
-        
-        // Like buttons
-        document.querySelectorAll('.like-button').forEach(button => {
-            if (!button.hasAttribute('data-event-initialized')) {
-                button.setAttribute('data-event-initialized', 'true');
-                button.addEventListener('click', function() {
-                    const postId = this.getAttribute('data-post-id');
-                    likePost(postId);
-                });
-            }
-        });
+        // Thiết lập tương tác cho các bài viết mới thêm
+        setupNewPostInteractions();
         
         // Initialize Bootstrap carousels
         document.querySelectorAll('.carousel').forEach(carousel => {
@@ -1443,4 +1942,478 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 </script>
+
+<script>
+    // Hàm xử lý chia sẻ bài viết
+    document.addEventListener('DOMContentLoaded', function() {
+        // Gán sự kiện cho tất cả các nút chia sẻ
+        const shareButtons = document.querySelectorAll('.share-post-button');
+        shareButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const postId = this.getAttribute('data-post-id');
+                sharePost(postId);
+            });
+        });
+    });
+
+    function sharePost(postId) {
+        const caption = document.getElementById(`share-caption-${postId}`).value;
+        const asNewPost = document.getElementById(`share-as-new-post-${postId}`).checked;
+        const button = document.querySelector(`.share-post-button[data-post-id="${postId}"]`);
+        const buttonText = button.querySelector('.btn-text');
+        const spinner = button.querySelector('.spinner-border');
+        
+        // Disable button and show spinner
+        button.disabled = true;
+        buttonText.classList.add('d-none');
+        spinner.classList.remove('d-none');
+        
+        fetch('/api/posts/share/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                post_id: postId,
+                caption: caption,
+                as_new_post: asNewPost
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(errorData => {
+                    throw new Error(errorData.message || 'Không thể chia sẻ bài viết');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Ẩn modal
+            const modal = document.getElementById(`sharePostModal-${postId}`);
+            const modalInstance = bootstrap.Modal.getInstance(modal);
+            modalInstance.hide();
+            
+            // Reset form
+            document.getElementById(`share-caption-${postId}`).value = '';
+            
+            // Hiển thị thông báo thành công
+            showNotification('Đã chia sẻ bài viết thành công', 'success');
+            
+            // Tự động tải lại trang sau 1 giây để hiển thị bài viết mới
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        })
+        .catch(error => {
+            console.error('Lỗi khi chia sẻ bài viết:', error);
+            showNotification('Có lỗi xảy ra khi chia sẻ bài viết: ' + error.message, 'error');
+        })
+        .finally(() => {
+            // Re-enable button and hide spinner
+            button.disabled = false;
+            buttonText.classList.remove('d-none');
+            spinner.classList.add('d-none');
+        });
+    }
+</script>
+
+<script>
+    // Tạo hàm riêng để khôi phục trạng thái từ localStorage
+    function restoreInteractionStates() {
+        console.log('Khôi phục trạng thái like/save từ localStorage');
+        
+        // Khôi phục trạng thái like
+        document.querySelectorAll('.like-button').forEach(button => {
+            const postId = button.getAttribute('data-post-id');
+            if (!postId) return;
+            
+            const icon = button.querySelector('i');
+            if (!icon) return;
+            
+            if (localStorage.getItem(`post_${postId}_liked`) === 'true') {
+                icon.className = 'fas fa-heart text-danger';
+            } else {
+                icon.className = 'far fa-heart';
+            }
+        });
+        
+        // Khôi phục trạng thái save
+        document.querySelectorAll('.save-button').forEach(button => {
+            const postId = button.getAttribute('data-post-id');
+            if (!postId) return;
+            
+            const icon = button.querySelector('i');
+            if (!icon) return;
+            
+            if (localStorage.getItem(`post_${postId}_saved`) === 'true') {
+                icon.className = 'fas fa-bookmark text-primary';
+            } else {
+                icon.className = 'far fa-bookmark';
+            }
+        });
+    }
+
+    // Thêm hàm khôi phục vào cả DOMContentLoaded và window.onload
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM loaded - initializing...');
+        
+        // Gọi hàm khôi phục trạng thái
+        setTimeout(restoreInteractionStates, 100);
+        
+        // ... existing code ...
+    });
+
+    // Đảm bảo các trạng thái được khôi phục sau khi trang đã load hoàn toàn
+    window.onload = function() {
+        console.log('Window loaded - restoring states...');
+        setTimeout(restoreInteractionStates, 500);
+    };
+    // ... existing code ...
+</script>
+
+// Kiểm tra xem localStorage có hoạt động không
+function isLocalStorageAvailable() {
+    try {
+        const test = '__test__';
+        localStorage.setItem(test, test);
+        localStorage.removeItem(test);
+        return true;
+    } catch (e) {
+        console.error('LocalStorage is not available:', e);
+        return false;
+    }
+}
+
+// Hàm debug để xem các key trong localStorage
+function debugLocalStorage() {
+    if (!isLocalStorageAvailable()) return;
+    
+    console.log('----- DEBUG: localStorage -----');
+    
+    // Liệt kê tất cả các keys trong localStorage
+    console.log('Tất cả keys trong localStorage:');
+    const keys = Object.keys(localStorage);
+    console.log('Số lượng keys:', keys.length);
+    
+    // Tìm và hiển thị các keys liên quan đến post liked/saved
+    const postLikeKeys = keys.filter(key => key.startsWith('post_') && key.includes('_liked'));
+    const postSaveKeys = keys.filter(key => key.startsWith('post_') && key.includes('_saved'));
+    
+    console.log('Post Liked Keys:', postLikeKeys);
+    console.log('Post Saved Keys:', postSaveKeys);
+    
+    // Hiển thị chi tiết trạng thái của các post này
+    postLikeKeys.forEach(key => {
+        console.log(`${key}: ${localStorage.getItem(key)}`);
+    });
+    
+    postSaveKeys.forEach(key => {
+        console.log(`${key}: ${localStorage.getItem(key)}`);
+    });
+    
+    console.log('----- END DEBUG -----');
+}
+
+// Xóa đoạn window.onload ở trên để tránh xung đột
+// Thay bằng code mới sau
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Kiểm tra localStorage có hoạt động không
+    if (!isLocalStorageAvailable()) {
+        console.error('LocalStorage không khả dụng - chức năng lưu trạng thái sẽ không hoạt động!');
+        return;
+    }
+    
+    console.log('DOM loaded - LocalStorage available');
+    
+    // Debug localStorage để xem có dữ liệu không
+    debugLocalStorage();
+});
+
+// Kết hợp cả hai sự kiện window.onload
+window.addEventListener('load', function() {
+    console.log('Window fully loaded - checking states');
+    if (isLocalStorageAvailable()) {
+        // Debug trước khi khôi phục
+        debugLocalStorage();
+        
+        // Khôi phục trạng thái ngay lập tức
+        restoreInteractionStates();
+        
+        // Debug sau khi khôi phục
+        console.log('States after restoration:');
+        document.querySelectorAll('.like-button').forEach(button => {
+            const postId = button.getAttribute('data-post-id');
+            const heartIcon = button.querySelector('i');
+            if (postId && heartIcon) {
+                console.log(`Post ${postId} like status:`, heartIcon.className);
+            }
+        });
+        
+        // Và cũng khôi phục sau một độ trễ ngắn để đảm bảo tất cả DOM đã được xử lý
+        setTimeout(function() {
+            console.log('Delayed state restoration');
+            restoreInteractionStates();
+            debugLocalStorage();
+        }, 1000);
+    }
+});
+
+// Gọi hàm khôi phục trạng thái khi trang đã load
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded - khởi tạo');
+    
+    // Khôi phục trạng thái khi DOM đã load
+    setTimeout(restoreInteractionStates, 100);
+});
+
+// Đảm bảo các trạng thái được khôi phục sau khi trang đã load hoàn toàn
+window.addEventListener('load', function() {
+    console.log('Window loaded - khôi phục trạng thái');
+    restoreInteractionStates();
+    
+    // Khôi phục thêm một lần nữa sau 1 giây
+    setTimeout(restoreInteractionStates, 1000);
+});
+
+// Khi có nội dung được thêm vào DOM (infinite scroll)
+function setupNewPostInteractions() {
+    console.log('Thiết lập tương tác cho bài viết mới');
+    restoreInteractionStates();
+    
+    // Khởi tạo lại event listeners cho các nút like và save
+    document.querySelectorAll('.like-button:not([data-initialized])').forEach(button => {
+        button.setAttribute('data-initialized', 'true');
+        button.addEventListener('click', function() {
+            const postId = this.getAttribute('data-post-id');
+            likePost(postId);
+        });
+    });
+    
+    document.querySelectorAll('.save-button:not([data-initialized])').forEach(button => {
+        button.setAttribute('data-initialized', 'true');
+        button.addEventListener('click', function() {
+            const postId = this.getAttribute('data-post-id');
+            savePost(postId);
+        });
+    });
+}
+
+// Thêm gọi setupNewPostInteractions sau khi thêm bài viết mới
+function appendPosts(posts) {
+    posts.forEach(post => {
+        const postHtml = createPostHTML(post);
+        postsContainer.insertBefore(
+            document.createRange().createContextualFragment(postHtml), 
+            loadingIndicator
+        );
+    });
+    
+    // Khởi tạo tương tác cho các bài viết mới thêm
+    setupNewPostInteractions();
+}
+
+// Thêm code để kiểm tra trong console
+console.log('=== Debug localStorage ===');
+console.log('Số lượng key trong localStorage:', Object.keys(localStorage).length);
+console.log('Các key liên quan đến like:', Object.keys(localStorage).filter(k => k.includes('_liked')));
+console.log('Các key liên quan đến save:', Object.keys(localStorage).filter(k => k.includes('_saved')));
+console.log('===========================')
+
+<script>
+// Script debug localStorage và trạng thái like/save
+console.log('DEBUG SCRIPT LOADED');
+
+// Check if localStorage is available
+function isLocalStorageAvailable() {
+    try {
+        const test = '__test__';
+        localStorage.setItem(test, test);
+        localStorage.removeItem(test);
+        return true;
+    } catch (e) {
+        console.error('LocalStorage không khả dụng:', e);
+        return false;
+    }
+}
+
+// Log LocalStorage content
+function logLocalStorage() {
+    console.log('=== DEBUG LOCALSTORAGE ===');
+    if (!isLocalStorageAvailable()) {
+        console.error('LocalStorage không khả dụng');
+        return;
+    }
+    
+    const keys = Object.keys(localStorage);
+    console.log(`Số lượng keys: ${keys.length}`);
+    
+    const likeKeys = keys.filter(k => k.includes('_liked'));
+    const saveKeys = keys.filter(k => k.includes('_saved'));
+    
+    console.log('LIKE KEYS:', likeKeys);
+    console.log('SAVE KEYS:', saveKeys);
+    
+    likeKeys.forEach(key => {
+        console.log(`${key}: ${localStorage.getItem(key)}`);
+    });
+    
+    saveKeys.forEach(key => {
+        console.log(`${key}: ${localStorage.getItem(key)}`);
+    });
+    console.log('========================');
+}
+
+// Direct fix for like/save buttons
+function forceFixLikeButtons() {
+    console.log('Force fixing like buttons...');
+    document.querySelectorAll('.like-button').forEach(button => {
+        const postId = button.getAttribute('data-post-id');
+        const icon = button.querySelector('i');
+        
+        console.log(`Processing like button for post ${postId}`);
+        
+        if (localStorage.getItem(`post_${postId}_liked`) === 'true') {
+            console.log(`Post ${postId} should be liked, updating UI`);
+            icon.className = 'fas fa-heart text-danger';
+        } else {
+            console.log(`Post ${postId} should NOT be liked, ensuring correct UI`);
+            icon.className = 'far fa-heart';
+        }
+    });
+}
+
+function forceFixSaveButtons() {
+    console.log('Force fixing save buttons...');
+    document.querySelectorAll('.save-button').forEach(button => {
+        const postId = button.getAttribute('data-post-id');
+        const icon = button.querySelector('i');
+        
+        console.log(`Processing save button for post ${postId}`);
+        
+        if (localStorage.getItem(`post_${postId}_saved`) === 'true') {
+            console.log(`Post ${postId} should be saved, updating UI`);
+            icon.className = 'fas fa-bookmark text-primary';
+        } else {
+            console.log(`Post ${postId} should NOT be saved, ensuring correct UI`);
+            icon.className = 'far fa-bookmark';
+        }
+    });
+}
+
+// Add a button to the page for manual fixing
+function addDebugControls() {
+    const controlPanel = document.createElement('div');
+    controlPanel.style.position = 'fixed';
+    controlPanel.style.bottom = '20px';
+    controlPanel.style.right = '20px';
+    controlPanel.style.zIndex = '9999';
+    controlPanel.style.backgroundColor = 'rgba(0,0,0,0.7)';
+    controlPanel.style.color = 'white';
+    controlPanel.style.padding = '10px';
+    controlPanel.style.borderRadius = '5px';
+    
+    const header = document.createElement('div');
+    header.textContent = 'Debug Controls';
+    header.style.fontWeight = 'bold';
+    header.style.marginBottom = '10px';
+    controlPanel.appendChild(header);
+    
+    const logBtn = document.createElement('button');
+    logBtn.textContent = 'Log LocalStorage';
+    logBtn.style.marginRight = '5px';
+    logBtn.style.padding = '5px';
+    logBtn.addEventListener('click', logLocalStorage);
+    controlPanel.appendChild(logBtn);
+    
+    const fixLikeBtn = document.createElement('button');
+    fixLikeBtn.textContent = 'Fix Like Buttons';
+    fixLikeBtn.style.marginRight = '5px';
+    fixLikeBtn.style.padding = '5px';
+    fixLikeBtn.addEventListener('click', forceFixLikeButtons);
+    controlPanel.appendChild(fixLikeBtn);
+    
+    const fixSaveBtn = document.createElement('button');
+    fixSaveBtn.textContent = 'Fix Save Buttons';
+    fixSaveBtn.style.padding = '5px';
+    fixSaveBtn.addEventListener('click', forceFixSaveButtons);
+    controlPanel.appendChild(fixSaveBtn);
+    
+    document.body.appendChild(controlPanel);
+}
+
+// Run when DOM is loaded - add separate event listener to avoid conflicts
+window.addEventListener('DOMContentLoaded', function() {
+    console.log('DEBUG: DOM loaded');
+    logLocalStorage();
+    
+    // Add controls after a delay
+    setTimeout(addDebugControls, 1000);
+});
+
+// Run when window is fully loaded
+window.addEventListener('load', function() {
+    console.log('DEBUG: Window loaded');
+    logLocalStorage();
+    
+    // Fix buttons after a short delay
+    setTimeout(forceFixLikeButtons, 500);
+    setTimeout(forceFixSaveButtons, 500);
+    
+    // And again after a longer delay
+    setTimeout(forceFixLikeButtons, 2000);
+    setTimeout(forceFixSaveButtons, 2000);
+});
+
+// Add handlers to existing buttons
+setTimeout(function() {
+    console.log('Adding direct click handlers to buttons');
+    
+    document.querySelectorAll('.like-button').forEach(button => {
+        button.addEventListener('click', function(e) {
+            const postId = this.getAttribute('data-post-id');
+            console.log(`DEBUG: Like button clicked for post ${postId}`);
+            
+            // Clear any existing timeout
+            if (window.likeTimeout) clearTimeout(window.likeTimeout);
+            
+            // Set a timeout to update UI after AJAX
+            window.likeTimeout = setTimeout(() => {
+                const icon = this.querySelector('i');
+                
+                // Toggle localStorage value directly
+                if (localStorage.getItem(`post_${postId}_liked`) === 'true') {
+                    icon.className = 'fas fa-heart text-danger';
+                } else {
+                    icon.className = 'far fa-heart';
+                }
+            }, 500);
+        });
+    });
+    
+    document.querySelectorAll('.save-button').forEach(button => {
+        button.addEventListener('click', function(e) {
+            const postId = this.getAttribute('data-post-id');
+            console.log(`DEBUG: Save button clicked for post ${postId}`);
+            
+            // Clear any existing timeout
+            if (window.saveTimeout) clearTimeout(window.saveTimeout);
+            
+            // Set a timeout to update UI after AJAX
+            window.saveTimeout = setTimeout(() => {
+                const icon = this.querySelector('i');
+                
+                // Toggle localStorage value directly
+                if (localStorage.getItem(`post_${postId}_saved`) === 'true') {
+                    icon.className = 'fas fa-bookmark text-primary';
+                } else {
+                    icon.className = 'far fa-bookmark';
+                }
+            }, 500);
+        });
+    });
+}, 2000);
+
+console.log('DEBUG SCRIPT READY');
 {% endblock %} 
