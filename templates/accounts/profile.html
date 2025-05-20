@@ -200,6 +200,85 @@
         right: 1rem;
         top: 1rem;
     }
+    
+    .shared-indicator {
+        position: absolute;
+        top: 0.5rem;
+        left: 0.5rem;
+        background-color: rgba(0, 123, 255, 0.8);
+        color: white;
+        padding: 0.2rem 0.5rem;
+        border-radius: 3px;
+        font-size: 0.8rem;
+    }
+    
+    /* Thiết kế mới cho tab điều hướng */
+    .profile-tabs {
+        display: flex;
+        justify-content: center;
+        border-bottom: 1px solid #dee2e6;
+        margin-bottom: 1.5rem;
+        background-color: #fff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        border-radius: 10px;
+        padding: 0.5rem;
+    }
+    
+    .profile-tabs .tab {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #495057;
+        text-decoration: none;
+        padding: 0.75rem 1.25rem;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        margin: 0 0.25rem;
+        min-width: 120px;
+    }
+    
+    .profile-tabs .tab i {
+        margin-right: 0.5rem;
+        font-size: 1.1rem;
+    }
+    
+    .profile-tabs .tab:hover {
+        background-color: rgba(0, 123, 255, 0.1);
+        color: #0d6efd;
+    }
+    
+    .profile-tabs .tab.active {
+        background-color: #0d6efd;
+        color: white;
+    }
+    
+    /* Thiết kế cho phân trang */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 2rem;
+        gap: 0.5rem;
+    }
+    
+    .pagination a, .pagination span {
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        text-decoration: none;
+        background-color: #fff;
+        border: 1px solid #dee2e6;
+        color: #495057;
+        transition: all 0.2s ease;
+    }
+    
+    .pagination a:hover {
+        background-color: #e9ecef;
+    }
+    
+    /* Hiệu ứng nổi cho các card */
+    .profile-tabs, .post-grid {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
 </style>
 {% endblock %}
 
@@ -335,10 +414,18 @@
         <div class="col-12">
             <div class="profile-tabs">
                 <a href="{% url 'accounts:profile' username=profile_user.username %}" 
-                   class="tab {% if not is_saved_posts %}active{% endif %}">Bài viết</a>
+                   class="tab {% if not is_saved_posts and not is_shared_posts %}active{% endif %}">
+                    <i class="fas fa-th"></i> Bài viết
+                </a>
                 {% if is_own_profile %}
                 <a href="{% url 'accounts:profile' username=profile_user.username %}?tab=saved" 
-                   class="tab {% if is_saved_posts %}active{% endif %}">Đã lưu</a>
+                   class="tab {% if is_saved_posts %}active{% endif %}">
+                    <i class="fas fa-bookmark"></i> Đã lưu
+                </a>
+                <a href="{% url 'accounts:profile' username=profile_user.username %}?tab=shared" 
+                   class="tab {% if is_shared_posts %}active{% endif %}">
+                    <i class="fas fa-share-alt"></i> Đã chia sẻ
+                </a>
                 {% endif %}
             </div>
         </div>
@@ -383,8 +470,17 @@
                                 <div class="post-stats">
                                     <span><i class="fas fa-heart"></i>{{ post.likes_count }}</span>
                                     <span><i class="fas fa-comment"></i>{{ post.comments_count }}</span>
+                                    {% if is_shared_posts %}
+                                    <span><i class="fas fa-share"></i>Đã chia sẻ</span>
+                                    {% endif %}
                                 </div>
                             </div>
+                            
+                            {% if is_shared_posts %}
+                            <div class="shared-indicator">
+                                <i class="fas fa-share-alt"></i>
+                            </div>
+                            {% endif %}
                         </a>
                     {% endfor %}
                 </div>
@@ -393,13 +489,13 @@
                 {% if is_paginated %}
                     <div class="pagination">
                         {% if page_obj.has_previous %}
-                            <a href="?page={{ page_obj.previous_page_number }}{% if is_saved_posts %}&tab=saved{% endif %}">Trang trước</a>
+                            <a href="?page={{ page_obj.previous_page_number }}{% if is_saved_posts %}&tab=saved{% elif is_shared_posts %}&tab=shared{% endif %}">Trang trước</a>
                         {% endif %}
                         
                         <span>Trang {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
                         
                         {% if page_obj.has_next %}
-                            <a href="?page={{ page_obj.next_page_number }}{% if is_saved_posts %}&tab=saved{% endif %}">Trang sau</a>
+                            <a href="?page={{ page_obj.next_page_number }}{% if is_saved_posts %}&tab=saved{% elif is_shared_posts %}&tab=shared{% endif %}">Trang sau</a>
                         {% endif %}
                     </div>
                 {% endif %}
@@ -407,6 +503,8 @@
                 <div class="no-posts text-center">
                     {% if is_saved_posts and is_own_profile %}
                         <p>Bạn chưa lưu bài viết nào.</p>
+                    {% elif is_shared_posts and is_own_profile %}
+                        <p>Bạn chưa chia sẻ bài viết nào trên tường của mình.</p>
                     {% else %}
                         <p>Chưa có bài viết nào.</p>
                     {% endif %}
@@ -496,8 +594,12 @@ function loadMorePosts() {
     // Increment page counter
     currentPage++;
     
-    // Sửa đường dẫn API cho đúng với URL pattern trong accounts/urls.py
-    fetch(`/users/api/${profileUsername}/posts/?page=${currentPage}`)
+    // Lấy tham số tab hiện tại từ URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentTab = urlParams.get('tab') || 'posts';
+    
+    // Sửa đường dẫn API cho đúng với URL pattern và tab hiện tại
+    fetch(`/users/api/${profileUsername}/posts/?page=${currentPage}&tab=${currentTab}`)
         .then(response => response.json())
         .then(data => {
             // Update hasMoreContent flag
@@ -562,15 +664,27 @@ function createPostElement(post) {
     }
     postTypeHtml += '</div>';
     
+    // Kiểm tra nếu đang ở tab shared
+    const urlParams = new URLSearchParams(window.location.search);
+    const isSharedTab = urlParams.get('tab') === 'shared';
+    
     // Overlay with stats
     const overlayHtml = `
         <a href="/posts/${post.id}/" class="post-overlay hover-overlay opacity-0">
             <div class="post-stats">
                 <span><i class="fas fa-heart"></i> ${post.likes_count}</span>
                 <span><i class="fas fa-comment"></i> ${post.comments_count}</span>
+                ${isSharedTab ? '<span><i class="fas fa-share"></i> Đã chia sẻ</span>' : ''}
             </div>
         </a>
     `;
+    
+    // Shared indicator nếu đang ở tab đã chia sẻ
+    const sharedIndicatorHtml = isSharedTab ? `
+        <div class="shared-indicator">
+            <i class="fas fa-share-alt"></i>
+        </div>
+    ` : '';
     
     // Actions buttons - chỉ hiển thị trên trang cá nhân của người dùng
     let actionsHtml = '';
@@ -587,7 +701,7 @@ function createPostElement(post) {
         `;
     }
     
-    postElement.innerHTML = mediaHtml + overlayHtml + postTypeHtml + actionsHtml;
+    postElement.innerHTML = mediaHtml + overlayHtml + postTypeHtml + sharedIndicatorHtml + actionsHtml;
     return postElement;
 }
 

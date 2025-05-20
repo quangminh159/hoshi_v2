@@ -32,7 +32,9 @@ User = get_user_model()
 def profile(request, username):
     user = get_object_or_404(User, username=username)
     is_own_profile = request.user == user
-    is_saved_posts = request.GET.get('tab') == 'saved'
+    tab = request.GET.get('tab', '')
+    is_saved_posts = tab == 'saved'
+    is_shared_posts = tab == 'shared'
     is_following = False
     
     # Kiểm tra xem người dùng có bị chặn không
@@ -63,6 +65,20 @@ def profile(request, username):
             'media', 
             Prefetch('comments', queryset=Comment.objects.filter(parent__isnull=True).select_related('author'))
         ).select_related('author')
+    elif is_shared_posts and is_own_profile:
+        # Lấy các bài viết gốc mà người dùng đã chia sẻ
+        shared_posts = Post.objects.filter(
+            author=user,
+            shared_from__isnull=False
+        ).values_list('shared_from_id', flat=True)
+        
+        # Lấy các bài viết gốc
+        posts = Post.objects.filter(
+            id__in=shared_posts
+        ).prefetch_related(
+            'media',
+            Prefetch('comments', queryset=Comment.objects.filter(parent__isnull=True).select_related('author'))
+        ).select_related('author')
     else:
         # Logic hiện tại cho các bài viết của người dùng
         posts = Post.objects.filter(author=user).prefetch_related(
@@ -87,6 +103,7 @@ def profile(request, username):
         'posts': page_obj,
         'is_own_profile': is_own_profile,
         'is_saved_posts': is_saved_posts,
+        'is_shared_posts': is_shared_posts,
         # followers: những người đang theo dõi tài khoản này
         'followers_count': user.get_followers_count(),
         # following: những người mà tài khoản này đang theo dõi
@@ -354,6 +371,8 @@ def get_suggestions(request):
 def api_load_profile_posts(request, username):
     """API endpoint để tải thêm bài viết cho trang cá nhân với cuộn vô hạn"""
     page_number = request.GET.get('page', 1)
+    tab = request.GET.get('tab', '')
+    
     try:
         page_number = int(page_number)
     except ValueError:
@@ -376,8 +395,22 @@ def api_load_profile_posts(request, username):
             'has_next': False
         })
     
-    # Lấy bài viết của người dùng
-    posts = user.posts.all().order_by('-created_at')
+    # Xác định loại bài viết cần lấy dựa vào tab
+    if tab == 'saved' and request.user == user:
+        # Lấy các bài viết đã lưu
+        saved_posts = SavedPost.objects.filter(user=user).values_list('post_id', flat=True)
+        posts = Post.objects.filter(id__in=saved_posts).order_by('-created_at')
+    elif tab == 'shared' and request.user == user:
+        # Lấy các bài viết gốc đã được chia sẻ
+        shared_posts = Post.objects.filter(
+            author=user,
+            shared_from__isnull=False
+        ).values_list('shared_from_id', flat=True)
+        
+        posts = Post.objects.filter(id__in=shared_posts).order_by('-created_at')
+    else:
+        # Lấy bài viết của người dùng
+        posts = user.posts.all().order_by('-created_at')
     
     # Phân trang
     posts_per_page = 6  # Số bài viết mỗi trang
@@ -402,6 +435,9 @@ def api_load_profile_posts(request, username):
                 'order': media.order
             })
         
+        # Kiểm tra xem bài viết có phải là bài đã chia sẻ không
+        is_shared = tab == 'shared'
+        
         posts_data.append({
             'id': post.id,
             'caption': post.caption,
@@ -412,6 +448,7 @@ def api_load_profile_posts(request, username):
             'is_liked': post.post_likes.filter(user=request.user).exists(),
             'media': media_files,
             'disable_comments': post.disable_comments,
+            'is_shared': is_shared
         })
     
     return JsonResponse({
