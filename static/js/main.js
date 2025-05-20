@@ -132,6 +132,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle alert dismissal
     $('.alert').alert();
 
+    // Khôi phục trạng thái like từ localStorage
+    restoreLikeStates();
+
     // Thêm event listener cho nút like post
     document.querySelectorAll('.like-button').forEach(button => {
         button.addEventListener('click', function() {
@@ -159,6 +162,22 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// Hàm khôi phục trạng thái like từ localStorage
+function restoreLikeStates() {
+    document.querySelectorAll('.like-button').forEach(button => {
+        const postId = button.getAttribute('data-post-id');
+        const isLiked = localStorage.getItem(`post_liked_${postId}`);
+        
+        if (isLiked === 'true') {
+            const heartIcon = button.querySelector('i');
+            if (heartIcon) {
+                heartIcon.classList.remove('far');
+                heartIcon.classList.add('fas');
+            }
+        }
+    });
+}
+
 // Like post
 function likePost(postId) {
     fetch(`/api/posts/${postId}/like/`, {
@@ -179,9 +198,13 @@ function likePost(postId) {
             if (data.status === 'liked') {
                 heartIcon.classList.remove('far');
                 heartIcon.classList.add('fas');
+                // Lưu trạng thái like vào localStorage
+                localStorage.setItem(`post_liked_${postId}`, 'true');
             } else if (data.status === 'unliked') {
                 heartIcon.classList.remove('fas');
                 heartIcon.classList.add('far');
+                // Xoá trạng thái like khỏi localStorage
+                localStorage.removeItem(`post_liked_${postId}`);
             }
         });
 

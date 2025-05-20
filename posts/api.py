@@ -753,15 +753,43 @@ def track_interaction(request):
 @permission_classes([IsAuthenticated])
 def share_post(request):
     try:
+        print("=== DEBUG SHARE POST ===")
+        print(f"Request method: {request.method}")
+        print(f"Content type: {request.content_type}")
+        print(f"Request POST data: {request.POST}")
+        print(f"Request data: {request.data}")
+        
+        # Lấy dữ liệu từ cả request.data và request.POST để hỗ trợ cả AJAX và form thông thường
         data = request.data
-        post_id = data.get('post_id')
-        caption = data.get('caption', '')
-        as_new_post = data.get('as_new_post', True)
+        post_id = data.get('post_id') or request.POST.get('post_id')
+        caption = data.get('caption', '') or request.POST.get('caption', '')
+        as_new_post_value = data.get('as_new_post') or request.POST.get('as_new_post')
+        
+        # Lấy URL trước khi chuyển hướng (nếu có)
+        referer = request.META.get('HTTP_REFERER', '')
+        print(f"Referer URL: {referer}")
+        
+        # Xử lý giá trị as_new_post có thể là chuỗi '1', 'true', 'True' hoặc boolean
+        as_new_post = True
+        if as_new_post_value in ['0', 'false', 'False']:
+            as_new_post = False
+        
+        print(f"Processed data: post_id={post_id}, caption={caption}, as_new_post={as_new_post}")
 
+        # Kiểm tra post_id hợp lệ
+        if not post_id:
+            print("Error: Missing post_id")
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Thiếu ID bài viết'
+            }, status=400)
+        
         # Kiểm tra bài viết tồn tại
         try:
             original_post = Post.objects.get(pk=post_id)
+            print(f"Found original post: {original_post.id} by {original_post.author.username}")
         except Post.DoesNotExist:
+            print(f"Error: Post with ID {post_id} not found")
             return JsonResponse({
                 'status': 'error',
                 'message': 'Bài viết không tồn tại'
@@ -772,6 +800,7 @@ def share_post(request):
             Q(blocker=original_post.author, blocked=request.user) |
             Q(blocker=request.user, blocked=original_post.author)
         ).exists():
+            print(f"Error: User {request.user.username} is blocked or has blocked {original_post.author.username}")
             return JsonResponse({
                 'status': 'error',
                 'message': 'Không thể chia sẻ bài viết này'
@@ -786,6 +815,7 @@ def share_post(request):
                     caption=caption,
                     shared_from=original_post  # Thiết lập tham chiếu đến bài viết gốc
                 )
+                print(f"Created new shared post with ID: {new_post.id}")
                 
                 # Tạo thông báo cho người dùng
                 Notification.objects.create(
@@ -798,6 +828,7 @@ def share_post(request):
                     content_type=ContentType.objects.get_for_model(Post),
                     object_id=new_post.id
                 )
+                print("Created notification for original author")
                 
                 # Lưu tương tác
                 UserInteraction.objects.create(
@@ -805,8 +836,22 @@ def share_post(request):
                     post=original_post,
                     interaction_type='share'
                 )
+                print("Created user interaction record")
                 
-                # Trả về thông tin bài viết mới
+                # Kiểm tra nếu là form submit thông thường, chuyển hướng đến referer nếu có
+                if request.content_type == 'application/x-www-form-urlencoded':
+                    from django.shortcuts import redirect
+                    
+                    # Nếu có referer và là URL trong trang web hiện tại
+                    if referer and ('127.0.0.1' in referer or 'localhost' in referer or request.get_host() in referer):
+                        print(f"Redirecting back to referrer: {referer}")
+                        return redirect(referer)
+                    else:
+                        print("Redirecting to home page after form submission")
+                        return redirect('posts:index')
+                
+                # Trả về thông tin bài viết mới cho AJAX
+                print("Returning JSON success response")
                 return JsonResponse({
                     'status': 'success',
                     'message': 'Đã chia sẻ bài viết thành công',
@@ -820,6 +865,19 @@ def share_post(request):
                 }, status=500)
             
         # TODO: Xử lý trường hợp không tạo bài viết mới (nếu cần)
+        # Kiểm tra nếu là form submit thông thường, chuyển hướng đến referer nếu có
+        if request.content_type == 'application/x-www-form-urlencoded':
+            from django.shortcuts import redirect
+            
+            # Nếu có referer và là URL trong trang web hiện tại
+            if referer and ('127.0.0.1' in referer or 'localhost' in referer or request.get_host() in referer):
+                print(f"Redirecting back to referrer: {referer}")
+                return redirect(referer)
+            else:
+                print("Redirecting to home page after form submission (non-share case)")
+                return redirect('posts:index')
+            
+        print("Returning general success response")
         return JsonResponse({
             'status': 'success',
             'message': 'Đã chia sẻ bài viết thành công'

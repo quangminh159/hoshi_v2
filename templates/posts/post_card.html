@@ -250,7 +250,7 @@
             <button class="btn btn-link text-dark p-0 me-3 like-button" 
                     data-post-id="{{ post.id }}">
                 <i class="{% if request.user in post.post_likes.all %}fas{% else %}far{% endif %} fa-heart"></i>
-                <span class="likes-count">{{ post.likes_count }}</span>
+                <span class="likes-count" data-post-id="{{ post.id }}">{{ post.likes_count }}</span>
             </button>
             <button class="btn btn-link text-dark p-0 me-3 comment-button"
                     onclick="window.location.href='{% url 'posts:post_detail' post_id=post.id %}'">
@@ -270,7 +270,7 @@
         </div>
 
         <p class="mb-2 likes-count-display">
-            <a href="#" class="text-dark text-decoration-none fw-bold">
+            <a href="#" class="text-dark text-decoration-none fw-bold" data-post-id="{{ post.id }}">
                 {{ post.likes_count }} lượt thích
             </a>
         </p>
@@ -279,6 +279,16 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Lưu trạng thái like ban đầu vào localStorage từ dữ liệu server
+    const postId = "{{ post.id }}";
+    const isLiked = {% if request.user in post.post_likes.all %}true{% else %}false{% endif %};
+    
+    if (isLiked) {
+        localStorage.setItem(`post_liked_${postId}`, 'true');
+    } else {
+        localStorage.removeItem(`post_liked_${postId}`);
+    }
+    
     // Like button functionality
     document.querySelectorAll('.like-button').forEach(button => {
         button.addEventListener('click', function() {
@@ -298,11 +308,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.liked) {
                     likeIcon.classList.remove('far');
                     likeIcon.classList.add('fas');
+                    // Lưu trạng thái like vào localStorage
+                    localStorage.setItem(`post_liked_${postId}`, 'true');
                 } else {
                     likeIcon.classList.remove('fas');
                     likeIcon.classList.add('far');
+                    // Xoá trạng thái like khỏi localStorage
+                    localStorage.removeItem(`post_liked_${postId}`);
                 }
                 likeCountSpan.textContent = data.likes_count;
+                
+                // Cập nhật các hiển thị số lượt like khác trên trang
+                document.querySelectorAll(`.likes-count-display a[data-post-id="${postId}"]`).forEach(element => {
+                    element.textContent = `${data.likes_count} lượt thích`;
+                });
             })
             .catch(error => {
                 console.error('Error:', error);

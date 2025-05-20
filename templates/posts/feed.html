@@ -75,10 +75,19 @@
     border-radius: 8px;
 }
 /* CSS cho nút tương tác */
-.like-button .fas.text-danger {
+.fas.fa-heart {
     color: #dc3545 !important;
 }
-.save-button .fas.text-primary {
+.like-button .fas.fa-heart {
+    color: #dc3545 !important;
+}
+.like-button.liked i {
+    color: #dc3545 !important;
+}
+.fas.fa-bookmark {
+    color: #0d6efd !important;
+}
+.save-button .fas.fa-bookmark {
     color: #0d6efd !important;
 }
 /* End CSS cho bài viết chia sẻ */
@@ -93,6 +102,33 @@
             {% if title %}
             <h4 class="mb-4">{{ title }}</h4>
             {% endif %}
+
+            <script>
+            // Khởi tạo trạng thái like/save từ server
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log("Initializing post states from server data");
+                // Lưu trạng thái like từ server vào localStorage
+                {% for post_data in posts_with_data %}
+                    console.log("Post {{ post_data.post.id }}: liked={{ post_data.is_liked }}, saved={{ post_data.is_saved }}");
+                    // Nếu đã like thì lưu vào localStorage, nếu chưa like thì KHÔNG xóa khỏi localStorage
+                    {% if post_data.is_liked %}
+                    localStorage.setItem('post_liked_{{ post_data.post.id }}', 'true');
+                    console.log("Server says post {{ post_data.post.id }} is liked - saved to localStorage");
+                    {% endif %}
+                    
+                    // Tương tự với save
+                    {% if post_data.is_saved %}
+                    localStorage.setItem('post_saved_{{ post_data.post.id }}', 'true');
+                    {% endif %}
+                {% endfor %}
+                
+                // Khôi phục trạng thái UI ngay sau khi DOMContentLoaded
+                setTimeout(function() {
+                    console.log("Executing initial state restoration");
+                    restoreInteractionStates();
+                }, 10);
+            });
+            </script>
 
             <!-- Chế độ hiển thị feed -->
             <div class="mb-3 feed-filter-section">
@@ -246,7 +282,9 @@
                     </div>
                     <div class="p-3">
                         <!-- Bài viết gốc (được chia sẻ) -->
-                        <div class="original-post border rounded p-3 shadow-sm bg-white">
+                        <div class="original-post border rounded p-3 shadow-sm bg-white" 
+                             onclick="window.location='{% url 'posts:post_detail' post_id=post.shared_from.id %}';" 
+                             style="cursor: pointer;">
                             <!-- Thông tin tác giả bài viết gốc -->
                             <div class="d-flex align-items-center mb-3">
                                 <img src="{{ post.shared_from.author.get_avatar_url }}" 
@@ -256,7 +294,8 @@
                                      alt="{{ post.shared_from.author.username }}">
                                 <div>
                                     <a href="{% url 'accounts:profile' username=post.shared_from.author.username %}" 
-                                       class="text-dark text-decoration-none fw-bold">
+                                       class="text-dark text-decoration-none fw-bold"
+                                       onclick="event.stopPropagation();">
                                         {{ post.shared_from.author.username }}
                                     </a>
                                     <div class="d-flex text-muted small">
@@ -318,14 +357,16 @@
                                     <button class="carousel-control-prev" 
                                             type="button" 
                                             data-bs-target="#carousel-shared-{{ post.id }}" 
-                                            data-bs-slide="prev">
+                                            data-bs-slide="prev"
+                                            onclick="event.stopPropagation();">
                                         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                                         <span class="visually-hidden">Previous</span>
                                     </button>
                                     <button class="carousel-control-next" 
                                             type="button" 
                                             data-bs-target="#carousel-shared-{{ post.id }}" 
-                                            data-bs-slide="next">
+                                            data-bs-slide="next"
+                                            onclick="event.stopPropagation();">
                                         <span class="carousel-control-next-icon" aria-hidden="true"></span>
                                         <span class="visually-hidden">Next</span>
                                     </button>
@@ -346,7 +387,9 @@
                                 </div>
                                 <div>
                                     <i class="far fa-share-square me-1"></i>
-                                    <a href="{% url 'posts:post_detail' post_id=post.shared_from.id %}" class="text-muted text-decoration-none">Xem bài viết gốc</a>
+                                    <a href="{% url 'posts:post_detail' post_id=post.shared_from.id %}" 
+                                       class="text-muted text-decoration-none"
+                                       onclick="event.stopPropagation();">Xem bài viết gốc</a>
                                 </div>
                             </div>
                         </div>
@@ -412,8 +455,8 @@
                 <!-- Post Actions -->
                 <div class="card-footer d-flex justify-content-between py-2 bg-white">
                      <div class="d-flex align-items-center">
-                        <button class="btn btn-light btn-sm me-2 like-button" data-post-id="{{ post.id }}">
-                           <i class="{% if post_data.is_liked %}fas text-danger{% else %}far{% endif %} fa-heart"></i>
+                        <button class="btn btn-light btn-sm me-2 like-button {% if post_data.is_liked %}liked{% endif %}" data-post-id="{{ post.id }}">
+                           <i class="{% if post_data.is_liked %}fas{% else %}far{% endif %} fa-heart"></i>
                            <span class="likes-count" data-post-id="{{ post.id }}">{{ post.likes_count }}</span>
                         </button>
                         <button class="btn btn-light btn-sm me-2 comment-button" data-post-id="{{ post.id }}">
@@ -427,7 +470,7 @@
                      </div>
                      <div>
                         <button class="btn btn-light btn-sm save-button" data-post-id="{{ post.id }}">
-                           <i class="{% if post_data.is_saved %}fas text-primary{% else %}far{% endif %} fa-bookmark"></i>
+                           <i class="{% if post_data.is_saved %}fas fa-bookmark{% else %}far fa-bookmark{% endif %}"></i>
                         </button>
                      </div>
                   </div>
@@ -595,8 +638,10 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="sharePostForm-{{ post.id }}">
-                    <input type="hidden" id="share-post-id-{{ post.id }}" value="{{ post.id }}">
+                <form id="sharePostForm-{{ post.id }}" action="{% url 'posts:share_post' %}" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="post_id" value="{{ post.id }}">
+                    <input type="hidden" name="current_feed" value="{{ feed_type }}">
                     
                     <!-- Hiển thị bài viết gốc -->
                     <div class="original-post mb-3 border p-2 rounded">
@@ -645,24 +690,25 @@
                     <!-- Caption cho bài viết chia sẻ -->
                     <div class="mb-3">
                         <label for="share-caption-{{ post.id }}" class="form-label">Viết gì đó về bài viết này</label>
-                        <textarea class="form-control" id="share-caption-{{ post.id }}" rows="3" placeholder="Bạn đang nghĩ gì về bài viết này?"></textarea>
+                        <textarea class="form-control" id="share-caption-{{ post.id }}" name="caption" rows="3" placeholder="Bạn đang nghĩ gì về bài viết này?"></textarea>
                     </div>
                     
                     <!-- Tùy chọn chia sẻ -->
                     <div class="mb-3">
                         <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="share-as-new-post-{{ post.id }}" checked>
+                            <input class="form-check-input" type="checkbox" id="share-as-new-post-{{ post.id }}" name="as_new_post" value="1" checked>
                             <label class="form-check-label" for="share-as-new-post-{{ post.id }}">Đăng như bài viết mới</label>
                         </div>
                     </div>
+                    
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-primary">
+                            <span class="btn-text">Chia sẻ</span>
+                            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                        </button>
+                    </div>
                 </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                <button type="button" class="btn btn-primary share-post-button" data-post-id="{{ post.id }}">
-                    <span class="btn-text">Chia sẻ</span>
-                    <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-                </button>
             </div>
         </div>
     </div>
@@ -1076,89 +1122,75 @@
         });
     }
 
+    // Like post functionality
     function likePost(postId) {
-        fetch(`/posts/${postId}/like/`, {
+        fetch(`/api/posts/${postId}/like/`, {
             method: 'POST',
             headers: {
-                'X-CSRFToken': getCookie('csrftoken')
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
             }
         })
         .then(response => response.json())
         .then(data => {
-            // Cập nhật UI cho tất cả các nút like của post này
-            document.querySelectorAll(`.like-button[data-post-id="${postId}"]`).forEach(button => {
-                const icon = button.querySelector('i');
-                const count = button.querySelector('.likes-count');
-                
+            const likeButtons = document.querySelectorAll(`.like-button[data-post-id="${postId}"]`);
+            const likeCountElements = document.querySelectorAll(`.likes-count[data-post-id="${postId}"]`);
+            
+            likeButtons.forEach(button => {
+                const heartIcon = button.querySelector('i');
                 if (data.status === 'liked') {
-                    // Đã thích - đổi sang icon solid và màu đỏ
-                    icon.className = 'fas fa-heart text-danger';
-                    
-                    // Lưu trạng thái liked vào localStorage
-                    localStorage.setItem(`post_${postId}_liked`, 'true');
-                    
-                    // Hiển thị thông báo like thành công
-                    showNotification('Đã thích bài viết', 'success');
-                } else {
-                    // Bỏ thích - đổi về icon regular
-                    icon.className = 'far fa-heart';
-                    
-                    // Xóa trạng thái liked từ localStorage
-                    localStorage.removeItem(`post_${postId}_liked`);
-                    
-                    // Hiển thị thông báo bỏ like
-                    showNotification('Đã bỏ thích bài viết', 'info');
+                    heartIcon.className = 'fas fa-heart';
+                    button.classList.add('liked');
+                    // Lưu trạng thái like vào localStorage
+                    localStorage.setItem(`post_liked_${postId}`, 'true');
+                    console.log(`Post ${postId} liked, saved to localStorage as 'true'`);
+                } else if (data.status === 'unliked') {
+                    heartIcon.className = 'far fa-heart';
+                    button.classList.remove('liked');
+                    // Xóa trạng thái like khỏi localStorage
+                    localStorage.removeItem(`post_liked_${postId}`);
+                    console.log(`Post ${postId} unliked, removed from localStorage`);
                 }
-                
-                // Cập nhật số lượng like
-                if (count) {
-                    count.textContent = data.likes_count;
-                }
+            });
+
+            likeCountElements.forEach(element => {
+                element.textContent = data.likes_count;
             });
         })
         .catch(error => {
-            console.error('Lỗi khi like bài viết:', error);
-            showNotification('Có lỗi xảy ra khi thích bài viết', 'error');
+            console.error('Error:', error);
         });
     }
 
+    // Save post functionality
     function savePost(postId) {
-        fetch(`/posts/${postId}/save/`, {
+        fetch(`/api/posts/${postId}/save/`, {
             method: 'POST',
             headers: {
-                'X-CSRFToken': getCookie('csrftoken')
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
             }
         })
         .then(response => response.json())
         .then(data => {
-            // Cập nhật UI cho tất cả các nút save của post này
-            document.querySelectorAll(`.save-button[data-post-id="${postId}"]`).forEach(button => {
-                const icon = button.querySelector('i');
-                
+            const saveButtons = document.querySelectorAll(`.save-button[data-post-id="${postId}"]`);
+            
+            saveButtons.forEach(button => {
+                const bookmarkIcon = button.querySelector('i');
                 if (data.status === 'saved') {
-                    // Đã lưu - đổi sang icon solid và màu xanh
-                    icon.className = 'fas fa-bookmark text-primary';
-                    
-                    // Lưu trạng thái saved vào localStorage
-                    localStorage.setItem(`post_${postId}_saved`, 'true');
-                    
-                    // Hiển thị thông báo lưu thành công
-                    showNotification('Đã lưu bài viết', 'success');
-                } else {
-                    // Bỏ lưu - đổi về icon regular
-                    icon.className = 'far fa-bookmark';
-                    
-                    // Xóa trạng thái saved từ localStorage
-                    localStorage.removeItem(`post_${postId}_saved`);
-                    
-                    // Hiển thị thông báo bỏ lưu
-                    showNotification('Đã bỏ lưu bài viết', 'info');
+                    bookmarkIcon.className = 'fas fa-bookmark';
+                    // Lưu trạng thái save vào localStorage
+                    localStorage.setItem(`post_saved_${postId}`, 'true');
+                } else if (data.status === 'unsaved') {
+                    bookmarkIcon.classList.remove('fas', 'text-primary');
+                    bookmarkIcon.classList.add('far');
+                    // Xóa trạng thái save khỏi localStorage
+                    localStorage.removeItem(`post_saved_${postId}`);
                 }
             });
         })
         .catch(error => {
-            console.error('Lỗi khi lưu bài viết:', error);
-            showNotification('Có lỗi xảy ra khi lưu bài viết', 'error');
+            console.error('Error:', error);
         });
     }
 
@@ -1946,76 +1978,27 @@ document.addEventListener('DOMContentLoaded', function() {
 <script>
     // Hàm xử lý chia sẻ bài viết
     document.addEventListener('DOMContentLoaded', function() {
-        // Gán sự kiện cho tất cả các nút chia sẻ
-        const shareButtons = document.querySelectorAll('.share-post-button');
-        shareButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const postId = this.getAttribute('data-post-id');
-                sharePost(postId);
+        // Khởi tạo tất cả các form chia sẻ bài viết
+        document.querySelectorAll('form[id^="sharePostForm-"]').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                // Không cần e.preventDefault() để cho form được submit trực tiếp
+                
+                // Vô hiệu hóa nút submit và hiển thị spinner
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const btnText = submitBtn.querySelector('.btn-text');
+                const spinner = submitBtn.querySelector('.spinner-border');
+                
+                submitBtn.disabled = true;
+                btnText.classList.add('d-none');
+                spinner.classList.remove('d-none');
+                
+                // Hiển thị thông báo đang xử lý
+                showNotification('Đang xử lý yêu cầu...', 'info');
+                
+                // Form sẽ được submit tự động - không cần mã JavaScript thêm
             });
         });
     });
-
-    function sharePost(postId) {
-        const caption = document.getElementById(`share-caption-${postId}`).value;
-        const asNewPost = document.getElementById(`share-as-new-post-${postId}`).checked;
-        const button = document.querySelector(`.share-post-button[data-post-id="${postId}"]`);
-        const buttonText = button.querySelector('.btn-text');
-        const spinner = button.querySelector('.spinner-border');
-        
-        // Disable button and show spinner
-        button.disabled = true;
-        buttonText.classList.add('d-none');
-        spinner.classList.remove('d-none');
-        
-        fetch('/api/posts/share/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: JSON.stringify({
-                post_id: postId,
-                caption: caption,
-                as_new_post: asNewPost
-            })
-        })
-        .then(response => {
-            if (!response.ok) {
-                return response.json().then(errorData => {
-                    throw new Error(errorData.message || 'Không thể chia sẻ bài viết');
-                });
-            }
-            return response.json();
-        })
-        .then(data => {
-            // Ẩn modal
-            const modal = document.getElementById(`sharePostModal-${postId}`);
-            const modalInstance = bootstrap.Modal.getInstance(modal);
-            modalInstance.hide();
-            
-            // Reset form
-            document.getElementById(`share-caption-${postId}`).value = '';
-            
-            // Hiển thị thông báo thành công
-            showNotification('Đã chia sẻ bài viết thành công', 'success');
-            
-            // Tự động tải lại trang sau 1 giây để hiển thị bài viết mới
-            setTimeout(() => {
-                window.location.reload();
-            }, 1000);
-        })
-        .catch(error => {
-            console.error('Lỗi khi chia sẻ bài viết:', error);
-            showNotification('Có lỗi xảy ra khi chia sẻ bài viết: ' + error.message, 'error');
-        })
-        .finally(() => {
-            // Re-enable button and hide spinner
-            button.disabled = false;
-            buttonText.classList.remove('d-none');
-            spinner.classList.add('d-none');
-        });
-    }
 </script>
 
 <script>
@@ -2031,10 +2014,17 @@ document.addEventListener('DOMContentLoaded', function() {
             const icon = button.querySelector('i');
             if (!icon) return;
             
-            if (localStorage.getItem(`post_${postId}_liked`) === 'true') {
-                icon.className = 'fas fa-heart text-danger';
+            const isLiked = localStorage.getItem(`post_liked_${postId}`) === 'true';
+            console.log(`Post ${postId} like state from localStorage: ${isLiked}`);
+            
+            if (isLiked) {
+                icon.className = 'fas fa-heart';
+                button.classList.add('liked');
+                console.log(`Post ${postId} - Added 'liked' class and 'fas fa-heart'`);
             } else {
                 icon.className = 'far fa-heart';
+                button.classList.remove('liked');
+                console.log(`Post ${postId} - Removed 'liked' class and set to 'far fa-heart'`);
             }
         });
         
@@ -2046,8 +2036,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const icon = button.querySelector('i');
             if (!icon) return;
             
-            if (localStorage.getItem(`post_${postId}_saved`) === 'true') {
-                icon.className = 'fas fa-bookmark text-primary';
+            const isSaved = localStorage.getItem(`post_saved_${postId}`) === 'true';
+            console.log(`Post ${postId} save state from localStorage: ${isSaved}`);
+            
+            if (isSaved) {
+                icon.className = 'fas fa-bookmark';
             } else {
                 icon.className = 'far fa-bookmark';
             }
@@ -2086,7 +2079,7 @@ function isLocalStorageAvailable() {
 }
 
 // Hàm debug để xem các key trong localStorage
-function debugLocalStorage() {
+function logLocalStorage() {
     if (!isLocalStorageAvailable()) return;
     
     console.log('----- DEBUG: localStorage -----');
@@ -2097,13 +2090,13 @@ function debugLocalStorage() {
     console.log('Số lượng keys:', keys.length);
     
     // Tìm và hiển thị các keys liên quan đến post liked/saved
-    const postLikeKeys = keys.filter(key => key.startsWith('post_') && key.includes('_liked'));
-    const postSaveKeys = keys.filter(key => key.startsWith('post_') && key.includes('_saved'));
+    const postLikeKeys = keys.filter(key => key.startsWith('post_liked_'));
+    const postSaveKeys = keys.filter(key => key.startsWith('post_saved_'));
     
     console.log('Post Liked Keys:', postLikeKeys);
     console.log('Post Saved Keys:', postSaveKeys);
     
-    // Hiển thị chi tiết trạng thái của các post này
+    // Hiển thị chi tiết trạng thái của các post
     postLikeKeys.forEach(key => {
         console.log(`${key}: ${localStorage.getItem(key)}`);
     });
@@ -2128,7 +2121,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded - LocalStorage available');
     
     // Debug localStorage để xem có dữ liệu không
-    debugLocalStorage();
+    logLocalStorage();
 });
 
 // Kết hợp cả hai sự kiện window.onload
@@ -2136,7 +2129,7 @@ window.addEventListener('load', function() {
     console.log('Window fully loaded - checking states');
     if (isLocalStorageAvailable()) {
         // Debug trước khi khôi phục
-        debugLocalStorage();
+        logLocalStorage();
         
         // Khôi phục trạng thái ngay lập tức
         restoreInteractionStates();
@@ -2155,7 +2148,7 @@ window.addEventListener('load', function() {
         setTimeout(function() {
             console.log('Delayed state restoration');
             restoreInteractionStates();
-            debugLocalStorage();
+            logLocalStorage();
         }, 1000);
     }
 });
@@ -2173,8 +2166,19 @@ window.addEventListener('load', function() {
     console.log('Window loaded - khôi phục trạng thái');
     restoreInteractionStates();
     
-    // Khôi phục thêm một lần nữa sau 1 giây
-    setTimeout(restoreInteractionStates, 1000);
+    // Kiểm tra và log tất cả nút like và trạng thái của chúng
+    console.log('=== TẤT CẢ CÁC NÚT LIKE ===');
+    document.querySelectorAll('.like-button').forEach(button => {
+        const postId = button.getAttribute('data-post-id');
+        const icon = button.querySelector('i');
+        console.log(`Post ${postId}: class = "${icon.className}", localStorage = ${localStorage.getItem(`post_liked_${postId}`) || 'null'}`);
+    });
+    
+    // Thực hiện khôi phục thêm lần nữa để đảm bảo
+    setTimeout(function() {
+        console.log('Thực hiện khôi phục lần cuối');
+        restoreInteractionStates();
+    }, 1000);
 });
 
 // Khi có nội dung được thêm vào DOM (infinite scroll)
@@ -2238,6 +2242,18 @@ function isLocalStorageAvailable() {
     }
 }
 
+// Thêm sự kiện pageshow để khôi phục khi trang được tải từ bộ nhớ cache
+window.addEventListener('pageshow', function(event) {
+    // Nếu trang được khôi phục từ bộ nhớ cache (back/forward navigation)
+    if (event.persisted) {
+        console.log('Trang được khôi phục từ bộ nhớ cache - cần khôi phục trạng thái lại');
+        setTimeout(restoreInteractionStates, 0);
+    }
+    
+    // Khôi phục trong mọi trường hợp để đảm bảo
+    setTimeout(restoreInteractionStates, 100);
+});
+
 // Log LocalStorage content
 function logLocalStorage() {
     console.log('=== DEBUG LOCALSTORAGE ===');
@@ -2274,9 +2290,9 @@ function forceFixLikeButtons() {
         
         console.log(`Processing like button for post ${postId}`);
         
-        if (localStorage.getItem(`post_${postId}_liked`) === 'true') {
+        if (localStorage.getItem(`post_liked_${postId}`) === 'true') {
             console.log(`Post ${postId} should be liked, updating UI`);
-            icon.className = 'fas fa-heart text-danger';
+            icon.className = 'fas fa-heart';
         } else {
             console.log(`Post ${postId} should NOT be liked, ensuring correct UI`);
             icon.className = 'far fa-heart';
@@ -2292,9 +2308,9 @@ function forceFixSaveButtons() {
         
         console.log(`Processing save button for post ${postId}`);
         
-        if (localStorage.getItem(`post_${postId}_saved`) === 'true') {
+        if (localStorage.getItem(`post_saved_${postId}`) === 'true') {
             console.log(`Post ${postId} should be saved, updating UI`);
-            icon.className = 'fas fa-bookmark text-primary';
+            icon.className = 'fas fa-bookmark';
         } else {
             console.log(`Post ${postId} should NOT be saved, ensuring correct UI`);
             icon.className = 'far fa-bookmark';
@@ -2383,8 +2399,8 @@ setTimeout(function() {
                 const icon = this.querySelector('i');
                 
                 // Toggle localStorage value directly
-                if (localStorage.getItem(`post_${postId}_liked`) === 'true') {
-                    icon.className = 'fas fa-heart text-danger';
+                if (localStorage.getItem(`post_liked_${postId}`) === 'true') {
+                    icon.className = 'fas fa-heart';
                 } else {
                     icon.className = 'far fa-heart';
                 }
@@ -2405,8 +2421,8 @@ setTimeout(function() {
                 const icon = this.querySelector('i');
                 
                 // Toggle localStorage value directly
-                if (localStorage.getItem(`post_${postId}_saved`) === 'true') {
-                    icon.className = 'fas fa-bookmark text-primary';
+                if (localStorage.getItem(`post_saved_${postId}`) === 'true') {
+                    icon.className = 'fas fa-bookmark';
                 } else {
                     icon.className = 'far fa-bookmark';
                 }
@@ -2416,4 +2432,29 @@ setTimeout(function() {
 }, 2000);
 
 console.log('DEBUG SCRIPT READY');
+
+// Hàm cưỡng chế các nút like hiển thị đúng
+function enforceLikeButtonState() {
+    console.log('Enforcing like button states from localStorage');
+    document.querySelectorAll('.like-button').forEach(button => {
+        const postId = button.getAttribute('data-post-id');
+        const icon = button.querySelector('i');
+        
+        if (localStorage.getItem(`post_liked_${postId}`) === 'true') {
+            icon.className = 'fas fa-heart';
+            button.classList.add('liked');
+            console.log(`Enforced liked state for post ${postId}`);
+        } else {
+            icon.className = 'far fa-heart';
+            button.classList.remove('liked');
+        }
+    });
+}
+
+// Gọi hàm cưỡng chế sau khi trang đã load
+window.addEventListener('load', function() {
+    setTimeout(enforceLikeButtonState, 500);
+    setTimeout(enforceLikeButtonState, 1000);
+    setTimeout(enforceLikeButtonState, 2000);
+});
 {% endblock %} 
