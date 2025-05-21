@@ -3,6 +3,11 @@ from django.urls import reverse, resolve
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.utils.deprecation import MiddlewareMixin
+import re
+import uuid
+from user_agents import parse
+from .models import Device
+from ipware import get_client_ip
 
 class AccountStatusMiddleware(MiddlewareMixin):
     """
@@ -81,4 +86,83 @@ class AccountStatusMiddleware(MiddlewareMixin):
                 return redirect(reverse('account_login'))
         
         # Tài khoản bình thường, tiếp tục xử lý
+        return None
+
+class DeviceTrackingMiddleware(MiddlewareMixin):
+    """
+    Middleware theo dõi thiết bị đăng nhập của người dùng.
+    Mỗi khi người dùng đăng nhập, middleware sẽ tạo một bản ghi thiết bị mới hoặc cập nhật bản ghi hiện có.
+    """
+    
+    def process_request(self, request):
+        # Chỉ xử lý cho người dùng đã đăng nhập
+        if not request.user.is_authenticated:
+            return None
+            
+        # Lấy User-Agent và IP
+        user_agent_string = request.META.get('HTTP_USER_AGENT', '')
+        client_ip = request.META.get('REMOTE_ADDR', '')
+        
+        # Bỏ qua bots và crawlers
+        if not user_agent_string or 'bot' in user_agent_string.lower() or 'crawl' in user_agent_string.lower():
+            return None
+            
+        try:
+            # Parse User-Agent
+            user_agent = parse(user_agent_string)
+            
+            # Xác định loại thiết bị
+            if user_agent.is_mobile:
+                device_type = 'mobile'
+            elif user_agent.is_tablet:
+                device_type = 'tablet'
+            else:
+                device_type = 'desktop'
+                
+            # Tạo device ID duy nhất hoặc lấy từ session
+            device_id = request.session.get('device_id')
+            if not device_id:
+                device_id = str(uuid.uuid4())
+                request.session['device_id'] = device_id
+                
+            # Tạo tên thiết bị
+            browser_family = user_agent.browser.family
+            os_family = user_agent.os.family
+            device_family = user_agent.device.family
+            
+            device_name = f"{device_family}"
+            if device_family == "Other" or device_family == "Generic Smartphone":
+                device_name = f"{os_family} Device"
+                
+            # Lấy thông tin trình duyệt và hệ điều hành
+            browser = f"{browser_family} {user_agent.browser.version_string}"
+            os = f"{os_family} {user_agent.os.version_string}"
+            
+            # Cập nhật hoặc tạo bản ghi thiết bị
+            try:
+                device = Device.objects.get(device_id=device_id)
+                # Cập nhật thông tin thiết bị nếu có thay đổi
+                device.ip_address = client_ip
+                device.browser = browser
+                device.os = os
+                device.save(update_fields=['ip_address', 'browser', 'os', 'last_active'])
+            except Device.DoesNotExist:
+                # Đánh dấu tất cả thiết bị hiện tại là không phải hiện tại
+                Device.objects.filter(user=request.user, is_current=True).update(is_current=False)
+                
+                # Tạo bản ghi thiết bị mới
+                Device.objects.create(
+                    user=request.user,
+                    device_id=device_id,
+                    device_type=device_type,
+                    device_name=device_name,
+                    browser=browser,
+                    os=os,
+                    ip_address=client_ip,
+                    is_current=True
+                )
+        except Exception:
+            # Lỗi khi phân tích User-Agent hoặc lưu thiết bị, bỏ qua
+            pass
+            
         return None 
