@@ -36,6 +36,10 @@ app.conf.beat_schedule = {
         'task': 'accounts.tasks.cleanup_expired_data_downloads',
         'schedule': 60 * 60 * 12,  # Run twice daily
     },
+    'permanently-delete-accounts': {
+        'task': 'accounts.tasks.permanently_delete_accounts',
+        'schedule': 60 * 60 * 24,  # Run daily
+    },
 }
 
 @app.task(bind=True)

@@ -27,10 +27,15 @@ urlpatterns = [
     path('suggestions/', views.get_suggestions, name='get_suggestions'),
     path('api/<str:username>/posts/', views.api_load_profile_posts, name='api_load_profile_posts'),
     
-    # Profile URL - phải đặt cuối cùng vì nó match mọi string
-    path('<str:username>/', views.profile, name='profile'),
-    path('suspension-notice/', views.suspension_notice, name='suspension_notice'),
-    
     # Download data
     path('download-data/<int:request_id>/', views.download_user_data, name='download_data'),
+    
+    # Khôi phục tài khoản
+    path('restore/', views.restore_account, name='restore_account'),
+    
+    # Các URL đặc biệt
+    path('suspension-notice/', views.suspension_notice, name='suspension_notice'),
+    
+    # Profile URL - phải đặt cuối cùng vì nó match mọi string
+    path('<str:username>/', views.profile, name='profile'),
 ] 

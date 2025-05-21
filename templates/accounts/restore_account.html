@@ -1,0 +1,82 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Khôi phục tài khoản - Hoshi{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <img src="{% static 'img/logo.png' %}" alt="Hoshi Logo" class="mb-3" height="48">
+                        <h3 class="fw-bold">Khôi phục tài khoản</h3>
+                        <p class="text-muted">Nhập thông tin để khôi phục tài khoản đã xóa</p>
+                    </div>
+                    
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Tên đăng nhập</label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="username" 
+                                   name="username" 
+                                   placeholder="Nhập tên đăng nhập"
+                                   required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Mật khẩu</label>
+                            <input type="password" 
+                                   class="form-control" 
+                                   id="password" 
+                                   name="password" 
+                                   placeholder="Nhập mật khẩu"
+                                   required>
+                        </div>
+                        
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-undo-alt me-2"></i>Khôi phục tài khoản
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="mt-4 text-center">
+                        <p>
+                            <a href="/accounts/login/" class="text-decoration-none">
+                                <i class="fas fa-arrow-left me-1"></i>Quay lại đăng nhập
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-4 shadow-sm border-0">
+                <div class="card-body p-4">
+                    <h5 class="card-title">Lưu ý quan trọng</h5>
+                    <p class="card-text">
+                        Tài khoản chỉ có thể khôi phục trong vòng 30 ngày sau khi xóa. Sau thời gian này, tài khoản và dữ liệu sẽ bị xóa vĩnh viễn khỏi hệ thống.
+                    </p>
+                    <p class="card-text mb-0">
+                        Nếu bạn không thể khôi phục tài khoản hoặc cần hỗ trợ thêm, vui lòng 
+                        <a href="/" class="text-decoration-none">liên hệ với chúng tôi</a>.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

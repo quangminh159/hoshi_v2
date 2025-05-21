@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import update_session_auth_hash, get_user_model, logout
+from django.contrib.auth import update_session_auth_hash, get_user_model, logout, login
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponse, FileResponse
 from django.views.decorators.http import require_POST
@@ -756,6 +756,36 @@ def download_user_data(request, request_id):
         print(f"Error downloading file: {str(e)}")
         messages.error(request, 'Đã xảy ra lỗi khi tải xuống file. Vui lòng thử lại sau.')
         return redirect('accounts:settings')
+
+def restore_account(request):
+    """Khôi phục tài khoản đã bị xóa tạm thời"""
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        user = User.all_objects.filter(username=username, is_deleted=True).first()
+        
+        if user is not None and user.check_password(password):
+            # Khôi phục tài khoản
+            user.is_deleted = False
+            user.deleted_at = None
+            user.deletion_reason = None
+            # Kích hoạt lại tài khoản
+            user.is_active = True
+            user.save()
+            
+            # Đăng nhập người dùng với backend cụ thể
+            from django.contrib.auth import get_backends
+            backend = get_backends()[0]  # Sử dụng backend đầu tiên trong danh sách
+            user.backend = f"{backend.__module__}.{backend.__class__.__name__}"
+            login(request, user)
+            
+            messages.success(request, 'Tài khoản của bạn đã được khôi phục thành công.')
+            return redirect('home')
+        else:
+            messages.error(request, 'Tên đăng nhập hoặc mật khẩu không chính xác.')
+    
+    return render(request, 'accounts/restore_account.html')
 
 def save(self, request):
     # Lưu user từ form cha

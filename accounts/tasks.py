@@ -13,6 +13,9 @@ from datetime import timedelta
 from .models import User, DataDownloadRequest
 from django.db.models import Q
 from django.urls import reverse
+import logging
+
+logger = logging.getLogger(__name__)
 
 @shared_task
 def cleanup_inactive_sessions():
@@ -321,4 +324,37 @@ def cleanup_expired_data_downloads():
         
         # Cập nhật trạng thái
         request.status = 'expired'
-        request.save() 
+        request.save()
+
+@shared_task
+def permanently_delete_accounts():
+    """
+    Xóa vĩnh viễn tài khoản người dùng đã bị đánh dấu xóa quá 30 ngày
+    """
+    # Tính thời điểm 30 ngày trước
+    thirty_days_ago = timezone.now() - timedelta(days=30)
+    
+    # Lấy các tài khoản đã bị đánh dấu xóa trước 30 ngày
+    accounts_to_delete = User.all_objects.filter(
+        is_deleted=True,
+        deleted_at__lt=thirty_days_ago
+    )
+    
+    # Ghi log số lượng tài khoản sẽ bị xóa
+    count = accounts_to_delete.count()
+    logger.info(f"Đang xóa vĩnh viễn {count} tài khoản đã bị đánh dấu xóa quá 30 ngày")
+    
+    # Xóa từng tài khoản
+    if count > 0:
+        for user in accounts_to_delete:
+            username = user.username
+            email = user.email
+            
+            # Xóa người dùng
+            try:
+                user.delete()
+                logger.info(f"Đã xóa vĩnh viễn tài khoản: {username} ({email})")
+            except Exception as e:
+                logger.error(f"Lỗi khi xóa tài khoản {username}: {str(e)}")
+    
+    return f"Đã xóa vĩnh viễn {count} tài khoản" 

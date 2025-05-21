@@ -974,7 +974,7 @@
                             <i class="fas fa-exclamation-triangle me-2"></i>Cảnh báo
                         </h5>
                         <p class="mb-0">
-                            Việc xóa tài khoản là không thể hoàn tác. Tất cả dữ liệu của bạn sẽ bị xóa vĩnh viễn.
+                            Việc xóa tài khoản là <strong>tạm thời</strong> trong vòng 30 ngày. Trong thời gian này, bạn có thể khôi phục lại tài khoản bằng cách đăng nhập lại hoặc sử dụng trang <a href="{% url 'accounts:restore_account' %}" class="alert-link">khôi phục tài khoản</a>. Sau 30 ngày, tài khoản và tất cả dữ liệu sẽ bị xóa vĩnh viễn.
                         </p>
                     </div>
                     
@@ -1016,7 +1016,7 @@
                                    name="confirm"
                                    required>
                             <label class="form-check-label" for="id_confirm">
-                                Tôi hiểu rằng việc xóa tài khoản là không thể hoàn tác
+                                Tôi hiểu rằng sau 30 ngày tài khoản sẽ bị xóa vĩnh viễn và không thể khôi phục
                             </label>
                         </div>
                         

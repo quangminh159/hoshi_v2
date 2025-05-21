@@ -23,6 +23,9 @@ urlpatterns = [
     
     # Redirects for old endpoints
     path('api/comments/add/', RedirectView.as_view(url='/api/posts/comments/add/', permanent=False)),
+    
+    # Alias cho trang khôi phục tài khoản
+    path('accounts/restore/', RedirectView.as_view(url='/users/restore/', permanent=False)),
 ]
 
 if settings.DEBUG:
