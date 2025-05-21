@@ -983,12 +983,12 @@
                         <input type="hidden" name="delete_account" value="1">
                         
                         <div class="mb-3">
-                            <label for="deleteReason" class="form-label">
+                            <label for="id_reason" class="form-label">
                                 Lý do xóa tài khoản
                             </label>
                             <select class="form-select" 
-                                    id="deleteReason" 
-                                    name="delete_reason"
+                                    id="id_reason" 
+                                    name="reason"
                                     required>
                                 <option value="">Chọn lý do...</option>
                                 <option value="privacy">Lo ngại về quyền riêng tư</option>
@@ -999,12 +999,12 @@
                         </div>
                         
                         <div class="mb-3">
-                            <label for="deletePassword" class="form-label">
+                            <label for="id_password" class="form-label">
                                 Nhập mật khẩu để xác nhận
                             </label>
                             <input type="password" 
                                    class="form-control" 
-                                   id="deletePassword"
+                                   id="id_password"
                                    name="password"
                                    required>
                         </div>
@@ -1012,9 +1012,10 @@
                         <div class="form-check mb-3">
                             <input type="checkbox" 
                                    class="form-check-input" 
-                                   id="confirmDelete"
+                                   id="id_confirm"
+                                   name="confirm"
                                    required>
-                            <label class="form-check-label" for="confirmDelete">
+                            <label class="form-check-label" for="id_confirm">
                                 Tôi hiểu rằng việc xóa tài khoản là không thể hoàn tác
                             </label>
                         </div>

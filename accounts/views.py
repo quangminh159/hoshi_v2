@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import update_session_auth_hash, get_user_model
+from django.contrib.auth import update_session_auth_hash, get_user_model, logout
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponse, FileResponse
 from django.views.decorators.http import require_POST
@@ -202,9 +202,22 @@ def settings(request):
         elif 'delete_account' in request.POST:
             delete_form = DeleteAccountForm(request.user, request.POST)
             if delete_form.is_valid():
-                request.user.delete()
-                messages.success(request, 'Tài khoản của bạn đã được xóa.')
+                # Lưu lại lý do xóa tài khoản
+                reason = delete_form.cleaned_data.get('reason')
+                request.user.deletion_reason = reason
+                request.user.is_deleted = True
+                request.user.deleted_at = timezone.now()
+                request.user.save()
+                
+                # Đăng xuất người dùng
+                logout(request)
+                
+                messages.success(request, 'Tài khoản của bạn đã được xóa thành công.')
                 return redirect('home')
+            else:
+                # Hiển thị lỗi form nếu form không hợp lệ
+                messages.error(request, 'Có lỗi xảy ra khi xóa tài khoản. Vui lòng kiểm tra các thông tin đã nhập.')
+                active_tab = 'delete'  # Đảm bảo tab delete sẽ được hiển thị khi có lỗi
                 
         elif 'request_data_download' in request.POST:
             include_media = request.POST.get('include_media', '') == 'on'
