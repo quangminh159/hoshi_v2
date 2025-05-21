@@ -10,6 +10,130 @@
         <div class="col-lg-8 mx-auto">
             <div class="card">
                 <div class="row g-0">
+                    {% if post.shared_from %}
+                    <!-- Bài viết gốc -->
+                    <div class="col-md-8">
+                        <div class="position-relative">
+                            <div class="position-absolute top-0 start-0 p-2 bg-light rounded-end z-index-1">
+                                <i class="fas fa-retweet text-primary me-1"></i>
+                                <span class="text-muted">Bài viết gốc</span>
+                            </div>
+                            
+                            <!-- Thông tin tác giả bài viết gốc -->
+                            <div class="px-3 pt-5">
+                                <div class="d-flex align-items-center mb-3">
+                                    <img src="{{ post.shared_from.author.get_avatar_url }}" 
+                                         class="rounded-circle me-2 border" 
+                                         width="40" 
+                                         height="40"
+                                         alt="{{ post.shared_from.author.username }}">
+                                    <div>
+                                        <a href="{% url 'accounts:profile' username=post.shared_from.author.username %}" 
+                                           class="text-dark text-decoration-none fw-bold">
+                                            {{ post.shared_from.author.username }}
+                                        </a>
+                                        <div class="d-flex text-muted small">
+                                            {% if post.shared_from.location %}
+                                            <span class="me-2">
+                                                <i class="fas fa-map-marker-alt me-1"></i>{{ post.shared_from.location }}
+                                            </span>
+                                            {% endif %}
+                                            <span>
+                                                <i class="far fa-clock me-1"></i>{{ post.shared_from.created_at|timesince }} trước
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Caption của bài viết gốc -->
+                                {% if post.shared_from.caption %}
+                                <div class="mb-3">
+                                    <p class="card-text">
+                                        {{ post.shared_from.caption|urlize|linebreaksbr }}
+                                    </p>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Post Media của bài viết gốc -->
+                            {% if post.shared_from.media.exists %}
+                            <div id="carousel-original-{{ post.id }}" class="carousel slide h-100" data-bs-ride="false">
+                                {% if post.shared_from.media.count > 1 %}
+                                <div class="carousel-indicators">
+                                    {% for media in post.shared_from.media.all %}
+                                    <button type="button" 
+                                            data-bs-target="#carousel-original-{{ post.id }}" 
+                                            data-bs-slide-to="{{ forloop.counter0 }}"
+                                            {% if forloop.first %}class="active"{% endif %}
+                                            aria-current="true" 
+                                            aria-label="Slide {{ forloop.counter }}">
+                                    </button>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                
+                                <div class="carousel-inner h-100">
+                                    {% for media in post.shared_from.media.all %}
+                                    <div class="carousel-item h-100 {% if forloop.first %}active{% endif %}">
+                                        {% if media.media_type == 'image' %}
+                                        <img src="{{ media.file.url }}" 
+                                             class="d-block w-100 h-100" 
+                                             style="object-fit: cover;"
+                                             alt="Original post image">
+                                        {% else %}
+                                        <video class="d-block w-100 h-100" style="object-fit: cover;" controls>
+                                            <source src="{{ media.file.url }}" type="video/mp4">
+                                            Your browser does not support the video tag.
+                                        </video>
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                
+                                {% if post.shared_from.media.count > 1 %}
+                                <button class="carousel-control-prev" 
+                                        type="button" 
+                                        data-bs-target="#carousel-original-{{ post.id }}" 
+                                        data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Previous</span>
+                                </button>
+                                <button class="carousel-control-next" 
+                                        type="button" 
+                                        data-bs-target="#carousel-original-{{ post.id }}" 
+                                        data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Next</span>
+                                </button>
+                                {% endif %}
+                            </div>
+                            {% else %}
+                            <div class="d-flex align-items-center justify-content-center bg-light h-100" style="min-height: 400px;">
+                                <p class="text-muted">Không có hình ảnh/video</p>
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Số liệu tương tác của bài viết gốc -->
+                            <div class="px-3 py-2 border-top mt-3">
+                                <div class="d-flex align-items-center text-muted">
+                                    <div class="me-3">
+                                        <i class="far fa-heart me-1"></i>
+                                        <span>{{ post.shared_from.likes_count }} lượt thích</span>
+                                    </div>
+                                    <div class="me-3">
+                                        <i class="far fa-comment me-1"></i>
+                                        <span>{{ post.shared_from.comments_count }} bình luận</span>
+                                    </div>
+                                    <div>
+                                        <a href="{% url 'posts:post_detail' post_id=post.shared_from.id %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-external-link-alt me-1"></i>Xem bài viết gốc
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
                     <!-- Post Media -->
                     <div class="col-md-8">
                         {% if post.media.exists %}
@@ -69,6 +193,7 @@
                         </div>
                         {% endif %}
                     </div>
+                    {% endif %}
 
                     <!-- Post Info and Comments -->
                     <div class="col-md-4">
@@ -135,6 +260,15 @@
                                     </div>
                                     {% endif %}
                                 </div>
+                                
+                                {% if post.shared_from %}
+                                <div class="mb-3">
+                                    <div class="shared-indicator small text-muted mb-2">
+                                        <i class="fas fa-retweet text-primary me-1"></i>
+                                        <span>Đã chia sẻ một bài viết</span>
+                                    </div>
+                                </div>
+                                {% endif %}
                                 
                                 {% if post.caption %}
                                 <p class="card-text">
@@ -624,6 +758,26 @@
         </div>
     </div>
 </div>
+
+<style>
+    .z-index-1 {
+        z-index: 1;
+    }
+    
+    .carousel-item img, .carousel-item video {
+        max-height: 600px;
+        object-fit: contain;
+    }
+    
+    /* CSS cho bài viết gốc */
+    .shared-indicator {
+        display: inline-flex;
+        align-items: center;
+        padding: 2px 8px;
+        background-color: rgba(var(--bs-primary-rgb), 0.1);
+        border-radius: 4px;
+    }
+</style>
 {% endblock %}
 
 {% block extra_js %}
