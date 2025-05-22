@@ -511,8 +511,8 @@
                                             <p class="text-muted small mb-0">Nhận thông báo ngay cả khi không mở ứng dụng</p>
                                         </div>
                                         <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="pushNotifications" name="push_notifications" checked>
-                                            <label class="form-check-label" for="pushNotifications"></label>
+                                            {{ notification_form.push_notifications }}
+                                            <label class="form-check-label" for="{{ notification_form.push_notifications.id_for_label }}"></label>
                                         </div>
                                     </div>
                                 </div>
@@ -524,8 +524,8 @@
                                             <p class="text-muted small mb-0">Nhận thông báo qua địa chỉ email của bạn</p>
                                         </div>
                                         <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="emailNotifications" name="email_notifications" checked>
-                                            <label class="form-check-label" for="emailNotifications"></label>
+                                            {{ notification_form.email_notifications }}
+                                            <label class="form-check-label" for="{{ notification_form.email_notifications.id_for_label }}"></label>
                                         </div>
                                     </div>
                                 </div>
@@ -544,8 +544,8 @@
                                             <p class="text-muted small mb-0">Khi có người thích bài viết hoặc bình luận của bạn</p>
                                         </div>
                                         <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="likeNotifications" name="like_notifications" checked>
-                                            <label class="form-check-label" for="likeNotifications"></label>
+                                            {{ notification_form.like_notifications }}
+                                            <label class="form-check-label" for="{{ notification_form.like_notifications.id_for_label }}"></label>
                                         </div>
                                     </div>
                                 </div>
@@ -557,8 +557,8 @@
                                             <p class="text-muted small mb-0">Khi có người bình luận bài viết của bạn hoặc trả lời bình luận của bạn</p>
                                         </div>
                                         <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="commentNotifications" name="comment_notifications" checked>
-                                            <label class="form-check-label" for="commentNotifications"></label>
+                                            {{ notification_form.comment_notifications }}
+                                            <label class="form-check-label" for="{{ notification_form.comment_notifications.id_for_label }}"></label>
                                         </div>
                                     </div>
                                 </div>
@@ -570,8 +570,8 @@
                                             <p class="text-muted small mb-0">Khi có người theo dõi bạn</p>
                                         </div>
                                         <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="followNotifications" name="follow_notifications" checked>
-                                            <label class="form-check-label" for="followNotifications"></label>
+                                            {{ notification_form.follow_notifications }}
+                                            <label class="form-check-label" for="{{ notification_form.follow_notifications.id_for_label }}"></label>
                                         </div>
                                     </div>
                                 </div>
@@ -583,8 +583,8 @@
                                             <p class="text-muted small mb-0">Khi có người nhắc đến bạn trong bài viết hoặc bình luận</p>
                                         </div>
                                         <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="mentionNotifications" name="mention_notifications" checked>
-                                            <label class="form-check-label" for="mentionNotifications"></label>
+                                            {{ notification_form.mention_notifications }}
+                                            <label class="form-check-label" for="{{ notification_form.mention_notifications.id_for_label }}"></label>
                                         </div>
                                     </div>
                                 </div>
@@ -596,8 +596,8 @@
                                             <p class="text-muted small mb-0">Khi có người gửi tin nhắn cho bạn</p>
                                         </div>
                                         <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="messageNotifications" name="message_notifications" checked>
-                                            <label class="form-check-label" for="messageNotifications"></label>
+                                            {{ notification_form.message_notifications }}
+                                            <label class="form-check-label" for="{{ notification_form.message_notifications.id_for_label }}"></label>
                                         </div>
                                     </div>
                                 </div>
@@ -610,7 +610,7 @@
                             </div>
                             <div class="card-body">
                                 <div class="form-check mb-3">
-                                    <input class="form-check-input" type="checkbox" id="summaryNotifications" name="summary_notifications" checked>
+                                    <input class="form-check-input" type="checkbox" id="summaryNotifications" name="summary_notifications" {% if notification_settings.summary %}checked{% endif %}>
                                     <label class="form-check-label" for="summaryNotifications">
                                         <strong>Gửi tóm tắt hàng ngày</strong>
                                         <div class="text-muted small">Nhận email tóm tắt các hoạt động mỗi ngày</div>
@@ -618,7 +618,7 @@
                                 </div>
                                 
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="inactiveNotifications" name="inactive_notifications" checked>
+                                    <input class="form-check-input" type="checkbox" id="inactiveNotifications" name="inactive_notifications" {% if notification_settings.inactive %}checked{% endif %}>
                                     <label class="form-check-label" for="inactiveNotifications">
                                         <strong>Thông báo khi không hoạt động</strong>
                                         <div class="text-muted small">Nhận thông báo sau 30 ngày không hoạt động</div>
@@ -983,41 +983,39 @@
                         <input type="hidden" name="delete_account" value="1">
                         
                         <div class="mb-3">
-                            <label for="id_reason" class="form-label">
+                            <label for="{{ delete_form.reason.id_for_label }}" class="form-label">
                                 Lý do xóa tài khoản
                             </label>
-                            <select class="form-select" 
-                                    id="id_reason" 
-                                    name="reason"
-                                    required>
-                                <option value="">Chọn lý do...</option>
-                                <option value="privacy">Lo ngại về quyền riêng tư</option>
-                                <option value="another_account">Có tài khoản khác</option>
-                                <option value="not_useful">Không thấy hữu ích</option>
-                                <option value="other">Lý do khác</option>
-                            </select>
+                            {{ delete_form.reason }}
+                            {% if delete_form.reason.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ delete_form.reason.errors }}
+                                </div>
+                            {% endif %}
                         </div>
                         
                         <div class="mb-3">
-                            <label for="id_password" class="form-label">
+                            <label for="{{ delete_form.password.id_for_label }}" class="form-label">
                                 Nhập mật khẩu để xác nhận
                             </label>
-                            <input type="password" 
-                                   class="form-control" 
-                                   id="id_password"
-                                   name="password"
-                                   required>
+                            {{ delete_form.password }}
+                            {% if delete_form.password.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ delete_form.password.errors }}
+                                </div>
+                            {% endif %}
                         </div>
                         
                         <div class="form-check mb-3">
-                            <input type="checkbox" 
-                                   class="form-check-input" 
-                                   id="id_confirm"
-                                   name="confirm"
-                                   required>
-                            <label class="form-check-label" for="id_confirm">
+                            {{ delete_form.confirm }}
+                            <label class="form-check-label" for="{{ delete_form.confirm.id_for_label }}">
                                 Tôi hiểu rằng sau 30 ngày tài khoản sẽ bị xóa vĩnh viễn và không thể khôi phục
                             </label>
+                            {% if delete_form.confirm.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ delete_form.confirm.errors }}
+                                </div>
+                            {% endif %}
                         </div>
                         
                         <button type="submit" 
