@@ -3,69 +3,69 @@ from django.utils import timezone
 from django.conf import settings
 from datetime import timedelta
 import random
+import logging
 
-def get_diverse_feed(user, page_size=10, page=1):
+def get_diverse_feed(user, page_size=None, page=1):
     """
     Tạo feed đa dạng bằng cách kết hợp nhiều loại bài viết khác nhau
     """
     from posts.models import Post, Like  # Import ở đây tránh circular import
     
-    # Tỷ lệ các loại nội dung trong feed - thêm yếu tố ngẫu nhiên
-    base_ratios = {
-        'followed': 0.5,  # Bài viết từ người theo dõi
-        'trending': 0.2,  # Bài viết xu hướng
-        'discovery': 0.2,  # Bài viết khám phá
-        'random': 0.1     # Bài viết ngẫu nhiên
-    }
+    # Sử dụng page_size từ tham số, nếu không thì sử dụng từ settings, nếu không thì dùng mặc định
+    if page_size is None:
+        page_size = getattr(settings, 'POSTS_PER_PAGE', 20)
     
-    # Thêm yếu tố ngẫu nhiên vào tỷ lệ (±20%)
-    ratios = {}
-    for key, value in base_ratios.items():
-        variation = value * 0.2  # 20% variation
-        ratios[key] = value + random.uniform(-variation, variation)
+    logger = logging.getLogger(__name__)
+    logger.info(f"get_diverse_feed called with page_size={page_size}, page={page}")
     
-    # Chuẩn hóa tỷ lệ để tổng = 1
-    total = sum(ratios.values())
-    ratios = {k: v/total for k, v in ratios.items()}
+    # Lấy tất cả bài viết từ database trước, không filter gì hết
+    all_posts = Post.objects.filter(
+        is_archived=False,
+        author__is_suspended=False
+    ).exclude(
+        author__in=user.blocked_users.all()
+    ).exclude(
+        author__in=user.blocked_by.all()
+    ).exclude(
+        author__private_account=True,  # Loại bỏ bài viết từ tài khoản riêng tư
+        author__in=user.following.all(),  # Trừ khi đang follow tài khoản đó
+    ).order_by('-created_at')
     
-    # Tính số lượng bài viết cần lấy cho mỗi loại
-    total_needed = page_size * 2  # Lấy nhiều hơn để lọc sau
-    followed_count = int(total_needed * ratios['followed'])
-    trending_count = int(total_needed * ratios['trending'])
-    discovery_count = int(total_needed * ratios['discovery'])
-    random_count = int(total_needed * ratios['random'])
+    # Thêm bài viết từ các tài khoản đang theo dõi vào đầu danh sách
+    followed_posts = Post.objects.filter(
+        author__in=user.following.all(),
+        is_archived=False,
+        author__is_suspended=False
+    ).exclude(
+        author__in=user.blocked_users.all()
+    ).exclude(
+        author__in=user.blocked_by.all()
+    ).order_by('-created_at')
     
-    # --- 1. Bài viết từ người dùng theo dõi ---
-    followed_posts = get_followed_posts(user, followed_count)
+    # Kết hợp bài viết theo dõi ở đầu và bài viết khác ở sau
+    combined_posts = list(followed_posts)
+    for post in all_posts:
+        if post.id not in [p.id for p in combined_posts]:
+            combined_posts.append(post)
     
-    # --- 2. Bài viết xu hướng ---
-    trending_posts = get_trending_posts(user, trending_count)
+    total_posts = len(combined_posts)
+    logger.info(f"Tổng số bài viết: {total_posts}")
     
-    # --- 3. Bài viết khám phá dựa trên sở thích ---
-    discovery_posts = get_discovery_posts(user, discovery_count)
-    
-    # --- 4. Bài viết ngẫu nhiên ---
-    random_posts = get_random_posts(user, random_count)
-    
-    # Kết hợp các danh sách
-    combined_posts = list(followed_posts) + list(trending_posts) + list(discovery_posts) + list(random_posts)
-    
-    # Loại bỏ các bài viết trùng lặp
-    seen_ids = set()
-    unique_posts = []
-    for post in combined_posts:
-        if post.id not in seen_ids:
-            seen_ids.add(post.id)
-            unique_posts.append(post)
-    
-    # Trộn để không có các khối bài viết cùng loại liên tiếp nhau
-    random.shuffle(unique_posts)
-    
-    # Tính offset cho phân trang
+    # Tính toán offset và limit cho phân trang
     offset = (page - 1) * page_size
     
-    # Trả về số lượng bài viết theo trang
-    return unique_posts[offset:offset+page_size]
+    # Nếu offset vượt quá tổng số bài viết thì trả về list rỗng
+    if offset >= total_posts:
+        logger.info(f"Offset {offset} vượt quá tổng số bài viết {total_posts}")
+        return []
+    
+    # Lấy bài viết theo phạm vi trang hiện tại
+    end_index = min(offset + page_size, total_posts)
+    posts_for_page = combined_posts[offset:end_index]
+    
+    logger.info(f"Offset: {offset}, End index: {end_index}, Posts for page: {len(posts_for_page)}")
+    
+    return posts_for_page
 
 def get_followed_posts(user, count=10):
     """Lấy bài viết từ người dùng đang theo dõi"""

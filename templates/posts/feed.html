@@ -209,388 +209,391 @@
                 </div>
             </div>
 
-            <!-- Posts -->
-            {% for post_data in posts_with_data %}
-            {% with post=post_data.post %}
-            <div class="card mb-4" id="post-{{ post.id }}">
-                <!-- Post Header -->
-                <div class="card-header bg-white border-0 py-3" style="cursor: pointer;" onclick="window.location='/posts/{{ post.id }}/';">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div class="d-flex align-items-center">
-                            <img src="{{ post.author.get_avatar_url }}" 
-                                 class="rounded-circle me-2" 
-                                 width="32" 
-                                 height="32"
-                                 alt="{{ post.author.username }}"
-                            >
-                            <div>
-                                <a href="{% url 'accounts:profile' username=post.author.username %}" 
-                                   class="text-dark text-decoration-none fw-bold"
-                                   onclick="event.stopPropagation();">
-                                    {{ post.author.username }}
-                                </a>
-                                {% if post.location %}
-                                <div class="text-muted small">
-                                    {{ post.location }}
-                                </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                        <div class="d-flex align-items-center">
-                            <!-- Loại bài viết -->
-                            {% if post_data.post_type != 'flowed' and feed_type == 'diverse' %}
-                            <div class="post-type-badge me-2">
-                                {% if post_data.post_type == 'trending' %}
-                                <span class="badge bg-danger">
-                                    <i class="fas fa-fire"></i> Thịnh hành
-                                </span>
-                                {% elif post_data.post_type == 'recommended' %}
-                                <span class="badge bg-success">
-                                    <i class="fas fa-thumbs-up"></i> Gợi ý
-                                </span>
-                                {% elif post_data.post_type == 'discover' %}
-                                <span class="badge bg-info">
-                                    <i class="fas fa-compass"></i> Khám phá
-                                </span>
-                                {% endif %}
-                            </div>
-                            {% endif %}
-                            <!-- Thời gian đăng -->
-                            <div class="text-muted small">
-                                {{ post.created_at|timesince }} trước
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Caption -->
-                {% if post.caption %}
-                <div class="card-body py-2 post-content" onclick="window.location='/posts/{{ post.id }}/';" style="cursor: pointer;">
-                    <p class="card-text mb-0">
-                        {{ post.caption|urlize|linebreaksbr }}
-                    </p>
-                </div>
-                {% endif %}
-
-                <!-- Hiển thị bài viết được chia sẻ nếu có -->
-                {% if post.shared_from %}
-                <div class="shared-post-container mx-3 my-2">
-                    <!-- Thêm phần tiêu đề chia sẻ -->
-                    <div class="share-title p-2">
-                        <i class="fas fa-retweet text-primary me-1"></i>
-                        <span class="text-muted">{{ post.author.username }} đã chia sẻ</span>
-                    </div>
-                    <div class="p-3">
-                        <!-- Bài viết gốc (được chia sẻ) -->
-                        <div class="original-post border rounded p-3 shadow-sm bg-white" 
-                             onclick="window.location='{% url 'posts:post_detail' post_id=post.shared_from.id %}';" 
-                             style="cursor: pointer;">
-                            <!-- Thông tin tác giả bài viết gốc -->
-                            <div class="d-flex align-items-center mb-3">
-                                <img src="{{ post.shared_from.author.get_avatar_url }}" 
-                                     class="rounded-circle me-2 border" 
-                                     width="40" 
-                                     height="40"
-                                     alt="{{ post.shared_from.author.username }}">
+            <!-- Posts Container for Infinite Scroll -->
+            <div id="posts-container">
+                <!-- Posts -->
+                {% for post_data in posts_with_data %}
+                {% with post=post_data.post %}
+                <div class="card mb-4" id="post-{{ post.id }}">
+                    <!-- Post Header -->
+                    <div class="card-header bg-white border-0 py-3" style="cursor: pointer;" onclick="window.location='/posts/{{ post.id }}/';">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <img src="{{ post.author.get_avatar_url }}" 
+                                     class="rounded-circle me-2" 
+                                     width="32" 
+                                     height="32"
+                                     alt="{{ post.author.username }}"
+                                >
                                 <div>
-                                    <a href="{% url 'accounts:profile' username=post.shared_from.author.username %}" 
+                                    <a href="{% url 'accounts:profile' username=post.author.username %}" 
                                        class="text-dark text-decoration-none fw-bold"
                                        onclick="event.stopPropagation();">
-                                        {{ post.shared_from.author.username }}
+                                        {{ post.author.username }}
                                     </a>
-                                    <div class="d-flex text-muted small">
-                                        {% if post.shared_from.location %}
-                                        <span class="me-2">
-                                            <i class="fas fa-map-marker-alt me-1"></i>{{ post.shared_from.location }}
-                                        </span>
-                                        {% endif %}
-                                        <span>
-                                            <i class="far fa-clock me-1"></i>{{ post.shared_from.created_at|timesince }} trước
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Caption của bài viết gốc -->
-                            {% if post.shared_from.caption %}
-                            <p class="card-text mb-3">
-                                {{ post.shared_from.caption|urlize|linebreaksbr }}
-                            </p>
-                            {% endif %}
-                            
-                            <!-- Post Media của bài viết gốc -->
-                            {% if post.shared_from.media.exists %}
-                            <div class="mb-3">
-                                <div id="carousel-shared-{{ post.id }}" class="carousel slide rounded overflow-hidden shadow-sm" data-bs-ride="false">
-                                    {% if post.shared_from.media.count > 1 %}
-                                    <div class="carousel-indicators">
-                                        {% for media in post.shared_from.media.all %}
-                                        <button type="button" 
-                                                data-bs-target="#carousel-shared-{{ post.id }}" 
-                                                data-bs-slide-to="{{ forloop.counter0 }}"
-                                                {% if forloop.first %}class="active"{% endif %}
-                                                aria-current="true" 
-                                                aria-label="Slide {{ forloop.counter }}">
-                                        </button>
-                                        {% endfor %}
+                                    {% if post.location %}
+                                    <div class="text-muted small">
+                                        {{ post.location }}
                                     </div>
                                     {% endif %}
-                                    
-                                    <div class="carousel-inner">
-                                        {% for media in post.shared_from.media.all %}
-                                        <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                                            {% if media.media_type == 'image' %}
-                                            <img src="{{ media.file.url }}" 
-                                                 class="d-block w-100" 
-                                                 alt="Shared post image">
-                                            {% else %}
-                                            <video class="d-block w-100" controls>
-                                                <source src="{{ media.file.url }}" type="video/mp4">
-                                                Your browser does not support the video tag.
-                                            </video>
-                                            {% endif %}
-                                        </div>
-                                        {% endfor %}
-                                    </div>
-                                    
-                                    {% if post.shared_from.media.count > 1 %}
-                                    <button class="carousel-control-prev" 
-                                            type="button" 
-                                            data-bs-target="#carousel-shared-{{ post.id }}" 
-                                            data-bs-slide="prev"
-                                            onclick="event.stopPropagation();">
-                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                        <span class="visually-hidden">Previous</span>
-                                    </button>
-                                    <button class="carousel-control-next" 
-                                            type="button" 
-                                            data-bs-target="#carousel-shared-{{ post.id }}" 
-                                            data-bs-slide="next"
-                                            onclick="event.stopPropagation();">
-                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                        <span class="visually-hidden">Next</span>
-                                    </button>
-                                    {% endif %}
                                 </div>
                             </div>
-                            {% endif %}
-                            
-                            <!-- Số liệu tương tác của bài viết gốc -->
-                            <div class="d-flex align-items-center small text-muted border-top pt-2">
-                                <div class="me-3">
-                                    <i class="far fa-heart me-1"></i>
-                                    <span>{{ post.shared_from.likes_count }} lượt thích</span>
-                                </div>
-                                <div class="me-3">
-                                    <i class="far fa-comment me-1"></i>
-                                    <span>{{ post.shared_from.comments_count }} bình luận</span>
-                                </div>
-                                <div>
-                                    <i class="far fa-share-square me-1"></i>
-                                    <a href="{% url 'posts:post_detail' post_id=post.shared_from.id %}" 
-                                       class="text-muted text-decoration-none"
-                                       onclick="event.stopPropagation();">Xem bài viết gốc</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% else %}
-                <!-- Post Media -->
-                {% if post.media.exists %}
-                <div id="carousel-{{ post.id }}" class="carousel slide post-content" onclick="window.location='/posts/{{ post.id }}/';" style="cursor: pointer;" data-bs-ride="false">
-                    {% if post.media.count > 1 %}
-                    <div class="carousel-indicators">
-                        {% for media in post.media.all %}
-                        <button type="button" 
-                                data-bs-target="#carousel-{{ post.id }}" 
-                                data-bs-slide-to="{{ forloop.counter0 }}"
-                                {% if forloop.first %}class="active"{% endif %}
-                                aria-current="true" 
-                                aria-label="Slide {{ forloop.counter }}">
-                        </button>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-                    
-                    <div class="carousel-inner">
-                        {% for media in post.media.all %}
-                        <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                            {% if media.media_type == 'image' %}
-                            <img src="{{ media.file.url }}" 
-                                 class="d-block w-100" 
-                                 alt="Post image">
-                            {% else %}
-                            <video class="d-block w-100" controls>
-                                <source src="{{ media.file.url }}" type="video/mp4">
-                                Your browser does not support the video tag.
-                            </video>
-                            {% endif %}
-                        </div>
-                        {% endfor %}
-                    </div>
-                    
-                    {% if post.media.count > 1 %}
-                    <button class="carousel-control-prev" 
-                            type="button" 
-                            data-bs-target="#carousel-{{ post.id }}" 
-                            data-bs-slide="prev"
-                            onclick="event.stopPropagation();">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Previous</span>
-                    </button>
-                    <button class="carousel-control-next" 
-                            type="button" 
-                            data-bs-target="#carousel-{{ post.id }}" 
-                            data-bs-slide="next"
-                            onclick="event.stopPropagation();">
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Next</span>
-                    </button>
-                    {% endif %}
-                </div>
-                {% endif %}
-                {% endif %}
-
-                <!-- Post Actions -->
-                <div class="card-footer d-flex justify-content-between py-2 bg-white">
-                     <div class="d-flex align-items-center">
-                        <button class="btn btn-light btn-sm me-2 like-button {% if post_data.is_liked %}liked{% endif %}" data-post-id="{{ post.id }}">
-                           <i class="{% if post_data.is_liked %}fas{% else %}far{% endif %} fa-heart"></i>
-                           <span class="likes-count" data-post-id="{{ post.id }}">{{ post.likes_count }}</span>
-                        </button>
-                        <button class="btn btn-light btn-sm me-2 comment-button" data-post-id="{{ post.id }}">
-                           <i class="far fa-comment"></i>
-                           <span>{{ post.comments_count }}</span>
-                        </button>
-                        <button class="btn btn-light btn-sm share-button" data-post-id="{{ post.id }}" data-bs-toggle="modal" data-bs-target="#sharePostModal-{{ post.id }}">
-                           <i class="far fa-share-square"></i>
-                           <span>Chia sẻ</span>
-                        </button>
-                     </div>
-                     <div>
-                        <button class="btn btn-light btn-sm save-button" data-post-id="{{ post.id }}">
-                           <i class="{% if post_data.is_saved %}fas fa-bookmark{% else %}far fa-bookmark{% endif %}"></i>
-                        </button>
-                     </div>
-                  </div>
-
-                <!-- Comments -->
-                {% if post.comments.exists %}
-                <div class="comments-section">
-                    {% if post.comments.count > 3 %}
-                    <p class="text-muted small mb-2">
-                        <a href="{% url 'posts:post_detail' post.id %}" class="text-decoration-none">
-                            Xem tất cả {{ post.comments.count }} bình luận
-                        </a>
-                    </p>
-                    {% endif %}
-                    
-                    {% for comment in post.comments.all|slice:":3" %}
-                    <div class="comment mb-2" id="comment-{{ comment.id }}">
-                        <div class="d-flex">
-                            <img src="{{ comment.author.get_avatar_url }}" 
-                                 class="rounded-circle me-2" 
-                                 width="32" 
-                                 height="32"
-                                 alt="{{ comment.author.username }}">
-                            <div class="flex-grow-1">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <a href="{% url 'accounts:profile' username=comment.author.username %}" 
-                                           class="text-dark text-decoration-none fw-bold">
-                                            {{ comment.author.username }}
-                                        </a>
-                                        {{ comment.text|truncatechars:80 }}
-                                        {% if comment.text|length > 80 %}
-                                        <a href="{% url 'posts:post_detail' post.id %}" class="text-muted small text-decoration-none">thêm</a>
-                                        {% endif %}
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="btn btn-link btn-sm p-0 text-muted dropdown-toggle" 
-                                                type="button" 
-                                                data-bs-toggle="dropdown" 
-                                                aria-expanded="false">
-                                            <i class="fas fa-ellipsis-h"></i>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-end">
-                                            <li>
-                                                <button class="dropdown-item reply-button" 
-                                                        data-username="{{ comment.author.username }}"
-                                                        data-post-id="{{ post.id }}"
-                                                        data-comment-id="{{ comment.id }}">
-                                                    <i class="fas fa-reply me-2"></i>Trả lời
-                                                </button>
-                                            </li>
-                                            {% if request.user == comment.author or request.user == post.author %}
-                                            <li>
-                                                <button class="dropdown-item text-danger delete-comment-btn" 
-                                                       data-comment-id="{{ comment.id }}">
-                                                    <i class="fas fa-trash-alt me-2"></i>Xóa
-                                                </button>
-                                            </li>
-                                            {% endif %}
-                                        </ul>
-                                    </div>
-                                </div>
-                                <div class="text-muted small d-flex align-items-center mt-1">
-                                    <span>{{ comment.created_at|timesince }} trước</span>
-                                    <span class="mx-1">·</span>
-                                    <button class="btn btn-link btn-sm p-0 text-muted comment-like-button"
-                                            data-comment-id="{{ comment.id }}">
-                                        <span>{% if comment.is_liked_by_user %}Đã thích{% else %}Thích{% endif %}</span>
-                                    </button>
-                                    <span class="mx-1">·</span>
-                                    <button class="btn btn-link btn-sm p-0 text-muted reply-button"
-                                            data-username="{{ comment.author.username }}"
-                                            data-post-id="{{ post.id }}"
-                                            data-comment-id="{{ comment.id }}">
-                                        Trả lời
-                                    </button>
-                                    {% if comment.likes_count > 0 %}
-                                    <span class="ms-2">
-                                        <i class="fas fa-heart text-danger small"></i>
-                                        <span class="comment-likes-count" data-comment-id="{{ comment.id }}">{{ comment.likes_count }}</span>
+                            <div class="d-flex align-items-center">
+                                <!-- Loại bài viết -->
+                                {% if post_data.post_type != 'flowed' and feed_type == 'diverse' %}
+                                <div class="post-type-badge me-2">
+                                    {% if post_data.post_type == 'trending' %}
+                                    <span class="badge bg-danger">
+                                        <i class="fas fa-fire"></i> Thịnh hành
+                                    </span>
+                                    {% elif post_data.post_type == 'recommended' %}
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-thumbs-up"></i> Gợi ý
+                                    </span>
+                                    {% elif post_data.post_type == 'discover' %}
+                                    <span class="badge bg-info">
+                                        <i class="fas fa-compass"></i> Khám phá
                                     </span>
                                     {% endif %}
                                 </div>
-                                <div class="comment-replies ps-4 mt-2"></div>
+                                {% endif %}
+                                <!-- Thời gian đăng -->
+                                <div class="text-muted small">
+                                    {{ post.created_at|timesince }} trước
+                                </div>
                             </div>
                         </div>
                     </div>
-                    {% endfor %}
-                </div>
-                {% endif %}
 
-                <!-- Comment Input -->
-                <form action="{% url 'posts:comment' post.id %}" 
-                      method="post" 
-                      class="mt-3 add-comment-form" 
-                      data-post-id="{{ post.id }}">
-                    {% csrf_token %}
-                    <div class="input-group">
-                        <input type="text" 
-                               id="comment-input-{{ post.id }}"
-                               name="text"
-                               class="form-control comment-input" 
-                               placeholder="Viết bình luận..."
-                               aria-label="Comment input">
-                        <button class="btn btn-primary" type="submit">Gửi</button>
+                    <!-- Caption -->
+                    {% if post.caption %}
+                    <div class="card-body py-2 post-content" onclick="window.location='/posts/{{ post.id }}/';" style="cursor: pointer;">
+                        <p class="card-text mb-0">
+                            {{ post.caption|urlize|linebreaksbr }}
+                        </p>
                     </div>
-                    <div class="reply-info d-none">
-                        <small>
-                            Trả lời: <span class="reply-to-username"></span>
-                            <button type="button" class="btn btn-link btn-sm p-0 text-muted cancel-reply" data-post-id="{{ post.id }}">
-                                <i class="fas fa-times"></i>
+                    {% endif %}
+
+                    <!-- Hiển thị bài viết được chia sẻ nếu có -->
+                    {% if post.shared_from %}
+                    <div class="shared-post-container mx-3 my-2">
+                        <!-- Thêm phần tiêu đề chia sẻ -->
+                        <div class="share-title p-2">
+                            <i class="fas fa-retweet text-primary me-1"></i>
+                            <span class="text-muted">{{ post.author.username }} đã chia sẻ</span>
+                        </div>
+                        <div class="p-3">
+                            <!-- Bài viết gốc (được chia sẻ) -->
+                            <div class="original-post border rounded p-3 shadow-sm bg-white" 
+                                 onclick="window.location='{% url 'posts:post_detail' post_id=post.shared_from.id %}';" 
+                                 style="cursor: pointer;">
+                                <!-- Thông tin tác giả bài viết gốc -->
+                                <div class="d-flex align-items-center mb-3">
+                                    <img src="{{ post.shared_from.author.get_avatar_url }}" 
+                                         class="rounded-circle me-2 border" 
+                                         width="40" 
+                                         height="40"
+                                         alt="{{ post.shared_from.author.username }}">
+                                    <div>
+                                        <a href="{% url 'accounts:profile' username=post.shared_from.author.username %}" 
+                                           class="text-dark text-decoration-none fw-bold"
+                                           onclick="event.stopPropagation();">
+                                            {{ post.shared_from.author.username }}
+                                        </a>
+                                        <div class="d-flex text-muted small">
+                                            {% if post.shared_from.location %}
+                                            <span class="me-2">
+                                                <i class="fas fa-map-marker-alt me-1"></i>{{ post.shared_from.location }}
+                                            </span>
+                                            {% endif %}
+                                            <span>
+                                                <i class="far fa-clock me-1"></i>{{ post.shared_from.created_at|timesince }} trước
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Caption của bài viết gốc -->
+                                {% if post.shared_from.caption %}
+                                <p class="card-text mb-3">
+                                    {{ post.shared_from.caption|urlize|linebreaksbr }}
+                                </p>
+                                {% endif %}
+                                
+                                <!-- Post Media của bài viết gốc -->
+                                {% if post.shared_from.media.exists %}
+                                <div class="mb-3">
+                                    <div id="carousel-shared-{{ post.id }}" class="carousel slide rounded overflow-hidden shadow-sm" data-bs-ride="false">
+                                        {% if post.shared_from.media.count > 1 %}
+                                        <div class="carousel-indicators">
+                                            {% for media in post.shared_from.media.all %}
+                                            <button type="button" 
+                                                    data-bs-target="#carousel-shared-{{ post.id }}" 
+                                                    data-bs-slide-to="{{ forloop.counter0 }}"
+                                                    {% if forloop.first %}class="active"{% endif %}
+                                                    aria-current="true" 
+                                                    aria-label="Slide {{ forloop.counter }}">
+                                            </button>
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                        
+                                        <div class="carousel-inner">
+                                            {% for media in post.shared_from.media.all %}
+                                            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                                {% if media.media_type == 'image' %}
+                                                <img src="{{ media.file.url }}" 
+                                                     class="d-block w-100" 
+                                                     alt="Shared post image">
+                                                {% else %}
+                                                <video class="d-block w-100" controls>
+                                                    <source src="{{ media.file.url }}" type="video/mp4">
+                                                    Your browser does not support the video tag.
+                                                </video>
+                                                {% endif %}
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                        
+                                        {% if post.shared_from.media.count > 1 %}
+                                        <button class="carousel-control-prev" 
+                                                type="button" 
+                                                data-bs-target="#carousel-shared-{{ post.id }}" 
+                                                data-bs-slide="prev"
+                                                onclick="event.stopPropagation();">
+                                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                            <span class="visually-hidden">Previous</span>
+                                        </button>
+                                        <button class="carousel-control-next" 
+                                                type="button" 
+                                                data-bs-target="#carousel-shared-{{ post.id }}" 
+                                                data-bs-slide="next"
+                                                onclick="event.stopPropagation();">
+                                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                            <span class="visually-hidden">Next</span>
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endif %}
+                                
+                                <!-- Số liệu tương tác của bài viết gốc -->
+                                <div class="d-flex align-items-center small text-muted border-top pt-2">
+                                    <div class="me-3">
+                                        <i class="far fa-heart me-1"></i>
+                                        <span>{{ post.shared_from.likes_count }} lượt thích</span>
+                                    </div>
+                                    <div class="me-3">
+                                        <i class="far fa-comment me-1"></i>
+                                        <span>{{ post.shared_from.comments_count }} bình luận</span>
+                                    </div>
+                                    <div>
+                                        <i class="far fa-share-square me-1"></i>
+                                        <a href="{% url 'posts:post_detail' post_id=post.shared_from.id %}" 
+                                           class="text-muted text-decoration-none"
+                                           onclick="event.stopPropagation();">Xem bài viết gốc</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <!-- Post Media -->
+                    {% if post.media.exists %}
+                    <div id="carousel-{{ post.id }}" class="carousel slide post-content" onclick="window.location='/posts/{{ post.id }}/';" style="cursor: pointer;" data-bs-ride="false">
+                        {% if post.media.count > 1 %}
+                        <div class="carousel-indicators">
+                            {% for media in post.media.all %}
+                            <button type="button" 
+                                    data-bs-target="#carousel-{{ post.id }}" 
+                                    data-bs-slide-to="{{ forloop.counter0 }}"
+                                    {% if forloop.first %}class="active"{% endif %}
+                                    aria-current="true" 
+                                    aria-label="Slide {{ forloop.counter }}">
                             </button>
-                        </small>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        
+                        <div class="carousel-inner">
+                            {% for media in post.media.all %}
+                            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                {% if media.media_type == 'image' %}
+                                <img src="{{ media.file.url }}" 
+                                     class="d-block w-100" 
+                                     alt="Post image">
+                                {% else %}
+                                <video class="d-block w-100" controls>
+                                    <source src="{{ media.file.url }}" type="video/mp4">
+                                    Your browser does not support the video tag.
+                                </video>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        {% if post.media.count > 1 %}
+                        <button class="carousel-control-prev" 
+                                type="button" 
+                                data-bs-target="#carousel-{{ post.id }}" 
+                                data-bs-slide="prev"
+                                onclick="event.stopPropagation();">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" 
+                                type="button" 
+                                data-bs-target="#carousel-{{ post.id }}" 
+                                data-bs-slide="next"
+                                onclick="event.stopPropagation();">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                        {% endif %}
                     </div>
-                </form>
+                    {% endif %}
+                    {% endif %}
+
+                    <!-- Post Actions -->
+                    <div class="card-footer d-flex justify-content-between py-2 bg-white">
+                         <div class="d-flex align-items-center">
+                            <button class="btn btn-light btn-sm me-2 like-button {% if post_data.is_liked %}liked{% endif %}" data-post-id="{{ post.id }}">
+                               <i class="{% if post_data.is_liked %}fas{% else %}far{% endif %} fa-heart"></i>
+                               <span class="likes-count" data-post-id="{{ post.id }}">{{ post.likes_count }}</span>
+                            </button>
+                            <button class="btn btn-light btn-sm me-2 comment-button" data-post-id="{{ post.id }}">
+                               <i class="far fa-comment"></i>
+                               <span>{{ post.comments_count }}</span>
+                            </button>
+                            <button class="btn btn-light btn-sm share-button" data-post-id="{{ post.id }}" data-bs-toggle="modal" data-bs-target="#sharePostModal-{{ post.id }}">
+                               <i class="far fa-share-square"></i>
+                               <span>Chia sẻ</span>
+                            </button>
+                         </div>
+                         <div>
+                            <button class="btn btn-light btn-sm save-button" data-post-id="{{ post.id }}">
+                               <i class="{% if post_data.is_saved %}fas fa-bookmark{% else %}far fa-bookmark{% endif %}"></i>
+                            </button>
+                         </div>
+                      </div>
+
+                    <!-- Comments -->
+                    {% if post.comments.exists %}
+                    <div class="comments-section">
+                        {% if post.comments.count > 3 %}
+                        <p class="text-muted small mb-2">
+                            <a href="{% url 'posts:post_detail' post.id %}" class="text-decoration-none">
+                                Xem tất cả {{ post.comments.count }} bình luận
+                            </a>
+                        </p>
+                        {% endif %}
+                        
+                        {% for comment in post.comments.all|slice:":3" %}
+                        <div class="comment mb-2" id="comment-{{ comment.id }}">
+                            <div class="d-flex">
+                                <img src="{{ comment.author.get_avatar_url }}" 
+                                     class="rounded-circle me-2" 
+                                     width="32" 
+                                     height="32"
+                                     alt="{{ comment.author.username }}">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <a href="{% url 'accounts:profile' username=comment.author.username %}" 
+                                               class="text-dark text-decoration-none fw-bold">
+                                                {{ comment.author.username }}
+                                            </a>
+                                            {{ comment.text|truncatechars:80 }}
+                                            {% if comment.text|length > 80 %}
+                                            <a href="{% url 'posts:post_detail' post.id %}" class="text-muted small text-decoration-none">thêm</a>
+                                            {% endif %}
+                                        </div>
+                                        <div class="dropdown">
+                                            <button class="btn btn-link btn-sm p-0 text-muted dropdown-toggle" 
+                                                    type="button" 
+                                                    data-bs-toggle="dropdown" 
+                                                    aria-expanded="false">
+                                                <i class="fas fa-ellipsis-h"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li>
+                                                    <button class="dropdown-item reply-button" 
+                                                            data-username="{{ comment.author.username }}"
+                                                            data-post-id="{{ post.id }}"
+                                                            data-comment-id="{{ comment.id }}">
+                                                        <i class="fas fa-reply me-2"></i>Trả lời
+                                                    </button>
+                                                </li>
+                                                {% if request.user == comment.author or request.user == post.author %}
+                                                <li>
+                                                    <button class="dropdown-item text-danger delete-comment-btn" 
+                                                           data-comment-id="{{ comment.id }}">
+                                                        <i class="fas fa-trash-alt me-2"></i>Xóa
+                                                    </button>
+                                                </li>
+                                                {% endif %}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="text-muted small d-flex align-items-center mt-1">
+                                        <span>{{ comment.created_at|timesince }} trước</span>
+                                        <span class="mx-1">·</span>
+                                        <button class="btn btn-link btn-sm p-0 text-muted comment-like-button"
+                                                data-comment-id="{{ comment.id }}">
+                                            <span>{% if comment.is_liked_by_user %}Đã thích{% else %}Thích{% endif %}</span>
+                                        </button>
+                                        <span class="mx-1">·</span>
+                                        <button class="btn btn-link btn-sm p-0 text-muted reply-button"
+                                                data-username="{{ comment.author.username }}"
+                                                data-post-id="{{ post.id }}"
+                                                data-comment-id="{{ comment.id }}">
+                                            Trả lời
+                                        </button>
+                                        {% if comment.likes_count > 0 %}
+                                        <span class="ms-2">
+                                            <i class="fas fa-heart text-danger small"></i>
+                                            <span class="comment-likes-count" data-comment-id="{{ comment.id }}">{{ comment.likes_count }}</span>
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="comment-replies ps-4 mt-2"></div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Comment Input -->
+                    <form action="{% url 'posts:comment' post.id %}" 
+                          method="post" 
+                          class="mt-3 add-comment-form" 
+                          data-post-id="{{ post.id }}">
+                        {% csrf_token %}
+                        <div class="input-group">
+                            <input type="text" 
+                                   id="comment-input-{{ post.id }}"
+                                   name="text"
+                                   class="form-control comment-input" 
+                                   placeholder="Viết bình luận..."
+                                   aria-label="Comment input">
+                            <button class="btn btn-primary" type="submit">Gửi</button>
+                        </div>
+                        <div class="reply-info d-none">
+                            <small>
+                                Trả lời: <span class="reply-to-username"></span>
+                                <button type="button" class="btn btn-link btn-sm p-0 text-muted cancel-reply" data-post-id="{{ post.id }}">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </small>
+                        </div>
+                    </form>
+                </div>
+                {% endwith %}
+                {% endfor %}
             </div>
-            {% endwith %}
-            {% endfor %}
             
-            <!-- Loading Indicator -->
+            <!-- Loading Indicator - Will be controlled by JS -->
             <div id="loading-indicator" class="text-center py-4 d-none">
                 <div class="spinner-border text-primary" role="status">
                     <span class="visually-hidden">Đang tải...</span>
@@ -598,8 +601,10 @@
                 <p class="mt-2 text-muted">Đang tải thêm bài viết...</p>
             </div>
             
-            <!-- Load More Trigger -->
-            <div id="load-more-trigger" class="py-4"></div>
+            <!-- End Message - Will be shown when no more posts -->
+            <div id="end-message" class="text-center py-4 d-none">
+                <p class="text-muted">Bạn đã xem hết tất cả bài viết</p>
+            </div>
         </div>
     </div>
 </div>
@@ -1429,207 +1434,279 @@
 <script>
 // Infinite Scrolling Implementation
 document.addEventListener('DOMContentLoaded', function() {
-    let currentPage = {{ page_obj.number|default:1 }};
+    let currentPage = 1;
     let isLoading = false;
-    let hasMore = {% if page_obj.has_next %}true{% else %}false{% endif %};
+    let hasMore = true; 
     
     const postsContainer = document.querySelector('.col-md-6');
     const loadingIndicator = document.getElementById('loading-indicator');
     const loadMoreTrigger = document.getElementById('load-more-trigger');
     
-    // Get current query parameters
+    // Xác định feed type hiện tại
     const urlParams = new URLSearchParams(window.location.search);
+    const feedType = urlParams.get('feed') || 'diverse';
     
-    // Function to load more posts
+    // Thiết lập Intersection Observer để theo dõi khi người dùng cuộn tới điểm cuối
+    const observer = new IntersectionObserver(
+        function(entries) {
+            if (entries[0].isIntersecting && !isLoading && hasMore) {
+                console.log('Reached end of content, loading more posts...');
+                loadMorePosts();
+            }
+        },
+        { threshold: 0.1 } // Kích hoạt khi 10% của phần tử hiển thị trong viewport
+    );
+    
+    // Theo dõi phần tử trigger
+    if (loadMoreTrigger) {
+        observer.observe(loadMoreTrigger);
+        console.log('Observing load more trigger element');
+    } else {
+        console.warn('Load more trigger element not found');
+    }
+    
+    // Hàm tải thêm bài viết
     async function loadMorePosts() {
         if (isLoading || !hasMore) return;
         
+        console.log('Loading posts for page:', currentPage + 1);
         isLoading = true;
-        loadingIndicator.classList.remove('d-none');
         
-        // Create URL with current filters
-        const nextPage = currentPage + 1;
-        urlParams.set('page', nextPage);
-        
-        // Make sure format=json is included
-        urlParams.set('format', 'json');
-        
-        const url = `${window.location.pathname}?${urlParams.toString()}`;
+        if (loadingIndicator) {
+            loadingIndicator.classList.remove('d-none');
+        }
         
         try {
-            const response = await fetch(url);
-            if (!response.ok) throw new Error('Network response was not ok');
-            
-            const data = await response.json();
-            
-            if (data.posts.length === 0) {
-                // No more posts
-                hasMore = false;
-                loadingIndicator.classList.add('d-none');
-                return;
+            // Xác định API endpoint tùy theo loại feed
+            let apiUrl;
+            if (window.location.pathname === "/posts/saved/") {
+                apiUrl = `/api/saved-posts/?page=${currentPage + 1}&format=json`;
+            } else if (window.location.pathname === "/posts/liked/") {
+                apiUrl = `/api/liked-posts/?page=${currentPage + 1}&format=json`;
+            } else {
+                apiUrl = `/api/posts/load/?page=${currentPage + 1}&feed=${feedType}&format=json`;
             }
             
-            // Append new posts to container
-            appendPosts(data.posts);
-            currentPage = nextPage;
-            hasMore = data.has_next;
+            const response = await fetch(apiUrl);
+            const data = await response.json();
             
-            // Setup event listeners for new posts
-            setupPostEventListeners();
+            console.log('Received data:', data);
             
+            if (data.posts && data.posts.length > 0) {
+                // Thêm bài viết mới vào trang
+                appendPosts(data.posts);
+                currentPage++;
+                
+                // Gắn các event listener cho các bài viết mới
+                setupNewPostInteractions();
+                
+                // Theo dõi các bài viết mới (nếu có dùng tracking)
+                if (typeof window.observeNewPosts === 'function') {
+                    window.observeNewPosts();
+                }
+                
+                console.log('Posts appended, current page:', currentPage);
+            } else {
+                console.log('No more posts to load');
+            }
+            
+            // Kiểm tra còn bài viết để tải không
+            hasMore = data.has_next === true;
+            
+            if (!hasMore && loadingIndicator) {
+                loadingIndicator.innerHTML = '<p class="text-center text-muted py-3">Không còn bài viết nào để hiển thị</p>';
+                loadingIndicator.classList.remove('d-none');
+                
+                // Ngừng theo dõi vì không còn gì để tải
+                if (loadMoreTrigger) {
+                    observer.unobserve(loadMoreTrigger);
+                }
+                
+                console.log('End of feed reached');
+            }
         } catch (error) {
             console.error('Error loading more posts:', error);
         } finally {
             isLoading = false;
-            loadingIndicator.classList.add('d-none');
+            if (loadingIndicator && hasMore) {
+                loadingIndicator.classList.add('d-none');
+            }
         }
     }
     
-    // Function to append posts to container
+    // Hàm thêm bài viết vào container
     function appendPosts(posts) {
         posts.forEach(post => {
             const postHtml = createPostHTML(post);
-            postsContainer.insertBefore(
-                document.createRange().createContextualFragment(postHtml), 
-                loadingIndicator
-            );
+            
+            // Chèn vào trước phần tử loading indicator
+            if (loadingIndicator) {
+                postsContainer.insertBefore(
+                    document.createRange().createContextualFragment(postHtml),
+                    loadingIndicator
+                );
+            } else {
+                // Hoặc thêm vào cuối nếu không có indicator
+                postsContainer.insertAdjacentHTML('beforeend', postHtml);
+            }
+            
+            console.log(`Added post ID: ${post.id}`);
         });
     }
     
-    // Function to create HTML for a post
+    // Hàm tạo HTML cho một bài viết từ dữ liệu
     function createPostHTML(post) {
-        // Tạo media carousel HTML
+        // Tạo phần media carousel
         let mediaHTML = '';
         if (post.media && post.media.length > 0) {
             mediaHTML = `
                 <div id="carousel-${post.id}" class="carousel slide" data-bs-ride="false">
                     ${post.media.length > 1 ? `
                     <div class="carousel-indicators">
-                        ${post.media.map((media, index) => `
-                        <button type="button" 
-                                data-bs-target="#carousel-${post.id}" 
-                                data-bs-slide-to="${index}"
-                                ${index === 0 ? 'class="active"' : ''}
-                                aria-current="true" 
-                                aria-label="Slide ${index + 1}">
-                        </button>
+                        ${post.media.map((_, index) => `
+                            <button type="button" 
+                                   data-bs-target="#carousel-${post.id}" 
+                                   data-bs-slide-to="${index}"
+                                   ${index === 0 ? 'class="active"' : ''}
+                                   aria-current="${index === 0 ? 'true' : 'false'}" 
+                                   aria-label="Slide ${index + 1}">
+                            </button>
                         `).join('')}
-                    </div>
-                    ` : ''}
+                    </div>` : ''}
                     
                     <div class="carousel-inner">
                         ${post.media.map((media, index) => `
-                        <div class="carousel-item ${index === 0 ? 'active' : ''}">
-                            ${media.media_type === 'image' ? `
-                            <img src="${media.file_url || media.file}" 
-                                 class="d-block w-100" 
-                                 alt="Post image">
-                            ` : `
-                            <video class="d-block w-100" controls>
-                                <source src="${media.file_url || media.file}" type="video/mp4">
-                                Your browser does not support the video tag.
-                            </video>
-                            `}
-                        </div>
+                            <div class="carousel-item ${index === 0 ? 'active' : ''}">
+                                ${media.media_type === 'image' ? 
+                                    `<img src="${media.file_url}" class="d-block w-100" alt="Post image">` : 
+                                    `<video class="d-block w-100" controls>
+                                        <source src="${media.file_url}" type="video/mp4">
+                                        Your browser does not support the video tag.
+                                    </video>`
+                                }
+                            </div>
                         `).join('')}
                     </div>
                     
-                    {% if post.media.count > 1 %}
+                    ${post.media.length > 1 ? `
                     <button class="carousel-control-prev" 
                             type="button" 
                             data-bs-target="#carousel-${post.id}" 
-                            data-bs-slide="prev">
+                            data-bs-slide="prev"
+                            onclick="event.stopPropagation();">
                         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                         <span class="visually-hidden">Previous</span>
                     </button>
                     <button class="carousel-control-next" 
                             type="button" 
                             data-bs-target="#carousel-${post.id}" 
-                            data-bs-slide="next">
+                            data-bs-slide="next"
+                            onclick="event.stopPropagation();">
                         <span class="carousel-control-next-icon" aria-hidden="true"></span>
                         <span class="visually-hidden">Next</span>
-                    </button>
-                    {% endif %}
+                    </button>` : ''}
                 </div>
             `;
         }
         
-        // Tạo comments HTML
+        // Tạo phần post badge
+        let postBadgeHTML = '';
+        if (post.post_type && post.post_type !== 'flowed') {
+            if (post.post_type === 'trending') {
+                postBadgeHTML = `
+                    <span class="badge bg-danger">
+                        <i class="fas fa-fire"></i> Thịnh hành
+                    </span>
+                `;
+            } else if (post.post_type === 'recommended') {
+                postBadgeHTML = `
+                    <span class="badge bg-success">
+                        <i class="fas fa-thumbs-up"></i> Gợi ý
+                    </span>
+                `;
+            } else if (post.post_type === 'discover') {
+                postBadgeHTML = `
+                    <span class="badge bg-info">
+                        <i class="fas fa-compass"></i> Khám phá
+                    </span>
+                `;
+            }
+        }
+        
+        // Tạo HTML cho comments
         let commentsHTML = '';
         if (post.comments_data && post.comments_data.length > 0) {
             commentsHTML = `
                 <div class="comments-section">
-                    ${post.total_comments > 3 ? `
+                    ${post.comments_count > 3 ? `
                     <p class="text-muted small mb-2">
                         <a href="/posts/${post.id}/" class="text-decoration-none">
-                            Xem tất cả ${post.total_comments} bình luận
+                            Xem tất cả ${post.comments_count} bình luận
                         </a>
-                    </p>
-                    ` : ''}
+                    </p>` : ''}
                     
-                    ${post.comments_data.map(commentData => {
-                        const comment = commentData.comment;
-                        return `
-                        <div class="comment mb-2" id="comment-${comment.id}">
+                    ${post.comments_data.map(commentData => `
+                        <div class="comment mb-2" id="comment-${commentData.comment.id}">
                             <div class="d-flex">
+                                <img src="${commentData.comment.author.avatar || '/static/images/default-avatar.png'}" 
+                                     class="rounded-circle me-2" 
+                                     width="32" 
+                                     height="32"
+                                     alt="${commentData.comment.author.username}">
                                 <div class="flex-grow-1">
-                                    <a href="/users/${comment.author.username}/" 
-                                       class="text-dark text-decoration-none fw-bold">
-                                        ${comment.author.username}
-                                    </a>
-                                    ${comment.text}
-                                    
-                                    <div class="text-muted small d-flex align-items-center mt-1">
-                                        <span>${formatTimeAgo(comment.created_at)}</span>
-                                        <span class="mx-1">·</span>
-                                        <button class="btn btn-link btn-sm p-0 text-muted comment-like-button"
-                                                data-comment-id="${comment.id}">
-                                            <span>Thích</span>
-                                        </button>
-                                        <span class="mx-1">·</span>
-                                        <button class="btn btn-link btn-sm p-0 text-muted reply-button"
-                                                data-username="${comment.author.username}"
-                                                data-post-id="${post.id}"
-                                                data-comment-id="${comment.id}">
-                                            Trả lời
-                                        </button>
-                                        {% if request.user == comment.author or request.user == post.author %}
-                                        <span class="mx-1">·</span>
-                                        <button class="btn btn-link btn-sm p-0 text-muted delete-comment-btn"
-                                                data-comment-id="${comment.id}">
-                                            Xóa
-                                        </button>
-                                        {% endif %}
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <a href="/users/${commentData.comment.author.username}/" 
+                                               class="text-dark text-decoration-none fw-bold">
+                                                ${commentData.comment.author.username}
+                                            </a>
+                                            ${commentData.comment.text}
+                                        </div>
+                                        <div class="dropdown">
+                                            <button class="btn btn-link btn-sm p-0 text-muted dropdown-toggle" 
+                                                    type="button" 
+                                                    data-bs-toggle="dropdown" 
+                                                    aria-expanded="false">
+                                                <i class="fas fa-ellipsis-h"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li>
+                                                    <button class="dropdown-item reply-button" 
+                                                            data-username="${commentData.comment.author.username}"
+                                                            data-post-id="${post.id}"
+                                                            data-comment-id="${commentData.comment.id}">
+                                                        <i class="fas fa-reply me-2"></i>Trả lời
+                                                    </button>
+                                                </li>
+                                                <li>
+                                                    <button class="dropdown-item text-danger delete-comment-btn" 
+                                                           data-comment-id="${commentData.comment.id}">
+                                                        <i class="fas fa-trash-alt me-2"></i>Xóa
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        `;
-                    }).join('')}
+                    `).join('')}
                 </div>
             `;
         }
         
-        // Kiểm tra trạng thái like và save từ localStorage
-        const isLiked = localStorage.getItem(`post_${post.id}_liked`) === 'true';
-        const isSaved = localStorage.getItem(`post_${post.id}_saved`) === 'true';
-        
-        // Chuẩn bị các class cho icon
-        const likeIconClass = isLiked ? 'fas fa-heart text-danger' : 'far fa-heart';
-        const saveIconClass = isSaved ? 'fas fa-bookmark text-primary' : 'far fa-bookmark';
-        
+        // Tạo HTML cho toàn bộ post card
         return `
             <div class="card mb-4" id="post-${post.id}">
                 <!-- Post Header -->
                 <div class="card-header bg-white border-0 py-3" style="cursor: pointer;" onclick="window.location='/posts/${post.id}/';">
                     <div class="d-flex align-items-center justify-content-between">
                         <div class="d-flex align-items-center">
-                            <img src="${post.author.avatar || '/static/images/default_avatar.png'}" 
+                            <img src="${post.author.avatar || '/static/images/default-avatar.png'}" 
                                  class="rounded-circle me-2" 
                                  width="32" 
                                  height="32"
-                                 alt="${post.author.username}"
-                            >
+                                 alt="${post.author.username}">
                             <div>
                                 <a href="/users/${post.author.username}/" 
                                    class="text-dark text-decoration-none fw-bold"
@@ -1639,12 +1716,19 @@ document.addEventListener('DOMContentLoaded', function() {
                                 ${post.location ? `
                                 <div class="text-muted small">
                                     ${post.location}
-                                </div>
-                                ` : ''}
+                                </div>` : ''}
                             </div>
                         </div>
-                        <div class="text-muted small">
-                            ${formatTimeAgo(post.created_at)}
+                        <div class="d-flex align-items-center">
+                            <!-- Loại bài viết -->
+                            ${postBadgeHTML ? `
+                            <div class="post-type-badge me-2">
+                                ${postBadgeHTML}
+                            </div>` : ''}
+                            <!-- Thời gian đăng -->
+                            <div class="text-muted small">
+                                ${timeSince(new Date(post.created_at))} trước
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1653,24 +1737,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 ${post.caption ? `
                 <div class="card-body py-2 post-content" onclick="window.location='/posts/${post.id}/';" style="cursor: pointer;">
                     <p class="card-text mb-0">
-                        ${post.caption|urlize|linebreaksbr}
+                        ${post.caption}
                     </p>
-                </div>
-                ` : ''}
+                </div>` : ''}
 
                 <!-- Post Media -->
-                ${mediaHTML ? `
-                <div class="post-content" onclick="window.location='/posts/${post.id}/';" style="cursor: pointer;">
-                    ${mediaHTML.replace(/data-bs-slide="prev"/g, 'data-bs-slide="prev" onclick="event.stopPropagation();"').replace(/data-bs-slide="next"/g, 'data-bs-slide="next" onclick="event.stopPropagation();"')}
-                </div>
-                ` : ''}
+                ${mediaHTML}
 
                 <!-- Post Actions -->
                 <div class="card-footer d-flex justify-content-between py-2 bg-white">
-                     <div class="d-flex align-items-center">
-                        <button class="btn btn-light btn-sm me-2 like-button" data-post-id="${post.id}">
-                           <i class="${likeIconClass}"></i>
-                           <span class="likes-count">${post.likes_count}</span>
+                    <div class="d-flex align-items-center">
+                        <button class="btn btn-light btn-sm me-2 like-button ${post.is_liked ? 'liked' : ''}" data-post-id="${post.id}">
+                           <i class="${post.is_liked ? 'fas' : 'far'} fa-heart"></i>
+                           <span class="likes-count" data-post-id="${post.id}">${post.likes_count}</span>
                         </button>
                         <button class="btn btn-light btn-sm me-2 comment-button" data-post-id="${post.id}">
                            <i class="far fa-comment"></i>
@@ -1680,13 +1759,13 @@ document.addEventListener('DOMContentLoaded', function() {
                            <i class="far fa-share-square"></i>
                            <span>Chia sẻ</span>
                         </button>
-                     </div>
-                     <div>
+                    </div>
+                    <div>
                         <button class="btn btn-light btn-sm save-button" data-post-id="${post.id}">
-                           <i class="${saveIconClass}"></i>
+                           <i class="${post.is_saved ? 'fas' : 'far'} fa-bookmark"></i>
                         </button>
-                     </div>
-                  </div>
+                    </div>
+                </div>
 
                 <!-- Comments -->
                 ${commentsHTML}
@@ -1696,7 +1775,7 @@ document.addEventListener('DOMContentLoaded', function() {
                       method="post" 
                       class="mt-3 add-comment-form" 
                       data-post-id="${post.id}">
-                    <input type="hidden" name="csrfmiddlewaretoken" value="${getCookie('csrftoken')}">
+                    <input type="hidden" name="csrfmiddlewaretoken" value="${getCsrfToken()}">
                     <div class="input-group">
                         <input type="text" 
                                id="comment-input-${post.id}"
@@ -1719,54 +1798,81 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
     }
     
-    // Format time ago
-    function formatTimeAgo(dateString) {
-        const date = new Date(dateString);
-        const now = new Date();
-        const diff = Math.floor((now - date) / 1000); // Seconds
-        
-        if (diff < 60) return 'vừa xong';
-        if (diff < 3600) return `${Math.floor(diff / 60)} phút trước`;
-        if (diff < 86400) return `${Math.floor(diff / 3600)} giờ trước`;
-        if (diff < 2592000) return `${Math.floor(diff / 86400)} ngày trước`;
-        if (diff < 31536000) return `${Math.floor(diff / 2592000)} tháng trước`;
-        return `${Math.floor(diff / 31536000)} năm trước`;
+    // Helper function để lấy CSRF token
+    function getCsrfToken() {
+        return document.querySelector('input[name="csrfmiddlewaretoken"]').value;
     }
     
-    // Setup event listeners for newly added posts
-    function setupPostEventListeners() {
-        console.log('Setting up post event listeners');
+    // Helper function cho việc format thời gian
+    function timeSince(date) {
+        const seconds = Math.floor((new Date() - date) / 1000);
         
-        // Thiết lập tương tác cho các bài viết mới thêm
-        setupNewPostInteractions();
+        let interval = seconds / 31536000;
+        if (interval > 1) {
+            return Math.floor(interval) + " năm";
+        }
+        interval = seconds / 2592000;
+        if (interval > 1) {
+            return Math.floor(interval) + " tháng";
+        }
+        interval = seconds / 86400;
+        if (interval > 1) {
+            return Math.floor(interval) + " ngày";
+        }
+        interval = seconds / 3600;
+        if (interval > 1) {
+            return Math.floor(interval) + " giờ";
+        }
+        interval = seconds / 60;
+        if (interval > 1) {
+            return Math.floor(interval) + " phút";
+        }
+        return Math.floor(seconds) + " giây";
+    }
+    
+    // Khởi tạo tương tác cho các bài viết mới
+    function setupNewPostInteractions() {
+        console.log('Setting up interactions for new posts');
         
-        // Initialize Bootstrap carousels
-        document.querySelectorAll('.carousel').forEach(carousel => {
-            if (!carousel.hasAttribute('data-initialized')) {
-                carousel.setAttribute('data-initialized', 'true');
-                new bootstrap.Carousel(carousel);
-            }
+        // Gắn event cho nút like
+        document.querySelectorAll('.like-button:not([data-initialized])').forEach(button => {
+            button.setAttribute('data-initialized', 'true');
+            button.addEventListener('click', function() {
+                const postId = this.getAttribute('data-post-id');
+                console.log(`Like button clicked for post ${postId}`);
+                likePost(postId);
+            });
         });
-    }
-    
-    // Set up Intersection Observer
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting && !isLoading) {
-                loadMorePosts();
-            }
+        
+        // Gắn event cho nút save
+        document.querySelectorAll('.save-button:not([data-initialized])').forEach(button => {
+            button.setAttribute('data-initialized', 'true');
+            button.addEventListener('click', function() {
+                const postId = this.getAttribute('data-post-id');
+                console.log(`Save button clicked for post ${postId}`);
+                savePost(postId);
+            });
         });
-    }, {
-        rootMargin: '0px 0px 300px 0px'  // Trigger 300px before the element is visible
-    });
-    
-    // Start observing the trigger element
-    if (loadMoreTrigger) {
-        observer.observe(loadMoreTrigger);
+        
+        // Gắn event cho form comment
+        document.querySelectorAll('.add-comment-form:not([data-event-initialized])').forEach(form => {
+            form.setAttribute('data-event-initialized', 'true');
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+                const postId = this.getAttribute('data-post-id');
+                handleSubmitComment(postId);
+            });
+        });
+        
+        // Gắn event cho nút share
+        document.querySelectorAll('.share-button:not([data-initialized])').forEach(button => {
+            button.setAttribute('data-initialized', 'true');
+            // Modal Bootstrap sẽ tự xử lý click event
+        });
+        
+        // Khôi phục trạng thái like/save
+        restoreInteractionStates();
     }
-    
-    // Initialize event listeners for existing elements
-    setupPostEventListeners();
 });
 </script>
 
@@ -2457,4 +2563,12 @@ window.addEventListener('load', function() {
     setTimeout(enforceLikeButtonState, 1000);
     setTimeout(enforceLikeButtonState, 2000);
 });
+{% endblock %} 
+
+{% block extra_js %}
+<script src="{% static 'js/infinite_scroll.js' %}"></script>
+<script>
+// Thiết lập biến global cho JavaScript
+window.currentUserId = '{{ request.user.id }}';
+</script>
 {% endblock %} 

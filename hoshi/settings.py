@@ -407,3 +407,8 @@ SILENCED_SYSTEM_CHECKS = ['allauth.socialaccount.W002']
 # File upload settings
 MAX_UPLOAD_SIZE = 1073741824  # 1GB in bytes (1024*1024*1024)
 CONTENT_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'video/mp4', 'video/quicktime']
+
+# Custom settings
+POSTS_PER_PAGE = 20
+NOTIFICATIONS_PER_PAGE = 15
+MESSAGES_PER_PAGE = 20

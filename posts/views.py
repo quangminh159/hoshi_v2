@@ -1059,92 +1059,114 @@ def search(request):
 def api_load_posts(request):
     """API endpoint để tải thêm bài viết cho cuộn vô hạn"""
     page_number = request.GET.get('page', 1)
+    feed_type = request.GET.get('feed', 'diverse')
+    
     try:
         page_number = int(page_number)
     except ValueError:
         page_number = 1
     
-    # Lấy tất cả bài viết, sắp xếp theo thời gian tạo mới nhất
-    posts = Post.objects.all().order_by('-created_at')
+    # Lấy bài viết dựa trên loại feed
+    if feed_type == 'flowed':
+        # Lấy bài viết từ người đang theo dõi
+        following_users = request.user.following.values_list('id', flat=True)
+        posts = Post.objects.filter(
+            Q(author__id__in=following_users) | Q(author=request.user),
+            is_archived=False
+        ).order_by('-created_at')
+    else:  # diverse feed
+        # Sử dụng feed đa dạng
+        posts = get_diverse_feed(request.user, page_size=10, page=page_number)
+        # Không cần phân trang vì get_diverse_feed đã làm rồi
+        return JsonResponse({
+            'posts': prepare_posts_json(posts, request.user),
+            'has_next': page_number < 10  # Giả sử tối đa 10 trang
+        })
     
-    # Lấy danh sách người đã chặn người dùng hiện tại
+    # Lấy danh sách người đã chặn
     blocked_by_users = UserBlock.objects.filter(blocked=request.user).values_list('blocker_id', flat=True)
-    
-    # Loại bỏ bài viết từ những người đã chặn người dùng hiện tại
     posts = posts.exclude(author_id__in=blocked_by_users)
     
-    # Kiểm tra và xử lý avatar
-    for post in posts:
-        if not hasattr(post.author, 'avatar_url'):
-            post.author.avatar_url = post.author.get_avatar_url()
-    
     # Phân trang
-    posts_per_page = settings.POSTS_PER_PAGE if hasattr(settings, 'POSTS_PER_PAGE') else 5
+    posts_per_page = getattr(settings, 'POSTS_PER_PAGE', 10)
     paginator = Paginator(posts, posts_per_page)
     
     try:
         page_obj = paginator.page(page_number)
     except EmptyPage:
-        # Nếu trang không tồn tại, trả về một danh sách trống
         return JsonResponse({'posts': [], 'has_next': False})
     
-    # Chuẩn bị dữ liệu cho JSON response
+    return JsonResponse({
+        'posts': prepare_posts_json(page_obj.object_list, request.user),
+        'has_next': page_obj.has_next()
+    })
+
+def prepare_posts_json(posts, user):
+    """Helper để chuẩn bị dữ liệu posts cho JSON responses"""
     posts_data = []
-    for post in page_obj.object_list:
-        # Lấy tối đa 3 bình luận gốc cho mỗi bài viết
-        root_comments = Comment.objects.filter(post=post, parent=None).order_by('-created_at')[:2]
+    for post in posts:
+        # Lấy media
+        media_files = [{
+            'id': media.id,
+            'file_url': media.file.url,
+            'media_type': media.media_type,
+            'order': media.order
+        } for media in post.media.all()]
         
-        comments_with_replies = []
-        for comment in root_comments:
-            # Lấy tối đa 2 trả lời cho mỗi bình luận
-            replies = Comment.objects.filter(parent=comment).order_by('-created_at')[:1]
-            replies_with_like = []
-            for reply in replies:
-                replies_with_like.append({
-                    'reply': reply,
-                    'is_liked': CommentLike.objects.filter(user=request.user, comment=reply).exists()
-                })
-            comments_with_replies.append({
-                'comment': comment,
-                'is_liked': CommentLike.objects.filter(user=request.user, comment=comment).exists(),
-                'replies': replies_with_like,
-                'replies_count': replies.count()
+        # Lấy comments
+        comments_data = []
+        for comment in Comment.objects.filter(post=post, parent=None).order_by('-created_at')[:3]:
+            replies = Comment.objects.filter(parent=comment).order_by('-created_at')[:2]
+            comments_data.append({
+                'comment': {
+                    'id': comment.id,
+                    'text': comment.text,
+                    'created_at': comment.created_at.isoformat(),
+                    'author': {
+                        'id': comment.author.id,
+                        'username': comment.author.username,
+                        'avatar': comment.author.get_avatar_url(),
+                    },
+                    'likes_count': comment.likes_count,
+                },
+                'replies': [{
+                    'id': reply.id,
+                    'text': reply.text,
+                    'created_at': reply.created_at.isoformat(),
+                    'author': {
+                        'id': reply.author.id,
+                        'username': reply.author.username,
+                        'avatar': reply.author.get_avatar_url(),
+                    },
+                    'likes_count': reply.likes_count,
+                } for reply in replies],
+                'replies_count': Comment.objects.filter(parent=comment).count()
             })
         
-        # Lấy thông tin về media của bài viết
-        media_files = []
-        for media in post.media.all():
-            media_files.append({
-                'id': media.id,
-                'file_url': media.file.url,
-                'media_type': media.media_type,
-                'order': media.order
-            })
+        # Xác định post type
+        post_type = determine_post_type(user, post)
         
         posts_data.append({
             'id': post.id,
             'author': {
                 'id': post.author.id,
                 'username': post.author.username,
-                'avatar': post.author.avatar.url if post.author.avatar else None,
+                'avatar': post.author.get_avatar_url(),
             },
             'caption': post.caption,
             'location': post.location,
             'created_at': post.created_at.isoformat(),
             'likes_count': post.likes_count,
             'comments_count': post.comments_count,
-            'is_liked': post.post_likes.filter(user=request.user).exists(),
-            'is_saved': post.saved_by.filter(user=request.user).exists(),
-            'comments_data': comments_with_replies,
+            'is_liked': Like.objects.filter(user=user, post=post).exists(),
+            'is_saved': SavedPost.objects.filter(user=user, post=post).exists(),
             'media': media_files,
-            'disable_comments': post.disable_comments,
+            'comments_data': comments_data,
+            'post_type': post_type,
             'total_comments': Comment.objects.filter(post=post).count()
         })
     
-    return JsonResponse({
-        'posts': posts_data,
-        'has_next': page_obj.has_next()
-    })
+    return posts_data
 
 @login_required
 def index(request):
@@ -1152,9 +1174,19 @@ def index(request):
     user = request.user
     # Lấy trang hiện tại từ tham số URL
     page = request.GET.get('page', 1)
+    try:
+        page = int(page)
+    except ValueError:
+        page = 1
+    
+    # Lấy số lượng bài viết mỗi trang từ settings
+    posts_per_page = settings.POSTS_PER_PAGE if hasattr(settings, 'POSTS_PER_PAGE') else 20
     
     # Nếu người dùng yêu cầu chỉ xem bài viết của người đã theo dõi
     feed_type = request.GET.get('feed', 'diverse')
+    
+    # Kiểm tra nếu là request JSON
+    is_json_request = request.GET.get('format') == 'json'
     
     if feed_type == 'flowed':
         # Lấy bài viết từ người dùng đã theo dõi
@@ -1164,10 +1196,67 @@ def index(request):
             is_archived=False
         ).order_by('-created_at')
         
-        # Xử lý phân trang (cho feed_type == 'flowed')
-        paginator = Paginator(posts_query, 10)
+        # Xử lý phân trang
+        paginator = Paginator(posts_query, posts_per_page)
         posts_page = paginator.get_page(page)
         
+        # Nếu yêu cầu JSON, trả về dữ liệu JSON
+        if is_json_request:
+            posts_data = []
+            for post in posts_page:
+                # Lấy thông tin về media của bài viết
+                media_files = []
+                for media in post.media.all():
+                    media_files.append({
+                        'id': media.id,
+                        'file_url': media.file.url,
+                        'media_type': media.media_type,
+                        'order': media.order
+                    })
+                
+                # Lấy bình luận cho bài viết
+                comments_data = []
+                for comment_data in get_post_comments(post)[:3]:
+                    comments_data.append({
+                        'comment': {
+                            'id': comment_data['comment'].id,
+                            'text': comment_data['comment'].text,
+                            'created_at': comment_data['comment'].created_at.isoformat(),
+                            'author': {
+                                'id': comment_data['comment'].author.id,
+                                'username': comment_data['comment'].author.username,
+                                'avatar': comment_data['comment'].author.get_avatar_url(),
+                            }
+                        },
+                        'replies_count': comment_data['replies_count']
+                    })
+                
+                posts_data.append({
+                    'id': post.id,
+                    'author': {
+                        'id': post.author.id,
+                        'username': post.author.username,
+                        'avatar': post.author.get_avatar_url(),
+                    },
+                    'caption': post.caption,
+                    'location': post.location,
+                    'created_at': post.created_at.isoformat(),
+                    'likes_count': post.post_likes.count(),
+                    'comments_count': post.comments.count(),
+                    'is_liked': post.post_likes.filter(user=user).exists(),
+                    'is_saved': post.saved_by.filter(user=user).exists(),
+                    'media': media_files,
+                    'comments_data': comments_data,
+                    'total_comments': post.comments.count(),
+                    'post_type': 'flowed'
+                })
+            
+            return JsonResponse({
+                'posts': posts_data,
+                'has_next': posts_page.has_next()
+            })
+        
+        # Nếu không phải request JSON, trả về HTML
         posts_with_data = []
         for post in posts_page:
             post_data = {
@@ -1184,11 +1273,101 @@ def index(request):
         return render(request, 'posts/feed.html', {
             'posts_with_data': posts_with_data,
             'feed_type': feed_type,
-            'page': page
+            'page': page,
+            'page_obj': posts_page
         })
     else:
-        # Sử dụng thuật toán đa dạng hóa bài viết (mặc định)
-        posts = get_diverse_feed(user, page_size=10, page=int(page))
+        # Đếm tổng số bài viết để kiểm tra có trang kế tiếp không
+        from posts.models import Post
+        
+        # Đếm tổng số bài viết có thể hiển thị cho người dùng
+        total_posts = Post.objects.filter(
+            is_archived=False,
+            author__is_suspended=False
+        ).exclude(
+            author__in=user.blocked_users.all()
+        ).exclude(
+            author__in=user.blocked_by.all()
+        ).count()
+        
+        # Tính toán số trang tối đa
+        max_pages = (total_posts // posts_per_page) + (1 if total_posts % posts_per_page > 0 else 0)
+        has_more_posts = page < max_pages
+        
+        # Lấy bài viết cho trang hiện tại
+        posts = get_diverse_feed(user, page_size=posts_per_page, page=page)
+        
+        # Nếu yêu cầu JSON, trả về dữ liệu JSON
+        if is_json_request:
+            posts_data = []
+            for post in posts:
+                # Lấy thông tin về media của bài viết
+                media_files = []
+                for media in post.media.all():
+                    media_files.append({
+                        'id': media.id,
+                        'file_url': media.file.url,
+                        'media_type': media.media_type,
+                        'order': media.order
+                    })
+                
+                # Lấy bình luận cho bài viết
+                comments_data = []
+                for comment_data in get_post_comments(post)[:3]:
+                    comments_data.append({
+                        'comment': {
+                            'id': comment_data['comment'].id,
+                            'text': comment_data['comment'].text,
+                            'created_at': comment_data['comment'].created_at.isoformat(),
+                            'author': {
+                                'id': comment_data['comment'].author.id,
+                                'username': comment_data['comment'].author.username,
+                                'avatar': comment_data['comment'].author.get_avatar_url(),
+                            }
+                        },
+                        'replies_count': comment_data['replies_count']
+                    })
+                
+                post_type = determine_post_type(user, post)
+                
+                posts_data.append({
+                    'id': post.id,
+                    'author': {
+                        'id': post.author.id,
+                        'username': post.author.username,
+                        'avatar': post.author.get_avatar_url(),
+                    },
+                    'caption': post.caption,
+                    'location': post.location,
+                    'created_at': post.created_at.isoformat(),
+                    'likes_count': post.post_likes.count(),
+                    'comments_count': post.comments.count(),
+                    'is_liked': post.post_likes.filter(user=user).exists(),
+                    'is_saved': post.saved_by.filter(user=user).exists(),
+                    'media': media_files,
+                    'comments_data': comments_data,
+                    'total_comments': post.comments.count(),
+                    'post_type': post_type
+                })
+            
+            # Thêm thông tin debug
+            debug_info = {
+                'total_posts': total_posts,
+                'posts_per_page': posts_per_page,
+                'max_pages': max_pages,
+                'current_page': page,
+                'has_more': has_more_posts,
+                'posts_in_response': len(posts_data)
+            }
+            
+            # Luôn hiển thị có trang tiếp theo nếu còn bài viết không phụ thuộc vào đủ số lượng bài viết
+            has_more = page < max_pages
+            
+            return JsonResponse({
+                'posts': posts_data,
+                'has_next': has_more,
+                'debug': debug_info
+            })
         
         # Đánh dấu bài viết theo loại để hiển thị nhãn
         posts_with_data = []
@@ -1208,10 +1387,22 @@ def index(request):
         # Tracking trải nghiệm feed của người dùng
         track_feed_impression(user, posts)
         
+        # Tạo một đối tượng page_obj giả để template có thể sử dụng
+        class PageObj:
+            def __init__(self, page, has_next):
+                self.number = page
+                self.has_next_page = has_next
+                
+            def has_next(self):
+                return self.has_next_page
+        
+        page_obj = PageObj(page, has_more_posts)
+        
         return render(request, 'posts/feed.html', {
             'posts_with_data': posts_with_data,
             'feed_type': feed_type,
-            'page': page
+            'page': page,
+            'page_obj': page_obj
         })
 
 def determine_post_type(user, post):
