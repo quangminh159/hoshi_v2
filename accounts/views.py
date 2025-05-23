@@ -65,8 +65,8 @@ def profile(request, username):
             'media', 
             Prefetch('comments', queryset=Comment.objects.filter(parent__isnull=True).select_related('author'))
         ).select_related('author')
-    elif is_shared_posts and is_own_profile:
-        # Lấy các bài viết gốc mà người dùng đã chia sẻ
+    elif is_shared_posts:
+        # Lấy các bài viết gốc mà user này đã chia sẻ
         shared_posts = Post.objects.filter(
             author=user,
             shared_from__isnull=False

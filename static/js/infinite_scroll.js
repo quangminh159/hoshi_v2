@@ -9,8 +9,14 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentPage = parseInt(document.querySelector('meta[name="current-page"]')?.content || '1');
     let feedType = document.querySelector('meta[name="feed-type"]')?.content || 'diverse';
     let loadedPostIds = new Set(); // Tập hợp các ID bài viết đã được tải
+    let totalPosts = parseInt(document.querySelector('meta[name="total-posts"]')?.content || '0');
+    let retryCount = 0; // Số lần đã thử tải lại
+    const MAX_RETRIES = 5; // Giới hạn số lần thử tải lại
+    let consecutiveDuplicates = 0;
+    const MAX_CONSECUTIVE_DUPLICATES = 2;
+    let missingPostsDetected = false; // Biến đánh dấu đã phát hiện bài viết bị thiếu
     
-    console.log(`Infinite scroll initialized with page=${currentPage}, feedType=${feedType}`);
+    console.log(`Infinite scroll initialized with page=${currentPage}, feedType=${feedType}, totalPosts=${totalPosts}`);
     
     // Lưu trữ các ID bài viết đã tải sẵn
     document.querySelectorAll('.card[id^="post-"]').forEach(post => {
@@ -20,6 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     console.log(`Đã tìm thấy ${loadedPostIds.size} bài viết đã tải trước đó`);
+    console.log('Danh sách ID bài viết hiện có:', Array.from(loadedPostIds));
     
     // Lấy các phần tử DOM quan trọng
     const postsContainer = document.getElementById('posts-container');
@@ -57,6 +64,82 @@ document.addEventListener('DOMContentLoaded', function() {
         postsContainer.parentNode.insertBefore(newEndMessage, postsContainer.nextSibling);
     }
     
+    // Tạo phần tử hiển thị thông tin số lượng bài viết
+    const statusInfoDiv = document.createElement('div');
+    statusInfoDiv.id = 'posts-status-info';
+    statusInfoDiv.className = 'd-flex justify-content-between align-items-center px-2 py-1 bg-light rounded mb-3';
+    statusInfoDiv.style.display = 'none'; // Ẩn div này đi
+
+    // Xóa nội dung cũ và để trống
+    statusInfoDiv.innerHTML = '';
+
+    // Chèn phần tử thông tin vào đầu container
+    if (postsContainer && postsContainer.parentNode) {
+        postsContainer.parentNode.insertBefore(statusInfoDiv, postsContainer);
+    }
+    
+    // Tạo phần tử chứa thông tin debug (ẩn mặc định)
+    const debugInfoDiv = document.createElement('div');
+    debugInfoDiv.id = 'debug-info-panel';
+    debugInfoDiv.className = 'card mb-3 d-none';
+    debugInfoDiv.innerHTML = `
+        <div class="card-header bg-light">
+            <h6 class="mb-0">Thông tin chi tiết về bài viết</h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Tổng số bài viết:</strong> <span id="debug-total-posts">${totalPosts || 'Không xác định'}</span></p>
+                    <p><strong>Đã tải:</strong> <span id="debug-loaded-posts">${loadedPostIds.size}</span></p>
+                    <p><strong>Trang hiện tại:</strong> <span id="debug-current-page">${currentPage}</span></p>
+                    <p><strong>Loại feed:</strong> <span id="debug-feed-type">${feedType}</span></p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Còn thiếu:</strong> <span id="debug-missing-posts">${totalPosts ? totalPosts - loadedPostIds.size : 'Không xác định'}</span></p>
+                    <p><strong>Tỉ lệ tải:</strong> <span id="debug-load-percentage">${totalPosts ? Math.round(loadedPostIds.size/totalPosts*100) + '%' : 'Không xác định'}</span></p>
+                    <p><strong>Số lần thử lại:</strong> <span id="debug-retry-count">${retryCount}/${MAX_RETRIES}</span></p>
+                    <p><strong>Còn bài viết mới:</strong> <span id="debug-has-more">${hasMorePosts ? 'Có' : 'Không'}</span></p>
+                </div>
+            </div>
+            <div class="mt-3">
+                <button class="btn btn-sm btn-primary" id="debug-load-missing">Tìm bài viết bị thiếu</button>
+                <button class="btn btn-sm btn-secondary ms-2" id="debug-load-more">Tải trang tiếp theo</button>
+                <button class="btn btn-sm btn-outline-danger ms-2" id="debug-reload-page">Tải lại trang</button>
+            </div>
+        </div>
+    `;
+    
+    // Chèn phần tử debug vào sau phần tử thông tin
+    if (statusInfoDiv.parentNode) {
+        statusInfoDiv.parentNode.insertBefore(debugInfoDiv, statusInfoDiv.nextSibling);
+        
+        // Thêm sự kiện cho các nút trong debug panel
+        const loadMissingBtn = document.getElementById('debug-load-missing');
+        if (loadMissingBtn) {
+            loadMissingBtn.addEventListener('click', function() {
+                loadMissingPosts();
+            });
+        }
+        
+        const loadMoreBtn = document.getElementById('debug-load-more');
+        if (loadMoreBtn) {
+            loadMoreBtn.addEventListener('click', function() {
+                if (!isLoading && hasMorePosts) {
+                    loadMorePosts();
+                } else {
+                    showNotification('Không thể tải thêm bài viết', 'warning');
+                }
+            });
+        }
+        
+        const reloadPageBtn = document.getElementById('debug-reload-page');
+        if (reloadPageBtn) {
+            reloadPageBtn.addEventListener('click', function() {
+                window.location.reload();
+            });
+        }
+    }
+    
     // Tạo sentinel element để theo dõi với IntersectionObserver
     const sentinel = document.createElement('div');
     sentinel.id = 'scroll-sentinel';
@@ -66,23 +149,68 @@ document.addEventListener('DOMContentLoaded', function() {
         postsContainer.parentNode.insertBefore(sentinel, postsContainer.nextSibling);
     }
     
+    // Hàm bật/tắt hiển thị thông tin debug
+    function toggleDebugInfo() {
+        const debugPanel = document.getElementById('debug-info-panel');
+        if (debugPanel) {
+            debugPanel.classList.toggle('d-none');
+            
+            // Cập nhật thông tin mới nhất khi hiển thị
+            if (!debugPanel.classList.contains('d-none')) {
+                updateDebugInfo();
+            }
+        }
+    }
+    
+    // Hàm cập nhật thông tin debug
+    function updateDebugInfo() {
+        document.getElementById('debug-total-posts').textContent = totalPosts || 'Không xác định';
+        document.getElementById('debug-loaded-posts').textContent = loadedPostIds.size;
+        document.getElementById('debug-current-page').textContent = currentPage;
+        document.getElementById('debug-feed-type').textContent = feedType;
+        document.getElementById('debug-missing-posts').textContent = totalPosts ? totalPosts - loadedPostIds.size : 'Không xác định';
+        document.getElementById('debug-load-percentage').textContent = totalPosts ? Math.round(loadedPostIds.size/totalPosts*100) + '%' : 'Không xác định';
+        document.getElementById('debug-retry-count').textContent = `${retryCount}/${MAX_RETRIES}`;
+        document.getElementById('debug-has-more').textContent = hasMorePosts ? 'Có' : 'Không';
+    }
+    
+    // Hàm cập nhật thông tin trạng thái
+    function updateStatusInfo() {
+        const loadedCountElement = document.getElementById('loaded-posts-count');
+        if (loadedCountElement) {
+            loadedCountElement.textContent = loadedPostIds.size;
+        }
+        
+        const percentageElement = loadedCountElement?.nextElementSibling?.nextElementSibling;
+        if (percentageElement && totalPosts) {
+            const percentage = Math.round(loadedPostIds.size/totalPosts*100);
+            percentageElement.textContent = `${percentage}%`;
+            percentageElement.className = `badge ms-1 ${percentage >= 95 ? 'bg-success' : percentage >= 80 ? 'bg-info' : 'bg-warning'}`;
+        }
+    }
+    
     /**
      * Hàm tải thêm bài viết qua API
      */
     async function loadMorePosts() {
-        if (isLoading || !hasMorePosts) return;
+        if (isLoading) return;
         
         isLoading = true;
         const loaderElement = document.getElementById('loading-indicator');
         if (loaderElement) {
             loaderElement.classList.remove('d-none');
+            loaderElement.innerHTML = `
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Đang tải...</span>
+                </div>
+                <p class="mt-2 text-muted">Đã tải ${loadedPostIds.size}${totalPosts ? '/' + totalPosts : ''} bài viết...</p>
+            `;
         }
         
         try {
             // Tạo URL với tham số page và feed type
             const nextPage = currentPage + 1;
             const url = `/posts/?page=${nextPage}&feed=${feedType}&format=json`;
-            console.log('Đang tải bài viết tiếp theo từ:', url);
             
             // Gửi request đến server
             const response = await fetch(url);
@@ -94,39 +222,21 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
             
             // Cập nhật state
-            hasMorePosts = data.has_next;
             currentPage = nextPage;
             
-            // Debug info
-            console.log('Server response:', data);
-            if (data.debug) {
-                console.log('Debug info:', data.debug);
+            // Cập nhật tổng số bài viết từ server
+            if (data.total_posts) {
+                totalPosts = data.total_posts;
+                console.log(`Tổng số bài viết từ server: ${totalPosts}`);
             }
             
-            // Nếu không còn post, hiển thị thông báo
-            if (!hasMorePosts) {
-                const endMsgElement = document.getElementById('end-message');
-                if (endMsgElement) {
-                    endMsgElement.classList.remove('d-none');
-                }
-                
-                const sentinelElement = document.getElementById('scroll-sentinel');
-                if (sentinelElement) {
-                    sentinelElement.remove();
-                }
-            }
-            
-            // Lọc chỉ thêm các bài viết chưa được hiển thị
+            // Lọc và thêm các bài viết mới
             const filteredPosts = data.posts ? data.posts.filter(post => !loadedPostIds.has(post.id.toString())) : [];
-            console.log(`Đã lọc ${data.posts?.length - filteredPosts.length} bài viết trùng lặp`);
             
-            // Render bài viết mới vào DOM
             if (filteredPosts.length > 0) {
                 // Thêm posts vào container
                 filteredPosts.forEach(post => {
-                    // Thêm post ID vào danh sách đã tải
                     loadedPostIds.add(post.id.toString());
-                    
                     const postElement = createPostElement(post);
                     if (postsContainer) {
                         postsContainer.appendChild(postElement);
@@ -135,36 +245,45 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Khởi tạo các tính năng tương tác cho bài viết mới
                 initPostInteractions();
-                
-                // Áp dụng trạng thái từ localStorage
                 restoreInteractionStates();
+                updateStatusInfo();
+                updateDebugInfo();
                 
-                console.log(`Đã tải ${filteredPosts.length} bài viết mới, còn thêm: ${hasMorePosts}`);
+                // Reset biến đếm vì đã tìm thấy bài mới
+                consecutiveDuplicates = 0;
             } else {
-                console.log('Không có bài viết mới, tiếp tục tải trang tiếp theo nếu có');
-                
-                // Nếu không có bài viết mới nhưng vẫn còn trang kế tiếp, tải tiếp
-                if (hasMorePosts) {
-                    // Tải ngay trang tiếp theo thay vì chờ người dùng cuộn
-                    setTimeout(() => loadMorePosts(), 500);
-                } else {
-                    // Nếu không còn trang nào, hiển thị thông báo hết bài viết
-                    const endMsgElement = document.getElementById('end-message');
-                    if (endMsgElement) {
-                        endMsgElement.classList.remove('d-none');
-                    }
-                    
-                    const sentinelElement = document.getElementById('scroll-sentinel');
-                    if (sentinelElement) {
-                        sentinelElement.remove();
-                    }
-                }
+                // Không có bài viết mới, tăng biến đếm
+                consecutiveDuplicates++;
+                console.log(`Không tìm thấy bài viết mới ở trang ${currentPage} (lần ${consecutiveDuplicates}/${MAX_CONSECUTIVE_DUPLICATES})`);
             }
+            
+            // Kiểm tra nếu chưa đủ bài viết
+            if (totalPosts && loadedPostIds.size < totalPosts) {
+                if (consecutiveDuplicates >= MAX_CONSECUTIVE_DUPLICATES) {
+                    console.log('Đã thử nhiều lần không có bài mới, thử tìm bài bị thiếu...');
+                    setTimeout(() => loadMissingPosts(), 1000);
+                } else {
+                    // Tiếp tục tải trang tiếp theo
+                    setTimeout(() => loadMorePosts(), 500);
+                }
+            } else {
+                // Đã tải đủ bài viết
+                console.log(`Đã tải đủ ${loadedPostIds.size}/${totalPosts} bài viết`);
+                showEndMessage();
+            }
+            
         } catch (error) {
             console.error('Lỗi khi tải thêm bài viết:', error);
+            
+            // Nếu có lỗi và chưa đủ bài viết, thử lại sau 1 giây
+            if (totalPosts && loadedPostIds.size < totalPosts) {
+                console.log('Thử tải lại sau 1 giây...');
+                setTimeout(() => loadMorePosts(), 1000);
+            } else {
+                showEndMessage();
+            }
         } finally {
             isLoading = false;
-            const loaderElement = document.getElementById('loading-indicator');
             if (loaderElement) {
                 loaderElement.classList.add('d-none');
             }
@@ -534,13 +653,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 const postUrl = `${window.location.origin}/posts/${postId}/`;
                 
                 // Copy vào clipboard
-                navigator.clipboard.writeText(postUrl)
-                    .then(() => {
-                        alert('Đã sao chép đường dẫn bài viết!');
-                    })
-                    .catch(err => {
-                        console.error('Không thể sao chép: ', err);
-                    });
+                // navigator.clipboard.writeText(postUrl)
+                //     .then(() => {
+                //         alert('Đã sao chép đường dẫn bài viết!');
+                //     })
+                //     .catch(err => {
+                //         console.error('Không thể sao chép: ', err);
+                //     });
             });
             button.setAttribute('data-initialized', 'true');
         });
@@ -1107,15 +1226,428 @@ document.addEventListener('DOMContentLoaded', function() {
         
         observer.observe(sentinelElement);
         console.log('Đã thiết lập Intersection Observer cho infinite scroll');
+        
+        // Lưu observer để có thể sử dụng lại sau này
+        window.infiniteScrollObserver = observer;
     }
     
     // Khởi tạo tương tác cho các bài viết hiện tại
     initPostInteractions();
     
+    // Cập nhật thông tin ban đầu
+    updateStatusInfo();
+    
+    // Hàm hiển thị thông báo hết bài viết
+    function showEndMessage() {
+        // Kiểm tra xem đã tải đủ số bài viết chưa
+        if (totalPosts && loadedPostIds.size < totalPosts * 0.95 && retryCount < MAX_RETRIES) {
+            console.log(`Chưa tải đủ bài viết (${loadedPostIds.size}/${totalPosts}), thử tải lại... (lần ${retryCount + 1}/${MAX_RETRIES})`);
+            
+            // Đặt lại biến hasMorePosts để thử tải lại
+            hasMorePosts = true;
+            retryCount++;
+            
+            // Thử tải lại sau 2 giây
+            setTimeout(() => loadMorePosts(), 2000);
+            return;
+        }
+        
+        const endMsgElement = document.getElementById('end-message');
+        if (endMsgElement) {
+            endMsgElement.classList.remove('d-none');
+            
+            // Nếu chưa tải đủ bài viết, hiển thị nút tải lại
+            if (totalPosts && loadedPostIds.size < totalPosts * 0.98) {
+                console.warn(`Kết thúc tải nhưng vẫn thiếu bài viết: ${loadedPostIds.size}/${totalPosts}`);
+                endMsgElement.innerHTML = `
+                    <div class="alert alert-warning text-center py-3" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Đã tải ${loadedPostIds.size}/${totalPosts} bài viết (còn thiếu ${totalPosts - loadedPostIds.size} bài).
+                        <div class="mt-2">
+                            <button class="btn btn-primary btn-sm reload-posts-btn">
+                                <i class="fas fa-sync-alt me-1"></i> Tải thêm bài viết
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm reload-all-btn ms-2">
+                                <i class="fas fa-redo me-1"></i> Tải lại từ đầu
+                            </button>
+                            ${missingPostsDetected ? `
+                            <button class="btn btn-info btn-sm load-missing-btn ms-2">
+                                <i class="fas fa-search me-1"></i> Tìm bài viết bị thiếu
+                            </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+                
+                // Thêm sự kiện cho nút tải lại
+                setTimeout(() => {
+                    const reloadBtn = endMsgElement.querySelector('.reload-posts-btn');
+                    if (reloadBtn) {
+                        reloadBtn.addEventListener('click', function() {
+                            // Reset các biến trạng thái
+                            retryCount = 0;
+                            hasMorePosts = true;
+                            
+                            // Ẩn thông báo hết bài
+                            endMsgElement.classList.add('d-none');
+                            
+                            // Tạo lại sentinel element
+                            const newSentinel = document.createElement('div');
+                            newSentinel.id = 'scroll-sentinel';
+                            newSentinel.style.height = '10px';
+                            newSentinel.style.margin = '20px 0';
+                            if (postsContainer) {
+                                postsContainer.parentNode.insertBefore(newSentinel, endMsgElement);
+                            }
+                            
+                            // Thiết lập lại observer
+                            if (window.infiniteScrollObserver) {
+                                window.infiniteScrollObserver.observe(newSentinel);
+                            }
+                            
+                            // Tải lại bài viết
+                            loadMorePosts();
+                        });
+                    }
+                    
+                    const reloadAllBtn = endMsgElement.querySelector('.reload-all-btn');
+                    if (reloadAllBtn) {
+                        reloadAllBtn.addEventListener('click', function() {
+                            // Tải lại trang
+                            window.location.reload();
+                        });
+                    }
+                    
+                    const loadMissingBtn = endMsgElement.querySelector('.load-missing-btn');
+                    if (loadMissingBtn) {
+                        loadMissingBtn.addEventListener('click', function() {
+                            loadMissingPosts();
+                        });
+                    }
+                }, 100);
+            } else {
+                endMsgElement.innerHTML = `
+                    <div class="alert alert-info text-center py-3" role="alert">
+                        <i class="fas fa-check-circle me-2"></i>
+                        Bạn đã xem hết tất cả ${loadedPostIds.size}/${totalPosts} bài viết (${Math.round(loadedPostIds.size/totalPosts*100)}%)
+                    </div>
+                `;
+            }
+        }
+        
+        const sentinelElement = document.getElementById('scroll-sentinel');
+        if (sentinelElement) {
+            sentinelElement.remove();
+        }
+    }
+    
+    /**
+     * Hàm tìm và tải các bài viết bị thiếu
+     */
+    async function loadMissingPosts() {
+        if (isLoading || !totalPosts) return;
+        
+        isLoading = true;
+        console.log('Đang tìm và tải các bài viết bị thiếu...');
+        
+        // Hiển thị thông báo đang tìm
+        showNotification('Đang tìm kiếm bài viết bị thiếu...', 'info');
+        
+        // Tạo một loading indicator đặc biệt
+        const loadingElement = document.getElementById('loading-indicator');
+        if (loadingElement) {
+            loadingElement.classList.remove('d-none');
+            loadingElement.innerHTML = `
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Đang tìm kiếm...</span>
+                </div>
+                <p class="mt-2 text-muted">Đang tìm kiếm bài viết bị thiếu...</p>
+            `;
+        }
+        
+        try {
+            // Tính toán số trang cần tải lại
+            const pagesNeeded = Math.ceil(totalPosts / 12); // Giả sử mỗi trang có 12 bài viết
+            console.log(`Cần tải lại ${pagesNeeded} trang để đảm bảo đủ ${totalPosts} bài viết`);
+            
+            // Tải lại từng trang một để tìm bài viết bị thiếu
+            let foundNewPosts = false;
+            
+            // Tạo mảng các trang cần tải
+            const pagesToLoad = Array.from({length: pagesNeeded}, (_, i) => i + 1);
+            
+            // Xáo trộn mảng để tải ngẫu nhiên các trang
+            for (let i = pagesToLoad.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [pagesToLoad[i], pagesToLoad[j]] = [pagesToLoad[j], pagesToLoad[i]];
+            }
+            
+            // Hiển thị thứ tự tải trang
+            console.log('Thứ tự tải các trang:', pagesToLoad);
+            
+            // Tải ngẫu nhiên các trang để tìm bài viết bị thiếu
+            for (let i = 0; i < pagesToLoad.length; i++) {
+                const pageToLoad = pagesToLoad[i];
+                
+                // Bỏ qua trang hiện tại và trang đầu tiên vì đã tải rồi
+                if (pageToLoad === currentPage || pageToLoad === 1) continue;
+                
+                console.log(`Đang tìm bài viết bị thiếu ở trang ${pageToLoad}/${pagesNeeded}...`);
+                
+                // Cập nhật trạng thái loading
+                if (loadingElement) {
+                    loadingElement.querySelector('p').textContent = `Đang tìm bài viết ở trang ${pageToLoad}/${pagesNeeded}...`;
+                }
+                
+                // Tạo URL với tham số page và feed type
+                const url = `/posts/?page=${pageToLoad}&feed=${feedType}&format=json`;
+                
+                // Gửi request đến server
+                const response = await fetch(url);
+                if (!response.ok) {
+                    console.error(`Lỗi khi tải trang ${pageToLoad}: ${response.status}`);
+                    continue;
+                }
+                
+                // Xử lý dữ liệu trả về
+                const data = await response.json();
+                
+                // Lọc chỉ thêm các bài viết chưa được hiển thị
+                const filteredPosts = data.posts ? data.posts.filter(post => !loadedPostIds.has(post.id.toString())) : [];
+                
+                if (filteredPosts.length > 0) {
+                    console.log(`Tìm thấy ${filteredPosts.length} bài viết mới ở trang ${pageToLoad}`);
+                    foundNewPosts = true;
+                    
+                    // Thêm posts vào container
+                    filteredPosts.forEach(post => {
+                        // Thêm post ID vào danh sách đã tải
+                        loadedPostIds.add(post.id.toString());
+                        
+                        const postElement = createPostElement(post);
+                        if (postsContainer) {
+                            postsContainer.appendChild(postElement);
+                        }
+                    });
+                    
+                    // Khởi tạo các tính năng tương tác cho bài viết mới
+                    initPostInteractions();
+                    
+                    // Áp dụng trạng thái từ localStorage
+                    restoreInteractionStates();
+                    
+                    // Cập nhật thông tin trạng thái
+                    updateStatusInfo();
+                    updateDebugInfo();
+                    
+                    // Hiển thị thông báo tiến trình
+                    showNotification(`Đã tìm thấy ${filteredPosts.length} bài viết mới ở trang ${pageToLoad}`, 'success');
+                }
+                
+                // Kiểm tra nếu đã tải đủ bài viết
+                if (loadedPostIds.size >= totalPosts * 0.95) {
+                    console.log('Đã tải đủ bài viết, dừng tìm kiếm');
+                    break;
+                }
+                
+                // Tạm dừng giữa các request để tránh quá tải server
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+            
+            // Hiển thị kết quả cuối cùng
+            if (foundNewPosts) {
+                showNotification(`Đã tìm thấy thêm bài viết. Hiện tại: ${loadedPostIds.size}/${totalPosts} (${Math.round(loadedPostIds.size/totalPosts*100)}%)`, 'success');
+            } else {
+                showNotification('Không tìm thấy thêm bài viết nào', 'warning');
+            }
+            
+            // Cập nhật thông báo cảnh báo
+            const warningElement = document.getElementById('warning-message');
+            if (warningElement) {
+                if (loadedPostIds.size >= totalPosts * 0.95) {
+                    warningElement.remove();
+                } else {
+                    warningElement.innerHTML = `
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Vẫn còn thiếu bài viết (${loadedPostIds.size}/${totalPosts} - ${Math.round(loadedPostIds.size/totalPosts*100)}%). 
+                        <div class="mt-2">
+                            <button class="btn btn-sm btn-warning reload-page-btn">
+                                <i class="fas fa-redo me-1"></i> Tải lại trang
+                            </button>
+                            <button class="btn btn-sm btn-primary ms-2 load-missing-btn">
+                                <i class="fas fa-search me-1"></i> Tiếp tục tìm kiếm
+                            </button>
+                        </div>
+                    `;
+                    
+                    // Thêm sự kiện cho các nút
+                    const reloadBtn = warningElement.querySelector('.reload-page-btn');
+                    if (reloadBtn) {
+                        reloadBtn.addEventListener('click', function() {
+                            window.location.reload();
+                        });
+                    }
+                    
+                    const loadMissingBtn = warningElement.querySelector('.load-missing-btn');
+                    if (loadMissingBtn) {
+                        loadMissingBtn.addEventListener('click', function() {
+                            loadMissingPosts();
+                        });
+                    }
+                }
+            }
+            
+            // Cập nhật thông báo hết bài viết nếu đang hiển thị
+            const endMsgElement = document.getElementById('end-message');
+            if (endMsgElement && !endMsgElement.classList.contains('d-none')) {
+                if (loadedPostIds.size >= totalPosts * 0.98) {
+                    endMsgElement.innerHTML = `
+                        <div class="alert alert-info text-center py-3" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>
+                            Bạn đã xem hết tất cả ${loadedPostIds.size}/${totalPosts} bài viết (${Math.round(loadedPostIds.size/totalPosts*100)}%)
+                        </div>
+                    `;
+                } else {
+                    endMsgElement.innerHTML = `
+                        <div class="alert alert-warning text-center py-3" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Đã tải ${loadedPostIds.size}/${totalPosts} bài viết (${Math.round(loadedPostIds.size/totalPosts*100)}% - còn thiếu ${totalPosts - loadedPostIds.size} bài).
+                            <div class="mt-2">
+                                <button class="btn btn-primary btn-sm reload-posts-btn">
+                                    <i class="fas fa-sync-alt me-1"></i> Tải thêm bài viết
+                                </button>
+                                <button class="btn btn-info btn-sm load-missing-btn ms-2">
+                                    <i class="fas fa-search me-1"></i> Tìm bài viết bị thiếu
+                                </button>
+                                <button class="btn btn-outline-secondary btn-sm reload-all-btn ms-2">
+                                    <i class="fas fa-redo me-1"></i> Tải lại từ đầu
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Thêm sự kiện cho các nút
+                    setTimeout(() => {
+                        const reloadBtn = endMsgElement.querySelector('.reload-posts-btn');
+                        if (reloadBtn) {
+                            reloadBtn.addEventListener('click', function() {
+                                retryCount = 0;
+                                hasMorePosts = true;
+                                endMsgElement.classList.add('d-none');
+                                loadMorePosts();
+                            });
+                        }
+                        
+                        const loadMissingBtn = endMsgElement.querySelector('.load-missing-btn');
+                        if (loadMissingBtn) {
+                            loadMissingBtn.addEventListener('click', function() {
+                                loadMissingPosts();
+                            });
+                        }
+                        
+                        const reloadAllBtn = endMsgElement.querySelector('.reload-all-btn');
+                        if (reloadAllBtn) {
+                            reloadAllBtn.addEventListener('click', function() {
+                                window.location.reload();
+                            });
+                        }
+                    }, 100);
+                }
+            }
+        } catch (error) {
+            console.error('Lỗi khi tìm bài viết bị thiếu:', error);
+            showNotification('Có lỗi khi tìm bài viết bị thiếu', 'error');
+        } finally {
+            isLoading = false;
+            const loadingElement = document.getElementById('loading-indicator');
+            if (loadingElement) {
+                loadingElement.classList.add('d-none');
+                loadingElement.innerHTML = `
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Đang tải...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Đang tải thêm bài viết...</p>
+                `;
+            }
+        }
+    }
+    
+    // Tải tất cả bài viết ngay khi trang được tải
+    async function loadAllPosts() {
+        if (!totalPosts) return;
+        
+        console.log('Đang tải tất cả bài viết...');
+        const totalPages = Math.ceil(totalPosts / 12); // 12 bài viết mỗi trang
+        
+        // Tải lần lượt từng trang cho đến khi đủ
+        for (let page = 1; page <= totalPages; page++) {
+            if (loadedPostIds.size >= totalPosts) break;
+            
+            // Cập nhật trạng thái loading
+            const loadingElement = document.getElementById('loading-indicator');
+            if (loadingElement) {
+                loadingElement.classList.remove('d-none');
+                loadingElement.innerHTML = `
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Đang tải...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Đang tải trang ${page}/${totalPages}...</p>
+                `;
+            }
+            
+            try {
+                const url = `/posts/?page=${page}&feed=${feedType}&format=json`;
+                const response = await fetch(url);
+                if (!response.ok) continue;
+                
+                const data = await response.json();
+                if (!data.posts) continue;
+                
+                // Lọc và thêm các bài viết mới
+                const newPosts = data.posts.filter(post => !loadedPostIds.has(post.id.toString()));
+                newPosts.forEach(post => {
+                    loadedPostIds.add(post.id.toString());
+                    const postElement = createPostElement(post);
+                    if (postsContainer) {
+                        postsContainer.appendChild(postElement);
+                    }
+                });
+                
+                // Cập nhật UI
+                initPostInteractions();
+                restoreInteractionStates();
+                updateStatusInfo();
+                updateDebugInfo();
+                
+                // Chờ một chút trước khi tải trang tiếp theo
+                await new Promise(resolve => setTimeout(resolve, 300));
+            } catch (error) {
+                console.error('Lỗi khi tải trang', page, error);
+            }
+        }
+        
+        // Ẩn loading indicator
+        const loadingElement = document.getElementById('loading-indicator');
+        if (loadingElement) {
+            loadingElement.classList.add('d-none');
+        }
+        
+        console.log(`Đã tải xong ${loadedPostIds.size}/${totalPosts} bài viết`);
+    }
+    
+    // Gọi hàm tải tất cả bài viết
+    loadAllPosts();
+    
     // Biến global để script khác có thể gọi
     window.infiniteScroll = {
         loadMorePosts,
+        loadMissingPosts,
         hasMorePosts: () => hasMorePosts,
-        currentPage: () => currentPage
+        currentPage: () => currentPage,
+        getLoadedCount: () => loadedPostIds.size,
+        getTotalCount: () => totalPosts,
+        updateStatusInfo,
+        updateDebugInfo,
+        toggleDebugInfo
     };
 }); 

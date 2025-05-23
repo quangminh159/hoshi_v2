@@ -422,11 +422,11 @@
                    class="tab {% if is_saved_posts %}active{% endif %}">
                     <i class="fas fa-bookmark"></i> Đã lưu
                 </a>
+                {% endif %}
                 <a href="{% url 'accounts:profile' username=profile_user.username %}?tab=shared" 
                    class="tab {% if is_shared_posts %}active{% endif %}">
                     <i class="fas fa-share-alt"></i> Đã chia sẻ
                 </a>
-                {% endif %}
             </div>
         </div>
 

@@ -13,12 +13,12 @@ def get_diverse_feed(user, page_size=None, page=1):
     
     # Sử dụng page_size từ tham số, nếu không thì sử dụng từ settings, nếu không thì dùng mặc định
     if page_size is None:
-        page_size = getattr(settings, 'POSTS_PER_PAGE', 20)
+        page_size = getattr(settings, 'POSTS_PER_PAGE', 12)  # Mặc định 12 bài viết
     
     logger = logging.getLogger(__name__)
     logger.info(f"get_diverse_feed called with page_size={page_size}, page={page}")
     
-    # Lấy tất cả bài viết từ database trước, không filter gì hết
+    # Lấy tất cả bài viết từ database trước
     all_posts = Post.objects.filter(
         is_archived=False,
         author__is_suspended=False
@@ -54,18 +54,39 @@ def get_diverse_feed(user, page_size=None, page=1):
     # Tính toán offset và limit cho phân trang
     offset = (page - 1) * page_size
     
-    # Nếu offset vượt quá tổng số bài viết thì trả về list rỗng
+    # Nếu offset vượt quá tổng số bài viết thì thử lấy bài viết từ nguồn khác
     if offset >= total_posts:
-        logger.info(f"Offset {offset} vượt quá tổng số bài viết {total_posts}")
-        return []
+        logger.info(f"Offset {offset} vượt quá tổng số bài viết {total_posts}, thử lấy bài viết từ nguồn khác")
+        # Thử lấy bài viết trending
+        trending_posts = get_trending_posts(user, count=page_size)
+        if trending_posts:
+            return list(trending_posts)
+        # Nếu không có bài viết trending, thử lấy bài viết ngẫu nhiên
+        random_posts = get_random_posts(user, count=page_size)
+        return list(random_posts)
     
     # Lấy bài viết theo phạm vi trang hiện tại
     end_index = min(offset + page_size, total_posts)
     posts_for_page = combined_posts[offset:end_index]
     
+    # Nếu không đủ bài viết, bổ sung thêm từ các nguồn khác
+    if len(posts_for_page) < page_size:
+        remaining = page_size - len(posts_for_page)
+        logger.info(f"Cần bổ sung thêm {remaining} bài viết")
+        
+        # Thử lấy thêm bài viết từ trending
+        trending_posts = get_trending_posts(user, count=remaining)
+        posts_for_page.extend([p for p in trending_posts if p.id not in [post.id for post in posts_for_page]])
+        
+        # Nếu vẫn chưa đủ, lấy thêm bài viết ngẫu nhiên
+        if len(posts_for_page) < page_size:
+            remaining = page_size - len(posts_for_page)
+            random_posts = get_random_posts(user, count=remaining)
+            posts_for_page.extend([p for p in random_posts if p.id not in [post.id for post in posts_for_page]])
+    
     logger.info(f"Offset: {offset}, End index: {end_index}, Posts for page: {len(posts_for_page)}")
     
-    return posts_for_page
+    return posts_for_page[:page_size]  # Đảm bảo chỉ trả về đúng số lượng yêu cầu
 
 def get_followed_posts(user, count=10):
     """Lấy bài viết từ người dùng đang theo dõi"""

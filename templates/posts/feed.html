@@ -95,6 +95,13 @@
 {% endblock %}
 
 {% block content %}
+<!-- Meta tags cho infinite scroll -->
+<meta name="current-page" content="{{ page|default:'1' }}">
+<meta name="feed-type" content="{{ feed_type|default:'diverse' }}">
+{% if total_posts %}
+<meta name="total-posts" content="{{ total_posts }}">
+{% endif %}
+
 <div class="container py-4">
     <div class="row justify-content-center">
         <!-- Main Content -->
