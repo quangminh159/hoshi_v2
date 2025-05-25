@@ -1292,7 +1292,7 @@ def index(request):
         'feed_type': feed_type,
         'page': page,
         'page_obj': page_obj,
-        'total_posts': total_posts  # Thêm total_posts vào context
+        'total_posts': total_posts  
     })
 
 def determine_post_type(user, post):

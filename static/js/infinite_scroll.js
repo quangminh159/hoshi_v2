@@ -8,13 +8,13 @@ document.addEventListener('DOMContentLoaded', function() {
     let hasMorePosts = true;
     let currentPage = parseInt(document.querySelector('meta[name="current-page"]')?.content || '1');
     let feedType = document.querySelector('meta[name="feed-type"]')?.content || 'diverse';
-    let loadedPostIds = new Set(); // Tập hợp các ID bài viết đã được tải
+    let loadedPostIds = new Set(); 
     let totalPosts = parseInt(document.querySelector('meta[name="total-posts"]')?.content || '0');
-    let retryCount = 0; // Số lần đã thử tải lại
-    const MAX_RETRIES = 5; // Giới hạn số lần thử tải lại
+    let retryCount = 0; 
+    const MAX_RETRIES = 5; 
     let consecutiveDuplicates = 0;
     const MAX_CONSECUTIVE_DUPLICATES = 2;
-    let missingPostsDetected = false; // Biến đánh dấu đã phát hiện bài viết bị thiếu
+    let missingPostsDetected = false; 
     
     console.log(`Infinite scroll initialized with page=${currentPage}, feedType=${feedType}, totalPosts=${totalPosts}`);
     
