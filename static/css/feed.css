@@ -1,0 +1,333 @@
+/* Feed page — clean & simple */
+.feed-page {
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 0 0 2rem;
+}
+
+.feed-page .feed-top {
+    margin-bottom: 1rem;
+}
+
+.feed-page .feed-top h1 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin: 0;
+    color: #262626;
+    letter-spacing: -0.02em;
+}
+
+/* Feed type tabs */
+.feed-tabs {
+    display: flex;
+    gap: 0.35rem;
+    overflow-x: auto;
+    padding-bottom: 0.25rem;
+    margin-bottom: 1rem;
+    scrollbar-width: none;
+}
+
+.feed-tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.feed-tab {
+    flex-shrink: 0;
+    padding: 0.45rem 0.9rem;
+    border-radius: 20px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #737373;
+    text-decoration: none;
+    background: #fff;
+    border: 1px solid #efefef;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+}
+
+.feed-tab:hover {
+    color: #262626;
+    border-color: #dbdbdb;
+    background: #fafafa;
+}
+
+.feed-tab.active {
+    background: var(--primary-color, #405de6);
+    border-color: var(--primary-color, #405de6);
+    color: #fff;
+}
+
+/* Composer trigger */
+.feed-page .feed-composer-trigger {
+    border: 1px solid #efefef;
+    border-radius: 16px;
+    box-shadow: none;
+    margin-bottom: 1rem;
+    background: #fff;
+}
+
+.feed-page .feed-composer-trigger .card-body {
+    padding: 0.875rem 1rem;
+}
+
+/* Post cards */
+.feed-page #posts-container .card,
+.feed-page #posts-container .feed-post-card {
+    border: 1px solid #efefef;
+    border-radius: 16px;
+    box-shadow: none;
+    margin-bottom: 1rem;
+    overflow: hidden;
+    background: #fff;
+}
+
+.feed-page #posts-container .card-header {
+    background: transparent !important;
+    border: none !important;
+    padding: 0.875rem 1rem 0.5rem;
+}
+
+.feed-page #posts-container .card-body {
+    padding: 0.5rem 1rem;
+}
+
+.feed-page #posts-container .card-body.post-content {
+    padding-top: 0.25rem;
+    padding-bottom: 0.5rem;
+}
+
+.feed-page #posts-container .card-body .card-text {
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    color: #262626;
+}
+
+/* Hide noisy recommendation badges for cleaner feed */
+.feed-page .post-type-badge {
+    display: none;
+}
+
+.feed-page #posts-container .card-header img {
+    width: 36px;
+    height: 36px;
+    border: 2px solid #f5f5f5;
+}
+
+.feed-page #posts-container .card-header a.fw-bold {
+    font-size: 0.875rem;
+    color: #262626 !important;
+}
+
+.feed-page #posts-container .card-header .text-muted.small {
+    font-size: 0.75rem;
+    color: #a8a8a8 !important;
+}
+
+/* Media */
+.feed-page .carousel-item {
+    max-height: 560px;
+    background: #000;
+}
+
+.feed-page .carousel-item img,
+.feed-page .carousel-item video {
+    object-fit: contain;
+    max-height: 560px;
+    width: 100%;
+}
+
+.feed-page .carousel-indicators {
+    margin-bottom: 0.5rem;
+}
+
+.feed-page .carousel-indicators [data-bs-target] {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+.feed-page .carousel-indicators .active {
+    background-color: #fff;
+}
+
+/* Post actions */
+.feed-page #posts-container .card-footer {
+    background: transparent !important;
+    border-top: 1px solid #f5f5f5 !important;
+    padding: 0.5rem 0.75rem;
+}
+
+.feed-page #posts-container .card-footer .btn-light {
+    background: transparent;
+    border: none;
+    color: #525252;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    padding: 0.4rem 0.65rem;
+    border-radius: 8px;
+    transition: background 0.15s, color 0.15s;
+}
+
+.feed-page #posts-container .card-footer .btn-light:hover {
+    background: #f5f5f5;
+    color: #262626;
+}
+
+.feed-page #posts-container .card-footer .like-button.liked,
+.feed-page #posts-container .card-footer .like-button.liked i {
+    color: #ed4956 !important;
+}
+
+.feed-page #posts-container .card-footer .save-button .fas.fa-bookmark {
+    color: var(--primary-color, #405de6) !important;
+}
+
+/* Comments */
+.feed-page .comments-section {
+    padding: 0 1rem 0.5rem;
+}
+
+.feed-page .root-comments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.feed-page .root-comment {
+    font-size: 0.875rem;
+    line-height: 1.45;
+}
+
+.feed-page .root-comment-body {
+    padding-bottom: 0.15rem;
+}
+
+.feed-page .comment-replies-block {
+    margin-top: 0.35rem;
+    margin-left: 0.5rem;
+    padding: 0.5rem 0 0.25rem 0.75rem;
+    border-left: 2px solid #dbdbdb;
+    background: #fafafa;
+    border-radius: 0 8px 8px 0;
+}
+
+.feed-page .comment-replies .reply-comment {
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    padding-bottom: 0.35rem;
+}
+
+.feed-page .comment-replies .reply-comment:last-child {
+    padding-bottom: 0;
+}
+
+.feed-page .comments-section .comment-like-button.text-primary span {
+    color: var(--primary-color, #405de6) !important;
+}
+
+.feed-page .comments-section a.fw-bold {
+    font-size: 0.875rem;
+    margin-right: 0.35rem;
+}
+
+.feed-page .load-more-comments,
+.feed-page .load-more-replies {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    text-decoration: none !important;
+}
+
+.feed-page .load-more-comments {
+    margin-top: 0.35rem;
+    padding-left: 0;
+}
+
+.feed-page .load-more-replies {
+    display: block;
+    margin-top: 0.35rem;
+    padding-left: 0.25rem;
+}
+
+.feed-page .add-comment-form {
+    padding: 0 1rem 1rem;
+    margin-top: 0 !important;
+}
+
+.feed-page .add-comment-form .input-group {
+    background: #f8f9fa;
+    border-radius: 24px;
+    padding: 0.2rem 0.2rem 0.2rem 1rem;
+    border: 1px solid #efefef;
+}
+
+.feed-page .add-comment-form .form-control {
+    border: none;
+    background: transparent;
+    box-shadow: none;
+    font-size: 0.875rem;
+    padding: 0.5rem 0;
+}
+
+.feed-page .add-comment-form .form-control:focus {
+    box-shadow: none;
+}
+
+.feed-page .add-comment-form .btn-primary {
+    border-radius: 20px;
+    padding: 0.35rem 1rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    background: var(--primary-color, #405de6);
+    border: none;
+}
+
+/* Shared posts */
+.feed-page .shared-post-container {
+    margin: 0 1rem 0.75rem !important;
+    background: #fafafa;
+    border-radius: 12px;
+    border: 1px solid #efefef;
+}
+
+.feed-page .share-title {
+    border-bottom: 1px solid #efefef;
+    font-size: 0.8125rem;
+}
+
+.feed-page .original-post {
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* Loading & end */
+.feed-page #loading-indicator,
+.feed-page #end-message {
+    padding: 1.5rem 0;
+}
+
+.feed-page #loading-indicator .spinner-border {
+    width: 1.75rem;
+    height: 1.75rem;
+    color: var(--primary-color, #405de6) !important;
+}
+
+@media (max-width: 576px) {
+    .feed-page {
+        padding: 0 0 1.5rem;
+    }
+
+    .feed-page #posts-container .card,
+    .feed-page #posts-container .feed-post-card {
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+        margin-bottom: 0.5rem;
+    }
+
+    .feed-page .feed-composer-trigger {
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+    }
+}

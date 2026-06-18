@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import get_user_model
 from . import api
-from .models import UserFollowing
+from .models import UserFollowing, UserBlock
 
 router = DefaultRouter()
 router.register(r'users', api.UserViewSet)
@@ -30,6 +30,17 @@ class FollowUserView(APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
                 
+            # Không theo dõi khi còn chặn hoặc bị chặn
+            from django.db.models import Q
+            if UserBlock.objects.filter(
+                Q(blocker=request.user, blocked=user_to_follow)
+                | Q(blocker=user_to_follow, blocked=request.user)
+            ).exists():
+                return Response(
+                    {'error': 'Không thể theo dõi khi đang chặn hoặc bị chặn người dùng này'},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
             # Kiểm tra xem đã follow chưa
             existing_follow = UserFollowing.objects.filter(
                 user=request.user,

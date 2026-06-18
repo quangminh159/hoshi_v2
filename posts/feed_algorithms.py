@@ -1,204 +1,163 @@
-from django.db.models import Count, Q, F, Case, When, BooleanField, Value
+from django.db.models import Q, Case, When
 from django.utils import timezone
 from django.conf import settings
 from datetime import timedelta
 import random
-import logging
+
+
+def _following_ids(user):
+  return user.get_following_user_ids()
+
+
+def _blocked_author_ids(user):
+    return user.get_blocked_user_ids()
+
+
+def _base_feed_queryset(user):
+    """Queryset chung cho feed — lọc block, private account."""
+    from posts.models import Post
+
+    following_ids = _following_ids(user)
+    blocked_ids = _blocked_author_ids(user)
+
+    return Post.objects.filter(
+        is_archived=False,
+        author__is_suspended=False,
+    ).exclude(
+        author_id__in=blocked_ids
+    ).exclude(
+        Q(author__private_account=True)
+        & ~Q(author_id__in=following_ids)
+        & ~Q(author=user)
+    ).select_related('author').prefetch_related('media')
+
 
 def get_diverse_feed(user, page_size=None, page=1):
-    """
-    Tạo feed đa dạng bằng cách kết hợp nhiều loại bài viết khác nhau
-    """
-    from posts.models import Post, Like  # Import ở đây tránh circular import
-    
-    # Sử dụng page_size từ tham số, nếu không thì sử dụng từ settings, nếu không thì dùng mặc định
+    """Feed dành cho bạn — tất cả bài viết, trừ người đã block hoặc bị block."""
     if page_size is None:
-        page_size = getattr(settings, 'POSTS_PER_PAGE', 12)  # Mặc định 12 bài viết
-    
-    logger = logging.getLogger(__name__)
-    logger.info(f"get_diverse_feed called with page_size={page_size}, page={page}")
-    
-    # Lấy tất cả bài viết từ database trước
-    all_posts = Post.objects.filter(
-        is_archived=False,
-        author__is_suspended=False
-    ).exclude(
-        author__in=user.blocked_users.all()
-    ).exclude(
-        author__in=user.blocked_by.all()
-    ).exclude(
-        author__private_account=True,  # Loại bỏ bài viết từ tài khoản riêng tư
-        author__in=user.following.all(),  # Trừ khi đang follow tài khoản đó
-    ).order_by('-created_at')
-    
-    # Thêm bài viết từ các tài khoản đang theo dõi vào đầu danh sách
-    followed_posts = Post.objects.filter(
-        author__in=user.following.all(),
-        is_archived=False,
-        author__is_suspended=False
-    ).exclude(
-        author__in=user.blocked_users.all()
-    ).exclude(
-        author__in=user.blocked_by.all()
-    ).order_by('-created_at')
-    
-    # Kết hợp bài viết theo dõi ở đầu và bài viết khác ở sau
-    combined_posts = list(followed_posts)
-    for post in all_posts:
-        if post.id not in [p.id for p in combined_posts]:
-            combined_posts.append(post)
-    
-    total_posts = len(combined_posts)
-    logger.info(f"Tổng số bài viết: {total_posts}")
-    
-    # Tính toán offset và limit cho phân trang
+        page_size = getattr(settings, 'POSTS_PER_PAGE', 12)
+
     offset = (page - 1) * page_size
-    
-    # Nếu offset vượt quá tổng số bài viết thì thử lấy bài viết từ nguồn khác
-    if offset >= total_posts:
-        logger.info(f"Offset {offset} vượt quá tổng số bài viết {total_posts}, thử lấy bài viết từ nguồn khác")
-        # Thử lấy bài viết trending
-        trending_posts = get_trending_posts(user, count=page_size)
-        if trending_posts:
-            return list(trending_posts)
-        # Nếu không có bài viết trending, thử lấy bài viết ngẫu nhiên
-        random_posts = get_random_posts(user, count=page_size)
-        return list(random_posts)
-    
-    # Lấy bài viết theo phạm vi trang hiện tại
-    end_index = min(offset + page_size, total_posts)
-    posts_for_page = combined_posts[offset:end_index]
-    
-    # Nếu không đủ bài viết, bổ sung thêm từ các nguồn khác
-    if len(posts_for_page) < page_size:
-        remaining = page_size - len(posts_for_page)
-        logger.info(f"Cần bổ sung thêm {remaining} bài viết")
-        
-        # Thử lấy thêm bài viết từ trending
-        trending_posts = get_trending_posts(user, count=remaining)
-        posts_for_page.extend([p for p in trending_posts if p.id not in [post.id for post in posts_for_page]])
-        
-        # Nếu vẫn chưa đủ, lấy thêm bài viết ngẫu nhiên
-        if len(posts_for_page) < page_size:
-            remaining = page_size - len(posts_for_page)
-            random_posts = get_random_posts(user, count=remaining)
-            posts_for_page.extend([p for p in random_posts if p.id not in [post.id for post in posts_for_page]])
-    
-    logger.info(f"Offset: {offset}, End index: {end_index}, Posts for page: {len(posts_for_page)}")
-    
-    return posts_for_page[:page_size]  # Đảm bảo chỉ trả về đúng số lượng yêu cầu
+
+    qs = _base_feed_queryset(user).order_by('-created_at')
+    return list(qs[offset:offset + page_size])
+
+
+def get_followed_feed(user, page_size=None, page=1):
+    """Feed đang theo dõi — chỉ bài từ người đang follow."""
+    from posts.models import Post
+
+    if page_size is None:
+        page_size = getattr(settings, 'POSTS_PER_PAGE', 12)
+
+    following_ids = _following_ids(user)
+    blocked_ids = _blocked_author_ids(user)
+    offset = (page - 1) * page_size
+
+    if not following_ids:
+        return []
+
+    qs = Post.objects.filter(
+        author_id__in=following_ids,
+        is_archived=False,
+        author__is_suspended=False,
+    ).exclude(
+        author_id__in=blocked_ids
+    ).select_related('author').prefetch_related('media').order_by('-created_at')
+
+    return list(qs[offset:offset + page_size])
+
 
 def get_followed_posts(user, count=10):
-    """Lấy bài viết từ người dùng đang theo dõi"""
-    from posts.models import Post
-    
-    following_users = user.following.all()
-    
-    return Post.objects.filter(
-        author__in=following_users,
-        is_archived=False,
-        author__is_suspended=False
-    ).order_by('-created_at')[:count]
+    """Lấy bài viết từ người dùng đang theo dõi."""
+    return get_followed_feed(user, page_size=count, page=1)
+
 
 def get_trending_posts(user, count=5):
-    """Lấy bài viết thịnh hành trong 48 giờ qua"""
-    from posts.models import Post, Like, Comment
-    
-    # Thời gian để xem xét bài viết hot (48 giờ qua)
+    """Lấy bài viết thịnh hành trong 48 giờ qua."""
+    from posts.models import Post
+    from django.db.models import Count, F
+
     time_threshold = timezone.now() - timedelta(hours=48)
-    
-    # Danh sách người dùng bị chặn hoặc chặn người dùng hiện tại
-    blocked_users = list(user.blocked_users.all()) + list(user.blocked_by.all())
-    
-    # Lấy bài viết có nhiều lượt thích và bình luận trong 48 giờ qua
-    trending_posts = Post.objects.filter(
+    blocked_ids = _blocked_author_ids(user)
+
+    return Post.objects.filter(
         created_at__gte=time_threshold,
         is_archived=False,
-        author__is_suspended=False
+        author__is_suspended=False,
     ).exclude(
-        author__in=blocked_users
+        author_id__in=blocked_ids
     ).exclude(
-        author=user  # Loại bỏ bài viết của chính người dùng
+        author=user
     ).exclude(
-        author__private_account=True  # Loại bỏ bài viết từ tài khoản riêng tư
+        author__private_account=True
     ).annotate(
         recent_likes=Count('post_likes', filter=Q(post_likes__created_at__gte=time_threshold)),
         recent_comments=Count('comments', filter=Q(comments__created_at__gte=time_threshold)),
-        # Tính điểm xu hướng (lượt thích x2 + bình luận x3)
-        trending_score=F('recent_likes') * 2 + F('recent_comments') * 3
+        trending_score=F('recent_likes') * 2 + F('recent_comments') * 3,
     ).order_by('-trending_score', '-created_at')[:count]
-    
-    return trending_posts
+
 
 def get_discovery_posts(user, count=5):
-    """Lấy bài viết khám phá dựa trên sở thích của người dùng"""
-    from posts.models import Post, UserInteraction, Hashtag
-    
-    # Lấy các hashtag phổ biến từ bài viết người dùng đã tương tác
+    """Lấy bài viết khám phá dựa trên sở thích của người dùng."""
+    from posts.models import Post, Hashtag
+    from django.db.models import Count, Case, When, BooleanField, Value
+
     user_liked_posts = Post.objects.filter(post_likes__user=user)
     user_commented_posts = Post.objects.filter(comments__author=user)
     user_interacted_posts = (user_liked_posts | user_commented_posts).distinct()
-    
-    # Lấy hashtag phổ biến từ các bài viết đã tương tác
+
     popular_hashtags = Hashtag.objects.filter(
         posts__in=user_interacted_posts
     ).annotate(
         post_count=Count('posts')
     ).order_by('-post_count')[:10]
-    
-    # Danh sách người dùng bị chặn hoặc chặn người dùng hiện tại
-    blocked_users = list(user.blocked_users.all()) + list(user.blocked_by.all())
-    
-    # Lấy bài viết có chứa các hashtag phổ biến
-    discovery_posts = Post.objects.filter(
+
+    blocked_ids = _blocked_author_ids(user)
+
+    return Post.objects.filter(
         hashtags__in=popular_hashtags,
         is_archived=False,
-        author__is_suspended=False
+        author__is_suspended=False,
     ).exclude(
-        author__in=blocked_users
+        author_id__in=blocked_ids
     ).exclude(
         author=user
     ).exclude(
-        id__in=user_interacted_posts.values('id')  # Loại bỏ bài viết đã tương tác
+        id__in=user_interacted_posts.values('id')
     ).exclude(
-        author__private_account=True  
+        author__private_account=True
     ).annotate(
-        # Thêm trường để đánh dấu đã tương tác hay chưa
         is_liked=Case(
             When(post_likes__user=user, then=Value(True)),
             default=Value(False),
-            output_field=BooleanField()
+            output_field=BooleanField(),
         )
     ).order_by('-created_at')[:count]
-    
-    return discovery_posts
+
 
 def get_random_posts(user, count=3):
-    """Lấy bài viết ngẫu nhiên để tăng tính khám phá"""
+    """Lấy bài viết ngẫu nhiên để tăng tính khám phá."""
     from posts.models import Post
-    
-    # Danh sách người dùng bị chặn hoặc chặn người dùng hiện tại
-    blocked_users = list(user.blocked_users.all()) + list(user.blocked_by.all())
-    
-    # Lấy ID của tất cả bài viết hợp lệ
-    all_post_ids = Post.objects.filter(
+
+    blocked_ids = _blocked_author_ids(user)
+
+    all_post_ids = list(Post.objects.filter(
         is_archived=False,
-        author__is_suspended=False
+        author__is_suspended=False,
     ).exclude(
-        author__in=blocked_users
+        author_id__in=blocked_ids
     ).exclude(
         author=user
     ).exclude(
         author__private_account=True
-    ).values_list('id', flat=True)
-    
-    # Chọn ngẫu nhiên một số ID
-    random_ids = list(all_post_ids)
-    random.shuffle(random_ids)
-    selected_ids = random_ids[:min(count, len(random_ids))]
-    
-    # Lấy các bài viết theo ID
-    preserved_order = Case(*[When(id=id, then=pos) for pos, id in enumerate(selected_ids)])
-    random_posts = Post.objects.filter(id__in=selected_ids).order_by(preserved_order)
-    
-    return random_posts 
+    ).values_list('id', flat=True)[:500])
+
+    random.shuffle(all_post_ids)
+    selected_ids = all_post_ids[:min(count, len(all_post_ids))]
+
+    if not selected_ids:
+        return Post.objects.none()
+
+    preserved_order = Case(*[When(id=pk, then=pos) for pos, pk in enumerate(selected_ids)])
+    return Post.objects.filter(id__in=selected_ids).select_related('author').prefetch_related('media').order_by(preserved_order)

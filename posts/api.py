@@ -18,6 +18,7 @@ from django.db.models import Q
 from accounts.models import UserBlock
 from django.contrib.contenttypes.models import ContentType
 from notifications.models import Notification
+from .comment_utils import resolve_reply_parent
 
 User = get_user_model()
 
@@ -215,10 +216,39 @@ def comment_list(request, pk):
         post = Post.objects.get(pk=pk)
     except Post.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
-    
-    comments = Comment.objects.filter(post=post, parent=None).order_by('-created_at')
-    serializer = CommentSerializer(comments, many=True)
+
+    if request.GET.get('format') == 'feed':
+        try:
+            offset = max(0, int(request.GET.get('offset', 0)))
+            limit = min(50, max(1, int(request.GET.get('limit', 10))))
+        except (TypeError, ValueError):
+            offset, limit = 0, 10
+        from .views import build_feed_comments_data
+        return Response(build_feed_comments_data(post, request.user, limit=limit, offset=offset))
+
+    comments = Comment.objects.filter(post=post, parent=None).order_by('-likes_count', '-created_at')
+    serializer = CommentSerializer(comments, many=True, context={'request': request})
     return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def comment_replies(request, pk):
+    try:
+        parent_comment = Comment.objects.get(pk=pk)
+    except Comment.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    try:
+        offset = max(0, int(request.GET.get('offset', 0)))
+        limit = min(50, max(1, int(request.GET.get('limit', 10))))
+    except (TypeError, ValueError):
+        offset, limit = 0, 10
+
+    from .views import build_comment_replies_data
+    return Response(
+        build_comment_replies_data(parent_comment, request.user, limit=limit, offset=offset)
+    )
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -270,7 +300,7 @@ def add_comment(request):
                         'author_id': recent_comment.author.id,
                         'author_username': recent_comment.author.username,
                         'author_avatar': recent_comment.author.avatar.url if recent_comment.author.avatar else None,
-                        'created_at': recent_comment.created_at.strftime('%d/%m/%Y %H:%M'),
+                        'created_at': recent_comment.created_at.isoformat(),
                         'likes_count': recent_comment.likes_count,
                         'parent': parent_data,
                         'post_id': post_id,
@@ -309,7 +339,7 @@ def add_comment(request):
                     'author_id': recent_comment.author.id,
                     'author_username': recent_comment.author.username,
                     'author_avatar': recent_comment.author.avatar.url if recent_comment.author.avatar else None,
-                    'created_at': recent_comment.created_at.strftime('%d/%m/%Y %H:%M'),
+                    'created_at': recent_comment.created_at.isoformat(),
                     'likes_count': recent_comment.likes_count,
                     'parent': parent_data,
                     'post_id': post_id,
@@ -325,14 +355,23 @@ def add_comment(request):
         
         if post.disable_comments:
             return Response({'error': 'Comments are disabled for this post'}, status=status.HTTP_400_BAD_REQUEST)
+
+        root_parent = None
+        direct_parent = None
+        stored_parent_id = None
+        if parent_id:
+            try:
+                root_parent, direct_parent = resolve_reply_parent(post, parent_id)
+                stored_parent_id = root_parent.id
+            except Comment.DoesNotExist:
+                return Response({'error': 'Parent comment not found'}, status=status.HTTP_404_NOT_FOUND)
         
         # Kiểm tra bình luận trùng lặp trong database
-        # Lấy bình luận gần đây nhất của người dùng trong bài viết này
         recent_comments = Comment.objects.filter(
             post=post,
             author=request.user,
             text=text,
-            parent_id=parent_id
+            parent_id=stored_parent_id
         ).order_by('-created_at')
         
         # Nếu đã có bình luận giống hệt trong vòng 30 giây qua, không tạo mới
@@ -357,7 +396,7 @@ def add_comment(request):
                     'author_id': recent_comment.author.id,
                     'author_username': recent_comment.author.username,
                     'author_avatar': recent_comment.author.avatar.url if recent_comment.author.avatar else None,
-                    'created_at': recent_comment.created_at.strftime('%d/%m/%Y %H:%M'),
+                    'created_at': recent_comment.created_at.isoformat(),
                     'likes_count': recent_comment.likes_count,
                     'parent': parent_data,
                     'post_id': post_id,
@@ -366,29 +405,26 @@ def add_comment(request):
                 
                 return Response({'comment': comment_data})
         
-        # Create the comment
+        # Create the comment (always attach to root comment for flat thread)
         comment = Comment.objects.create(
             post=post,
             author=request.user,
             text=text,
-            parent_id=parent_id
+            parent_id=stored_parent_id
         )
         
         # Update post comments count
         post.comments_count = post.comments.count()
         post.save()
         
-        # Get parent comment data if any
         parent_data = None
-        if parent_id:
-            try:
-                parent_comment = Comment.objects.get(id=parent_id)
-                parent_data = {
-                    'id': parent_comment.id,
-                    'author_username': parent_comment.author.username
-                }
-            except Comment.DoesNotExist:
-                pass
+        if root_parent:
+            parent_data = {
+                'id': root_parent.id,
+                'author_username': root_parent.author.username,
+            }
+            if direct_parent and direct_parent.id != root_parent.id:
+                parent_data['reply_to_username'] = direct_parent.author.username
         
         # Trả về dữ liệu comment
         comment_data = {
@@ -397,32 +433,24 @@ def add_comment(request):
             'author_id': request.user.id,
             'author_username': request.user.username,
             'author_avatar': request.user.avatar.url if request.user.avatar else None,
-            'created_at': comment.created_at.strftime('%d/%m/%Y %H:%M'),
+            'created_at': comment.created_at.isoformat(),
             'likes_count': 0,
             'parent': parent_data,
+            'parent_id': stored_parent_id,
             'post_id': post_id,
             'is_duplicate': False
         }
         
-        # Tạo thông báo nếu là reply
-        if parent_id:
-            try:
-                parent_comment = Comment.objects.get(id=parent_id)
-                
-                # Nếu author của comment gốc không phải current user
-                if parent_comment.author != request.user:
-                    Notification.objects.create(
-                        recipient=parent_comment.author,
-                        sender=request.user,
-                        notification_type='comment_reply',
-                        text=f"{request.user.username} đã trả lời bình luận của bạn",
-                        post=post,
-                        comment=comment
-                    )
-            except Comment.DoesNotExist:
-                pass
-        # Nếu không phải reply, tạo thông báo cho author của post
-        elif post.author != request.user:
+        if direct_parent and direct_parent.author != request.user:
+            Notification.objects.create(
+                recipient=direct_parent.author,
+                sender=request.user,
+                notification_type='comment_reply',
+                text=f"{request.user.username} đã trả lời bình luận của bạn",
+                post=post,
+                comment=comment
+            )
+        elif not stored_parent_id and post.author != request.user:
             Notification.objects.create(
                 recipient=post.author,
                 sender=request.user,
@@ -689,8 +717,8 @@ def user_suggestions(request):
     
     # Lọc theo người đang follow nếu có yêu cầu
     if following_only:
-        following_users = request.user.following.all()
-        suggestions = suggestions.filter(id__in=[user.id for user in following_users])
+        following_ids = request.user.get_following_user_ids()
+        suggestions = suggestions.filter(id__in=following_ids)
     
     # Giới hạn số lượng gợi ý
     suggestions = suggestions[:10]
@@ -708,7 +736,7 @@ def user_suggestions(request):
             'username': user.username,
             'avatar_url': user.profile.avatar.url if hasattr(user, 'profile') and user.profile.avatar else '/static/images/default-avatar.png',
             'full_name': f"{user.first_name} {user.last_name}".strip(),
-            'is_following': request.user.following.filter(id=user.id).exists()
+            'is_following': request.user.is_following_user(user)
         })
     
     return JsonResponse(result, safe=False)

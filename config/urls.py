@@ -2,8 +2,14 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.shortcuts import redirect
 from posts.views import home
 from django.views.generic.base import RedirectView
+
+
+def redirect_legacy_profile(request, username):
+    return redirect('accounts:profile', username=username)
+
 
 urlpatterns = [
     path('', home, name='home'),
@@ -12,6 +18,7 @@ urlpatterns = [
     # App URLs
     path('posts/', include('posts.urls')),
     path('users/', include('accounts.urls')),
+    path('accounts/profile/<str:username>/', redirect_legacy_profile),
     path('notifications/', include('notifications.urls')),
     path('accounts/', include('allauth.urls')),
     path('chat/', include('chat.urls')),

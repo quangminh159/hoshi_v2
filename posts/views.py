@@ -20,8 +20,14 @@ from notifications.models import Notification
 import re
 from datetime import timedelta
 from .forms import PostForm, CommentForm, PostReportForm
-from .feed_algorithms import get_diverse_feed
+from .feed_algorithms import get_diverse_feed, get_followed_feed
 from django.db import IntegrityError
+from .comment_utils import (
+    get_root_comment,
+    get_thread_replies_qs,
+    get_thread_reply_ids,
+    resolve_reply_parent,
+)
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -49,7 +55,7 @@ def home(request):
     # Nếu người dùng đã xác thực
     if request.user.is_authenticated:
         # Lấy danh sách những người dùng mà người dùng hiện tại đang theo dõi
-        following_users = request.user.following.values_list('id', flat=True)
+        following_users = request.user.get_following_user_ids()
         logger.info(f"Những người dùng đang được theo dõi: {list(following_users)}")
         
         # Nếu có người theo dõi, ưu tiên bài viết của những người đang theo dõi
@@ -151,7 +157,7 @@ def feed(request):
     # Nếu người dùng đã xác thực
     if request.user.is_authenticated:
         # Lấy danh sách những người dùng mà người dùng hiện tại đang theo dõi
-        following_users = request.user.following.values_list('id', flat=True)
+        following_users = request.user.get_following_user_ids()
         
         # Nếu có người theo dõi, ưu tiên bài viết của những người đang theo dõi
         if following_users:
@@ -692,9 +698,11 @@ def add_comment(request, post_id):
     
     # Nếu là trả lời bình luận, kiểm tra parent comment
     parent = None
+    direct_parent = None
     if parent_id:
         try:
-            parent = Comment.objects.get(id=parent_id, post=post)
+            root_parent, direct_parent = resolve_reply_parent(post, parent_id)
+            parent = root_parent
         except Comment.DoesNotExist:
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({
@@ -730,9 +738,10 @@ def add_comment(request, post_id):
         )
     
     # Gửi thông báo cho người được trả lời
-    if parent and parent.author != request.user:
+    notify_parent = direct_parent or parent
+    if notify_parent and notify_parent.author != request.user:
         Notification.objects.get_or_create(
-            recipient=parent.author,
+            recipient=notify_parent.author,
             sender=request.user,
             notification_type='comment',
             text=f"{request.user.username} đã trả lời bình luận của bạn",
@@ -949,61 +958,49 @@ def report_post_ajax(request, post_id):
 
 @login_required
 def saved_posts(request):
-    # Lấy các bài viết đã lưu
-    saved_posts = SavedPost.objects.filter(user=request.user).select_related('post', 'post__author')
-    
-    # Chuyển đổi thành danh sách các bài viết
-    posts = [saved_post.post for saved_post in saved_posts]
-    
-    # Phân trang
-    paginator = Paginator(posts, settings.POSTS_PER_PAGE if hasattr(settings, 'POSTS_PER_PAGE') else 10)
+    if request.GET.get('format') != 'json':
+        return render(request, 'posts/feed.html', {
+            'feed_type': 'saved',
+            'title': 'Bài viết đã lưu',
+        })
+
+    posts_per_page = getattr(settings, 'POSTS_PER_PAGE', 12)
+    saved_qs = SavedPost.objects.filter(user=request.user).select_related(
+        'post', 'post__author'
+    ).prefetch_related('post__media').order_by('-created_at')
+
+    posts = [saved_post.post for saved_post in saved_qs]
+    paginator = Paginator(posts, posts_per_page)
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
-    
-    # Chuẩn bị dữ liệu bài viết cho template feed
-    posts_with_data = []
-    for post in page_obj:
-        posts_with_data.append({
-            'post': post,
-            'post_type': 'saved'
-        })
-    
-    context = {
-        'posts_with_data': posts_with_data,
-        'page_obj': page_obj,
-        'feed_type': 'saved',
-        'title': 'Bài viết đã lưu'
-    }
-    return render(request, 'posts/feed.html', context)
+
+    return JsonResponse({
+        'posts': prepare_posts_json(page_obj.object_list, request.user, include_comments=True),
+        'has_next': page_obj.has_next(),
+    })
 
 @login_required
 def liked_posts(request):
-    # Lấy các bài viết đã thích
-    liked_posts = Like.objects.filter(user=request.user).select_related('post', 'post__author')
-    
-    # Chuyển đổi thành danh sách các bài viết
-    posts = [like.post for like in liked_posts]
-    
-    # Phân trang
-    paginator = Paginator(posts, settings.POSTS_PER_PAGE if hasattr(settings, 'POSTS_PER_PAGE') else 10)
+    if request.GET.get('format') != 'json':
+        return render(request, 'posts/feed.html', {
+            'feed_type': 'liked',
+            'title': 'Bài viết đã thích',
+        })
+
+    posts_per_page = getattr(settings, 'POSTS_PER_PAGE', 12)
+    liked_qs = Like.objects.filter(user=request.user).select_related(
+        'post', 'post__author'
+    ).prefetch_related('post__media').order_by('-created_at')
+
+    posts = [like.post for like in liked_qs]
+    paginator = Paginator(posts, posts_per_page)
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
-    
-    # Chuẩn bị dữ liệu bài viết cho template feed
-    posts_with_data = []
-    for post in page_obj:
-        posts_with_data.append({
-            'post': post,
-            'post_type': 'liked'
-        })
-    
-    context = {
-        'posts_with_data': posts_with_data,
-        'page_obj': page_obj,
-        'feed_type': 'liked',
-        'title': 'Bài viết đã thích'
-    }
-    return render(request, 'posts/feed.html', context)
+
+    return JsonResponse({
+        'posts': prepare_posts_json(page_obj.object_list, request.user, include_comments=True),
+        'has_next': page_obj.has_next(),
+    })
 
 @login_required
 def get_post_likes(request, post_id):
@@ -1019,7 +1016,7 @@ def get_post_likes(request, post_id):
                 'username': user.username,
                 'full_name': f"{user.first_name} {user.last_name}".strip(),
                 'avatar': user.avatar.url if user.avatar else None,
-                'is_following': request.user.following.filter(id=user.id).exists() if request.user.is_authenticated else False
+                'is_following': request.user.is_following_user(user) if request.user.is_authenticated else False
             }
         })
     
@@ -1121,91 +1118,181 @@ def api_load_posts(request):
     """API endpoint để tải thêm bài viết cho cuộn vô hạn"""
     page_number = request.GET.get('page', 1)
     feed_type = request.GET.get('feed', 'diverse')
-    
+
     try:
         page_number = int(page_number)
     except ValueError:
         page_number = 1
-    
-    # Tính tổng số bài viết có thể hiển thị cho người dùng
-    total_posts = Post.objects.filter(
-        is_archived=False,
-        author__is_suspended=False
-    ).exclude(
-        author__in=request.user.blocked_users.all()
-    ).exclude(
-        author__in=request.user.blocked_by.all()
-    ).count()
 
-    # Lấy bài viết dựa trên loại feed
     if feed_type == 'flowed':
-        # Lấy bài viết từ người đang theo dõi
-        following_users = request.user.following.values_list('id', flat=True)
-        posts = Post.objects.filter(
-            Q(author__id__in=following_users) | Q(author=request.user),
-            is_archived=False
-        ).order_by('-created_at')
-    else:  # diverse feed
-        # Sử dụng feed đa dạng với page_size=12 (thay vì 10)
+        posts = get_followed_feed(request.user, page_size=12, page=page_number)
+    else:
         posts = get_diverse_feed(request.user, page_size=12, page=page_number)
-        
-    # Chuẩn bị dữ liệu JSON
+
     posts_data = prepare_posts_json(posts, request.user)
-    
-    # Tính toán xem còn trang tiếp theo không
-    has_next = (page_number * 12) < total_posts
+    has_next = len(posts) >= 12
 
     return JsonResponse({
         'posts': posts_data,
         'has_next': has_next,
-        'total_posts': total_posts  # Thêm total_posts vào response
     })
 
-def prepare_posts_json(posts, user):
-    """Helper để chuẩn bị dữ liệu posts cho JSON responses"""
+FEED_COMMENTS_PREVIEW = 2
+FEED_COMMENTS_PAGE_SIZE = 7
+FEED_REPLIES_PREVIEW = 2
+FEED_REPLIES_PAGE_SIZE = 7
+
+
+def _comment_payload(comment_obj, liked_comment_ids, parent_id=None):
+    data = {
+        'id': comment_obj.id,
+        'text': comment_obj.text,
+        'created_at': comment_obj.created_at.isoformat(),
+        'author_username': comment_obj.author.username,
+        'likes_count': comment_obj.likes_count,
+        'is_liked': comment_obj.id in liked_comment_ids,
+    }
+    if parent_id is not None:
+        data['parent_id'] = parent_id
+    return data
+
+
+def build_comment_replies_data(parent_comment, user, limit=FEED_REPLIES_PREVIEW, offset=0, replies_count=None):
+    """Replies for one root comment thread (includes replies-to-replies, shown flat)."""
+    root = get_root_comment(parent_comment)
+    reply_qs = get_thread_replies_qs(parent_comment.post, root)
+    if replies_count is None:
+        replies_count = reply_qs.count()
+
+    replies = list(reply_qs[offset:offset + limit])
+    reply_ids = [r.id for r in replies]
+    liked_comment_ids = set(
+        CommentLike.objects.filter(user=user, comment_id__in=reply_ids)
+        .values_list('comment_id', flat=True)
+    ) if reply_ids else set()
+
+    loaded = offset + len(replies)
+    return {
+        'replies': [
+            _comment_payload(r, liked_comment_ids, parent_id=root.id)
+            for r in replies
+        ],
+        'replies_count': replies_count,
+        'has_more_replies': loaded < replies_count,
+        'next_offset': loaded if loaded < replies_count else None,
+        'root_comment_id': root.id,
+    }
+
+
+def build_feed_comments_data(post, user, limit=FEED_COMMENTS_PREVIEW, offset=0):
+    """Top root comments by likes, then newest; replies loaded separately per comment."""
+    root_qs = Comment.objects.filter(post=post, parent=None).select_related('author')
+    root_comments_count = root_qs.count()
+
+    root_comments = list(
+        root_qs.order_by('-likes_count', '-created_at')[offset:offset + limit]
+    )
+
+    replies_by_parent = {}
+    reply_counts = {}
+    for comment in root_comments:
+        thread_ids = get_thread_reply_ids(post, comment.id)
+        reply_counts[comment.id] = len(thread_ids)
+        preview = list(
+            get_thread_replies_qs(post, comment)[:FEED_REPLIES_PREVIEW]
+        )
+        replies_by_parent[comment.id] = preview
+
+    root_ids = [c.id for c in root_comments]
+    all_comment_ids = root_ids + [
+        r.id for replies in replies_by_parent.values() for r in replies
+    ]
+    liked_comment_ids = set(
+        CommentLike.objects.filter(user=user, comment_id__in=all_comment_ids)
+        .values_list('comment_id', flat=True)
+    ) if all_comment_ids else set()
+
+    comments_data = []
+    for comment in root_comments:
+        preview_replies = replies_by_parent.get(comment.id, [])
+        total_replies = reply_counts.get(comment.id, 0)
+        comments_data.append({
+            **_comment_payload(comment, liked_comment_ids),
+            'replies': [
+                _comment_payload(reply, liked_comment_ids, parent_id=comment.id)
+                for reply in preview_replies
+            ],
+            'replies_count': total_replies,
+            'has_more_replies': total_replies > len(preview_replies),
+        })
+
+    loaded = offset + len(root_comments)
+    return {
+        'comments_data': comments_data,
+        'root_comments_count': root_comments_count,
+        'has_more_comments': loaded < root_comments_count,
+        'next_offset': loaded if loaded < root_comments_count else None,
+    }
+
+
+@login_required
+def feed_comments_json(request, post_id):
+    """Load paginated root comments for feed (session auth, no API router conflict)."""
+    post = get_object_or_404(Post, pk=post_id)
+    try:
+        offset = max(0, int(request.GET.get('offset', 0)))
+        limit = min(50, max(1, int(request.GET.get('limit', FEED_COMMENTS_PAGE_SIZE))))
+    except (TypeError, ValueError):
+        offset, limit = 0, FEED_COMMENTS_PAGE_SIZE
+    return JsonResponse(build_feed_comments_data(post, request.user, limit=limit, offset=offset))
+
+
+@login_required
+def feed_comment_replies_json(request, comment_id):
+    """Load paginated replies for one root comment on feed."""
+    comment = get_object_or_404(Comment, pk=comment_id)
+    try:
+        offset = max(0, int(request.GET.get('offset', 0)))
+        limit = min(50, max(1, int(request.GET.get('limit', FEED_REPLIES_PAGE_SIZE))))
+    except (TypeError, ValueError):
+        offset, limit = 0, FEED_REPLIES_PAGE_SIZE
+    return JsonResponse(
+        build_comment_replies_data(comment, request.user, limit=limit, offset=offset)
+    )
+
+
+def prepare_posts_json(posts, user, include_comments=False):
+    """Helper để chuẩn bị dữ liệu posts cho JSON responses."""
+    post_list = list(posts)
+    if not post_list:
+        return []
+
+    post_ids = [post.id for post in post_list]
+    liked_ids = set(
+        Like.objects.filter(user=user, post_id__in=post_ids).values_list('post_id', flat=True)
+    )
+    saved_ids = set(
+        SavedPost.objects.filter(user=user, post_id__in=post_ids).values_list('post_id', flat=True)
+    )
+
     posts_data = []
-    for post in posts:
-        # Lấy media
+    for post in post_list:
         media_files = [{
             'id': media.id,
             'file_url': media.file.url,
             'media_type': media.media_type,
-            'order': media.order
+            'order': media.order,
         } for media in post.media.all()]
-        
-        # Lấy comments
+
         comments_data = []
-        for comment in Comment.objects.filter(post=post, parent=None).order_by('-created_at')[:3]:
-            replies = Comment.objects.filter(parent=comment).order_by('-created_at')[:2]
-            comments_data.append({
-                'comment': {
-                    'id': comment.id,
-                    'text': comment.text,
-                    'created_at': comment.created_at.isoformat(),
-                    'author': {
-                        'id': comment.author.id,
-                        'username': comment.author.username,
-                        'avatar': comment.author.get_avatar_url(),
-                    },
-                    'likes_count': comment.likes_count,
-                },
-                'replies': [{
-                    'id': reply.id,
-                    'text': reply.text,
-                    'created_at': reply.created_at.isoformat(),
-                    'author': {
-                        'id': reply.author.id,
-                        'username': reply.author.username,
-                        'avatar': reply.author.get_avatar_url(),
-                    },
-                    'likes_count': reply.likes_count,
-                } for reply in replies],
-                'replies_count': Comment.objects.filter(parent=comment).count()
-            })
-        
-        # Xác định post type
-        post_type = determine_post_type(user, post)
-        
+        root_comments_count = 0
+        has_more_comments = False
+        if include_comments:
+            feed_comments = build_feed_comments_data(post, user)
+            comments_data = feed_comments['comments_data']
+            root_comments_count = feed_comments['root_comments_count']
+            has_more_comments = feed_comments['has_more_comments']
+
         posts_data.append({
             'id': post.id,
             'author': {
@@ -1218,14 +1305,16 @@ def prepare_posts_json(posts, user):
             'created_at': post.created_at.isoformat(),
             'likes_count': post.likes_count,
             'comments_count': post.comments_count,
-            'is_liked': Like.objects.filter(user=user, post=post).exists(),
-            'is_saved': SavedPost.objects.filter(user=user, post=post).exists(),
+            'is_liked': post.id in liked_ids,
+            'is_saved': post.id in saved_ids,
             'media': media_files,
             'comments_data': comments_data,
-            'post_type': post_type,
-            'total_comments': Comment.objects.filter(post=post).count()
+            'root_comments_count': root_comments_count,
+            'has_more_comments': has_more_comments,
+            'post_type': determine_post_type(user, post),
+            'total_comments': post.comments_count,
         })
-    
+
     return posts_data
 
 @login_required
@@ -1237,128 +1326,31 @@ def index(request):
         page = int(page)
     except ValueError:
         page = 1
-    
-    # Đặt số lượng bài viết mỗi trang là 12
-    posts_per_page = 12
+
+    posts_per_page = getattr(settings, 'POSTS_PER_PAGE', 12)
     feed_type = request.GET.get('feed', 'diverse')
     is_json_request = request.GET.get('format') == 'json'
-    
-    # Tính tổng số bài viết có thể hiển thị
-    total_posts = Post.objects.filter(
-        is_archived=False,
-        author__is_suspended=False
-    ).exclude(
-        author__in=user.blocked_users.all()
-    ).exclude(
-        author__in=user.blocked_by.all()
-    ).count()
 
-    # Tính toán số trang tối đa
-    max_pages = (total_posts // posts_per_page) + (1 if total_posts % posts_per_page > 0 else 0)
-    has_more_posts = page < max_pages
-    
-    # Lấy bài viết cho trang hiện tại
-    posts = get_diverse_feed(user, page_size=posts_per_page, page=page)
-    
-    # Nếu yêu cầu JSON, trả về dữ liệu JSON
-    if is_json_request:
-        posts_data = []
-        for post in posts:
-            # Lấy thông tin về media của bài viết
-            media_files = []
-            for media in post.media.all():
-                media_files.append({
-                    'id': media.id,
-                    'file_url': media.file.url,
-                    'media_type': media.media_type,
-                    'order': media.order
-                })
-            
-            # Lấy bình luận cho bài viết
-            comments_data = []
-            for comment_data in get_post_comments(post)[:3]:
-                comments_data.append({
-                    'comment': {
-                        'id': comment_data['comment'].id,
-                        'text': comment_data['comment'].text,
-                        'created_at': comment_data['comment'].created_at.isoformat(),
-                        'author': {
-                            'id': comment_data['comment'].author.id,
-                            'username': comment_data['comment'].author.username,
-                            'avatar': comment_data['comment'].author.get_avatar_url(),
-                        }
-                    },
-                    'replies_count': comment_data['replies_count']
-                })
-            
-            post_type = determine_post_type(user, post)
-            
-            posts_data.append({
-                'id': post.id,
-                'author': {
-                    'id': post.author.id,
-                    'username': post.author.username,
-                    'avatar': post.author.get_avatar_url(),
-                },
-                'caption': post.caption,
-                'location': post.location,
-                'created_at': post.created_at.isoformat(),
-                'likes_count': post.post_likes.count(),
-                'comments_count': post.comments.count(),
-                'is_liked': post.post_likes.filter(user=user).exists(),
-                'is_saved': post.saved_by.filter(user=user).exists(),
-                'media': media_files,
-                'comments_data': comments_data,
-                'total_comments': post.comments.count(),
-                'post_type': post_type
-            })
-        
-        return JsonResponse({
-            'posts': posts_data,
-            'has_next': has_more_posts,
-            'total_posts': total_posts  # Thêm total_posts vào response
+    if not is_json_request:
+        return render(request, 'posts/feed.html', {
+            'feed_type': feed_type,
         })
-    
-    # Đánh dấu bài viết theo loại để hiển thị nhãn
-    posts_with_data = []
-    for post in posts:
-        # Điền các thông tin chi tiết
-        post_data = {
-            'post': post,
-            'comments_data': get_post_comments(post)[:3],  
-            'total_comments': post.comments.count(),
-            'total_likes': post.post_likes.count(),
-            'is_liked': post.post_likes.filter(user=user).exists(),
-            'is_saved': post.saved_by.filter(user=user).exists(),
-            'post_type': determine_post_type(user, post)  
-        }
-        posts_with_data.append(post_data)
-    
-    # Tracking trải nghiệm feed của người dùng
-    track_feed_impression(user, posts)
-    
-    # Tạo một đối tượng page_obj giả để template có thể sử dụng
-    class PageObj:
-        def __init__(self, page, has_next):
-            self.number = page
-            self.has_next_page = has_next
-            
-        def has_next(self):
-            return self.has_next_page
-    
-    page_obj = PageObj(page, has_more_posts)
-    
-    return render(request, 'posts/feed.html', {
-        'posts_with_data': posts_with_data,
-        'feed_type': feed_type,
-        'page': page,
-        'page_obj': page_obj,
-        'total_posts': total_posts  
+
+    if feed_type == 'flowed':
+        posts = get_followed_feed(user, page_size=posts_per_page, page=page)
+    else:
+        posts = get_diverse_feed(user, page_size=posts_per_page, page=page)
+
+    has_more_posts = len(posts) >= posts_per_page
+
+    return JsonResponse({
+        'posts': prepare_posts_json(posts, user, include_comments=True),
+        'has_next': has_more_posts,
     })
 
 def determine_post_type(user, post):
     """Xác định loại bài viết để hiển thị nhãn"""
-    if post.author in user.following.all():
+    if user.is_following_user(post.author):
         return 'flowed'
     
     # Kiểm tra hashtag phổ biến mà người dùng thích

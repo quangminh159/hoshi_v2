@@ -212,8 +212,10 @@ def generate_user_data_download(request_id):
         # Lấy danh sách người theo dõi và đang theo dõi
         followers_data = [{'username': follower.username, 'id': follower.id} 
                           for follower in user.followers.all()]
-        following_data = [{'username': following.username, 'id': following.id} 
-                          for following in user.following.all()]
+        following_data = [
+            {'username': rel.following_user.username, 'id': rel.following_user_id}
+            for rel in user.following_relationships.select_related('following_user').all()
+        ]
         
         # Lưu thông tin theo dõi
         with open(os.path.join(temp_dir, 'followers.json'), 'w', encoding='utf-8') as f:

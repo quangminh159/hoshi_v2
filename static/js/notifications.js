@@ -1,54 +1,54 @@
 // Notifications Websocket Connection
+let wsReconnectAttempts = 0;
+const WS_MAX_RECONNECT = 3;
+let wsDisabled = false;
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Only connect if user is authenticated
-    if (document.body.classList.contains('user-authenticated')) {
+    if (document.body.classList.contains('user-authenticated') && !wsDisabled) {
         connectWebSocket();
     }
 
-    // Setup mark as read functionality
     setupNotificationInteractions();
 });
 
 function connectWebSocket() {
-    // Get the current user ID from the page (should be added in your template)
-    const userId = document.body.dataset.userId;
-    console.log("Connecting WebSocket with userId:", userId);
-    if (!userId) {
-        console.error("No userId found in body dataset");
+    if (wsDisabled || wsReconnectAttempts >= WS_MAX_RECONNECT) {
         return;
     }
 
-    // Create WebSocket connection based on secure or non-secure connection
+    const userId = document.body.dataset.userId;
+    if (!userId) {
+        return;
+    }
+
     const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
     const host = window.location.host;
     const wsUrl = `${protocol}${host}/ws/notifications/${userId}/`;
-    console.log("WebSocket URL:", wsUrl);
-    
+
     try {
         const socket = new WebSocket(wsUrl);
 
-        // Connection opened
-        socket.addEventListener('open', (event) => {
-            console.log('WebSocket connection established');
+        socket.addEventListener('open', () => {
+            wsReconnectAttempts = 0;
         });
 
-        // Listen for messages
         socket.addEventListener('message', (event) => {
-            console.log('WebSocket message received:', event.data);
             const data = JSON.parse(event.data);
             handleNotification(data);
         });
 
-        // Connection closed
-        socket.addEventListener('close', (event) => {
-            console.log('WebSocket connection closed', event);
-            // Try to reconnect after 5 seconds
-            setTimeout(connectWebSocket, 5000);
+        socket.addEventListener('close', () => {
+            wsReconnectAttempts += 1;
+            if (wsReconnectAttempts >= WS_MAX_RECONNECT) {
+                wsDisabled = true;
+                console.warn('WebSocket thông báo không khả dụng. Chạy server bằng: python -m daphne -p 8000 hoshi.asgi:application');
+                return;
+            }
+            setTimeout(connectWebSocket, 5000 * wsReconnectAttempts);
         });
 
-        // Error handling
-        socket.addEventListener('error', (event) => {
-            console.error('WebSocket error:', event);
+        socket.addEventListener('error', () => {
+            // close handler manages retry
         });
     } catch (error) {
         console.error('Error creating WebSocket connection:', error);
@@ -99,19 +99,19 @@ function addNotificationToList(notification) {
     let notificationText;
     switch(notification.notification_type) {
         case 'like':
-            notificationText = `<a href="/profile/${notification.sender_username}/" class="fw-bold text-decoration-none">${notification.sender_username}</a> đã thích bài viết của bạn`;
+            notificationText = `<a href="/users/${notification.sender_username}/" class="fw-bold text-decoration-none">${notification.sender_username}</a> đã thích bài viết của bạn`;
             break;
         case 'comment':
-            notificationText = `<a href="/profile/${notification.sender_username}/" class="fw-bold text-decoration-none">${notification.sender_username}</a> đã bình luận về bài viết của bạn`;
+            notificationText = `<a href="/users/${notification.sender_username}/" class="fw-bold text-decoration-none">${notification.sender_username}</a> đã bình luận về bài viết của bạn`;
             break;
         case 'follow':
-            notificationText = `<a href="/profile/${notification.sender_username}/" class="fw-bold text-decoration-none">${notification.sender_username}</a> đã theo dõi bạn`;
+            notificationText = `<a href="/users/${notification.sender_username}/" class="fw-bold text-decoration-none">${notification.sender_username}</a> đã theo dõi bạn`;
             break;
         case 'mention':
-            notificationText = `<a href="/profile/${notification.sender_username}/" class="fw-bold text-decoration-none">${notification.sender_username}</a> đã nhắc đến bạn trong bài viết`;
+            notificationText = `<a href="/users/${notification.sender_username}/" class="fw-bold text-decoration-none">${notification.sender_username}</a> đã nhắc đến bạn trong bài viết`;
             break;
         case 'message':
-            notificationText = `<a href="/profile/${notification.sender_username}/" class="fw-bold text-decoration-none">${notification.sender_username}</a> đã gửi tin nhắn cho bạn`;
+            notificationText = `<a href="/users/${notification.sender_username}/" class="fw-bold text-decoration-none">${notification.sender_username}</a> đã gửi tin nhắn cho bạn`;
             break;
         default:
             notificationText = notification.text || 'Bạn có thông báo mới';

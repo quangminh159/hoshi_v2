@@ -209,7 +209,7 @@
                     redirectUrl = `/posts/${notification.post_id}/`;
                     targetType = 'bài viết';
                 } else if (notification.notification_type === 'follow') {
-                    redirectUrl = `/accounts/profile/${notification.sender}/`;
+                    redirectUrl = `/users/${notification.sender}/`;
                     targetType = 'hồ sơ người dùng';
                 } else if (notification.notification_type === 'message') {
                     redirectUrl = `/chat/conversation/${notification.conversation_id}/`;

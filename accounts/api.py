@@ -229,7 +229,15 @@ def block_user(request):
         )
         
         if not created:
-            # Đã chặn trước đó, cập nhật lý do nếu có
+            # Đã chặn trước đó — vẫn đảm bảo hủy theo dõi hai chiều
+            UserFollowing.objects.filter(
+                user=request.user,
+                following_user=user_to_block
+            ).delete()
+            UserFollowing.objects.filter(
+                user=user_to_block,
+                following_user=request.user
+            ).delete()
             if reason:
                 block_relationship.reason = reason
                 block_relationship.save()

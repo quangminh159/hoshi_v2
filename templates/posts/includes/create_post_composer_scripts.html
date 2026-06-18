@@ -42,7 +42,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     composerConfig.onSuccess = function() {
         bootstrap.Modal.getInstance(modalEl)?.hide();
-        window.location.reload();
+        if (window.infiniteScroll?.resetAndReload) {
+            window.infiniteScroll.resetAndReload();
+        } else {
+            window.location.reload();
+        }
     };
     {% else %}
     initCreatePostComposer(composerConfig);

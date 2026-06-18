@@ -81,14 +81,20 @@ class User(AbstractUser):
     two_factor_auth = models.BooleanField(_('two-factor authentication'), default=False)
     
     # Relationships
-    followers = models.ManyToManyField('self', 
-                                     through='UserFollowing',
-                                     related_name='following',
-                                     symmetrical=False)
-    blocked_users = models.ManyToManyField('self',
-                                     through='UserBlock',
-                                     related_name='blocked_by',
-                                     symmetrical=False)
+    followers = models.ManyToManyField(
+        'self',
+        through='UserFollowing',
+        through_fields=('following_user', 'user'),
+        related_name='following',
+        symmetrical=False,
+    )
+    blocked_users = models.ManyToManyField(
+        'self',
+        through='UserBlock',
+        through_fields=('blocker', 'blocked'),
+        related_name='blocked_by',
+        symmetrical=False,
+    )
     
     # Add historical records
     history = HistoricalRecords()
@@ -127,6 +133,27 @@ class User(AbstractUser):
     
     def get_following_count(self):
         return self.following_relationships.count()
+
+    def get_following_user_ids(self):
+        """IDs of users this account follows (reliable via through table)."""
+        return list(
+            self.following_relationships.values_list('following_user_id', flat=True)
+        )
+
+    def is_following_user(self, other_user):
+        if not other_user:
+            return False
+        return self.following_relationships.filter(following_user=other_user).exists()
+
+    def get_blocked_user_ids(self):
+        """User IDs blocked in either direction."""
+        blocked = set(
+            UserBlock.objects.filter(blocker=self).values_list('blocked_id', flat=True)
+        )
+        blocked |= set(
+            UserBlock.objects.filter(blocked=self).values_list('blocker_id', flat=True)
+        )
+        return blocked
     
     def get_posts_count(self):
         return self.posts.count()

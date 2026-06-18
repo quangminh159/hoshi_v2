@@ -365,7 +365,7 @@ def verify_two_factor(request):
 def get_suggestions(request):
     # Lấy người dùng chưa được follow
     suggestions = User.objects.exclude(
-        id__in=request.user.following.values_list('id', flat=True)
+        id__in=request.user.get_following_user_ids()
     ).exclude(
         id=request.user.id
     ).order_by('?')[:5]  # Random 5 người dùng
