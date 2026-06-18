@@ -406,7 +406,12 @@ SILENCED_SYSTEM_CHECKS = ['allauth.socialaccount.W002']
 
 # File upload settings
 MAX_UPLOAD_SIZE = 1073741824  # 1GB in bytes (1024*1024*1024)
-CONTENT_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'video/mp4', 'video/quicktime']
+DATA_UPLOAD_MAX_MEMORY_SIZE = MAX_UPLOAD_SIZE
+FILE_UPLOAD_MAX_MEMORY_SIZE = MAX_UPLOAD_SIZE
+CONTENT_TYPES = [
+    'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+    'video/mp4', 'video/quicktime', 'video/x-matroska', 'video/webm', 'video/avi',
+]
 
 # Custom settings
 POSTS_PER_PAGE = 20

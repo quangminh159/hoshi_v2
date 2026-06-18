@@ -1,0 +1,324 @@
+.create-post-card,
+.create-post-modal-content {
+    background: #fff;
+    border: 1px solid #efefef;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+}
+
+.create-post-modal-dialog {
+    max-width: 560px;
+}
+
+.create-post-modal-content {
+    border: none;
+}
+
+.create-post-page {
+    padding: 1.25rem 0 2rem;
+}
+
+.create-post-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.875rem 1.25rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.create-post-header h1 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+    color: #262626;
+}
+
+.create-post-back,
+.create-post-cancel {
+    color: #737373;
+    text-decoration: none;
+    width: auto;
+    min-width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: background 0.15s;
+    border: none;
+    background: transparent;
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 0 0.5rem;
+}
+
+.create-post-back:hover,
+.create-post-cancel:hover {
+    background: #f5f5f5;
+    color: #262626;
+}
+
+.create-post-body {
+    padding: 1.25rem;
+}
+
+.composer-row {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.composer-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 2px solid #f0f0f0;
+}
+
+.composer-input-wrap {
+    flex: 1;
+    min-width: 0;
+}
+
+.composer-textarea {
+    border: none;
+    resize: none;
+    padding: 0.25rem 0;
+    font-size: 1rem;
+    line-height: 1.5;
+    min-height: 72px;
+    box-shadow: none;
+    background: transparent;
+}
+
+.composer-textarea:focus {
+    box-shadow: none;
+    outline: none;
+}
+
+.composer-textarea::placeholder {
+    color: #a8a8a8;
+}
+
+.upload-zone {
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fafafa;
+}
+
+.upload-zone .filepond--root {
+    margin-bottom: 0;
+}
+
+.upload-zone .filepond--panel-root {
+    background: transparent;
+    border: 2px dashed #d1d5db;
+    border-radius: 12px;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.upload-zone .filepond--root:hover .filepond--panel-root,
+.upload-zone .filepond--root[data-hopper-state="drag-over"] .filepond--panel-root {
+    border-color: var(--primary-color, #405de6);
+    background: rgba(64, 93, 230, 0.04);
+}
+
+.upload-zone .filepond--drop-label {
+    color: #737373;
+    font-size: 0.875rem;
+    min-height: 100px;
+}
+
+.upload-zone .filepond--label-action {
+    color: var(--primary-color, #405de6);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.upload-hint {
+    font-size: 0.75rem;
+    color: #a8a8a8;
+    margin-top: 0.5rem;
+    text-align: center;
+}
+
+.extra-fields {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #f0f0f0;
+}
+
+.location-field {
+    position: relative;
+}
+
+.location-field .input-group-text {
+    background: #fafafa;
+    border-color: #efefef;
+    color: #737373;
+    border-right: none;
+    border-radius: 10px 0 0 10px;
+}
+
+.location-field .form-control {
+    border-color: #efefef;
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+    background: #fafafa;
+}
+
+.btn-current-location {
+    border-color: #efefef;
+    background: #fafafa;
+    color: #737373;
+    border-radius: 0 10px 10px 0;
+    padding: 0 0.85rem;
+}
+
+.btn-current-location:hover {
+    background: #f0f0f0;
+    color: var(--primary-color, #405de6);
+    border-color: #d1d5db;
+}
+
+.location-suggestion-item .location-meta {
+    font-size: 0.75rem;
+    color: #a8a8a8;
+}
+
+.location-field .form-control:focus {
+    box-shadow: none;
+    border-color: #d1d5db;
+    background: #fff;
+}
+
+.create-post-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.875rem 1.25rem;
+    border-top: 1px solid #f0f0f0;
+    background: #fafafa;
+}
+
+.footer-hint {
+    font-size: 0.75rem;
+    color: #a8a8a8;
+    margin: 0;
+}
+
+.btn-post-submit {
+    background: linear-gradient(135deg, #405de6, #5851db);
+    border: none;
+    border-radius: 10px;
+    padding: 0.55rem 1.35rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+    box-shadow: 0 2px 8px rgba(64, 93, 230, 0.35);
+}
+
+.btn-post-submit:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(64, 93, 230, 0.4);
+    color: #fff;
+}
+
+.btn-post-submit:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.suggestion-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    z-index: 1060;
+    background: #fff;
+    border: 1px solid #efefef;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    max-height: 180px;
+    overflow-y: auto;
+}
+
+.suggestion-item {
+    padding: 0.55rem 0.85rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background 0.1s;
+}
+
+.suggestion-item:hover {
+    background: #f5f5f5;
+}
+
+.suggestion-item img {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Feed composer trigger */
+.feed-composer-trigger {
+    cursor: pointer;
+    transition: box-shadow 0.15s, border-color 0.15s;
+    border: 1px solid #efefef;
+}
+
+.feed-composer-trigger:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    border-color: #e0e0e0;
+}
+
+.feed-composer-fake-input {
+    background: #f8f9fa;
+    border-radius: 20px;
+    padding: 0.65rem 1rem;
+    color: #a8a8a8;
+    font-size: 0.95rem;
+    user-select: none;
+}
+
+@media (max-width: 576px) {
+    .create-post-page {
+        padding: 0.5rem 0 1.5rem;
+    }
+
+    .create-post-card {
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+        box-shadow: none;
+    }
+
+    .create-post-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .btn-post-submit {
+        justify-content: center;
+        width: 100%;
+    }
+
+    .create-post-modal-dialog {
+        margin: 0.5rem;
+    }
+}

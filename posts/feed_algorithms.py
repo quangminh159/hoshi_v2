@@ -161,7 +161,7 @@ def get_discovery_posts(user, count=5):
     ).exclude(
         id__in=user_interacted_posts.values('id')  # Loại bỏ bài viết đã tương tác
     ).exclude(
-        author__private_account=True  # Loại bỏ bài viết từ tài khoản riêng tư
+        author__private_account=True  
     ).annotate(
         # Thêm trường để đánh dấu đã tương tác hay chưa
         is_liked=Case(
@@ -189,7 +189,7 @@ def get_random_posts(user, count=3):
     ).exclude(
         author=user
     ).exclude(
-        author__private_account=True  # Loại bỏ bài viết từ tài khoản riêng tư
+        author__private_account=True
     ).values_list('id', flat=True)
     
     # Chọn ngẫu nhiên một số ID

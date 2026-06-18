@@ -1,0 +1,51 @@
+{% load static i18n %}
+<script src="https://unpkg.com/filepond-plugin-image-exif-orientation/dist/filepond-plugin-image-exif-orientation.js"></script>
+<script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
+<script src="https://unpkg.com/filepond-plugin-file-poster/dist/filepond-plugin-file-poster.js"></script>
+<script src="https://unpkg.com/filepond-plugin-media-preview/dist/filepond-plugin-media-preview.js"></script>
+<script src="https://unpkg.com/filepond/dist/filepond.js"></script>
+<script src="{% static 'js/create_post_composer.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const composerConfig = {
+        createUrl: '{% url "posts:create" %}',
+        indexUrl: '{% url "posts:index" %}',
+        hashtagUrl: '{% url "posts:hashtag_suggestions" %}',
+        userUrl: '{% url "posts:user_suggestions" %}',
+        locationUrl: '{% url "posts:location_suggestions" %}',
+        reverseGeocodeUrl: '{% url "posts:reverse_geocode" %}',
+        scope: document
+    };
+
+    {% if composer_modal %}
+    const modalEl = document.getElementById('createPostModal');
+    let composerReady = false;
+
+    function openCreatePostModal() {
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.show();
+        if (!composerReady) {
+            composerConfig.scope = modalEl;
+            initCreatePostComposer(composerConfig);
+            composerReady = true;
+            setTimeout(() => modalEl.querySelector('#caption')?.focus(), 200);
+        }
+    }
+
+    document.querySelectorAll('.feed-composer-trigger').forEach(trigger => {
+        trigger.addEventListener('click', openCreatePostModal);
+    });
+
+    modalEl.addEventListener('hidden.bs.modal', function() {
+        resetCreatePostComposer(modalEl);
+    });
+
+    composerConfig.onSuccess = function() {
+        bootstrap.Modal.getInstance(modalEl)?.hide();
+        window.location.reload();
+    };
+    {% else %}
+    initCreatePostComposer(composerConfig);
+    {% endif %}
+});
+</script>

@@ -713,6 +713,140 @@ def user_suggestions(request):
     
     return JsonResponse(result, safe=False)
 
+
+def _short_location_name(display_name, max_length=100):
+    if not display_name:
+        return ''
+    parts = [part.strip() for part in display_name.split(',') if part.strip()]
+    if len(parts) >= 2:
+        short_name = f'{parts[0]}, {parts[1]}'
+    else:
+        short_name = parts[0] if parts else display_name
+    return short_name[:max_length]
+
+
+def _fetch_nominatim_search(query, limit=6):
+    from urllib.parse import quote
+    from urllib.request import Request, urlopen
+
+    url = (
+        'https://nominatim.openstreetmap.org/search?'
+        f'q={quote(query)}&format=json&limit={limit}'
+        '&accept-language=vi,en'
+    )
+    request = Request(url, headers={'User-Agent': 'HoshiSocial/1.0'})
+    with urlopen(request, timeout=5) as response:
+        data = json.loads(response.read().decode('utf-8'))
+
+    results = []
+    for item in data:
+        display_name = item.get('display_name', '')
+        results.append({
+            'name': _short_location_name(display_name),
+            'full_name': display_name[:200],
+            'lat': item.get('lat'),
+            'lon': item.get('lon'),
+            'source': 'map',
+        })
+    return results
+
+
+def _fetch_nominatim_reverse(lat, lon):
+    from urllib.parse import urlencode
+    from urllib.request import Request, urlopen
+
+    params = urlencode({
+        'lat': lat,
+        'lon': lon,
+        'format': 'json',
+        'accept-language': 'vi',
+    })
+    url = f'https://nominatim.openstreetmap.org/reverse?{params}'
+    request = Request(url, headers={'User-Agent': 'HoshiSocial/1.0'})
+    with urlopen(request, timeout=5) as response:
+        data = json.loads(response.read().decode('utf-8'))
+
+    display_name = data.get('display_name', '')
+    return {
+        'name': _short_location_name(display_name),
+        'full_name': display_name[:200],
+        'lat': lat,
+        'lon': lon,
+        'source': 'gps',
+    }
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def location_suggestions(request):
+    """Gợi ý địa điểm từ bài viết cũ và OpenStreetMap."""
+    query = request.GET.get('q', '').strip()
+    if len(query) < 2:
+        return JsonResponse([], safe=False)
+
+    seen = set()
+    results = []
+
+    db_locations = (
+        Post.objects.filter(location__icontains=query)
+        .exclude(location='')
+        .values_list('location', flat=True)
+        .distinct()[:5]
+    )
+    for location in db_locations:
+        key = location.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        results.append({
+            'name': location[:100],
+            'full_name': location,
+            'source': 'recent',
+        })
+
+    cache_key = f'location_search:{hashlib.md5(query.encode()).hexdigest()}'
+    map_results = cache.get(cache_key)
+    if map_results is None:
+        try:
+            map_results = _fetch_nominatim_search(query)
+            cache.set(cache_key, map_results, 300)
+        except Exception:
+            map_results = []
+
+    for item in map_results:
+        key = item['name'].lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        results.append(item)
+
+    return JsonResponse(results[:10], safe=False)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def reverse_geocode(request):
+    """Chuyển tọa độ GPS thành tên địa điểm."""
+    try:
+        lat = request.GET.get('lat')
+        lon = request.GET.get('lon')
+        if not lat or not lon:
+            return JsonResponse({'error': 'Thiếu tọa độ'}, status=400)
+
+        cache_key = f'reverse_geocode:{lat}:{lon}'
+        result = cache.get(cache_key)
+        if result is None:
+            result = _fetch_nominatim_reverse(lat, lon)
+            cache.set(cache_key, result, 3600)
+
+        if not result.get('name'):
+            return JsonResponse({'error': 'Không tìm thấy địa điểm'}, status=404)
+
+        return JsonResponse(result)
+    except Exception as exc:
+        return JsonResponse({'error': f'Không thể xác định vị trí: {exc}'}, status=500)
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def track_interaction(request):

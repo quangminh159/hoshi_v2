@@ -81,10 +81,7 @@
                                              style="object-fit: cover;"
                                              alt="Original post image">
                                         {% else %}
-                                        <video class="d-block w-100 h-100" style="object-fit: cover;" controls>
-                                            <source src="{{ media.file.url }}" type="video/mp4">
-                                            Your browser does not support the video tag.
-                                        </video>
+                                        <video class="d-block w-100 h-100" style="object-fit: cover;" controls preload="metadata" src="{{ media.file.url }}"></video>
                                         {% endif %}
                                     </div>
                                     {% endfor %}
@@ -161,10 +158,7 @@
                                          style="object-fit: cover;"
                                          alt="Post image">
                                     {% else %}
-                                    <video class="d-block w-100 h-100" style="object-fit: cover;" controls>
-                                        <source src="{{ media.file.url }}" type="video/mp4">
-                                        Your browser does not support the video tag.
-                                    </video>
+                                    <video class="d-block w-100 h-100" style="object-fit: cover;" controls preload="metadata" src="{{ media.file.url }}"></video>
                                     {% endif %}
                                 </div>
                                 {% endfor %}
@@ -537,9 +531,7 @@
                                 {% if media.media_type == 'image' %}
                                 <img src="{{ media.file.url }}" alt="Post media" style="width: 100px; height: 100px; object-fit: cover;">
                                 {% else %}
-                                <video style="width: 100px; height: 100px; object-fit: cover;">
-                                    <source src="{{ media.file.url }}" type="video/mp4">
-                                </video>
+                                <video style="width: 100px; height: 100px; object-fit: cover;" src="{{ media.file.url }}" muted playsinline></video>
                                 {% endif %}
                                 <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 delete-media-btn" data-media-id="{{ media.id }}">
                                     <i class="fas fa-times"></i>
@@ -694,10 +686,7 @@
                                  style="max-height: 150px; width: auto;"
                                  alt="Post image">
                             {% else %}
-                            <video class="img-fluid rounded" style="max-height: 150px; width: auto;">
-                                <source src="{{ first_media.file.url }}" type="video/mp4">
-                                Your browser does not support the video tag.
-                            </video>
+                            <video class="img-fluid rounded" style="max-height: 150px; width: auto;" controls preload="metadata" src="{{ first_media.file.url }}"></video>
                             {% endif %}
                             {% endwith %}
                             {% if post.media.count > 1 %}

@@ -321,10 +321,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div class="carousel-item ${index === 0 ? 'active' : ''}">
                                 ${media.media_type === 'image' 
                                     ? `<img src="${media.file_url}" class="d-block w-100" alt="Post image">`
-                                    : `<video class="d-block w-100" controls>
-                                        <source src="${media.file_url}" type="video/mp4">
-                                        Your browser does not support the video tag.
-                                      </video>`
+                                    : `<video class="d-block w-100" controls preload="metadata" src="${media.file_url}"></video>`
                                 }
                             </div>
                         `).join('')}

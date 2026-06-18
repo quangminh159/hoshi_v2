@@ -154,6 +154,7 @@
                                    id="media" 
                                    name="media" 
                                    class="filepond"
+                                   accept="image/*,video/*"
                                    multiple
                                    data-allow-reorder="true">
                             <div class="form-text mt-1">
@@ -210,9 +211,6 @@
 
 {% block extra_js %}
 <!-- FilePond and its plugins -->
-<script src="https://unpkg.com/filepond-plugin-file-encode/dist/filepond-plugin-file-encode.js"></script>
-<!-- Loại bỏ plugin validate size -->
-<!-- <script src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.js"></script> -->
 <script src="https://unpkg.com/filepond-plugin-image-exif-orientation/dist/filepond-plugin-image-exif-orientation.js"></script>
 <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
 <script src="https://unpkg.com/filepond-plugin-file-poster/dist/filepond-plugin-file-poster.js"></script>
@@ -223,29 +221,58 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Register FilePond plugins (bỏ plugin FileValidateSize)
     FilePond.registerPlugin(
-        FilePondPluginFileEncode,
-        // FilePondPluginFileValidateSize,
         FilePondPluginImageExifOrientation,
         FilePondPluginImagePreview,
         FilePondPluginFilePoster,
         FilePondPluginMediaPreview
     );
-    
-    // Set allowed file types based on selected media type
-    let acceptedFileTypes = ['image/png', 'image/jpeg', 'image/gif', 'video/mp4', 'video/quicktime', 'video/x-matroska'];
-    
-    // Set up FilePond
+
+    const IMAGE_EXT = /\.(jpe?g|png|gif|webp|bmp|heic|heif)$/i;
+    const VIDEO_EXT = /\.(mp4|mov|mkv|webm|avi|m4v|wmv|3gp|3gpp|mpeg|mpg|flv|ts|mts)$/i;
+    let activeMediaFilter = 'all';
+
+    function isImageFile(file) {
+        const type = (file.type || '').toLowerCase();
+        const name = (file.name || '').toLowerCase();
+        return type.startsWith('image/') || IMAGE_EXT.test(name);
+    }
+
+    function isVideoFile(file) {
+        const type = (file.type || '').toLowerCase();
+        const name = (file.name || '').toLowerCase();
+        return type.startsWith('video/') || VIDEO_EXT.test(name);
+    }
+
+    function isAllowedFile(file) {
+        if (activeMediaFilter === 'image') return isImageFile(file);
+        if (activeMediaFilter === 'video') return isVideoFile(file);
+        return isImageFile(file) || isVideoFile(file);
+    }
+
+    function updateFileInputAccept() {
+        const input = document.getElementById('media');
+        if (activeMediaFilter === 'image') input.setAttribute('accept', 'image/*');
+        else if (activeMediaFilter === 'video') input.setAttribute('accept', 'video/*');
+        else input.setAttribute('accept', 'image/*,video/*');
+    }
+
     const pond = FilePond.create(document.querySelector('input.filepond'), {
         allowMultiple: true,
         allowReorder: true,
-        maxFiles: 10,
-        acceptedFileTypes: acceptedFileTypes,
+        storeAsFile: true,
+        allowVideoPreview: true,
         labelIdle: 'Kéo & thả ảnh hoặc video của bạn ở đây hoặc <span class="filepond--label-action">Tìm</span>',
         labelFileTypeNotAllowed: 'Loại file không được hỗ trợ',
-        fileValidateTypeLabelExpectedTypes: 'Chỉ chấp nhận ảnh và video',
         stylePanelLayout: 'compact',
         styleItemPanelAspectRatio: 1,
-        imageCropAspectRatio: '1:1',
+        beforeAddFile: (item) => {
+            const file = item.file || item;
+            if (!isAllowedFile(file)) {
+                alert('File không được hỗ trợ. Vui lòng chọn ảnh hoặc video (MP4, MOV, MKV, WEBM...).');
+                return false;
+            }
+            return true;
+        },
         onaddfile: (error, file) => {
             if (error) {
                 console.error('Error adding file:', error);
@@ -277,13 +304,8 @@ document.addEventListener('DOMContentLoaded', function() {
             // Handle file type filtering
             const type = this.getAttribute('data-type');
             
-            if (type === 'image') {
-                pond.acceptedFileTypes = ['image/png', 'image/jpeg', 'image/gif'];
-            } else if (type === 'video') {
-                pond.acceptedFileTypes = ['video/mp4', 'video/quicktime', 'video/x-matroska'];
-            } else {
-                pond.acceptedFileTypes = acceptedFileTypes;
-            }
+            activeMediaFilter = type;
+            updateFileInputAccept();
         });
     });
     
@@ -374,29 +396,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 pond.removeFile(fileItem);
             });
             
-            if (file.type.startsWith('image/')) {
-                // For images
+            if (isImageFile(file)) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
                     preview.appendChild(removeBtn);
                 };
                 reader.readAsDataURL(file);
-            } else if (file.type.startsWith('video/')) {
-                // For videos
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    preview.innerHTML = `
-                        <video src="${e.target.result}" muted>
-                            Your browser does not support the video tag.
-                        </video>
-                        <div class="video-indicator">
-                            <i class="fas fa-play-circle"></i>
-                        </div>
-                    `;
-                    preview.appendChild(removeBtn);
-                };
-                reader.readAsDataURL(file);
+            } else if (isVideoFile(file)) {
+                const objectUrl = URL.createObjectURL(file);
+                preview.innerHTML = `
+                    <video src="${objectUrl}" muted playsinline></video>
+                    <div class="video-indicator">
+                        <i class="fas fa-play-circle"></i>
+                    </div>
+                `;
+                preview.appendChild(removeBtn);
             }
             
             previewContainer.appendChild(preview);
@@ -443,9 +458,11 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Thêm files từ FilePond vào formData
         if (pond.getFiles().length > 0) {
-            pond.getFiles().forEach((fileItem, i) => {
-                if (fileItem.file) {
-                    formData.append('media', fileItem.file);
+            pond.getFiles().forEach((fileItem) => {
+                const file = fileItem.file || fileItem.source;
+                if (file instanceof File || file instanceof Blob) {
+                    const filename = file.name || fileItem.filename || 'upload';
+                    formData.append('media', file, filename);
                 }
             });
         }

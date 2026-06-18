@@ -332,49 +332,125 @@ def post_detail(request, post_id):
     }
     return render(request, 'posts/post_detail.html', context)
 
+def _get_uploaded_media_files(request):
+    """Lấy danh sách file media từ request (hỗ trợ nhiều tên field)."""
+    for field_name in ('media', 'media[]', 'new_media'):
+        files = request.FILES.getlist(field_name)
+        if files:
+            return files
+    return []
+
+
+def _media_type_for_file(uploaded_file):
+    """Xác định loại media từ content-type hoặc phần mở rộng file."""
+    content_type = (getattr(uploaded_file, 'content_type', '') or '').lower()
+    if content_type.startswith('video/'):
+        return 'video'
+    if content_type.startswith('image/'):
+        return 'image'
+
+    filename = (uploaded_file.name or '').lower()
+    video_extensions = (
+        '.mp4', '.mov', '.mkv', '.webm', '.avi', '.m4v', '.wmv',
+        '.3gp', '.3gpp', '.mpeg', '.mpg', '.flv', '.ts', '.mts',
+    )
+    image_extensions = (
+        '.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.heic', '.heif',
+    )
+
+    if filename.endswith(video_extensions):
+        return 'video'
+    if filename.endswith(image_extensions):
+        return 'image'
+
+    # Một số trình duyệt/OS gửi video với content-type chung
+    if content_type in ('application/octet-stream', 'binary/octet-stream', 'application/mp4'):
+        if filename.endswith(video_extensions):
+            return 'video'
+        if filename.endswith(image_extensions):
+            return 'image'
+
+    return None
+
+
+def _is_ajax_request(request):
+    return request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+
+
 @login_required
 def create(request):
     """Create a new post"""
     if request.method == 'POST':
         form = PostForm(request.POST)
         if form.is_valid():
+            media_files = _get_uploaded_media_files(request)
+            if not media_files:
+                error_message = 'Vui lòng chọn ít nhất một ảnh hoặc video.'
+                if _is_ajax_request(request):
+                    return JsonResponse({'error': error_message}, status=400)
+                messages.error(request, error_message)
+                return render(request, 'posts/create_post.html', {'form': form})
+
             post = form.save(commit=False)
             post.author = request.user
             post.save()
-            
-            # Xử lý nhiều file đa phương tiện
-            media_files = request.FILES.getlist('media')
-            for index, file in enumerate(media_files):
-                # Kiểm tra loại file
-                if not file.content_type.startswith('image/') and not file.content_type.startswith('video/'):
-                    messages.error(request, f'File {file.name} không hợp lệ. Chỉ chấp nhận file hình ảnh và video.')
+
+            saved_media_count = 0
+            upload_errors = []
+            max_upload_size = getattr(settings, 'MAX_UPLOAD_SIZE', 10 * 1024 * 1024)
+
+            for file in media_files:
+                media_type = _media_type_for_file(file)
+                if not media_type:
+                    upload_errors.append(
+                        f'File {file.name} không hợp lệ. Chỉ chấp nhận file hình ảnh và video.'
+                    )
                     continue
-                
-                # Kiểm tra kích thước file (tối đa 10MB)
-                if file.size > 10 * 1024 * 1024:
-                    messages.error(request, f'File {file.name} vượt quá kích thước cho phép (10MB).')
+
+                if file.size > max_upload_size:
+                    upload_errors.append(
+                        f'File {file.name} vượt quá kích thước cho phép ({max_upload_size // (1024 * 1024)}MB).'
+                    )
                     continue
-                
-                # Xác định loại media
-                media_type = 'video' if file.content_type.startswith('video/') else 'image'
-                
-                # Lưu file
+
                 PostMedia.objects.create(
                     post=post,
                     file=file,
                     media_type=media_type,
-                    order=index
+                    order=saved_media_count
                 )
-            
-            # Xử lý hashtags
+                saved_media_count += 1
+
+            if saved_media_count == 0:
+                post.delete()
+                error_message = ' '.join(upload_errors) if upload_errors else 'Không thể tải lên media.'
+                if _is_ajax_request(request):
+                    return JsonResponse({'error': error_message}, status=400)
+                messages.error(request, error_message)
+                return render(request, 'posts/create_post.html', {'form': form})
+
+            if upload_errors:
+                for error_message in upload_errors:
+                    messages.warning(request, error_message)
+
             if post.caption:
                 process_hashtags(post)
-                
+
             messages.success(request, 'Bài viết đã được đăng thành công!')
-            return HttpResponseRedirect('/')
+            if _is_ajax_request(request):
+                return JsonResponse({
+                    'success': True,
+                    'redirect_url': reverse('posts:index'),
+                    'post_id': post.id,
+                    'media_count': saved_media_count,
+                })
+            return HttpResponseRedirect(reverse('posts:index'))
+
+        if _is_ajax_request(request):
+            return JsonResponse({'error': form.errors.as_json()}, status=400)
     else:
         form = PostForm()
-    
+
     return render(request, 'posts/create_post.html', {
         'form': form
     })
@@ -392,38 +468,23 @@ def edit_post(request, post_id):
             post.location = request.POST.get('location', '').strip()
             
             # Xử lý media mới (nếu có)
-            new_media_files = []
-            
-            # Xử lý media từ form
-            if 'media' in request.FILES:
-                new_media_files = request.FILES.getlist('media')
-            # Fallback cho các tên field khác có thể được sử dụng
-            elif 'media[]' in request.FILES:
-                new_media_files = request.FILES.getlist('media[]')
-            elif 'new_media' in request.FILES:
-                new_media_files = request.FILES.getlist('new_media')
+            new_media_files = _get_uploaded_media_files(request)
+            max_upload_size = getattr(settings, 'MAX_UPLOAD_SIZE', 10 * 1024 * 1024)
                 
             if new_media_files:
-                # Không xóa media cũ, chỉ thêm media mới
-                # Lấy số thứ tự cuối cùng hiện tại
                 last_order = PostMedia.objects.filter(post=post).count()
                 
-                # Thêm media mới
                 for index, file in enumerate(new_media_files):
-                    # Kiểm tra kích thước và loại file
-                    if file.size > settings.MAX_UPLOAD_SIZE:
-                        messages.error(request, f'Kích thước file không được vượt quá {settings.MAX_UPLOAD_SIZE/1024/1024/1024:.2f}GB')
+                    if file.size > max_upload_size:
+                        messages.error(request, f'Kích thước file không được vượt quá {max_upload_size/1024/1024:.0f}MB')
                         return redirect('posts:edit', post_id=post.id)
                     
-                    if not file.content_type.startswith(('image/', 'video/')):
-                        messages.error(request, 'Chỉ chấp nhận file ảnh hoặc video')
+                    media_type = _media_type_for_file(file)
+                    if not media_type:
+                        messages.error(request, f'File {file.name} không hợp lệ. Chỉ chấp nhận ảnh hoặc video.')
                         return redirect('posts:edit', post_id=post.id)
                     
-                    # Xác định loại media
-                    media_type = 'video' if file.content_type.startswith('video') else 'image'
-                    
-                    # Tạo media object
-                    media = PostMedia.objects.create(
+                    PostMedia.objects.create(
                         post=post,
                         file=file,
                         media_type=media_type,

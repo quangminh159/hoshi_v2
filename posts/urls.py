@@ -27,6 +27,8 @@ urlpatterns = [
     # Endpoints mới cho gợi ý hashtag và người dùng
     path('api/hashtag-suggestions/', api.hashtag_suggestions, name='hashtag_suggestions'),
     path('api/user-suggestions/', api.user_suggestions, name='user_suggestions'),
+    path('api/location-suggestions/', api.location_suggestions, name='location_suggestions'),
+    path('api/reverse-geocode/', api.reverse_geocode, name='reverse_geocode'),
     # Endpoint chia sẻ bài viết
     path('share/', api.share_post, name='share_post'),
     # Report URLs

@@ -1,0 +1,57 @@
+<form method="post" action="{% url 'posts:create' %}" enctype="multipart/form-data" id="postForm" data-ajax-submit="true">
+    {% csrf_token %}
+
+    <div class="create-post-body">
+        <div class="composer-row">
+            <img src="{{ request.user.get_avatar_url }}" alt="{{ request.user.username }}" class="composer-avatar">
+            <div class="composer-input-wrap position-relative">
+                <textarea id="caption"
+                          name="caption"
+                          class="form-control composer-textarea"
+                          rows="3"
+                          placeholder="Bạn đang nghĩ gì? Dùng #hashtag hoặc @tag..."></textarea>
+                <div id="suggestionBox"></div>
+            </div>
+        </div>
+
+        <div class="upload-zone">
+            <input type="file"
+                   id="media"
+                   name="media"
+                   class="filepond"
+                   accept="image/*,video/*"
+                   multiple
+                   data-allow-reorder="true">
+        </div>
+        <p class="upload-hint">Ảnh & video · tối đa 1GB/file · MP4, MOV, MKV, WEBM...</p>
+
+        <div class="extra-fields">
+            <div class="location-field">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                    <input type="text"
+                           id="location"
+                           name="location"
+                           class="form-control"
+                           autocomplete="off"
+                           placeholder="Tìm hoặc chọn địa điểm (tùy chọn)">
+                    <button type="button"
+                            class="btn btn-current-location"
+                            id="btnCurrentLocation"
+                            title="Dùng vị trí hiện tại">
+                        <i class="fas fa-crosshairs"></i>
+                    </button>
+                </div>
+                <div id="locationSuggestionBox"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="create-post-footer">
+        <p class="footer-hint mb-0 d-none d-sm-block">Kéo thả để sắp xếp thứ tự media</p>
+        <button type="submit" class="btn btn-post-submit ms-sm-auto">
+            <i class="fas fa-paper-plane"></i>
+            <span>Đăng bài</span>
+        </button>
+    </div>
+</form>

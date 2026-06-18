@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('Đã tải script prevent multiple submissions');
     
     // Xử lý tất cả các form trên trang
-    document.querySelectorAll('form').forEach(form => {
+    document.querySelectorAll('form:not([data-ajax-submit="true"])').forEach(form => {
         form.addEventListener('submit', function(e) {
             console.log('Form đang được gửi:', form);
             
