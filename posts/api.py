@@ -18,6 +18,7 @@ from django.db.models import Q
 from accounts.models import UserBlock
 from django.contrib.contenttypes.models import ContentType
 from notifications.models import Notification
+from notifications.signals import send_notification_to_websocket
 from .comment_utils import resolve_reply_parent
 
 User = get_user_model()
@@ -442,7 +443,7 @@ def add_comment(request):
         }
         
         if direct_parent and direct_parent.author != request.user:
-            Notification.objects.create(
+            notification = Notification.objects.create(
                 recipient=direct_parent.author,
                 sender=request.user,
                 notification_type='comment_reply',
@@ -450,15 +451,7 @@ def add_comment(request):
                 post=post,
                 comment=comment
             )
-        elif not stored_parent_id and post.author != request.user:
-            Notification.objects.create(
-                recipient=post.author,
-                sender=request.user,
-                notification_type='comment',
-                text=f"{request.user.username} đã bình luận về bài viết của bạn",
-                post=post,
-                comment=comment
-            )
+            send_notification_to_websocket(notification)
         
         return Response({
             'comment': comment_data
@@ -734,12 +727,85 @@ def user_suggestions(request):
     for user in suggestions:
         result.append({
             'username': user.username,
-            'avatar_url': user.profile.avatar.url if hasattr(user, 'profile') and user.profile.avatar else '/static/images/default-avatar.png',
+            'avatar_url': user.get_avatar_url(),
             'full_name': f"{user.first_name} {user.last_name}".strip(),
             'is_following': request.user.is_following_user(user)
         })
     
     return JsonResponse(result, safe=False)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def search_suggestions(request):
+    """Gợi ý nhanh khi gõ ô tìm kiếm: người dùng + hashtag + bài viết."""
+    query = (request.GET.get('q') or '').strip().lstrip('#@')
+    if len(query) < 1:
+        return JsonResponse({'users': [], 'hashtags': [], 'posts': []})
+
+    blocked_ids = set(
+        UserBlock.objects.filter(blocked=request.user).values_list('blocker_id', flat=True)
+    ) | set(
+        UserBlock.objects.filter(blocker=request.user).values_list('blocked_id', flat=True)
+    )
+
+    users_qs = User.objects.filter(
+        Q(username__icontains=query)
+        | Q(first_name__icontains=query)
+        | Q(last_name__icontains=query)
+    ).exclude(
+        id__in=blocked_ids
+    ).exclude(
+        id=request.user.id
+    ).order_by('username')[:6]
+
+    users = [{
+        'id': u.id,
+        'username': u.username,
+        'full_name': f'{u.first_name} {u.last_name}'.strip(),
+        'avatar_url': u.get_avatar_url(),
+        'profile_url': f'/users/{u.username}/',
+    } for u in users_qs]
+
+    tag_query = query.lstrip('#')
+    hashtags_qs = (
+        Hashtag.objects.filter(name__icontains=tag_query)
+        .annotate(posts_count_total=Count('posts'))
+        .order_by('-posts_count_total')[:6]
+    )
+    hashtags = [{
+        'name': tag.name,
+        'posts_count': tag.posts_count_total,
+        'search_url': f'/posts/search/?q={tag.name}',
+    } for tag in hashtags_qs]
+
+    posts_qs = (
+        Post.objects.filter(
+            Q(caption__icontains=query) | Q(hashtags__name__icontains=tag_query)
+        )
+        .exclude(author_id__in=blocked_ids)
+        .select_related('author')
+        .prefetch_related('media')
+        .distinct()
+        .order_by('-created_at')[:5]
+    )
+    posts = []
+    for post in posts_qs:
+        first_media = post.media.first()
+        posts.append({
+            'id': post.id,
+            'caption': (post.caption or '')[:80],
+            'author_username': post.author.username,
+            'url': f'/posts/{post.id}/',
+            'thumb_url': first_media.file.url if first_media and first_media.media_type == 'image' else None,
+        })
+
+    return JsonResponse({
+        'users': users,
+        'hashtags': hashtags,
+        'posts': posts,
+    })
+
 
 
 def _short_location_name(display_name, max_length=100):
@@ -915,109 +981,94 @@ def track_interaction(request):
 @permission_classes([IsAuthenticated])
 def share_post(request):
     try:
-        print("=== DEBUG SHARE POST ===")
-        print(f"Request method: {request.method}")
-        print(f"Content type: {request.content_type}")
-        print(f"Request POST data: {request.POST}")
-        print(f"Request data: {request.data}")
-        
-        # Lấy dữ liệu từ cả request.data và request.POST để hỗ trợ cả AJAX và form thông thường
         data = request.data
         post_id = data.get('post_id') or request.POST.get('post_id')
         caption = data.get('caption', '') or request.POST.get('caption', '')
-        as_new_post_value = data.get('as_new_post') or request.POST.get('as_new_post')
-        
-        # Lấy URL trước khi chuyển hướng (nếu có)
-        referer = request.META.get('HTTP_REFERER', '')
-        print(f"Referer URL: {referer}")
-        
-        # Xử lý giá trị as_new_post có thể là chuỗi '1', 'true', 'True' hoặc boolean
-        as_new_post = True
-        if as_new_post_value in ['0', 'false', 'False']:
-            as_new_post = False
-        
-        print(f"Processed data: post_id={post_id}, caption={caption}, as_new_post={as_new_post}")
+        as_new_post_value = data.get('as_new_post')
+        if as_new_post_value is None:
+            as_new_post_value = request.POST.get('as_new_post')
 
-        # Kiểm tra post_id hợp lệ
+        referer = request.META.get('HTTP_REFERER', '')
+        wants_json = (
+            request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+            or 'application/json' in (request.headers.get('Accept') or '')
+            or request.content_type == 'application/json'
+        )
+
+        as_new_post = True
+        if as_new_post_value in [False, '0', 'false', 'False']:
+            as_new_post = False
+        elif as_new_post_value in [True, '1', 'true', 'True', 'on']:
+            as_new_post = True
+
         if not post_id:
-            print("Error: Missing post_id")
             return JsonResponse({
                 'status': 'error',
                 'message': 'Thiếu ID bài viết'
             }, status=400)
-        
-        # Kiểm tra bài viết tồn tại
+
         try:
-            original_post = Post.objects.get(pk=post_id)
-            print(f"Found original post: {original_post.id} by {original_post.author.username}")
+            original_post = Post.objects.select_related('shared_from').get(pk=post_id)
         except Post.DoesNotExist:
-            print(f"Error: Post with ID {post_id} not found")
             return JsonResponse({
                 'status': 'error',
                 'message': 'Bài viết không tồn tại'
             }, status=404)
 
-        # Kiểm tra người dùng bị chặn
+        # Chia sẻ bài đã share → trỏ về bài gốc thật
+        while original_post.shared_from_id:
+            original_post = original_post.shared_from
+
         if UserBlock.objects.filter(
             Q(blocker=original_post.author, blocked=request.user) |
             Q(blocker=request.user, blocked=original_post.author)
         ).exists():
-            print(f"Error: User {request.user.username} is blocked or has blocked {original_post.author.username}")
             return JsonResponse({
                 'status': 'error',
                 'message': 'Không thể chia sẻ bài viết này'
             }, status=403)
 
-        # Nếu chia sẻ như bài viết mới
         if as_new_post:
             try:
-                # Tạo bài viết mới với tham chiếu đến bài viết gốc
                 new_post = Post.objects.create(
                     author=request.user,
-                    caption=caption,
-                    shared_from=original_post  # Thiết lập tham chiếu đến bài viết gốc
+                    caption=caption or '',
+                    shared_from=original_post,
                 )
-                print(f"Created new shared post with ID: {new_post.id}")
-                
-                # Tạo thông báo cho người dùng
-                Notification.objects.create(
-                    recipient=original_post.author,
-                    sender=request.user,
-                    notification_type='share',
-                    text=f"{request.user.username} đã chia sẻ bài viết của bạn",
-                    post=new_post,
-                    original_post=original_post,
-                    content_type=ContentType.objects.get_for_model(Post),
-                    object_id=new_post.id
-                )
-                print("Created notification for original author")
-                
-                # Lưu tương tác
+
+                if original_post.author_id != request.user.id:
+                    notification = Notification.objects.create(
+                        recipient=original_post.author,
+                        sender=request.user,
+                        notification_type='share',
+                        text=f"{request.user.username} đã chia sẻ bài viết của bạn",
+                        post=new_post,
+                        original_post=original_post,
+                        content_type=ContentType.objects.get_for_model(Post),
+                        object_id=new_post.id,
+                    )
+                    send_notification_to_websocket(notification)
+
                 UserInteraction.objects.create(
                     user=request.user,
                     post=original_post,
-                    interaction_type='share'
+                    interaction_type='share',
                 )
-                print("Created user interaction record")
-                
-                # Kiểm tra nếu là form submit thông thường, chuyển hướng đến referer nếu có
-                if request.content_type == 'application/x-www-form-urlencoded':
+
+                if not wants_json:
                     from django.shortcuts import redirect
-                    
-                    # Nếu có referer và là URL trong trang web hiện tại
-                    if referer and ('127.0.0.1' in referer or 'localhost' in referer or request.get_host() in referer):
-                        print(f"Redirecting back to referrer: {referer}")
+                    if referer and (
+                        '127.0.0.1' in referer
+                        or 'localhost' in referer
+                        or request.get_host() in referer
+                    ):
                         return redirect(referer)
-                    else:
-                        print("Redirecting to home page after form submission")
-                        return redirect('posts:index')
-                
-                # Trả về thông tin bài viết mới cho AJAX
-                print("Returning JSON success response")
+                    return redirect('posts:post_detail', post_id=new_post.id)
+
                 return JsonResponse({
                     'status': 'success',
                     'message': 'Đã chia sẻ bài viết thành công',
-                    'post_id': new_post.id
+                    'post_id': new_post.id,
                 })
             except Exception as e:
                 print(f"Error in share_post (creating post): {e}")
@@ -1025,26 +1076,22 @@ def share_post(request):
                     'status': 'error',
                     'message': f'Có lỗi xảy ra khi chia sẻ bài viết: {str(e)}'
                 }, status=500)
-            
-        # TODO: Xử lý trường hợp không tạo bài viết mới (nếu cần)
-        # Kiểm tra nếu là form submit thông thường, chuyển hướng đến referer nếu có
-        if request.content_type == 'application/x-www-form-urlencoded':
+
+        if not wants_json:
             from django.shortcuts import redirect
-            
-            # Nếu có referer và là URL trong trang web hiện tại
-            if referer and ('127.0.0.1' in referer or 'localhost' in referer or request.get_host() in referer):
-                print(f"Redirecting back to referrer: {referer}")
+            if referer and (
+                '127.0.0.1' in referer
+                or 'localhost' in referer
+                or request.get_host() in referer
+            ):
                 return redirect(referer)
-            else:
-                print("Redirecting to home page after form submission (non-share case)")
-                return redirect('posts:index')
-            
-        print("Returning general success response")
+            return redirect('posts:index')
+
         return JsonResponse({
             'status': 'success',
             'message': 'Đã chia sẻ bài viết thành công'
         })
-            
+
     except Exception as e:
         print(f"Error sharing post: {e}")
         return JsonResponse({

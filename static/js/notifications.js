@@ -56,14 +56,12 @@ function connectWebSocket() {
 }
 
 function handleNotification(data) {
-    // Update notification count
-    updateNotificationCount(data.unread_count);
+    if (typeof data.unread_count !== 'undefined') {
+        updateNotificationCount(data.unread_count);
+    }
 
-    // Add new notification to the list if we have a new one
-    if (data.notification) {
+    if (data.notification && Object.keys(data.notification).length > 0) {
         addNotificationToList(data.notification);
-        
-        // Show toast notification
         showToast(data.notification);
     }
 }
@@ -73,7 +71,7 @@ function updateNotificationCount(count) {
     if (!badge) return;
 
     badge.textContent = count;
-    
+
     if (count > 0) {
         badge.style.display = '';
     } else {
@@ -81,57 +79,77 @@ function updateNotificationCount(count) {
     }
 }
 
+function getNotificationLink(notification) {
+    if (notification.link && notification.link !== '#') {
+        return notification.link;
+    }
+
+    const postTypes = ['like', 'like_post', 'comment', 'comment_reply', 'mention', 'share'];
+    if (postTypes.includes(notification.notification_type) && notification.post_id) {
+        return `/posts/${notification.post_id}/`;
+    }
+    if (notification.notification_type === 'follow' && notification.sender_username) {
+        return `/users/${notification.sender_username}/`;
+    }
+    if (notification.notification_type === 'message' && notification.conversation_id) {
+        return `/chat/conversations/${notification.conversation_id}/`;
+    }
+    return '#';
+}
+
+function getNotificationTitle(notification) {
+    switch (notification.notification_type) {
+        case 'like':
+        case 'like_post':
+            return 'Ai đó thích bài viết của bạn';
+        case 'comment':
+        case 'comment_reply':
+            return 'Bình luận mới';
+        case 'follow':
+            return 'Người theo dõi mới';
+        case 'mention':
+            return 'Bạn được nhắc đến';
+        case 'message':
+            return 'Tin nhắn mới';
+        case 'share':
+            return 'Bài viết được chia sẻ';
+        default:
+            return 'Thông báo mới';
+    }
+}
+
+function getNotificationText(notification) {
+    return notification.text || getNotificationTitle(notification);
+}
+
 function addNotificationToList(notification) {
     const notificationList = document.querySelector('.notification-list');
-    if (!notificationList) return;
+    if (!notificationList || !notification.id) return;
 
-    // Check if we have the empty state message
     const emptyState = notificationList.querySelector('.text-center.text-muted');
     if (emptyState) {
         emptyState.remove();
     }
 
-    // Create notification item
-    const notificationItem = document.createElement('div');
-    notificationItem.className = 'notification-item p-3 border-bottom bg-light';
+    const link = getNotificationLink(notification);
+    const notificationItem = document.createElement('a');
+    notificationItem.href = link;
+    notificationItem.className = 'notification-item p-3 border-bottom bg-light text-decoration-none text-body d-block';
     notificationItem.dataset.id = notification.id;
-
-    let notificationText;
-    switch(notification.notification_type) {
-        case 'like':
-            notificationText = `<a href="/users/${notification.sender_username}/" class="fw-bold text-decoration-none">${notification.sender_username}</a> đã thích bài viết của bạn`;
-            break;
-        case 'comment':
-            notificationText = `<a href="/users/${notification.sender_username}/" class="fw-bold text-decoration-none">${notification.sender_username}</a> đã bình luận về bài viết của bạn`;
-            break;
-        case 'follow':
-            notificationText = `<a href="/users/${notification.sender_username}/" class="fw-bold text-decoration-none">${notification.sender_username}</a> đã theo dõi bạn`;
-            break;
-        case 'mention':
-            notificationText = `<a href="/users/${notification.sender_username}/" class="fw-bold text-decoration-none">${notification.sender_username}</a> đã nhắc đến bạn trong bài viết`;
-            break;
-        case 'message':
-            notificationText = `<a href="/users/${notification.sender_username}/" class="fw-bold text-decoration-none">${notification.sender_username}</a> đã gửi tin nhắn cho bạn`;
-            break;
-        default:
-            notificationText = notification.text || 'Bạn có thông báo mới';
-    }
+    notificationItem.dataset.link = link;
 
     notificationItem.innerHTML = `
         <div class="d-flex">
-            <img src="${notification.sender_avatar}" class="rounded-circle me-2" width="40" height="40" alt="${notification.sender_username}">
+            <img src="${notification.sender_avatar || '/static/img/default-avatar.png'}" class="rounded-circle me-2" width="40" height="40" alt="${notification.sender_username || 'User'}">
             <div>
-                <p class="mb-1">${notificationText}</p>
+                <p class="mb-1">${getNotificationText(notification)}</p>
                 <small class="text-muted">vừa mới</small>
             </div>
         </div>
     `;
 
-    // Add to the top of the list
-    const firstItem = notificationList.firstChild;
-    notificationList.insertBefore(notificationItem, firstItem);
+    notificationList.insertBefore(notificationItem, notificationList.firstChild);
 
-    // Limit the number of notifications shown (keep only 5)
     const items = notificationList.querySelectorAll('.notification-item');
     if (items.length > 5) {
         for (let i = 5; i < items.length; i++) {
@@ -141,96 +159,83 @@ function addNotificationToList(notification) {
 }
 
 function showToast(notification) {
-    // Check if we have Bootstrap toast container
     let toastContainer = document.querySelector('.toast-container');
-    
+
     if (!toastContainer) {
-        // Create toast container if it doesn't exist
         toastContainer = document.createElement('div');
         toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
         document.body.appendChild(toastContainer);
     }
 
-    // Create toast element
     const toastEl = document.createElement('div');
     toastEl.className = 'toast';
     toastEl.setAttribute('role', 'alert');
     toastEl.setAttribute('aria-live', 'assertive');
     toastEl.setAttribute('aria-atomic', 'true');
 
-    let notificationTitle;
-    switch(notification.notification_type) {
-        case 'like':
-            notificationTitle = 'Ai đó thích bài viết của bạn';
-            break;
-        case 'comment':
-            notificationTitle = 'Bình luận mới';
-            break;
-        case 'follow':
-            notificationTitle = 'Người theo dõi mới';
-            break;
-        case 'mention':
-            notificationTitle = 'Bạn được nhắc đến';
-            break;
-        case 'message':
-            notificationTitle = 'Tin nhắn mới';
-            break;
-        default:
-            notificationTitle = 'Thông báo mới';
-    }
-
-    let notificationText;
-    switch(notification.notification_type) {
-        case 'like':
-            notificationText = `${notification.sender_username} đã thích bài viết của bạn`;
-            break;
-        case 'comment':
-            notificationText = `${notification.sender_username} đã bình luận về bài viết của bạn`;
-            break;
-        case 'follow':
-            notificationText = `${notification.sender_username} đã theo dõi bạn`;
-            break;
-        case 'mention':
-            notificationText = `${notification.sender_username} đã nhắc đến bạn trong bài viết`;
-            break;
-        case 'message':
-            notificationText = `${notification.sender_username} đã gửi tin nhắn cho bạn`;
-            break;
-        default:
-            notificationText = notification.text || 'Bạn có thông báo mới';
-    }
+    const link = getNotificationLink(notification);
+    const notificationText = getNotificationText(notification);
+    const notificationTitle = getNotificationTitle(notification);
 
     toastEl.innerHTML = `
         <div class="toast-header">
-            <img src="${notification.sender_avatar}" class="rounded me-2" width="20" height="20" alt="${notification.sender_username}">
+            <img src="${notification.sender_avatar || '/static/img/default-avatar.png'}" class="rounded me-2" width="20" height="20" alt="${notification.sender_username || 'User'}">
             <strong class="me-auto">${notificationTitle}</strong>
             <small>vừa mới</small>
             <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
         <div class="toast-body">
-            ${notificationText}
+            ${link !== '#'
+                ? `<a href="${link}" class="text-decoration-none text-body">${notificationText}</a>`
+                : notificationText}
         </div>
     `;
 
     toastContainer.appendChild(toastEl);
 
-    // Initialize and show the toast
     const toast = new bootstrap.Toast(toastEl);
     toast.show();
 
-    // Remove the toast after it's hidden
     toastEl.addEventListener('hidden.bs.toast', function() {
         toastEl.remove();
     });
 }
 
+function markNotificationAsRead(notificationEl) {
+    const notificationId = notificationEl.dataset.id;
+    if (!notificationId) return;
+
+    fetch(`/notifications/mark-as-read/${notificationId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json'
+        },
+        keepalive: true,
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            notificationEl.classList.remove('bg-light');
+
+            const badge = document.getElementById('notification-count');
+            if (badge && badge.style.display !== 'none') {
+                const currentCount = parseInt(badge.textContent, 10) || 0;
+                if (currentCount > 0) {
+                    updateNotificationCount(currentCount - 1);
+                }
+            }
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
 function setupNotificationInteractions() {
-    // Mark all notifications as read
     const markAllReadBtn = document.querySelector('.mark-all-read');
     if (markAllReadBtn) {
         markAllReadBtn.addEventListener('click', function(e) {
             e.preventDefault();
-            
+
             fetch(this.href, {
                 method: 'POST',
                 headers: {
@@ -241,8 +246,7 @@ function setupNotificationInteractions() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Update UI
-                    document.querySelectorAll('.notification-item').forEach(item => {
+                    document.querySelectorAll('.notification-item, .list-group-item[data-id]').forEach(item => {
                         item.classList.remove('bg-light');
                     });
                     updateNotificationCount(0);
@@ -252,38 +256,14 @@ function setupNotificationInteractions() {
         });
     }
 
-    // Mark individual notification as read on click
     document.addEventListener('click', function(e) {
-        const notificationItem = e.target.closest('.notification-item');
-        if (notificationItem) {
-            const notificationId = notificationItem.dataset.id;
-            
-            fetch(`/notifications/mark-as-read/${notificationId}/`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': getCookie('csrftoken'),
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Update UI
-                    notificationItem.classList.remove('bg-light');
-                    
-                    // Update count
-                    const currentCount = parseInt(document.getElementById('notification-count').textContent);
-                    if (currentCount > 0) {
-                        updateNotificationCount(currentCount - 1);
-                    }
-                }
-            })
-            .catch(error => console.error('Error:', error));
-        }
+        const notificationItem = e.target.closest('.notification-item[data-id], .list-group-item[data-id]');
+        if (!notificationItem) return;
+
+        markNotificationAsRead(notificationItem);
     });
 }
 
-// Helper function to get CSRF token
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -297,4 +277,4 @@ function getCookie(name) {
         }
     }
     return cookieValue;
-} 
+}

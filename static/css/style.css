@@ -69,8 +69,34 @@ a:hover {
     font-weight: bold;
 }
 
-.navbar-brand img {
-    max-height: 30px;
+.brand-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    text-decoration: none !important;
+    line-height: 1;
+    color: #111 !important;
+}
+
+.brand-logo:hover,
+.brand-logo:focus {
+    color: #111 !important;
+    opacity: 0.88;
+}
+
+.brand-logo__mark {
+    width: 28px;
+    height: 28px;
+    display: block;
+    flex-shrink: 0;
+}
+
+.brand-logo__text {
+    font-family: Georgia, "Times New Roman", "Palatino Linotype", serif;
+    font-size: 1.45rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1;
 }
 
 .nav-link {
@@ -1127,5 +1153,160 @@ body {
     
     .btn {
         padding: 10px 20px;
+    }
+}
+
+/* ---- Mobile Threads-style chrome ---- */
+.mobile-feed-topbar {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 52px;
+    z-index: 1040;
+    background: #fff;
+    border-bottom: 1px solid #efefef;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 0.75rem;
+}
+
+.mobile-feed-icon-btn {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: transparent;
+    color: #111;
+    font-size: 1.15rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    border-radius: 10px;
+}
+
+.mobile-feed-icon-btn:hover,
+.mobile-feed-icon-btn:focus {
+    background: #f5f5f5;
+    color: #111;
+}
+
+.mobile-feed-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    gap: 0.4rem;
+}
+
+.mobile-feed-logo .brand-logo__mark {
+    width: 26px;
+    height: 26px;
+}
+
+.mobile-feed-logo .brand-logo__text {
+    font-size: 1.35rem;
+}
+
+.mobile-bottom-nav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    z-index: 1040;
+    background: #fff;
+    border-top: 1px solid #efefef;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 0.5rem;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.mobile-bottom-nav__item {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    border: none;
+    background: transparent;
+    color: #111;
+    font-size: 1.35rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    border-radius: 12px;
+}
+
+.mobile-bottom-nav__item:hover,
+.mobile-bottom-nav__item:focus {
+    color: #111;
+    background: #f5f5f5;
+}
+
+.mobile-bottom-nav__item.is-active {
+    color: #111;
+}
+
+.mobile-bottom-nav__create {
+    border: 1.5px solid #dbdbdb;
+    border-radius: 14px;
+    width: 46px;
+    height: 40px;
+    font-size: 1.25rem;
+}
+
+.mobile-bottom-nav__dot {
+    position: absolute;
+    bottom: 8px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #ed4956;
+}
+
+.mobile-menu-link {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.95rem 1.25rem;
+    color: #262626;
+    text-decoration: none;
+    border-bottom: 1px solid #f5f5f5;
+    font-weight: 500;
+}
+
+.mobile-menu-link i {
+    width: 1.25rem;
+    text-align: center;
+    color: #525252;
+}
+
+.mobile-menu-link:hover {
+    background: #fafafa;
+    color: #111;
+}
+
+@media (max-width: 991.98px) {
+    body.user-authenticated .site-navbar {
+        display: none !important;
+    }
+
+    body.user-authenticated .mobile-feed-topbar {
+        display: flex !important;
+    }
+
+    body.user-authenticated .mobile-bottom-nav {
+        display: flex;
+    }
+
+    body.user-authenticated .site-main {
+        padding-top: 52px !important;
+        padding-bottom: 72px !important;
+        margin-top: 0 !important;
     }
 } 

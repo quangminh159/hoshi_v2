@@ -1,10 +1,11 @@
-<svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="40" cy="40" r="36" fill="url(#gradient)" />
-    <path d="M40 20L52 44H28L40 20Z" fill="white"/>
-    <defs>
-        <linearGradient id="gradient" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stop-color="#a1c4fd"/>
-            <stop offset="100%" stop-color="#c2e9fb"/>
-        </linearGradient>
-    </defs>
-</svg> 
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 40" fill="none" role="img" aria-label="Hoshi">
+  <defs>
+    <linearGradient id="hoshiStar" x1="2" y1="2" x2="38" y2="38" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#111"/>
+      <stop offset="1" stop-color="#333"/>
+    </linearGradient>
+  </defs>
+  <circle cx="20" cy="20" r="18" fill="url(#hoshiStar)"/>
+  <path d="M20 8.2l3.2 8.2 8.8.4-6.9 5.5 2.4 8.45L20 25.7l-7.5 5.05 2.4-8.45-6.9-5.5 8.8-.4L20 8.2z" fill="#fff"/>
+  <text x="46" y="27" font-family="Georgia, 'Times New Roman', serif" font-size="22" font-weight="700" letter-spacing="-0.5" fill="#111">Hoshi</text>
+</svg>

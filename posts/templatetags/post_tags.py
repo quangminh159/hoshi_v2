@@ -10,7 +10,7 @@ def format_caption(caption):
     """
     Format caption với các đề cập (@username) và hashtags (#hashtag)
     - @username: hiển thị màu xanh và liên kết đến trang profile
-    - #hashtag: hiển thị màu xanh và liên kết đến trang tìm kiếm hashtag
+    - #hashtag: hiển thị màu xanh và liên kết đến trang tìm kiếm
     """
     # Xử lý mentions (@username)
     caption = re.sub(
@@ -22,11 +22,11 @@ def format_caption(caption):
     # Xử lý hashtags (#hashtag)
     caption = re.sub(
         r'#(\w+)',
-        lambda match: f'<a href="{reverse("posts:explore")}?tag={match.group(1)}" class="text-primary">#{match.group(1)}</a>',
+        lambda match: f'<a href="{reverse("posts:search")}?q={match.group(1)}" class="text-primary">#{match.group(1)}</a>',
         caption
     )
     
     # Thêm xuống dòng
     caption = caption.replace('\n', '<br>')
     
-    return mark_safe(caption) 
+    return mark_safe(caption)

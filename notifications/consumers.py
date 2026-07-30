@@ -72,7 +72,13 @@ class NotificationConsumer(AsyncWebsocketConsumer):
                 'sender_id': notification.sender.id,
                 'sender_username': notification.sender.username,
                 'sender_avatar': notification.sender.get_avatar_url(),
-                'link': notification.link
+                'post_id': notification.post_id,
+                'conversation_id': notification.conversation_id or (
+                    notification.message.conversation_id
+                    if notification.message_id and getattr(notification.message, 'conversation_id', None)
+                    else None
+                ),
+                'link': notification.link,
             }
         except Notification.DoesNotExist:
             return {}

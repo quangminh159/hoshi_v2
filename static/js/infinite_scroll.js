@@ -23,6 +23,11 @@
     }
 
     function buildFeedUrl(page) {
+        const profileUsername = document.querySelector('meta[name="profile-username"]')?.content;
+        if (profileUsername) {
+            const tab = document.querySelector('meta[name="profile-tab"]')?.content || 'posts';
+            return `/users/api/${encodeURIComponent(profileUsername)}/posts/?page=${page}&tab=${encodeURIComponent(tab)}`;
+        }
         const path = window.location.pathname;
         if (path.includes('/saved')) {
             return `${path}?page=${page}&format=json`;
@@ -57,7 +62,7 @@
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;')
-            .replace(/#(\w+)/g, '<a href="/posts/explore/?tag=$1" class="text-primary">#$1</a>')
+            .replace(/#(\w+)/g, '<a href="/posts/search/?q=$1" class="text-primary">#$1</a>')
             .replace(/@(\w+)/g, (_, u) => `<a href="${profileUrl(u)}" class="text-primary">@${u}</a>`);
     }
 
@@ -66,102 +71,144 @@
         postDiv.className = 'card feed-post-card';
         postDiv.id = `post-${post.id}`;
 
-        let mediaHTML = '';
-        if (post.media && post.media.length > 0) {
-            const slides = post.media.map((media, index) => `
+        function buildMediaCarousel(mediaList, carouselId, clickUrl) {
+            if (!mediaList || mediaList.length === 0) return '';
+            const slides = mediaList.map((media, index) => `
                 <div class="carousel-item ${index === 0 ? 'active' : ''}">
                     ${media.media_type === 'image'
                         ? `<img src="${media.file_url}" class="d-block w-100" alt="Post image" loading="lazy" decoding="async">`
-                        : `<video class="d-block w-100 feed-video" controls preload="none" playsinline src="${media.file_url}"></video>`
+                        : `<video class="d-block w-100 feed-video" muted loop playsinline preload="metadata" controls src="${media.file_url}" onclick="event.stopPropagation()"></video>`
                     }
                 </div>
             `).join('');
 
-            const indicators = post.media.length > 1 ? `
+            const indicators = mediaList.length > 1 ? `
                 <div class="carousel-indicators">
-                    ${post.media.map((_, index) => `
-                        <button type="button" data-bs-target="#carousel-${post.id}" data-bs-slide-to="${index}"
+                    ${mediaList.map((_, index) => `
+                        <button type="button" data-bs-target="#${carouselId}" data-bs-slide-to="${index}"
                             ${index === 0 ? 'class="active" aria-current="true"' : ''} aria-label="Slide ${index + 1}"></button>
                     `).join('')}
                 </div>` : '';
 
-            const controls = post.media.length > 1 ? `
-                <button class="carousel-control-prev" type="button" data-bs-target="#carousel-${post.id}" data-bs-slide="prev" onclick="event.stopPropagation();">
+            const controls = mediaList.length > 1 ? `
+                <button class="carousel-control-prev" type="button" data-bs-target="#${carouselId}" data-bs-slide="prev" onclick="event.stopPropagation();">
                     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                 </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#carousel-${post.id}" data-bs-slide="next" onclick="event.stopPropagation();">
+                <button class="carousel-control-next" type="button" data-bs-target="#${carouselId}" data-bs-slide="next" onclick="event.stopPropagation();">
                     <span class="carousel-control-next-icon" aria-hidden="true"></span>
                 </button>` : '';
 
-            mediaHTML = `
-                <div id="carousel-${post.id}" class="carousel slide post-content" data-bs-ride="false"
-                     onclick="window.location='/posts/${post.id}/';" style="cursor:pointer;">
+            return `
+                <div id="${carouselId}" class="carousel slide post-content" data-bs-ride="false"
+                     onclick="window.location='${clickUrl}'" style="cursor:pointer;">
                     ${indicators}
                     <div class="carousel-inner">${slides}</div>
                     ${controls}
                 </div>`;
         }
 
+        let sharedHTML = '';
+        if (post.shared_from) {
+            const original = post.shared_from;
+            const originalMedia = buildMediaCarousel(
+                original.media,
+                `carousel-shared-${post.id}`,
+                `/posts/${original.id}/`
+            );
+            sharedHTML = `
+                <div class="shared-post-container border rounded bg-white">
+                    <div class="share-title p-2 border-bottom">
+                        <i class="fas fa-retweet text-primary me-1"></i>
+                        <span class="text-muted">Đã chia sẻ bài viết</span>
+                    </div>
+                    <div class="shared-post-header" style="cursor:pointer;" onclick="window.location='/posts/${original.id}/';">
+                        <div class="d-flex align-items-center mb-2">
+                            <img src="${original.author.avatar}" class="rounded-circle me-2" width="32" height="32"
+                                 alt="${original.author.username}" loading="lazy">
+                            <div>
+                                <a href="${profileUrl(original.author.username)}"
+                                   class="text-dark text-decoration-none fw-bold"
+                                   onclick="event.stopPropagation();">${original.author.username}</a>
+                                ${original.location ? `<div class="text-muted small">${original.location}</div>` : ''}
+                            </div>
+                        </div>
+                        ${original.caption ? `<p class="card-text mb-0">${formatCaption(original.caption)}</p>` : ''}
+                    </div>
+                    <div class="shared-post-media">
+                        ${originalMedia}
+                    </div>
+                </div>`;
+        }
+
+        const mediaHTML = post.shared_from
+            ? ''
+            : buildMediaCarousel(post.media, `carousel-${post.id}`, `/posts/${post.id}/`);
+
         postDiv.innerHTML = `
-            <div class="card-header bg-white border-0 py-3" style="cursor:pointer;" onclick="window.location='/posts/${post.id}/';">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div class="d-flex align-items-center">
-                        <img src="${post.author.avatar}" class="rounded-circle me-2" width="32" height="32"
+            <div class="feed-post-body">
+                <div class="feed-post-avatar-col">
+                    <a href="${profileUrl(post.author.username)}" class="feed-post-avatar-link" onclick="event.stopPropagation();">
+                        <img src="${post.author.avatar}" class="rounded-circle feed-post-avatar"
                              alt="${post.author.username}" loading="lazy">
-                        <div>
+                    </a>
+                </div>
+                <div class="feed-post-main">
+                    <div class="feed-post-meta" style="cursor:pointer;" onclick="window.location='/posts/${post.id}/';">
+                        <div class="feed-post-meta-left">
                             <a href="${profileUrl(post.author.username)}"
-                               class="text-dark text-decoration-none fw-bold"
+                               class="text-dark text-decoration-none fw-bold feed-post-username"
                                onclick="event.stopPropagation();">${post.author.username}</a>
-                            ${post.location ? `<div class="text-muted small">${post.location}</div>` : ''}
+                            <span class="text-muted small feed-post-time">${timeAgo(new Date(post.created_at))}</span>
+                            ${post.shared_from ? `<span class="text-muted small"><i class="fas fa-retweet me-1"></i>đã chia sẻ</span>` : ''}
                         </div>
                     </div>
-                    <div class="text-muted small">${timeAgo(new Date(post.created_at))} trước</div>
-                </div>
-            </div>
-            ${post.caption ? `
-            <div class="card-body py-2 post-content" onclick="window.location='/posts/${post.id}/';" style="cursor:pointer;">
-                <p class="card-text mb-0">${formatCaption(post.caption)}</p>
-            </div>` : ''}
-            ${mediaHTML}
-            <div class="card-footer d-flex justify-content-between py-2 bg-white">
-                <div class="d-flex align-items-center">
-                    <button class="btn btn-light btn-sm me-2 like-button ${post.is_liked ? 'liked' : ''}" data-post-id="${post.id}">
-                        <i class="${post.is_liked ? 'fas' : 'far'} fa-heart"></i>
-                        <span class="likes-count" data-post-id="${post.id}">${post.likes_count}</span>
-                    </button>
-                    <a href="/posts/${post.id}/" class="btn btn-light btn-sm me-2">
-                        <i class="far fa-comment"></i>
-                        <span>${post.comments_count}</span>
-                    </a>
-                    <button class="btn btn-light btn-sm share-button" data-post-id="${post.id}"
-                            data-bs-toggle="modal" data-bs-target="#sharePostModal">
-                        <i class="far fa-share-square"></i>
-                        <span>Chia sẻ</span>
-                    </button>
-                </div>
-                <button class="btn btn-light btn-sm save-button" data-post-id="${post.id}">
-                    <i class="${post.is_saved ? 'fas' : 'far'} fa-bookmark"></i>
-                </button>
-            </div>
-            <div class="comments-section px-3 pb-1">
-                <div class="root-comments-list">${renderCommentsHtml(post)}</div>
-                ${buildLoadMoreCommentsHtml(post)}
-            </div>
-            <form class="mt-3 add-comment-form" data-post-id="${post.id}" data-no-auto="true" data-ajax-submit="true">
-                <div class="input-group">
-                    <input type="text" name="text" id="comment-input-${post.id}" class="form-control comment-input"
-                           placeholder="Viết bình luận..." aria-label="Comment input" autocomplete="off">
-                    <button class="btn btn-primary" type="submit">Gửi</button>
-                </div>
-                <div class="reply-info d-none">
-                    <small>
-                        Trả lời: <span class="reply-to-username"></span>
-                        <button type="button" class="btn btn-link btn-sm p-0 text-muted cancel-reply" data-post-id="${post.id}">
-                            <i class="fas fa-times"></i>
+                    ${post.caption ? `
+                    <div class="feed-post-caption post-content" onclick="window.location='/posts/${post.id}/';" style="cursor:pointer;">
+                        <p class="card-text mb-0">${formatCaption(post.caption)}</p>
+                    </div>` : ''}
+                    ${sharedHTML}
+                    ${mediaHTML}
+                    <div class="card-footer d-flex justify-content-between py-2 bg-white feed-post-actions">
+                        <div class="d-flex align-items-center">
+                            <button class="btn btn-light btn-sm me-2 like-button ${post.is_liked ? 'liked' : ''}" data-post-id="${post.id}">
+                                <i class="${post.is_liked ? 'fas' : 'far'} fa-heart"></i>
+                                <span class="likes-count" data-post-id="${post.id}">${post.likes_count}</span>
+                            </button>
+                            <a href="/posts/${post.id}/" class="btn btn-light btn-sm me-2">
+                                <i class="far fa-comment"></i>
+                                <span>${post.comments_count}</span>
+                            </a>
+                            <button class="btn btn-light btn-sm share-button" data-post-id="${post.id}"
+                                    data-bs-toggle="modal" data-bs-target="#sharePostModal">
+                                <i class="far fa-share-square"></i>
+                                <span>Chia sẻ</span>
+                            </button>
+                        </div>
+                        <button class="btn btn-light btn-sm save-button" data-post-id="${post.id}">
+                            <i class="${post.is_saved ? 'fas' : 'far'} fa-bookmark"></i>
                         </button>
-                    </small>
+                    </div>
+                    <div class="comments-section px-0 pb-1">
+                        <div class="root-comments-list">${renderCommentsHtml(post)}</div>
+                        ${buildLoadMoreCommentsHtml(post)}
+                    </div>
+                    <form class="mt-3 add-comment-form" data-post-id="${post.id}" data-no-auto="true" data-ajax-submit="true">
+                        <div class="input-group">
+                            <input type="text" name="text" id="comment-input-${post.id}" class="form-control comment-input"
+                                   placeholder="Viết bình luận..." aria-label="Comment input" autocomplete="off">
+                            <button class="btn btn-primary" type="submit">Gửi</button>
+                        </div>
+                        <div class="reply-info d-none">
+                            <small>
+                                Trả lời: <span class="reply-to-username"></span>
+                                <button type="button" class="btn btn-link btn-sm p-0 text-muted cancel-reply" data-post-id="${post.id}">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </small>
+                        </div>
+                    </form>
                 </div>
-            </form>`;
+            </div>`;
 
         if (post.is_liked) localStorage.setItem(`post_liked_${post.id}`, 'true');
         if (post.is_saved) localStorage.setItem(`post_saved_${post.id}`, 'true');
@@ -757,14 +804,56 @@
         });
     }
 
-    const videoObserver = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-            const video = entry.target;
-            if (!video.paused && !entry.isIntersecting) {
+    function pauseAllFeedVideos(except) {
+        document.querySelectorAll('.feed-video').forEach((video) => {
+            if (video !== except && !video.paused) {
                 video.pause();
             }
         });
-    }, { threshold: 0.25 });
+    }
+
+    function tryPlayFeedVideo(video) {
+        if (!video) return;
+        const slide = video.closest('.carousel-item');
+        if (slide && !slide.classList.contains('active')) {
+            video.pause();
+            return;
+        }
+        video.muted = true;
+        pauseAllFeedVideos(video);
+        const playPromise = video.play();
+        if (playPromise && typeof playPromise.catch === 'function') {
+            playPromise.catch(() => {});
+        }
+    }
+
+    const videoObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+            const video = entry.target;
+            if (entry.isIntersecting && entry.intersectionRatio >= 0.45) {
+                tryPlayFeedVideo(video);
+            } else if (!video.paused) {
+                video.pause();
+            }
+        });
+    }, { threshold: [0, 0.45, 0.7] });
+
+    function bindCarouselVideoSync(carousel) {
+        if (carousel.dataset.videoSync === 'true') return;
+        carousel.dataset.videoSync = 'true';
+        carousel.addEventListener('slid.bs.carousel', () => {
+            carousel.querySelectorAll('.feed-video').forEach((video) => {
+                const slide = video.closest('.carousel-item');
+                if (slide && slide.classList.contains('active')) {
+                    const rect = video.getBoundingClientRect();
+                    const visible = rect.top < window.innerHeight && rect.bottom > 0;
+                    if (visible) tryPlayFeedVideo(video);
+                } else if (!video.paused) {
+                    video.pause();
+                }
+            });
+        });
+    }
 
     function initPostInteractions(root) {
         const scope = root || document;
@@ -773,7 +862,12 @@
             try {
                 new bootstrap.Carousel(carousel, { interval: false });
                 carousel.setAttribute('data-initialized', 'true');
+                bindCarouselVideoSync(carousel);
             } catch (_) { /* bootstrap not ready */ }
+        });
+
+        scope.querySelectorAll('.carousel[data-initialized]:not([data-video-sync="true"])').forEach((carousel) => {
+            bindCarouselVideoSync(carousel);
         });
 
         scope.querySelectorAll('.like-button:not([data-initialized])').forEach((button) => {
@@ -877,8 +971,17 @@
         });
 
         scope.querySelectorAll('.feed-video:not([data-observed])').forEach((video) => {
+            video.muted = true;
+            video.playsInline = true;
             video.setAttribute('data-observed', 'true');
+            video.addEventListener('click', (e) => e.stopPropagation());
             videoObserver.observe(video);
+
+            const rect = video.getBoundingClientRect();
+            const visible = rect.top < window.innerHeight * 0.85 && rect.bottom > window.innerHeight * 0.15;
+            if (visible) {
+                tryPlayFeedVideo(video);
+            }
         });
     }
 

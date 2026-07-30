@@ -1,7 +1,9 @@
-﻿{% extends 'base/base.html' %}
+{% extends 'base/base.html' %}
 {% load static %}
 
 {% block title %}{% if title %}{{ title }} - {% else %}Trang chủ - {% endif %}{{ block.super }}{% endblock %}
+
+{% block body_class %} feed-layout{% endblock %}
 
 {% block extra_css %}
 <link href="{% static 'css/feed.css' %}" rel="stylesheet">
@@ -18,14 +20,13 @@
 <meta name="feed-type" content="{{ feed_type|default:'diverse' }}">
 <meta name="has-more" content="true">
 
-<div class="container py-3">
-    <div class="row justify-content-center">
-        <div class="col-12 feed-page">
+<div class="feed-shell">
+    <div class="feed-page">
             {% if title %}
-            <h4 class="mb-3">{{ title }}</h4>
+            <h4 class="mb-3 feed-page-title-desktop">{{ title }}</h4>
             {% endif %}
 
-            <div class="feed-top d-flex align-items-center justify-content-between mb-2">
+            <div class="feed-top d-none d-lg-flex align-items-center justify-content-between mb-2">
                 <h1>Bảng tin</h1>
             </div>
             <nav class="feed-tabs" aria-label="Chế độ xem bảng tin">
@@ -38,11 +39,11 @@
                     Đang theo dõi
                 </a>
                 <a href="{% url 'posts:liked_posts' %}"
-                   class="feed-tab {% if feed_type == 'liked' %}active{% endif %}">
+                   class="feed-tab feed-tab--secondary {% if feed_type == 'liked' %}active{% endif %}">
                     Đã thích
                 </a>
                 <a href="{% url 'posts:saved' %}"
-                   class="feed-tab {% if feed_type == 'saved' %}active{% endif %}">
+                   class="feed-tab feed-tab--secondary {% if feed_type == 'saved' %}active{% endif %}">
                     Đã lưu
                 </a>
             </nav>
@@ -89,7 +90,6 @@
             <div id="empty-message" class="text-center py-5 d-none">
                 <p class="text-muted mb-0">Chưa có bài viết nào để hiển thị</p>
             </div>
-        </div>
     </div>
 </div>
 
@@ -144,6 +144,74 @@ document.addEventListener('DOMContentLoaded', function() {
             this.click();
         }
     });
+
+    const homeNav = document.querySelector('.mobile-bottom-nav__item[data-nav="home"]');
+    if (homeNav) homeNav.classList.add('is-active');
+
+    const shareForm = document.getElementById('sharePostForm');
+    if (shareForm) {
+        shareForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const postId = document.getElementById('share-post-id')?.value;
+            const caption = document.getElementById('share-caption')?.value || '';
+            const asNewPost = document.getElementById('share-as-new-post')?.checked ?? true;
+            const submitBtn = shareForm.querySelector('button[type="submit"]');
+
+            if (!postId) {
+                alert('Không tìm thấy bài viết để chia sẻ.');
+                return;
+            }
+
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Đang chia sẻ...';
+            }
+
+            fetch(shareForm.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || '',
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({
+                    post_id: postId,
+                    caption: caption,
+                    as_new_post: asNewPost,
+                }),
+            })
+            .then((response) => response.json().then((data) => ({ ok: response.ok, data })))
+            .then(({ ok, data }) => {
+                if (!ok || data.status !== 'success') {
+                    throw new Error(data.message || 'Có lỗi xảy ra khi chia sẻ bài viết.');
+                }
+
+                const modalEl = document.getElementById('sharePostModal');
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+
+                shareForm.reset();
+                document.getElementById('share-as-new-post').checked = true;
+
+                if (data.post_id) {
+                    window.location.href = `/posts/${data.post_id}/`;
+                } else {
+                    window.location.reload();
+                }
+            })
+            .catch((error) => {
+                alert(error.message || 'Có lỗi xảy ra khi chia sẻ bài viết.');
+            })
+            .finally(() => {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Chia sẻ';
+                }
+            });
+        });
+    }
 });
 </script>
 {% endblock %}

@@ -18,13 +18,6 @@
     
     <!-- Custom CSS -->
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
-    
-    <!-- Thêm CSS để ẩn thông báo -->
-    <link rel="stylesheet" href="{% static 'css/hide_notifications.css' %}">
-    
-    <!-- Stylesheets -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <link href="{% static 'css/notification_dropdown.css' %}" rel="stylesheet">
     
     {% if user.is_authenticated %}
@@ -33,20 +26,21 @@
     
     {% block extra_css %}{% endblock %}
 </head>
-<body class="bg-light {% if user.is_authenticated %}user-authenticated{% endif %}" {% if user.is_authenticated %}data-user-id="{{ user.id }}"{% endif %}>
+<body class="bg-light {% if user.is_authenticated %}user-authenticated{% endif %}{% block body_class %}{% endblock %}" {% if user.is_authenticated %}data-user-id="{{ user.id }}"{% endif %}>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom fixed-top site-navbar">
         <div class="container">
-            <a class="navbar-brand" href="{% url 'home' %}">
-                <img src="{% static 'img/logo.png' %}" alt="Hoshi" height="30">
+            <a class="navbar-brand brand-logo" href="{% url 'home' %}">
+                <img src="{% static 'images/logo-mark.svg' %}" alt="" class="brand-logo__mark" aria-hidden="true">
+                <span class="brand-logo__text">Hoshi</span>
             </a>
             
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Menu">
                 <span class="navbar-toggler-icon"></span>
             </button>
             
             <div class="collapse navbar-collapse" id="navbarNav">
-                <form class="d-flex mx-auto" action="{% url 'posts:search' %}" method="get">
+                <form class="d-flex mx-auto navbar-search-form" action="{% url 'posts:search' %}" method="get">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" placeholder="Tìm kiếm...">
                         <button class="btn btn-outline-secondary" type="submit">
@@ -73,8 +67,8 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'posts:explore' %}">
-                                <i class="fas fa-compass"></i>
+                            <a class="nav-link" href="{% url 'posts:search' %}" title="Tìm kiếm">
+                                <i class="fas fa-search"></i>
                             </a>
                         </li>
                         <li class="nav-item dropdown position-relative">
@@ -95,29 +89,18 @@
                                 <div class="notification-list" style="max-height: 350px; overflow-y: auto;">
                                     {% if notifications %}
                                         {% for notification in notifications|slice:":5" %}
-                                            <div class="notification-item p-3 border-bottom {% if not notification.is_read %}bg-light{% endif %}" data-id="{{ notification.id }}">
+                                            <a href="{{ notification.link }}"
+                                               class="notification-item p-3 border-bottom text-decoration-none text-body d-block {% if not notification.is_read %}bg-light{% endif %}"
+                                               data-id="{{ notification.id }}"
+                                               data-link="{{ notification.link }}">
                                                 <div class="d-flex">
                                                     <img src="{{ notification.sender.get_avatar_url }}" class="rounded-circle me-2" width="40" height="40" alt="{{ notification.sender.username }}">
                                                     <div>
-                                                        <p class="mb-1">
-                                                            {% if notification.notification_type == 'like' %}
-                                                                <a href="{% url 'accounts:profile' notification.sender.username %}" class="fw-bold text-decoration-none">{{ notification.sender.username }}</a> đã thích bài viết của bạn
-                                                            {% elif notification.notification_type == 'comment' %}
-                                                                <a href="{% url 'accounts:profile' notification.sender.username %}" class="fw-bold text-decoration-none">{{ notification.sender.username }}</a> đã bình luận về bài viết của bạn
-                                                            {% elif notification.notification_type == 'follow' %}
-                                                                <a href="{% url 'accounts:profile' notification.sender.username %}" class="fw-bold text-decoration-none">{{ notification.sender.username }}</a> đã theo dõi bạn
-                                                            {% elif notification.notification_type == 'mention' %}
-                                                                <a href="{% url 'accounts:profile' notification.sender.username %}" class="fw-bold text-decoration-none">{{ notification.sender.username }}</a> đã nhắc đến bạn trong bài viết
-                                                            {% elif notification.notification_type == 'message' %}
-                                                                <a href="{% url 'accounts:profile' notification.sender.username %}" class="fw-bold text-decoration-none">{{ notification.sender.username }}</a> đã gửi tin nhắn cho bạn
-                                                            {% else %}
-                                                                {{ notification.text }}
-                                                            {% endif %}
-                                                        </p>
+                                                        <p class="mb-1">{{ notification.text }}</p>
                                                         <small class="text-muted">{{ notification.created_at|timesince }} trước</small>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </a>
                                         {% endfor %}
                                     {% else %}
                                         <div class="p-3 text-center text-muted">
@@ -183,15 +166,72 @@
             </div>
         </div>
     </nav>
+
+    {% if user.is_authenticated %}
+    <!-- Mobile Threads-style top bar (feed) -->
+    <header class="mobile-feed-topbar d-lg-none">
+        <button type="button" class="mobile-feed-icon-btn" data-bs-toggle="offcanvas" data-bs-target="#mobileFeedMenu" aria-label="Menu">
+            <i class="fas fa-bars"></i>
+        </button>
+        <a href="{% url 'home' %}" class="mobile-feed-logo brand-logo" aria-label="Hoshi">
+            <img src="{% static 'images/logo-mark.svg' %}" alt="" class="brand-logo__mark" aria-hidden="true">
+            <span class="brand-logo__text">Hoshi</span>
+        </a>
+        <a href="{% url 'posts:search' %}" class="mobile-feed-icon-btn" aria-label="Tìm kiếm">
+            <i class="fas fa-search"></i>
+        </a>
+    </header>
+
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileFeedMenu" aria-labelledby="mobileFeedMenuLabel">
+        <div class="offcanvas-header border-bottom">
+            <h5 class="offcanvas-title" id="mobileFeedMenuLabel">Menu</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Đóng"></button>
+        </div>
+        <div class="offcanvas-body p-0">
+            <a class="mobile-menu-link" href="{% url 'accounts:profile' user.username %}">
+                <img src="{{ user.get_avatar_url }}" class="rounded-circle" width="36" height="36" alt="">
+                <span>{{ user.username }}</span>
+            </a>
+            <a class="mobile-menu-link" href="{% url 'posts:liked_posts' %}"><i class="fas fa-heart"></i><span>Đã thích</span></a>
+            <a class="mobile-menu-link" href="{% url 'posts:saved' %}"><i class="fas fa-bookmark"></i><span>Đã lưu</span></a>
+            <a class="mobile-menu-link" href="{% url 'accounts:settings' %}"><i class="fas fa-cog"></i><span>Cài đặt</span></a>
+            <a class="mobile-menu-link text-danger" href="{% url 'account_logout' %}"><i class="fas fa-sign-out-alt"></i><span>Đăng xuất</span></a>
+        </div>
+    </div>
+
+    <!-- Mobile bottom nav -->
+    <nav class="mobile-bottom-nav d-lg-none" aria-label="Điều hướng nhanh">
+        <a href="{% url 'home' %}" class="mobile-bottom-nav__item" data-nav="home">
+            <i class="fas fa-home"></i>
+        </a>
+        <a href="{% url 'chat:conversation_list' %}" class="mobile-bottom-nav__item" data-nav="messages" aria-label="Tin nhắn">
+            <i class="far fa-paper-plane"></i>
+        </a>
+        <button type="button" class="mobile-bottom-nav__item mobile-bottom-nav__create" data-nav="create" aria-label="Tạo bài viết">
+            <i class="fas fa-plus"></i>
+        </button>
+        <a href="{% url 'notifications:list' %}" class="mobile-bottom-nav__item" data-nav="activity">
+            <i class="far fa-heart"></i>
+            {% if notification_count %}
+            <span class="mobile-bottom-nav__dot"></span>
+            {% endif %}
+        </a>
+        <a href="{% url 'accounts:profile' user.username %}" class="mobile-bottom-nav__item" data-nav="profile">
+            <i class="far fa-user"></i>
+        </a>
+    </nav>
+    {% endif %}
     
     <!-- Main Content -->
-    <main class="container py-5 mt-5">
+    <main class="container py-5 mt-5 site-main">
         {% if messages %}
             {% for message in messages %}
+                {% if message.tags %}
                 <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
                     {{ message }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
+                {% endif %}
             {% endfor %}
         {% endif %}
         
@@ -211,6 +251,21 @@
     <script src="{% static 'js/notifications.js' %}"></script>
     
     {% block extra_js %}{% endblock %}
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.mobile-bottom-nav__create').forEach((btn) => {
+            btn.addEventListener('click', function() {
+                const composer = document.querySelector('.feed-composer-trigger');
+                if (composer) {
+                    composer.click();
+                    return;
+                }
+                window.location.href = '{% url "posts:create" %}';
+            });
+        });
+    });
+    </script>
 
 </body>
 </html> 

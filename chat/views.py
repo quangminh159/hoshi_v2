@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.http import Http404, JsonResponse, HttpResponse
 from django.db.models import Q, Max, Count, Exists, OuterRef, Subquery
+from .presence import get_user_presence
 from .models import Conversation, ConversationMessage, ConversationParticipant, Thread, UserSetting
 import json
 from django.contrib.auth import authenticate, login, logout
@@ -12,8 +13,63 @@ console = Console(style='bold green')
 import re
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_protect
+from django.utils import timezone
 
 User = get_user_model()
+
+
+from .message_utils import serialize_chat_message, serialize_reply_to
+
+
+def _serialize_reply_to(message):
+    return serialize_reply_to(message)
+
+
+def _serialize_chat_message(message, user=None):
+    return serialize_chat_message(message, user)
+
+
+def _broadcast_chat_message(conversation_id, message_data):
+    """Gửi tin nhắn realtime tới phòng chat."""
+    try:
+        from asgiref.sync import async_to_sync
+        from channels.layers import get_channel_layer
+
+        channel_layer = get_channel_layer()
+        if not channel_layer:
+            return
+        async_to_sync(channel_layer.group_send)(
+            f'chat_{conversation_id}',
+            {'type': 'chat_message', 'message': message_data},
+        )
+    except Exception as exc:
+        console.print(f'Broadcast chat message failed: {exc}')
+
+
+def _apply_attachment_to_message(message, request):
+    """Gắn file đính kèm vào tin nhắn từ request.FILES."""
+    if 'image' in request.FILES:
+        image_file = request.FILES['image']
+        message.image = image_file
+        message.file_name = image_file.name
+        message.file_size = image_file.size
+        message.file_type = 'image'
+        return True
+    if 'video' in request.FILES:
+        video_file = request.FILES['video']
+        message.video = video_file
+        message.file_name = video_file.name
+        message.file_size = video_file.size
+        message.file_type = 'video'
+        return True
+    if 'document' in request.FILES:
+        document_file = request.FILES['document']
+        message.document = document_file
+        message.file_name = document_file.name
+        message.file_size = document_file.size
+        message.file_type = 'document'
+        return True
+    return False
 
 def email_valid(email):
     regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
@@ -78,12 +134,16 @@ def conversation_detail(request, conversation_id):
     conversation.is_blocked = block_relationship_exists
     
     # Lấy tin nhắn
-    messages = ConversationMessage.objects.filter(conversation=conversation).order_by('created_at')
+    chat_messages = ConversationMessage.objects.filter(
+        conversation=conversation
+    ).select_related('sender', 'reply_to', 'reply_to__sender').order_by('created_at')
     
     context = {
         'conversation': conversation,
-        'messages': messages,
-        'is_blocked': block_relationship_exists
+        'chat_messages': chat_messages,
+        'is_blocked': block_relationship_exists,
+        'today': timezone.localdate(),
+        'other_presence': get_user_presence(other_user),
     }
     
     return render(request, 'chat/conversation_detail.html', context)
@@ -464,90 +524,47 @@ def delete_conversation(request, conversation_id):
 @login_required
 def upload_attachment(request, conversation_id):
     """Xử lý tải lên tệp đính kèm thông qua AJAX"""
-    if request.method == 'POST':
-        user = request.user
-        conversation = get_object_or_404(Conversation, id=conversation_id)
-        
-        # Kiểm tra quyền truy cập
-        if not conversation.participants.filter(id=user.id).exists():
-            return JsonResponse({'status': 'error', 'message': 'Không có quyền truy cập'}, status=403)
-        
-        # Kiểm tra quan hệ chặn
-        other_participant = conversation.get_other_participant(user)
-        from accounts.models import UserBlock
-        
-        block_relationship_exists = (
-            UserBlock.objects.filter(blocker=other_participant, blocked=user).exists() or 
-            UserBlock.objects.filter(blocker=user, blocked=other_participant).exists()
-        )
-        
-        if block_relationship_exists:
-            return JsonResponse({'status': 'error', 'message': 'Không thể gửi tin nhắn do bị chặn'}, status=403)
-        
-        # Tạo tin nhắn mới
-        message_content = request.POST.get('message', '').strip()
-        message = ConversationMessage.objects.create(
-            conversation=conversation,
-            sender=user,
-            content=message_content
-        )
-        
-        # Xử lý tệp đính kèm
-        if 'image' in request.FILES:
-            image_file = request.FILES['image']
-            message.image = image_file
-            message.file_name = image_file.name
-            message.file_size = image_file.size
-            message.file_type = 'image'
-        elif 'video' in request.FILES:
-            video_file = request.FILES['video']
-            message.video = video_file
-            message.file_name = video_file.name
-            message.file_size = video_file.size
-            message.file_type = 'video'
-        elif 'document' in request.FILES:
-            document_file = request.FILES['document']
-            message.document = document_file
-            message.file_name = document_file.name
-            message.file_size = document_file.size
-            message.file_type = 'document'
-        
-        # Lưu tin nhắn
-        message.save()
-        
-        # Cập nhật thời gian tin nhắn cuối cùng
-        conversation.last_message_time = message.created_at
-        conversation.save()
-        
-        # Chuẩn bị dữ liệu phản hồi
-        has_attachment = bool(message.image or message.video or message.document)
-        attachment_type = None
-        attachment_url = None
-        
-        if message.image:
-            attachment_type = 'image'
-            attachment_url = message.image.url
-        elif message.video:
-            attachment_type = 'video'
-            attachment_url = message.video.url
-        elif message.document:
-            attachment_type = 'document'
-            attachment_url = message.document.url
-            
-        # Trả về thông tin tin nhắn dưới dạng JSON
-        return JsonResponse({
-            'status': 'success',
-            'message': {
-                'id': message.id,
-                'content': message.content,
-                'sender_id': user.id,
-                'sender_username': user.username,
-                'created_at': message.created_at.isoformat(),
-                'has_attachment': has_attachment,
-                'attachment_type': attachment_type,
-                'attachment_url': attachment_url,
-                'file_name': message.file_name,
-            }
-        })
-        
-    return JsonResponse({'status': 'error', 'message': 'Phương thức không được hỗ trợ'}, status=405)
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'Phương thức không được hỗ trợ'}, status=405)
+
+    user = request.user
+    conversation = get_object_or_404(Conversation, id=conversation_id)
+
+    if not conversation.participants.filter(id=user.id).exists():
+        return JsonResponse({'status': 'error', 'message': 'Không có quyền truy cập'}, status=403)
+
+    other_participant = conversation.get_other_participant(user)
+    from accounts.models import UserBlock
+
+    if (
+        UserBlock.objects.filter(blocker=other_participant, blocked=user).exists()
+        or UserBlock.objects.filter(blocker=user, blocked=other_participant).exists()
+    ):
+        return JsonResponse({'status': 'error', 'message': 'Không thể gửi tin nhắn do bị chặn'}, status=403)
+
+    if not any(key in request.FILES for key in ('image', 'video', 'document')):
+        return JsonResponse({'status': 'error', 'message': 'Không có tệp đính kèm'}, status=400)
+
+    message_content = request.POST.get('message', '').strip()
+    message = ConversationMessage.objects.create(
+        conversation=conversation,
+        sender=user,
+        content=message_content,
+    )
+
+    if not _apply_attachment_to_message(message, request):
+        message.delete()
+        return JsonResponse({'status': 'error', 'message': 'Không thể lưu tệp đính kèm'}, status=400)
+
+    message.save()
+    conversation.last_message_time = message.created_at
+    conversation.save()
+
+    payload = _serialize_chat_message(message, user)
+    _broadcast_chat_message(conversation_id, payload)
+
+    return JsonResponse({
+        'status': 'success',
+        'success': True,
+        'message': payload,
+    })

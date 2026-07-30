@@ -1,531 +1,243 @@
-SSSSS{% extends 'base/base.html' %}
+{% extends 'base/base.html' %}
 {% load i18n %}
 {% load static %}
 
 {% block title %}{{ profile_user.username }} - Hoshi{% endblock %}
 
+{% block body_class %} profile-layout{% endblock %}
+
 {% block extra_css %}
-<style>
-    .profile-header {
-        background: white;
-        border-bottom: 1px solid #dee2e6;
-        padding: 2rem 0;
-    }
-    
-    .profile-avatar {
-        width: 150px;
-        height: 150px;
-        border-radius: 50%;
-        object-fit: cover;
-    }
-    
-    .profile-stats {
-        display: flex;
-        gap: 2rem;
-        margin: 1rem 0;
-    }
-    
-    .stat-item {
-        text-align: center;
-    }
-    
-    .stat-value {
-        font-size: 1.25rem;
-        font-weight: bold;
-    }
-    
-    .stat-label {
-        color: #6c757d;
-        font-size: 0.9rem;
-    }
-    
-    .stat-info {
-        font-size: 0.8rem;
-        color: #6c757d;
-        line-height: 1.2;
-    }
-    
-    .profile-bio {
-        white-space: pre-line;
-    }
-    
-    .post-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 2px;
-    }
-    
-    .post-item {
-        position: relative;
-        aspect-ratio: 1;
-        overflow: hidden;
-    }
-    
-    .post-item img,
-    .post-item video {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-    
-    .post-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.3);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        transition: opacity 0.2s;
-    }
-    
-    .post-item:hover .post-overlay {
-        opacity: 1;
-    }
-    
-    .post-stats {
-        color: white;
-        font-size: 0.9rem;
-        display: flex;
-        gap: 1rem;
-    }
-    
-    .post-stats i {
-        margin-right: 0.5rem;
-    }
-    
-    .post-type {
-        position: absolute;
-        top: 0.5rem;
-        right: 0.5rem;
-        color: white;
-        text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
-    }
-    
-    .post-actions {
-        position: absolute;
-        top: 0.5rem;
-        left: 0.5rem;
-        z-index: 10;
-        display: none;
-    }
-    
-    .post-item:hover .post-actions {
-        display: flex;
-        gap: 0.25rem;
-    }
-    
-    .post-actions .btn {
-        background-color: rgba(255, 255, 255, 0.8);
-        backdrop-filter: blur(2px);
-    }
-    
-    .caption-only-post {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100%;
-        width: 100%;
-        background-color: #f8f9fa;
-        padding: 20px;
-        text-align: center;
-        overflow: hidden;
-    }
-    
-    .caption-content {
-        display: -webkit-box;
-        -webkit-line-clamp: 5;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        font-size: 0.9rem;
-        color: #212529;
-    }
-    
-    @media (max-width: 500px) {
-        .post-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-        
-        .profile-stats {
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-    }
-    
-    @media (max-width: 400px) {
-        .post-grid {
-            grid-template-columns: 1fr;
-        }
-        
-        .profile-avatar {
-            width: 100px;
-            height: 100px;
-        }
-    }
-    
-    .hover-overlay {
-        transition: opacity 0.3s ease;
-    }
-    .hover-overlay:hover {
-        opacity: 1 !important;
-    }
-    
-    .user-list {
-        max-height: 400px;
-        overflow-y: auto;
-    }
-    
-    .user-item {
-        transition: background-color 0.2s ease;
-    }
-    
-    .user-item:hover {
-        background-color: rgba(0, 0, 0, 0.03);
-    }
-    
-    .user-item:last-child {
-        border-bottom: none !important;
-    }
-    
-    .modal-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    .modal-header .btn-close {
-        position: absolute;
-        right: 1rem;
-        top: 1rem;
-    }
-    
-    .shared-indicator {
-        position: absolute;
-        top: 0.5rem;
-        left: 0.5rem;
-        background-color: rgba(0, 123, 255, 0.8);
-        color: white;
-        padding: 0.2rem 0.5rem;
-        border-radius: 3px;
-        font-size: 0.8rem;
-    }
-    
-    /* Thiết kế mới cho tab điều hướng */
-    .profile-tabs {
-        display: flex;
-        justify-content: center;
-        border-bottom: 1px solid #dee2e6;
-        margin-bottom: 1.5rem;
-        background-color: #fff;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        border-radius: 10px;
-        padding: 0.5rem;
-    }
-    
-    .profile-tabs .tab {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #495057;
-        text-decoration: none;
-        padding: 0.75rem 1.25rem;
-        border-radius: 8px;
-        font-weight: 500;
-        transition: all 0.2s ease;
-        margin: 0 0.25rem;
-        min-width: 120px;
-    }
-    
-    .profile-tabs .tab i {
-        margin-right: 0.5rem;
-        font-size: 1.1rem;
-    }
-    
-    .profile-tabs .tab:hover {
-        background-color: rgba(0, 123, 255, 0.1);
-        color: #0d6efd;
-    }
-    
-    .profile-tabs .tab.active {
-        background-color: #0d6efd;
-        color: white;
-    }
-    
-    /* Thiết kế cho phân trang */
-    .pagination {
-        display: flex;
-        justify-content: center;
-        margin-top: 2rem;
-        gap: 0.5rem;
-    }
-    
-    .pagination a, .pagination span {
-        padding: 0.5rem 1rem;
-        border-radius: 5px;
-        text-decoration: none;
-        background-color: #fff;
-        border: 1px solid #dee2e6;
-        color: #495057;
-        transition: all 0.2s ease;
-    }
-    
-    .pagination a:hover {
-        background-color: #e9ecef;
-    }
-    
-    /* Hiệu ứng nổi cho các card */
-    .profile-tabs, .post-grid {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-</style>
+<link href="{% static 'css/feed.css' %}" rel="stylesheet">
+<link href="{% static 'css/profile.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row">
-        <!-- Phần thông tin profile -->
-        <div class="col-12">
-            <!-- Profile Header -->
-            <div class="row mb-5">
-                <div class="col-md-4 text-center">
-                    <img src="{{ profile_user.get_avatar_url }}"
-                         alt="{{ profile_user.username }}"
-                         class="rounded-circle img-fluid mb-3"
-                         style="width: 150px; height: 150px; object-fit: cover;">
-                </div>
-                <div class="col-md-8">
-                    <div class="d-flex align-items-center mb-3">
-                        <h2 class="me-3 mb-0">{{ profile_user.username }}</h2>
-                        {% if user.is_authenticated and user != profile_user %}
-                            {% if is_following %}
-                                <button class="btn btn-secondary me-2 unfollow-button"
-                                        data-username="{{ profile_user.username }}">
-                                    Đang theo dõi
-                                </button>
-                            {% else %}
-                                <button class="btn btn-primary me-2 follow-button"
-                                        data-username="{{ profile_user.username }}">
-                                    Theo dõi
-                                </button>
-                            {% endif %}
-                            <a href="{% url 'chat:direct_chat' username=profile_user.username %}" class="btn btn-outline-primary me-2">
-                                <i class="far fa-envelope"></i>
-                            </a>
-                            <div class="dropdown d-inline-block">
-                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-ellipsis-h"></i>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
-                                    <li><a class="dropdown-item" href="#">Báo cáo</a></li>
-                                    <li><a class="dropdown-item" href="#">Chặn</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="#">Tùy chọn khác</a></li>
-                                </ul>
-                            </div>
-                        {% elif user == profile_user %}
-                            <a href="{% url 'accounts:settings' %}" class="btn btn-outline-secondary me-2">Chỉnh sửa hồ sơ</a>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="mb-3">
-                        {% if profile_user.first_name or profile_user.last_name %}
-                        <h5 class="mb-1">{{ profile_user.first_name }} {{ profile_user.last_name }}</h5>
-                        {% endif %}
-                        
-                        {% if profile_user.bio %}
-                        <p class="text-muted profile-bio">{{ profile_user.bio }}</p>
-                        {% endif %}
-                        
-                        <!-- Social Links -->
-                        <div class="mb-3">
-                            {% if profile_user.website %}
-                                <a href="{{ profile_user.website }}" target="_blank" class="btn btn-sm btn-outline-secondary me-2">
-                                    <i class="fas fa-globe me-1"></i>Website
-                                </a>
-                            {% endif %}
-                            
-                            {% if profile_user.facebook %}
-                                <a href="{{ profile_user.facebook }}" target="_blank" class="btn btn-sm btn-outline-primary me-2">
-                                    <i class="fab fa-facebook me-1"></i>Facebook
-                                </a>
-                            {% endif %}
-                            
-                            {% if profile_user.twitter %}
-                                <a href="{{ profile_user.twitter }}" target="_blank" class="btn btn-sm btn-outline-info me-2">
-                                    <i class="fab fa-twitter me-1"></i>Twitter
-                                </a>
-                            {% endif %}
-                            
-                            {% if profile_user.instagram %}
-                                <a href="{{ profile_user.instagram }}" target="_blank" class="btn btn-sm btn-outline-danger me-2">
-                                    <i class="fab fa-instagram me-1"></i>Instagram
-                                </a>
-                            {% endif %}
-                            
-                            {% if profile_user.linkedin %}
-                                <a href="{{ profile_user.linkedin }}" target="_blank" class="btn btn-sm btn-outline-primary me-2">
-                                    <i class="fab fa-linkedin me-1"></i>LinkedIn
-                                </a>
-                            {% endif %}
-                            
-                            <!-- Hiển thị tất cả các liên kết mạng xã hội tùy chỉnh từ user -->
-                            {% for field_name, value in profile_user.get_custom_social_links.items %}
-                                {% if value %}
-                                    <a href="{{ value }}" target="_blank" class="btn btn-sm btn-outline-secondary me-2">
-                                        <i class="fas fa-globe me-1"></i>
-                                        {% if 'social_link_' in field_name or 'custom_' in field_name %}
-                                            {% with value|cut:"https://"|cut:"http://"|cut:"www." as domain %}
-                                                {{ domain|capfirst }}
-                                            {% endwith %}
-                                        {% else %}
-                                            {{ field_name|capfirst }}
-                                        {% endif %}
-                                    </a>
-                                {% endif %}
-                            {% endfor %}
-                        </div>
-                        
-                        <div class="profile-stats">
-                            <div class="stat-item">
-                                <div class="stat-value">{{ posts_count }}</div>
-                                <div class="stat-label">Bài viết</div>
-                            </div>
-                            <div class="stat-item">
-                                <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#followersModal">
-                                    <div class="stat-value" id="followers-count">{{ followers_count }}</div>
-                                    <div class="stat-label">Người theo dõi</div>
-                                </a>
-                            </div>
-                            <div class="stat-item">
-                                <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#followingModal">
-                                    <div class="stat-value" id="following-count">{{ following_count }}</div>
-                                    <div class="stat-label">Đang theo dõi</div>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+<meta name="current-page" content="0">
+<meta name="feed-type" content="profile">
+<meta name="profile-username" content="{{ profile_user.username }}">
+<meta name="profile-tab" content="{{ profile_tab }}">
+<meta name="has-more" content="true">
 
-        <!-- Tab điều hướng -->
-        <div class="col-12">
-            <div class="profile-tabs">
-                <a href="{% url 'accounts:profile' username=profile_user.username %}" 
-                   class="tab {% if not is_saved_posts and not is_shared_posts %}active{% endif %}">
-                    <i class="fas fa-th"></i> Bài viết
-                </a>
-                {% if is_own_profile %}
-                <a href="{% url 'accounts:profile' username=profile_user.username %}?tab=saved" 
-                   class="tab {% if is_saved_posts %}active{% endif %}">
-                    <i class="fas fa-bookmark"></i> Đã lưu
-                </a>
+<div class="profile-shell">
+    <section class="profile-hero" aria-label="Hồ sơ">
+        <div class="profile-hero__top">
+            <div class="profile-hero__avatar-wrap">
+                <img src="{{ profile_user.get_avatar_url }}"
+                     alt="{{ profile_user.username }}"
+                     class="profile-hero__avatar"
+                     width="110"
+                     height="110">
+            </div>
+
+            <div class="profile-hero__main">
+                <div class="profile-hero__name-row">
+                    <h1 class="profile-hero__username">{{ profile_user.username }}</h1>
+                </div>
+
+                {% if profile_user.first_name or profile_user.last_name %}
+                <p class="profile-hero__fullname">{{ profile_user.first_name }} {{ profile_user.last_name }}</p>
                 {% endif %}
-                <a href="{% url 'accounts:profile' username=profile_user.username %}?tab=shared" 
-                   class="tab {% if is_shared_posts %}active{% endif %}">
-                    <i class="fas fa-share-alt"></i> Đã chia sẻ
-                </a>
-            </div>
-        </div>
 
-        <!-- Hiển thị bài viết -->
-        <div class="col-12">
-            {% if posts %}
-                <div class="post-grid" id="post-grid">
-                    {% for post in posts %}
-                        <a href="{% url 'posts:post_detail' post.id %}" class="post-item">
-                            {% with media=post.media.first %}
-                                {% if media %}
-                                    {% if media.media_type == 'image' %}
-                                        <img src="{{ media.file.url }}" alt="Post image">
-                                    {% else %}
-                                        <video src="{{ media.file.url }}" muted loop></video>
-                                    {% endif %}
-                                    
-                                    <div class="post-type">
-                                        {% if media.media_type == 'image' %}
-                                            {% if post.media.count > 1 %}
-                                                <i class="fas fa-clone"></i>
-                                            {% endif %}
-                                        {% else %}
-                                            <i class="fas fa-play"></i>
-                                        {% endif %}
-                                    </div>
-                                {% else %}
-                                    <!-- Hiển thị caption khi không có media -->
-                                    <div class="caption-only-post">
-                                        <div class="caption-content">
-                                            {{ post.caption|linebreaksbr|truncatechars:100 }}
-                                        </div>
-                                    </div>
-                                    <div class="post-type">
-                                        <i class="fas fa-align-left"></i>
-                                    </div>
-                                {% endif %}
-                            {% endwith %}
-                            
-                            <div class="post-overlay">
-                                <div class="post-stats">
-                                    <span><i class="fas fa-heart"></i>{{ post.likes_count }}</span>
-                                    <span><i class="fas fa-comment"></i>{{ post.comments_count }}</span>
-                                    {% if is_shared_posts %}
-                                    <span><i class="fas fa-share"></i>Đã chia sẻ</span>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            
-                            {% if is_shared_posts %}
-                            <div class="shared-indicator">
-                                <i class="fas fa-share-alt"></i>
-                            </div>
-                            {% endif %}
+                {% if profile_user.bio %}
+                <p class="profile-hero__bio">{{ profile_user.bio }}</p>
+                {% endif %}
+
+                <div class="profile-hero__actions">
+                    {% if user.is_authenticated and user != profile_user %}
+                        {% if is_following %}
+                            <button type="button"
+                                    class="profile-btn profile-btn--muted unfollow-button"
+                                    data-username="{{ profile_user.username }}">
+                                Đang theo dõi
+                            </button>
+                        {% else %}
+                            <button type="button"
+                                    class="profile-btn profile-btn--primary follow-button"
+                                    data-username="{{ profile_user.username }}">
+                                Theo dõi
+                            </button>
+                        {% endif %}
+                        <a href="{% url 'chat:direct_chat' username=profile_user.username %}"
+                           class="profile-btn profile-btn--muted"
+                           aria-label="Nhắn tin">
+                            <i class="far fa-paper-plane"></i>
+                            <span>Nhắn tin</span>
                         </a>
-                    {% endfor %}
-                </div>
-
-                <!-- Phân trang -->
-                {% if is_paginated %}
-                    <div class="pagination">
-                        {% if page_obj.has_previous %}
-                            <a href="?page={{ page_obj.previous_page_number }}{% if is_saved_posts %}&tab=saved{% elif is_shared_posts %}&tab=shared{% endif %}">Trang trước</a>
-                        {% endif %}
-                        
-                        <span>Trang {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
-                        
-                        {% if page_obj.has_next %}
-                            <a href="?page={{ page_obj.next_page_number }}{% if is_saved_posts %}&tab=saved{% elif is_shared_posts %}&tab=shared{% endif %}">Trang sau</a>
-                        {% endif %}
-                    </div>
-                {% endif %}
-            {% else %}
-                <div class="no-posts text-center">
-                    {% if is_saved_posts and is_own_profile %}
-                        <p>Bạn chưa lưu bài viết nào.</p>
-                    {% elif is_shared_posts and is_own_profile %}
-                        <p>Bạn chưa chia sẻ bài viết nào trên tường của mình.</p>
-                    {% else %}
-                        <p>Chưa có bài viết nào.</p>
+                        <div class="dropdown">
+                            <button class="profile-btn profile-btn--ghost dropdown-toggle"
+                                    type="button"
+                                    id="profileDropdown"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false"
+                                    aria-label="Thêm">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+                                <li><a class="dropdown-item" href="#" id="report-user-btn">Báo cáo</a></li>
+                                <li><a class="dropdown-item" href="#" id="block-user-btn">Chặn</a></li>
+                            </ul>
+                        </div>
+                    {% elif user == profile_user %}
+                        <a href="{% url 'accounts:settings' %}" class="profile-btn profile-btn--muted">
+                            Chỉnh sửa hồ sơ
+                        </a>
                     {% endif %}
                 </div>
+            </div>
+        </div>
+
+        <div class="profile-stats">
+            <div class="profile-stat">
+                <span class="profile-stat__value">{{ posts_count }}</span>
+                <span class="profile-stat__label">bài viết</span>
+            </div>
+            <button type="button"
+                    class="profile-stat"
+                    data-bs-toggle="modal"
+                    data-bs-target="#followersModal">
+                <span class="profile-stat__value" id="followers-count">{{ followers_count }}</span>
+                <span class="profile-stat__label">người theo dõi</span>
+            </button>
+            <button type="button"
+                    class="profile-stat"
+                    data-bs-toggle="modal"
+                    data-bs-target="#followingModal">
+                <span class="profile-stat__value" id="following-count">{{ following_count }}</span>
+                <span class="profile-stat__label">đang theo dõi</span>
+            </button>
+        </div>
+
+        <div class="profile-links">
+            {% if profile_user.website %}
+                <a href="{{ profile_user.website }}" target="_blank" rel="noopener" class="profile-link">
+                    <i class="fas fa-link"></i>Website
+                </a>
+            {% endif %}
+            {% if profile_user.facebook %}
+                <a href="{{ profile_user.facebook }}" target="_blank" rel="noopener" class="profile-link">
+                    <i class="fab fa-facebook"></i>Facebook
+                </a>
+            {% endif %}
+            {% if profile_user.twitter %}
+                <a href="{{ profile_user.twitter }}" target="_blank" rel="noopener" class="profile-link">
+                    <i class="fab fa-twitter"></i>Twitter
+                </a>
+            {% endif %}
+            {% if profile_user.instagram %}
+                <a href="{{ profile_user.instagram }}" target="_blank" rel="noopener" class="profile-link">
+                    <i class="fab fa-instagram"></i>Instagram
+                </a>
+            {% endif %}
+            {% if profile_user.linkedin %}
+                <a href="{{ profile_user.linkedin }}" target="_blank" rel="noopener" class="profile-link">
+                    <i class="fab fa-linkedin"></i>LinkedIn
+                </a>
+            {% endif %}
+            {% for field_name, value in profile_user.get_custom_social_links.items %}
+                {% if value %}
+                    <a href="{{ value }}" target="_blank" rel="noopener" class="profile-link">
+                        <i class="fas fa-globe"></i>
+                        {% with value|cut:"https://"|cut:"http://"|cut:"www." as domain %}
+                            {{ domain|truncatechars:24 }}
+                        {% endwith %}
+                    </a>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </section>
+
+    <nav class="profile-tabs{% if not is_own_profile %} profile-tabs--two{% endif %}" aria-label="Mục hồ sơ">
+        <a href="{% url 'accounts:profile' username=profile_user.username %}"
+           class="profile-tab {% if not is_saved_posts and not is_shared_posts %}is-active{% endif %}">
+            <i class="fas fa-stream"></i>
+            <span>Bài viết</span>
+        </a>
+        {% if is_own_profile %}
+        <a href="{% url 'accounts:profile' username=profile_user.username %}?tab=saved"
+           class="profile-tab {% if is_saved_posts %}is-active{% endif %}">
+            <i class="fas fa-bookmark"></i>
+            <span>Đã lưu</span>
+        </a>
+        {% endif %}
+        <a href="{% url 'accounts:profile' username=profile_user.username %}?tab=shared"
+           class="profile-tab {% if is_shared_posts %}is-active{% endif %}">
+            <i class="fas fa-share-alt"></i>
+            <span>Đã chia sẻ</span>
+        </a>
+    </nav>
+
+    <div class="profile-feed feed-page">
+        <div id="posts-container"></div>
+
+        <div id="loading-indicator" class="text-center py-4">
+            <div class="spinner-border text-dark" role="status">
+                <span class="visually-hidden">Đang tải...</span>
+            </div>
+            <p class="mt-2 text-muted mb-0">Đang tải bài viết...</p>
+        </div>
+
+        <div id="end-message" class="text-center py-4 d-none">
+            <p class="text-muted mb-0">Bạn đã xem hết tất cả bài viết</p>
+        </div>
+
+        <div id="empty-message" class="text-center py-5 d-none">
+            <div class="profile-empty-icon"><i class="far fa-file-alt"></i></div>
+            {% if is_saved_posts and is_own_profile %}
+                <p class="text-muted mb-0">Bạn chưa lưu bài viết nào.</p>
+            {% elif is_shared_posts %}
+                <p class="text-muted mb-0">Chưa có bài viết nào được chia sẻ.</p>
+            {% else %}
+                <p class="text-muted mb-0">Chưa có bài viết nào.</p>
             {% endif %}
         </div>
     </div>
 </div>
 
+<!-- Modal chia sẻ -->
+<div class="modal fade" id="sharePostModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chia sẻ bài viết</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+                <form id="sharePostForm" action="{% url 'posts:share_post' %}" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="post_id" id="share-post-id" value="">
+                    <div class="mb-3">
+                        <label for="share-caption" class="form-label">Viết gì đó về bài viết này</label>
+                        <textarea class="form-control" id="share-caption" name="caption" rows="3"
+                                  placeholder="Bạn đang nghĩ gì về bài viết này?"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="share-as-new-post" name="as_new_post" value="1" checked>
+                            <label class="form-check-label" for="share-as-new-post">Đăng như bài viết mới</label>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-dark">Chia sẻ</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Modal người theo dõi -->
-<div class="modal fade" id="followersModal" tabindex="-1" aria-labelledby="followersModalLabel" aria-hidden="true">
+<div class="modal fade profile-modal" id="followersModal" tabindex="-1" aria-labelledby="followersModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="followersModalLabel">Người theo dõi ({{ followers_count }})</h5>
-        <div class="modal-subtitle text-muted small">Những người đang theo dõi tài khoản {{ profile_user.username }}</div>
+        <div class="modal-subtitle text-muted small">Những người đang theo dõi {{ profile_user.username }}</div>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <div class="d-flex justify-content-center mb-3">
-          <div class="spinner-border text-primary" role="status" id="followers-spinner">
+          <div class="spinner-border text-dark" role="status" id="followers-spinner">
             <span class="visually-hidden">Đang tải...</span>
           </div>
         </div>
@@ -536,7 +248,7 @@ SSSSS{% extends 'base/base.html' %}
 </div>
 
 <!-- Modal đang theo dõi -->
-<div class="modal fade" id="followingModal" tabindex="-1" aria-labelledby="followingModalLabel" aria-hidden="true">
+<div class="modal fade profile-modal" id="followingModal" tabindex="-1" aria-labelledby="followingModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
@@ -546,7 +258,7 @@ SSSSS{% extends 'base/base.html' %}
       </div>
       <div class="modal-body">
         <div class="d-flex justify-content-center mb-3">
-          <div class="spinner-border text-primary" role="status" id="following-spinner">
+          <div class="spinner-border text-dark" role="status" id="following-spinner">
             <span class="visually-hidden">Đang tải...</span>
           </div>
         </div>
@@ -558,159 +270,63 @@ SSSSS{% extends 'base/base.html' %}
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'js/infinite_scroll.js' %}"></script>
 <script>
-// Variables for infinite scrolling
-let currentPage = 1;
-let isLoading = false;
-let hasMoreContent = true;
-let profileUsername = "{{ profile_user.username }}";
+window.currentUserId = '{{ request.user.id }}';
 
-// Thêm kiểm tra để đảm bảo profileUsername luôn có giá trị
-if (!profileUsername || profileUsername === 'undefined') {
-    profileUsername = "{{ profile_user.username }}";
-    if (!profileUsername) {
-        // Nếu vẫn không có giá trị, lấy từ URL hiện tại
-        const urlPath = window.location.pathname;
-        const matches = urlPath.match(/\/users\/([^\/]+)\//);
-        if (matches && matches[1]) {
-            profileUsername = matches[1];
+document.querySelector('.mobile-bottom-nav__item[data-nav="profile"]')?.classList.add('is-active');
+
+const shareForm = document.getElementById('sharePostForm');
+if (shareForm) {
+    shareForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const postId = document.getElementById('share-post-id')?.value;
+        const caption = document.getElementById('share-caption')?.value || '';
+        const asNewPost = document.getElementById('share-as-new-post')?.checked ?? true;
+        const submitBtn = shareForm.querySelector('button[type="submit"]');
+        if (!postId) {
+            alert('Không tìm thấy bài viết để chia sẻ.');
+            return;
         }
-    }
-}
-
-// Function to load more posts
-function loadMorePosts() {
-    if (isLoading || !hasMoreContent) return;
-    
-    // Kiểm tra profileUsername trước khi gọi API
-    if (!profileUsername || profileUsername === 'undefined') {
-        console.error('profileUsername không hợp lệ:', profileUsername);
-        return;
-    }
-    
-    isLoading = true;
-    document.getElementById('loading-indicator').classList.remove('d-none');
-    
-    // Increment page counter
-    currentPage++;
-    
-    // Lấy tham số tab hiện tại từ URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const currentTab = urlParams.get('tab') || 'posts';
-    
-    // Sửa đường dẫn API cho đúng với URL pattern và tab hiện tại
-    fetch(`/users/api/${profileUsername}/posts/?page=${currentPage}&tab=${currentTab}`)
-        .then(response => response.json())
-        .then(data => {
-            // Update hasMoreContent flag
-            hasMoreContent = data.has_next;
-            
-            if (!hasMoreContent) {
-                document.getElementById('end-of-content').classList.remove('d-none');
-            }
-            
-            // Append posts to grid
-            const postsContainer = document.getElementById('post-grid');
-            
-            data.posts.forEach(post => {
-                // Create post HTML
-                const postElement = createPostElement(post);
-                postsContainer.appendChild(postElement);
-            });
-            
-            isLoading = false;
-            document.getElementById('loading-indicator').classList.add('d-none');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Đang chia sẻ...';
+        }
+        fetch(shareForm.action, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || '',
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({
+                post_id: postId,
+                caption: caption,
+                as_new_post: asNewPost,
+            }),
         })
-        .catch(error => {
-            console.error('Error loading more posts:', error);
-            isLoading = false;
-            document.getElementById('loading-indicator').classList.add('d-none');
+        .then((response) => response.json().then((data) => ({ ok: response.ok, data })))
+        .then(({ ok, data }) => {
+            if (!ok || data.status !== 'success') {
+                throw new Error(data.message || 'Có lỗi xảy ra khi chia sẻ bài viết.');
+            }
+            const modalEl = document.getElementById('sharePostModal');
+            bootstrap.Modal.getInstance(modalEl)?.hide();
+            shareForm.reset();
+            document.getElementById('share-as-new-post').checked = true;
+            if (data.post_id) window.location.href = `/posts/${data.post_id}/`;
+            else window.location.reload();
+        })
+        .catch((err) => alert(err.message || 'Có lỗi xảy ra khi chia sẻ bài viết.'))
+        .finally(() => {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Chia sẻ';
+            }
         });
+    });
 }
-
-// Create HTML for a post
-function createPostElement(post) {
-    const postElement = document.createElement('div');
-    postElement.className = 'post-item';
-    
-    // Lấy media đầu tiên của bài viết
-    const firstMedia = post.media && post.media.length > 0 ? post.media[0] : null;
-    
-    let mediaHtml = '';
-    if (firstMedia) {
-        if (firstMedia.media_type === 'image') {
-            mediaHtml = `<img src="${firstMedia.file_url}" alt="Post image">`;
-        } else {
-            mediaHtml = `<video src="${firstMedia.file_url}" muted></video>`;
-        }
-    } else {
-        // Hiển thị caption khi không có media
-        mediaHtml = `
-            <div class="caption-only-post">
-                <div class="caption-content">
-                    ${post.caption ? post.caption.substring(0, 100) : 'Không có nội dung'}
-                </div>
-            </div>`;
-    }
-    
-    // Post type indicators
-    let postTypeHtml = '<div class="post-type">';
-    if (firstMedia && firstMedia.media_type === 'video') {
-        postTypeHtml += '<i class="fas fa-play"></i>';
-    } else if (firstMedia && post.media && post.media.length > 1) {
-        postTypeHtml += '<i class="fas fa-layer-group"></i>';
-    } else if (!firstMedia) {
-        postTypeHtml += '<i class="fas fa-align-left"></i>';
-    }
-    postTypeHtml += '</div>';
-    
-    // Kiểm tra nếu đang ở tab shared
-    const urlParams = new URLSearchParams(window.location.search);
-    const isSharedTab = urlParams.get('tab') === 'shared';
-    
-    // Overlay with stats
-    const overlayHtml = `
-        <a href="/posts/${post.id}/" class="post-overlay hover-overlay opacity-0">
-            <div class="post-stats">
-                <span><i class="fas fa-heart"></i> ${post.likes_count}</span>
-                <span><i class="fas fa-comment"></i> ${post.comments_count}</span>
-                ${isSharedTab ? '<span><i class="fas fa-share"></i> Đã chia sẻ</span>' : ''}
-            </div>
-        </a>
-    `;
-    
-    // Shared indicator nếu đang ở tab đã chia sẻ
-    const sharedIndicatorHtml = isSharedTab ? `
-        <div class="shared-indicator">
-            <i class="fas fa-share-alt"></i>
-        </div>
-    ` : '';
-    
-    // Actions buttons - chỉ hiển thị trên trang cá nhân của người dùng
-    let actionsHtml = '';
-    if (profileUsername === "{{ user.username }}") {
-        actionsHtml = `
-            <div class="post-actions">
-                <a href="/posts/${post.id}/edit/" class="btn btn-sm btn-outline-primary">
-                    <i class="fas fa-edit"></i>
-                </a>
-                <button class="btn btn-sm btn-outline-danger delete-post-btn" data-post-id="${post.id}">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </div>
-        `;
-    }
-    
-    postElement.innerHTML = mediaHtml + overlayHtml + postTypeHtml + sharedIndicatorHtml + actionsHtml;
-    return postElement;
-}
-
-// Add scroll event listener for infinite scrolling
-window.addEventListener('scroll', function() {
-    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500) {
-        loadMorePosts();
-    }
-});
 
 // Hàm tạo phần tử hiển thị người dùng trong danh sách
 function createUserListItem(user) {
@@ -805,10 +421,8 @@ function handleFollowButton(button) {
         button.disabled = false;
         
         // Thay đổi nút thành "Đang theo dõi"
-        button.classList.remove('follow-button');
-        button.classList.remove('btn-primary');
-        button.classList.add('unfollow-button');
-        button.classList.add('btn-secondary');
+        button.classList.remove('follow-button', 'profile-btn--primary', 'btn-primary');
+        button.classList.add('unfollow-button', 'profile-btn--muted', 'btn-secondary');
         button.textContent = 'Đang theo dõi';
         
         // Cập nhật số lượng người theo dõi và đang theo dõi
@@ -881,10 +495,8 @@ function handleUnfollowButton(button) {
             button.disabled = false;
             
             // Thay đổi nút thành "Theo dõi"
-            button.classList.remove('unfollow-button');
-            button.classList.remove('btn-secondary');
-            button.classList.add('follow-button');
-            button.classList.add('btn-primary');
+            button.classList.remove('unfollow-button', 'profile-btn--muted', 'btn-secondary');
+            button.classList.add('follow-button', 'profile-btn--primary', 'btn-primary');
             button.textContent = 'Theo dõi';
             
             // Cập nhật số lượng người theo dõi và đang theo dõi
@@ -939,10 +551,9 @@ document.addEventListener('click', function(e) {
                     const postElement = button.closest('.post-item');
                     postElement.remove();
                     
-                    // Cập nhật số lượng bài viết
-                    const postsCountElement = document.querySelector('.profile-stats .stat-item:first-child .stat-value');
+                    const postsCountElement = document.querySelector('.profile-stats .profile-stat:first-child .profile-stat__value');
                     if (postsCountElement) {
-                        const currentCount = parseInt(postsCountElement.textContent);
+                        const currentCount = parseInt(postsCountElement.textContent, 10) || 0;
                         postsCountElement.textContent = Math.max(0, currentCount - 1);
                     }
                     
@@ -1084,12 +695,12 @@ document.addEventListener('DOMContentLoaded', function() {
         followButtons.forEach(button => {
             // Cập nhật giao diện nút theo trạng thái
             if (isFollowing) {
-                button.classList.remove('follow-button', 'btn-primary');
-                button.classList.add('unfollow-button', 'btn-secondary');
+                button.classList.remove('follow-button', 'btn-primary', 'profile-btn--primary');
+                button.classList.add('unfollow-button', 'btn-secondary', 'profile-btn--muted');
                 button.textContent = 'Đang theo dõi';
             } else {
-                button.classList.remove('unfollow-button', 'btn-secondary');
-                button.classList.add('follow-button', 'btn-primary');
+                button.classList.remove('unfollow-button', 'btn-secondary', 'profile-btn--muted');
+                button.classList.add('follow-button', 'btn-primary', 'profile-btn--primary');
                 button.textContent = 'Theo dõi';
             }
         });

@@ -6,7 +6,6 @@ from django.http import JsonResponse, HttpResponse, FileResponse
 from django.views.decorators.http import require_POST
 from django.core.paginator import Paginator, EmptyPage
 from django.utils import timezone
-from django.db.models import Prefetch
 from django.urls import reverse_lazy
 from allauth.account.views import PasswordResetView, PasswordResetDoneView
 from allauth.account.forms import ResetPasswordForm
@@ -23,7 +22,8 @@ from .forms import (
 from .models import Device, DataDownloadRequest, UserFollowing, UserBlock, UserReport
 import pyotp
 import qrcode
-from posts.models import SavedPost, Post, Comment
+from posts.models import SavedPost, Post
+from posts.views import prepare_posts_json
 import os
 import mimetypes
 
@@ -55,66 +55,17 @@ def profile(request, username):
             following_user=user
         ).exists()
 
-    if is_saved_posts and is_own_profile:
-        # Lấy các bài viết đã lưu giống như feed
-        saved_posts = SavedPost.objects.filter(user=request.user).select_related('post', 'post__author')
-        posts = [saved_post.post for saved_post in saved_posts]
-        
-        # Prefetch related data giống như trong home view
-        posts = Post.objects.filter(id__in=[post.id for post in posts]).prefetch_related(
-            'media', 
-            Prefetch('comments', queryset=Comment.objects.filter(parent__isnull=True).select_related('author'))
-        ).select_related('author')
-    elif is_shared_posts:
-        # Lấy các bài viết gốc mà user này đã chia sẻ
-        shared_posts = Post.objects.filter(
-            author=user,
-            shared_from__isnull=False
-        ).values_list('shared_from_id', flat=True)
-        
-        # Lấy các bài viết gốc
-        posts = Post.objects.filter(
-            id__in=shared_posts
-        ).prefetch_related(
-            'media',
-            Prefetch('comments', queryset=Comment.objects.filter(parent__isnull=True).select_related('author'))
-        ).select_related('author')
-    else:
-        # Logic hiện tại cho các bài viết của người dùng
-        posts = Post.objects.filter(author=user).prefetch_related(
-            'media', 
-            Prefetch('comments', queryset=Comment.objects.filter(parent__isnull=True).select_related('author'))
-        )
-
-    # Pagination
-    paginator = Paginator(posts, 12)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    
-    # Đảm bảo các bài viết đều có likes_count và comments_count
-    for post in page_obj:
-        if not hasattr(post, 'likes_count') or not post.likes_count:
-            post.likes_count = post.post_likes.count()
-        if not hasattr(post, 'comments_count') or not post.comments_count:
-            post.comments_count = post.comments.count()
-
     context = {
         'profile_user': user,
-        'posts': page_obj,
         'is_own_profile': is_own_profile,
         'is_saved_posts': is_saved_posts,
         'is_shared_posts': is_shared_posts,
-        # followers: những người đang theo dõi tài khoản này
         'followers_count': user.get_followers_count(),
-        # following: những người mà tài khoản này đang theo dõi
         'following_count': user.get_following_count(),
-        'posts_count': posts.count(),
+        'posts_count': Post.objects.filter(author=user).count(),
         'is_following': is_following,
+        'profile_tab': 'saved' if is_saved_posts else ('shared' if is_shared_posts else 'posts'),
     }
-
-    # Debug print
-    for post in page_obj:
-        print(f"Post {post.id} media: {list(post.media.all())}")
 
     return render(request, 'accounts/profile.html', context)
 
@@ -410,63 +361,32 @@ def api_load_profile_posts(request, username):
     
     # Xác định loại bài viết cần lấy dựa vào tab
     if tab == 'saved' and request.user == user:
-        # Lấy các bài viết đã lưu
-        saved_posts = SavedPost.objects.filter(user=user).values_list('post_id', flat=True)
-        posts = Post.objects.filter(id__in=saved_posts).order_by('-created_at')
-    elif tab == 'shared' and request.user == user:
-        # Lấy các bài viết gốc đã được chia sẻ
-        shared_posts = Post.objects.filter(
+        posts = Post.objects.filter(
+            id__in=SavedPost.objects.filter(user=user).values_list('post_id', flat=True)
+        ).order_by('-created_at')
+    elif tab == 'shared':
+        posts = Post.objects.filter(
             author=user,
             shared_from__isnull=False
-        ).values_list('shared_from_id', flat=True)
-        
-        posts = Post.objects.filter(id__in=shared_posts).order_by('-created_at')
+        ).order_by('-created_at')
     else:
-        # Lấy bài viết của người dùng
         posts = user.posts.all().order_by('-created_at')
-    
-    # Phân trang
-    posts_per_page = 6  # Số bài viết mỗi trang
+
+    posts = posts.select_related(
+        'author', 'shared_from', 'shared_from__author'
+    ).prefetch_related('media', 'shared_from__media')
+
+    posts_per_page = 6
     paginator = Paginator(posts, posts_per_page)
-    
+
     try:
         page_obj = paginator.page(page_number)
     except EmptyPage:
-        # Nếu trang không tồn tại, trả về một danh sách trống
         return JsonResponse({'posts': [], 'has_next': False})
-    
-    # Chuẩn bị dữ liệu cho JSON response
-    posts_data = []
-    for post in page_obj.object_list:
-        # Lấy thông tin về media của bài viết
-        media_files = []
-        for media in post.media.all():
-            media_files.append({
-                'id': media.id,
-                'file_url': media.file.url,
-                'media_type': media.media_type,
-                'order': media.order
-            })
-        
-        # Kiểm tra xem bài viết có phải là bài đã chia sẻ không
-        is_shared = tab == 'shared'
-        
-        posts_data.append({
-            'id': post.id,
-            'caption': post.caption,
-            'location': post.location,
-            'created_at': post.created_at.isoformat(),
-            'likes_count': post.likes_count,
-            'comments_count': post.comments_count,
-            'is_liked': post.post_likes.filter(user=request.user).exists(),
-            'media': media_files,
-            'disable_comments': post.disable_comments,
-            'is_shared': is_shared
-        })
-    
+
     return JsonResponse({
-        'posts': posts_data,
-        'has_next': page_obj.has_next()
+        'posts': prepare_posts_json(page_obj.object_list, request.user, include_comments=True),
+        'has_next': page_obj.has_next(),
     })
 
 @login_required

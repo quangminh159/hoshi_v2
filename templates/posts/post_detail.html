@@ -1732,7 +1732,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': getCookie('csrftoken'),
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
                 },
                 body: JSON.stringify({
                     post_id: postId,
@@ -1740,12 +1742,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     as_new_post: asNewPost
                 })
             })
-            .then(response => {
+            .then(response => response.json().then(data => {
                 if (!response.ok) {
-                    throw new Error('Có lỗi xảy ra khi chia sẻ bài viết.');
+                    throw new Error(data.message || 'Có lỗi xảy ra khi chia sẻ bài viết.');
                 }
-                return response.json();
-            })
+                return data;
+            }))
             .then(data => {
                 // Khôi phục nút
                 this.disabled = false;

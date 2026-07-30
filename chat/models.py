@@ -25,6 +25,7 @@ class UserSetting(models.Model):
     username = models.CharField(max_length=32, default="")
     profile_image = models.ImageField(upload_to=random_file_name, blank=True, null=True, default='\\profile-pics\\default.jpg')
     is_online = models.BooleanField(default=False)
+    last_seen = models.DateTimeField(null=True, blank=True)
     
     def __str__(self):
         return str(self.user)
@@ -124,6 +125,13 @@ class ConversationMessage(models.Model):
     file_name = models.CharField(max_length=255, blank=True, null=True)
     file_size = models.IntegerField(blank=True, null=True)
     file_type = models.CharField(max_length=50, blank=True, null=True)
+    reply_to = models.ForeignKey(
+        'self',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='replies',
+    )
     
     class Meta:
         ordering = ['created_at']
@@ -144,6 +152,19 @@ class ConversationMessage(models.Model):
         elif self.document:
             return self.document.url
         return None
+
+    def get_reply_preview(self):
+        """Nội dung rút gọn để hiển thị khi được trả lời."""
+        if self.content:
+            return self.content
+        if self.image:
+            return '[Hình ảnh]'
+        if self.video:
+            return '[Video]'
+        if self.document:
+            name = self.file_name or 'tài liệu'
+            return f'[Tài liệu: {name}]'
+        return '[Tin nhắn]'
     
     def mark_as_read(self, user):
         """Đánh dấu tin nhắn là đã đọc"""

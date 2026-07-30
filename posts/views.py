@@ -792,85 +792,6 @@ def delete_comment(request, post_id, comment_id):
     return JsonResponse({'status': 'success'})
 
 @login_required
-def explore(request):
-    # Lọc theo hashtag
-    tag = request.GET.get('tag')
-    if tag:
-        posts = Post.objects.filter(hashtags__name=tag)
-    else:
-        # Hiển thị bài viết phổ biến
-        posts = Post.objects.annotate(
-            engagement=Count('post_likes') + Count('comments')
-        ).order_by('-engagement')
-    
-    # Lọc theo media type
-    media_type = request.GET.get('media_type', 'all')
-    if media_type in ['image', 'video']:
-        posts = posts.filter(media__media_type=media_type)
-    
-    # Lọc theo sort
-    sort = request.GET.get('sort', 'popular')
-    if sort == 'recent':
-        posts = posts.order_by('-created_at')
-    
-    # Phân trang
-    paginator = Paginator(posts, settings.POSTS_PER_PAGE if hasattr(settings, 'POSTS_PER_PAGE') else 10)
-    page_number = request.GET.get('page', 1)
-    page_obj = paginator.get_page(page_number)
-    
-    # Lấy hashtags phổ biến
-    popular_tags = Hashtag.objects.annotate(
-        tag_posts_count=Count('posts')
-    ).order_by('-tag_posts_count')[:10]
-    
-    # Kiểm tra nếu yêu cầu JSON format
-    if request.GET.get('format') == 'json':
-        posts_data = []
-        for post in page_obj.object_list:
-            media_files = []
-            for media in post.media.all():
-                media_files.append({
-                    'id': media.id,
-                    'file': media.file.url,
-                    'media_type': media.media_type,
-                    'order': media.order
-                })
-            
-            posts_data.append({
-                'id': post.id,
-                'author': {
-                    'id': post.author.id,
-                    'username': post.author.username,
-                    'avatar': post.author.avatar.url if post.author.avatar else None,
-                },
-                'caption': post.caption,
-                'location': post.location,
-                'created_at': post.created_at.isoformat(),
-                'likes_count': post.likes_count,
-                'comments_count': post.comments_count,
-                'is_liked': post.post_likes.filter(user=request.user).exists() if request.user.is_authenticated else False,
-                'is_saved': post.saved_by.filter(user=request.user).exists() if request.user.is_authenticated else False,
-                'media': media_files,
-                'hide_likes': post.hide_likes,
-                'disable_comments': post.disable_comments
-            })
-        
-        return JsonResponse({
-            'posts': posts_data,
-            'has_next': page_obj.has_next(),
-            'next_page': page_obj.next_page_number() if page_obj.has_next() else None
-        })
-    
-    context = {
-        'posts': page_obj,
-        'popular_tags': popular_tags,
-        'tag': tag,
-        'media_type': media_type,
-        'sort': sort
-    }
-    return render(request, 'posts/explore.html', context)
-
-@login_required
 def report_post(request, post_id):
     """View để báo cáo bài viết vi phạm"""
     post = get_object_or_404(Post, id=post_id)
@@ -1069,44 +990,38 @@ def search(request):
     Tìm kiếm bài viết và người dùng
     """
     query = request.GET.get('q', '').strip()
-    
+
     if not query:
         return render(request, 'posts/search_results.html', {
             'query': query,
+            'posts': [],
+            'users': [],
         })
-    
-    # Tìm kiếm bài viết theo caption hoặc hashtag
-    posts = Post.objects.filter(caption__icontains=query) | Post.objects.filter(hashtags__name__icontains=query)
-    posts = posts.distinct().order_by('-created_at')
-    
-    # Lọc bỏ bài viết của những người đã chặn người dùng hiện tại
+
+    posts = (
+        Post.objects.filter(caption__icontains=query)
+        | Post.objects.filter(hashtags__name__icontains=query)
+    )
+    posts = posts.select_related('author').prefetch_related('media').distinct().order_by('-created_at')
+
     blocked_by_users = UserBlock.objects.filter(blocked=request.user).values_list('blocker_id', flat=True)
     posts = posts.exclude(author_id__in=blocked_by_users)
-    
-    # Tìm kiếm người dùng theo username, first_name, last_name
-    users = User.objects.filter(
-        username__icontains=query
-    ) | User.objects.filter(
-        first_name__icontains=query
-    ) | User.objects.filter(
-        last_name__icontains=query
+
+    users = (
+        User.objects.filter(username__icontains=query)
+        | User.objects.filter(first_name__icontains=query)
+        | User.objects.filter(last_name__icontains=query)
     )
-    
-    # Loại bỏ những người đã chặn người dùng hiện tại
-    users = users.exclude(id__in=blocked_by_users)
-    
-    users = users.distinct()
-    
-    # Phân trang cho bài viết
-    post_paginator = Paginator(posts, 9)  # 9 bài viết mỗi trang
+    users = users.exclude(id__in=blocked_by_users).exclude(id=request.user.id).distinct().order_by('username')
+
+    post_paginator = Paginator(posts, 9)
     post_page = request.GET.get('post_page', 1)
     posts_result = post_paginator.get_page(post_page)
-    
-    # Phân trang cho người dùng
-    user_paginator = Paginator(users, 12)  # 12 người dùng mỗi trang
+
+    user_paginator = Paginator(users, 12)
     user_page = request.GET.get('user_page', 1)
     users_result = user_paginator.get_page(user_page)
-    
+
     return render(request, 'posts/search_results.html', {
         'query': query,
         'posts': posts_result,
@@ -1308,6 +1223,28 @@ def prepare_posts_json(posts, user, include_comments=False):
             'is_liked': post.id in liked_ids,
             'is_saved': post.id in saved_ids,
             'media': media_files,
+            'shared_from': (
+                {
+                    'id': post.shared_from.id,
+                    'author': {
+                        'id': post.shared_from.author.id,
+                        'username': post.shared_from.author.username,
+                        'avatar': post.shared_from.author.get_avatar_url(),
+                    },
+                    'caption': post.shared_from.caption,
+                    'location': post.shared_from.location,
+                    'created_at': post.shared_from.created_at.isoformat(),
+                    'likes_count': post.shared_from.likes_count,
+                    'comments_count': post.shared_from.comments_count,
+                    'media': [{
+                        'id': media.id,
+                        'file_url': media.file.url,
+                        'media_type': media.media_type,
+                        'order': media.order,
+                    } for media in post.shared_from.media.all()],
+                }
+                if post.shared_from_id else None
+            ),
             'comments_data': comments_data,
             'root_comments_count': root_comments_count,
             'has_more_comments': has_more_comments,

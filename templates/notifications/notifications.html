@@ -12,20 +12,10 @@
             {% if notifications %}
                 <div class="list-group">
                     {% for notification in notifications %}
-                        <div class="list-group-item list-group-item-action 
-                            {% if not notification.is_read %}bg-light{% endif %}"
-                             id="notification-{{ notification.id }}">
-                            {% if notification.notification_type == 'like' or notification.notification_type == 'comment' %}
-                                <a href="{% url 'posts:post_detail' notification.post.id %}" class="text-decoration-none text-dark">
-                            {% elif notification.notification_type == 'follow' %}
-                                <a href="{% url 'accounts:profile' notification.sender.username %}" class="text-decoration-none text-dark">
-                            {% elif notification.notification_type == 'message' %}
-                                <a href="{% url 'chat:conversation_detail' notification.message.conversation.id %}" class="text-decoration-none text-dark">
-                            {% elif notification.notification_type == 'share' %}
-                                <a href="{% url 'posts:post_detail' notification.post.id %}" class="text-decoration-none text-dark">
-                            {% elif notification.notification_type == 'mention' %}
-                                <a href="{% url 'posts:post_detail' notification.post.id %}" class="text-decoration-none text-dark">
-                            {% endif %}
+                        <a href="{{ notification.link }}"
+                           class="list-group-item list-group-item-action text-decoration-none text-dark {% if not notification.is_read %}bg-light{% endif %}"
+                           id="notification-{{ notification.id }}"
+                           data-id="{{ notification.id }}">
                             <div class="d-flex w-100 justify-content-between">
                                 <div>
                                     <img src="{{ notification.sender.get_avatar_url }}" 
@@ -38,10 +28,7 @@
                                 </div>
                                 <small class="text-muted">{{ notification.created_at|timesince }} trước</small>
                             </div>
-                            {% if notification.notification_type %}
-                                </a>
-                            {% endif %}
-                        </div>
+                        </a>
                     {% endfor %}
                 </div>
                 
@@ -70,4 +57,4 @@
         </div>
     </div>
 </div>
-{% endblock %} 
+{% endblock %}

@@ -3,6 +3,7 @@ from channels.db import database_sync_to_async
 from asgiref.sync import async_to_sync, sync_to_async
 from django.contrib.auth.models import User
 from chat.models import Message, Thread, UserSetting, Conversation, ConversationMessage, ConversationParticipant
+from chat.message_utils import serialize_chat_message
 import json
 from rich.console import Console
 from channels.generic.websocket import AsyncWebsocketConsumer
@@ -53,6 +54,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'type': 'history',
             'messages': messages
         }))
+
+        other_presence = await self.get_other_participant_presence()
+        if other_presence:
+            await self.send(text_data=json.dumps({
+                'type': 'user_status',
+                'user_id': other_presence['user_id'],
+                'status': 'online' if other_presence['is_online'] else 'offline',
+                'last_seen': other_presence.get('last_seen'),
+            }))
     
     async def disconnect(self, close_code):
         # Rời khỏi nhóm room
@@ -62,7 +72,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         )
         
         # Cập nhật trạng thái offline
-        await self.set_user_online(False)
+        last_seen = await self.set_user_online(False)
         
         # Thông báo cho tất cả người dùng trong cuộc trò chuyện biết người này offline
         await self.channel_layer.group_send(
@@ -71,6 +81,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'type': 'user_status',
                 'user_id': self.user.id,
                 'status': 'offline',
+                'last_seen': last_seen,
             }
         )
     
@@ -86,24 +97,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
             if message_content:
                 # Lưu tin nhắn vào database
                 message = await self.save_message(message_content, reply_to)
+                payload = message['payload']
                 
-                # Gửi tin nhắn đến nhóm
                 await self.channel_layer.group_send(
                     self.room_group_name,
                     {
                         'type': 'chat_message',
-                        'message': {
-                            'id': message['id'],
-                            'content': message['content'],
-                            'sender_id': self.user.id,
-                            'sender_username': self.user.username,
-                            'created_at': message['created_at'],
-                            'has_attachment': message['has_attachment'],
-                            'attachment_url': message['attachment_url'] if message['has_attachment'] else None,
-                            'attachment_type': message['attachment_type'] if message['has_attachment'] else None,
-                            'file_name': message['file_name'] if message['has_attachment'] else None,
-                            'reply_to': reply_to
-                        }
+                        'message': payload,
                     }
                 )
         elif message_type == 'typing':
@@ -177,12 +177,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
     
     # Xử lý sự kiện user thay đổi trạng thái online/offline
     async def user_status(self, event):
-        # Gửi thông báo đến WebSocket
-        await self.send(text_data=json.dumps({
+        payload = {
             'type': 'user_status',
             'user_id': event['user_id'],
-            'status': event['status']
-        }))
+            'status': event['status'],
+        }
+        if event.get('last_seen'):
+            payload['last_seen'] = event['last_seen']
+        await self.send(text_data=json.dumps(payload))
     
     # Xử lý sự kiện tin nhắn đã đọc
     async def message_read(self, event):
@@ -217,96 +219,76 @@ class ChatConsumer(AsyncWebsocketConsumer):
     
     @database_sync_to_async
     def set_user_online(self, is_online):
-        try:
-            user_setting = UserSetting.objects.get(user=self.user)
-            user_setting.is_online = is_online
-            user_setting.save()
-            return True
-        except UserSetting.DoesNotExist:
-            return False
+        user_setting, _ = UserSetting.objects.get_or_create(
+            user=self.user,
+            defaults={'username': self.user.username or ''},
+        )
+        user_setting.is_online = is_online
+        if not is_online:
+            user_setting.last_seen = timezone.now()
+            user_setting.save(update_fields=['is_online', 'last_seen'])
+            return user_setting.last_seen.isoformat()
+        user_setting.save(update_fields=['is_online'])
+        return None
+
+    @database_sync_to_async
+    def get_other_participant_presence(self):
+        from chat.presence import get_user_presence
+
+        conversation = Conversation.objects.get(id=self.conversation_id)
+        other = conversation.participants.exclude(id=self.user.id).first()
+        if not other:
+            return None
+
+        presence = get_user_presence(other)
+        presence['user_id'] = other.id
+        if presence['last_seen']:
+            presence['last_seen'] = presence['last_seen'].isoformat()
+        return presence
     
     @database_sync_to_async
     def get_conversation_messages(self):
         # Lấy 50 tin nhắn gần đây nhất
         messages = ConversationMessage.objects.filter(
             conversation_id=self.conversation_id
-        ).order_by('-created_at')[:50]
+        ).select_related('sender', 'reply_to', 'reply_to__sender').order_by('-created_at')[:50]
         
-        # Chuyển thành danh sách và đảo ngược để hiển thị theo thứ tự thời gian
         messages = list(messages)
         messages.reverse()
         
-        # Chuyển đổi các tin nhắn thành định dạng JSON
-        result = []
-        for msg in messages:
-            has_attachment = bool(msg.image or msg.video or msg.document)
-            attachment_type = None
-            attachment_url = None
-            
-            if msg.image:
-                attachment_type = 'image'
-                attachment_url = msg.image.url
-            elif msg.video:
-                attachment_type = 'video'
-                attachment_url = msg.video.url
-            elif msg.document:
-                attachment_type = 'document'
-                attachment_url = msg.document.url
-            
-            result.append({
-                'id': msg.id,
-                'content': msg.content,
-                'sender_id': msg.sender.id,
-                'sender_username': msg.sender.username,
-                'created_at': msg.created_at.isoformat(),
-                'is_read': msg.is_read,
-                'has_attachment': has_attachment,
-                'attachment_type': attachment_type,
-                'attachment_url': attachment_url,
-                'file_name': msg.file_name,
-            })
-        
-        return result
+        return [serialize_chat_message(msg) for msg in messages]
     
     @database_sync_to_async
     def save_message(self, content, reply_to=None):
-        # Lưu tin nhắn mới vào database
         conversation = Conversation.objects.get(id=self.conversation_id)
+
+        reply_parent = None
+        if reply_to and reply_to.get('id'):
+            try:
+                reply_parent = ConversationMessage.objects.select_related('sender').get(
+                    id=reply_to['id'],
+                    conversation_id=self.conversation_id,
+                )
+            except ConversationMessage.DoesNotExist:
+                reply_parent = None
+
         message = ConversationMessage.objects.create(
             conversation=conversation,
             sender=self.user,
             content=content,
-            text=content
+            text=content,
+            reply_to=reply_parent,
         )
-        
-        # Cập nhật thời gian tin nhắn cuối cùng
+
+        message = ConversationMessage.objects.select_related(
+            'sender', 'reply_to', 'reply_to__sender'
+        ).get(pk=message.pk)
+
         conversation.last_message_time = timezone.now()
         conversation.save()
-        
-        # Trả về thông tin tin nhắn đã lưu
-        has_attachment = bool(message.image or message.video or message.document)
-        attachment_type = None
-        attachment_url = None
-        
-        if message.image:
-            attachment_type = 'image'
-            attachment_url = message.image.url
-        elif message.video:
-            attachment_type = 'video'
-            attachment_url = message.video.url
-        elif message.document:
-            attachment_type = 'document'
-            attachment_url = message.document.url
-            
-        return {
-            'id': message.id,
-            'content': message.content,
-            'created_at': message.created_at.isoformat(),
-            'has_attachment': has_attachment,
-            'attachment_type': attachment_type,
-            'attachment_url': attachment_url,
-            'file_name': message.file_name,
-        }
+
+        payload = serialize_chat_message(message)
+        return {'payload': payload}
     
     @database_sync_to_async
     def mark_message_as_read(self, message_id):

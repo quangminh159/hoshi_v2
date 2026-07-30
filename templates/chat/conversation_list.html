@@ -1,202 +1,101 @@
 {% extends 'base/base.html' %}
 {% load static %}
 
-{% block title %}Danh sách cuộc trò chuyện{% endblock %}
+{% block title %}Tin nhắn{% endblock %}
 
 {% block extra_css %}
-<style>
-  .chat-container {
-    display: flex;
-    flex-direction: column;
-    height: calc(100vh - 70px);
-    background: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
-    overflow: hidden;
-    padding: 20px;
-  }
-  
-  .chat-header {
-    padding: 15px 0;
-    border-bottom: 1px solid #eaeaea;
-    margin-bottom: 20px;
-  }
-  
-  .chat-header h4 {
-    margin: 0;
-    font-weight: 600;
-    color: #333;
-  }
-  
-  .create-chat-btn {
-    margin-bottom: 20px;
-  }
-  
-  .conversation-list {
-    flex: 1;
-    overflow-y: auto;
-  }
-  
-  .conversation-item {
-    display: flex;
-    align-items: center;
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    transition: all 0.2s;
-    background: #f8f9fa;
-    text-decoration: none;
-    color: #333;
-    position: relative;
-  }
-  
-  .conversation-item:hover {
-    background: #f0f2f5;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  }
-  
-  .conversation-avatar {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    margin-right: 15px;
-    position: relative;
-    background-color: #e0e0e0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    font-weight: bold;
-    color: #757575;
-  }
-  
-  .conversation-avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 50%;
-  }
-  
-  .conversation-info {
-    flex: 1;
-    min-width: 0;
-  }
-  
-  .conversation-name {
-    font-weight: 500;
-    margin: 0 0 5px;
-    display: flex;
-    justify-content: space-between;
-  }
-  
-  .conversation-last-message {
-    font-size: 14px;
-    color: #666;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  
-  .conversation-time {
-    font-size: 12px;
-    color: #888;
-  }
-  
-  .no-conversations {
-    text-align: center;
-    padding: 30px 0;
-    color: #666;
-  }
-
-  .delete-conversation {
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    opacity: 0;
-    transition: opacity 0.2s;
-    background: none;
-    border: none;
-    color: #dc3545;
-    font-size: 18px;
-    cursor: pointer;
-    z-index: 10;
-  }
-
-  .conversation-wrapper {
-    position: relative;
-    width: 100%;
-  }
-
-  .conversation-wrapper:hover .delete-conversation {
-    opacity: 1;
-  }
-</style>
+<link href="{% static 'css/chat.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
-<div class="container py-4">
-  <div class="chat-container">
-    <div class="chat-header">
-      <div class="d-flex justify-content-between align-items-center">
-        <h4>Cuộc trò chuyện của bạn</h4>
-        <a href="{% url 'chat:start_conversation' %}" class="btn btn-primary">
-          <i class="fas fa-plus"></i> Trò chuyện mới
-        </a>
+<div class="chat-page">
+  <div class="chat-shell">
+    <header class="chat-list-header">
+      <div>
+        <h1 class="chat-list-title">Tin nhắn</h1>
+        <p class="chat-list-subtitle">
+          {% if conversations %}
+            {{ conversations|length }} cuộc trò chuyện
+          {% else %}
+            Chưa có cuộc trò chuyện nào
+          {% endif %}
+        </p>
       </div>
+      <a href="{% url 'chat:start_conversation' %}" class="chat-btn-icon chat-btn-primary" title="Trò chuyện mới">
+        <i class="fas fa-edit"></i>
+      </a>
+    </header>
+
+    {% if conversations %}
+    <div class="chat-search-box">
+      <i class="fas fa-search"></i>
+      <input type="search" id="conversationSearch" placeholder="Tìm kiếm cuộc trò chuyện..." autocomplete="off">
     </div>
-    
-    <div class="conversation-list">
+    {% endif %}
+
+    <div class="conversation-list" id="conversationList">
       {% if conversations %}
         {% for conversation in conversations %}
           {% with other_user=conversation.get_other_participant user=request.user %}
-          <div class="conversation-wrapper" id="conversation-{{ conversation.id }}">
+          <div class="conversation-wrapper" id="conversation-{{ conversation.id }}" data-username="{{ other_user.username|lower }}">
             <a href="{% url 'chat:conversation_detail' conversation.id %}" class="conversation-item">
               <div class="conversation-avatar">
-                {% if other_user.profile.avatar %}
-                  <img src="{{ other_user.profile.avatar.url }}" alt="{{ other_user.username }}">
-                {% else %}
-                  {{ other_user.username|first|upper }}
-                {% endif %}
+                <img src="{{ other_user.get_avatar_url }}" alt="{{ other_user.username }}">
               </div>
               <div class="conversation-info">
                 <div class="conversation-name">
                   <span>{{ other_user.username }}</span>
                   <span class="conversation-time">
-                    {{ conversation.last_message_time|date:"H:i" }}
+                    {% if conversation.last_message_time %}
+                      {{ conversation.last_message_time|date:"H:i" }}
+                    {% endif %}
                   </span>
                 </div>
                 <div class="conversation-last-message">
                   {% if conversation.is_blocked %}
-                  <span class="text-danger">
-                    <i class="fas fa-ban"></i> Không thể gửi tin nhắn (Bị chặn)
-                  </span>
+                    <span class="text-danger">
+                      <i class="fas fa-ban"></i> Không thể nhắn tin (đã chặn)
+                    </span>
                   {% else %}
                     {% with last_message=conversation.get_last_message %}
                       {% if last_message %}
-                        {{ last_message.content|truncatechars:50 }}
+                        {% if last_message.sender == request.user %}
+                          <span class="you-prefix">Bạn: </span>
+                        {% endif %}
+                        {% if last_message.content %}
+                          {{ last_message.content|truncatechars:45 }}
+                        {% elif last_message.image %}
+                          <i class="far fa-image"></i> Hình ảnh
+                        {% elif last_message.video %}
+                          <i class="far fa-file-video"></i> Video
+                        {% elif last_message.document %}
+                          <i class="far fa-file-alt"></i> Tài liệu
+                        {% endif %}
                       {% else %}
-                        <em>Chưa có tin nhắn</em>
+                        <em>Bắt đầu cuộc trò chuyện...</em>
                       {% endif %}
                     {% endwith %}
                   {% endif %}
                 </div>
               </div>
             </a>
-            <button class="delete-conversation" 
-                    onclick="deleteConversation({{ conversation.id }}, event)" 
+            <button class="delete-conversation"
+                    onclick="deleteConversation({{ conversation.id }}, event)"
                     title="Xóa cuộc trò chuyện">
-              <i class="fas fa-trash"></i>
+              <i class="fas fa-trash-alt"></i>
             </button>
           </div>
           {% endwith %}
         {% endfor %}
       {% else %}
         <div class="no-conversations">
-          <p>Bạn chưa có cuộc trò chuyện nào</p>
-          <a href="{% url 'chat:start_conversation' %}" class="btn btn-primary mt-3">
-            <i class="fas fa-plus"></i> Bắt đầu trò chuyện mới
+          <div class="no-conversations-icon">
+            <i class="far fa-comment-dots"></i>
+          </div>
+          <h5>Chưa có tin nhắn nào</h5>
+          <p class="text-muted mb-3">Bắt đầu trò chuyện với bạn bè ngay hôm nay</p>
+          <a href="{% url 'chat:start_conversation' %}" class="btn btn-primary rounded-pill px-4">
+            <i class="fas fa-plus me-1"></i> Trò chuyện mới
           </a>
         </div>
       {% endif %}
@@ -204,20 +103,19 @@
   </div>
 </div>
 
-<!-- Modal xác nhận xóa -->
-<div class="modal fade" id="deleteConversationModal" tabindex="-1" aria-labelledby="deleteConversationModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="deleteConversationModalLabel">Xác nhận xóa</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div class="modal fade" id="deleteConversationModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold">Xóa cuộc trò chuyện</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
       </div>
-      <div class="modal-body">
-        Bạn có chắc chắn muốn xóa cuộc trò chuyện này không?
+      <div class="modal-body text-muted">
+        Bạn có chắc muốn xóa cuộc trò chuyện này? Hành động này không thể hoàn tác.
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Xóa</button>
+      <div class="modal-footer border-0 pt-0">
+        <button type="button" class="btn btn-light rounded-pill" data-bs-dismiss="modal">Hủy</button>
+        <button type="button" class="btn btn-danger rounded-pill" id="confirmDeleteBtn">Xóa</button>
       </div>
     </div>
   </div>
@@ -231,66 +129,50 @@
   function deleteConversation(conversationId, event) {
     event.preventDefault();
     event.stopPropagation();
-    
     conversationToDelete = conversationId;
-    
-    // Hiển thị modal xác nhận
     const deleteModal = new bootstrap.Modal(document.getElementById('deleteConversationModal'));
     deleteModal.show();
-    
-    // Xử lý sự kiện khi nhấn nút xác nhận xóa
-    document.getElementById('confirmDeleteBtn').onclick = function() {
+
+    document.getElementById('confirmDeleteBtn').onclick = function () {
       fetch(`/chat/delete/${conversationId}/`, {
         method: 'POST',
         headers: {
           'X-CSRFToken': getCookie('csrftoken'),
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        credentials: 'same-origin'
+        credentials: 'same-origin',
       })
-      .then(response => {
-        if (response.ok) {
-          // Xóa phần tử khỏi DOM
-          document.getElementById(`conversation-${conversationId}`).remove();
+        .then((response) => {
+          if (!response.ok) throw new Error('delete failed');
+          document.getElementById(`conversation-${conversationId}`)?.remove();
           deleteModal.hide();
-          
-          // Kiểm tra nếu không còn cuộc trò chuyện nào
-          if (document.querySelectorAll('.conversation-wrapper').length === 0) {
-            const noConversationsHtml = `
+          if (!document.querySelectorAll('.conversation-wrapper').length) {
+            document.getElementById('conversationList').innerHTML = `
               <div class="no-conversations">
-                <p>Bạn chưa có cuộc trò chuyện nào</p>
-                <a href="{% url 'chat:start_conversation' %}" class="btn btn-primary mt-3">
-                  <i class="fas fa-plus"></i> Bắt đầu trò chuyện mới
+                <div class="no-conversations-icon"><i class="far fa-comment-dots"></i></div>
+                <h5>Chưa có tin nhắn nào</h5>
+                <p class="text-muted mb-3">Bắt đầu trò chuyện với bạn bè ngay hôm nay</p>
+                <a href="{% url 'chat:start_conversation' %}" class="btn btn-primary rounded-pill px-4">
+                  <i class="fas fa-plus me-1"></i> Trò chuyện mới
                 </a>
-              </div>
-            `;
-            document.querySelector('.conversation-list').innerHTML = noConversationsHtml;
+              </div>`;
           }
-        } else {
-          alert('Đã xảy ra lỗi khi xóa cuộc trò chuyện.');
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('Đã xảy ra lỗi khi xóa cuộc trò chuyện.');
-      });
+        })
+        .catch(() => alert('Đã xảy ra lỗi khi xóa cuộc trò chuyện.'));
     };
   }
 
-  // Hàm để lấy CSRF token từ cookie
   function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-      const cookies = document.cookie.split(';');
-      for (let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i].trim();
-        if (cookie.substring(0, name.length + 1) === (name + '=')) {
-          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-          break;
-        }
-      }
-    }
-    return cookieValue;
+    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+    return match ? decodeURIComponent(match[2]) : '';
   }
+
+  document.getElementById('conversationSearch')?.addEventListener('input', function () {
+    const q = this.value.trim().toLowerCase();
+    document.querySelectorAll('.conversation-wrapper').forEach((el) => {
+      const name = el.dataset.username || '';
+      el.style.display = !q || name.includes(q) ? '' : 'none';
+    });
+  });
 </script>
 {% endblock %}

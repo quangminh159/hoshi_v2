@@ -29,7 +29,14 @@ def _base_feed_queryset(user):
         Q(author__private_account=True)
         & ~Q(author_id__in=following_ids)
         & ~Q(author=user)
-    ).select_related('author').prefetch_related('media')
+    ).select_related(
+        'author',
+        'shared_from',
+        'shared_from__author',
+    ).prefetch_related(
+        'media',
+        'shared_from__media',
+    )
 
 
 def get_diverse_feed(user, page_size=None, page=1):
@@ -63,7 +70,14 @@ def get_followed_feed(user, page_size=None, page=1):
         author__is_suspended=False,
     ).exclude(
         author_id__in=blocked_ids
-    ).select_related('author').prefetch_related('media').order_by('-created_at')
+    ).select_related(
+        'author',
+        'shared_from',
+        'shared_from__author',
+    ).prefetch_related(
+        'media',
+        'shared_from__media',
+    ).order_by('-created_at')
 
     return list(qs[offset:offset + page_size])
 
