@@ -17,11 +17,23 @@
                         {{ form|crispy }}
                         
                         <div class="form-check mb-3">
-                            <input class="form-check-input" type="checkbox" id="terms" required>
-                            <label class="form-check-label" for="terms">
-                                Tôi đồng ý với <a href="{% url 'terms' %}" target="_blank">Điều khoản sử dụng</a>
-                                và <a href="{% url 'privacy' %}" target="_blank">Chính sách bảo mật</a>
+                            <input class="form-check-input {% if form.agree_terms.errors %}is-invalid{% endif %}"
+                                   type="checkbox"
+                                   id="id_agree_terms"
+                                   name="agree_terms"
+                                   {% if form.agree_terms.value %}checked{% endif %}
+                                   required>
+                            <label class="form-check-label" for="id_agree_terms">
+                                Tôi đồng ý với <a href="{% url 'terms' %}" target="_blank" rel="noopener">Điều khoản sử dụng</a>
+                                và <a href="{% url 'privacy' %}" target="_blank" rel="noopener">Chính sách bảo mật</a>
                             </label>
+                            {% if form.agree_terms.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.agree_terms.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
                         </div>
                         
                         <div class="d-grid gap-2">

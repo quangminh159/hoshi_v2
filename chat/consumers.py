@@ -97,6 +97,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
             if message_content:
                 # Lưu tin nhắn vào database
                 message = await self.save_message(message_content, reply_to)
+                if not message:
+                    await self.send(text_data=json.dumps({
+                        'type': 'error',
+                        'message': 'Không thể gửi tin nhắn tới người nhận này.',
+                    }))
+                    return
                 payload = message['payload']
                 
                 await self.channel_layer.group_send(
@@ -137,15 +143,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     }
                 )
         elif message_type == 'delete_message':
-            # Xử lý xóa tin nhắn
             message_id = data.get('message_id')
             
             if message_id:
-                # Xóa tin nhắn nếu người dùng là người gửi
                 deleted = await self.delete_message(message_id)
                 
                 if deleted:
-                    # Thông báo cho tất cả người dùng rằng tin nhắn đã bị xóa
                     await self.channel_layer.group_send(
                         self.room_group_name,
                         {
@@ -265,6 +268,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
     def save_message(self, content, reply_to=None):
         conversation = Conversation.objects.get(id=self.conversation_id)
 
+        other = conversation.get_other_participant(self.user)
+        if other and not other.can_receive_message_from(self.user):
+            return None
+
         reply_parent = None
         if reply_to and reply_to.get('id'):
             try:
@@ -322,6 +329,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 if message.video:
                     if os.path.isfile(message.video.path):
                         os.remove(message.video.path)
+                if message.audio:
+                    if os.path.isfile(message.audio.path):
+                        os.remove(message.audio.path)
                 if message.document:
                     if os.path.isfile(message.document.path):
                         os.remove(message.document.path)

@@ -3,7 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import update_session_auth_hash, get_user_model, logout, login
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponse, FileResponse
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_http_methods
+from django.contrib.auth import login as auth_login
 from django.core.paginator import Paginator, EmptyPage
 from django.utils import timezone
 from django.urls import reverse_lazy
@@ -15,13 +16,20 @@ from .forms import (
     CustomPasswordChangeForm,
     NotificationSettingsForm,
     PrivacySettingsForm,
-    SecuritySettingsForm,
     DeleteAccountForm,
-    CustomResetPasswordForm
+    CustomResetPasswordForm,
+    DisableTwoFactorForm,
+    VerifyTwoFactorLoginForm,
+    ChangeEmailRequestForm,
+    ChangePhoneRequestForm,
+    ContactOtpVerifyForm,
+    LanguageSettingsForm,
 )
 from .models import Device, DataDownloadRequest, UserFollowing, UserBlock, UserReport
 import pyotp
 import qrcode
+import base64
+import io
 from posts.models import SavedPost, Post
 from posts.views import prepare_posts_json
 import os
@@ -69,178 +77,189 @@ def profile(request, username):
 
     return render(request, 'accounts/profile.html', context)
 
+def _settings_redirect(tab='profile'):
+    from django.urls import reverse
+    return redirect(f"{reverse('accounts:settings')}?tab={tab}")
+
+
 @login_required
 def settings(request):
     active_tab = request.GET.get('tab', 'profile')
-    
-    # Khởi tạo các form
+
     profile_form = ProfileForm(instance=request.user)
     password_form = CustomPasswordChangeForm(request.user)
     notification_form = NotificationSettingsForm(instance=request.user)
     privacy_form = PrivacySettingsForm(instance=request.user)
-    security_form = SecuritySettingsForm(instance=request.user)
     delete_form = DeleteAccountForm(request.user)
-    
+    disable_2fa_form = DisableTwoFactorForm(request.user)
+    language_form = LanguageSettingsForm(instance=request.user)
+
     if request.method == 'POST':
         if 'update_profile' in request.POST:
             profile_form = ProfileForm(request.POST, request.FILES, instance=request.user)
             if profile_form.is_valid():
-                # Xử lý việc xóa avatar
-                if profile_form.cleaned_data.get('remove_avatar'):
-                    # Nếu checkbox xóa avatar được chọn, xóa avatar hiện tại
-                    if request.user.avatar:
-                        request.user.avatar.delete()
-                
-                # Lưu form ban đầu
-                user = profile_form.save()
-                
-                # Xử lý các trường tùy chỉnh từ form
-                for key, value in request.POST.items():
-                    if (key.startswith('custom_') or key.startswith('social_link_')) and value:
-                        field_name = key
-                        # Lưu trực tiếp từ request.POST vào user instance
-                        setattr(user, field_name, value)
-                
-                # Lưu lại user với các trường tùy chỉnh
-                user.save()
-                
+                profile_form.save()
                 messages.success(request, 'Hồ sơ của bạn đã được cập nhật thành công.')
-                return redirect('accounts:settings')
-                
+                return _settings_redirect('profile')
+            active_tab = 'profile'
+
         elif 'change_password' in request.POST:
             password_form = CustomPasswordChangeForm(request.user, request.POST)
             if password_form.is_valid():
                 user = password_form.save()
                 update_session_auth_hash(request, user)
                 messages.success(request, 'Mật khẩu đã được thay đổi.')
-                return redirect('accounts:settings')
-                
+                return _settings_redirect('password')
+            active_tab = 'password'
+
         elif 'update_notifications' in request.POST:
             notification_form = NotificationSettingsForm(request.POST, instance=request.user)
             if notification_form.is_valid():
-                user = notification_form.save(commit=False)
-                
-                # Xử lý các trường bổ sung
-                user.summary_notifications = request.POST.get('summary_notifications') == 'on'
-                user.inactive_notifications = request.POST.get('inactive_notifications') == 'on'
-                
-                user.save()
+                notification_form.save()
                 messages.success(request, 'Cài đặt thông báo đã được cập nhật.')
-                return redirect('accounts:settings')
-                
+                return _settings_redirect('notifications')
+            active_tab = 'notifications'
+
         elif 'update_privacy' in request.POST:
             privacy_form = PrivacySettingsForm(request.POST, instance=request.user)
             if privacy_form.is_valid():
                 privacy_form.save()
                 messages.success(request, 'Cài đặt quyền riêng tư đã được cập nhật.')
-                return redirect('accounts:settings')
-            else:
-                # Nếu form không hợp lệ, hiển thị lỗi
-                messages.error(request, 'Có lỗi khi cập nhật cài đặt quyền riêng tư.')
-                # Không redirect để giữ lại form với thông báo lỗi
-                
-        elif 'update_security' in request.POST:
-            security_form = SecuritySettingsForm(request.POST, instance=request.user)
-            if security_form.is_valid():
-                security_form.save()
-                messages.success(request, 'Cài đặt bảo mật đã được cập nhật.')
-                return redirect('accounts:settings')
-            else:
-                # Nếu form không hợp lệ, hiển thị lỗi
-                messages.error(request, 'Có lỗi khi cập nhật cài đặt bảo mật.')
-                # Không redirect để giữ lại form với thông báo lỗi
-                
+                return _settings_redirect('privacy')
+            messages.error(request, 'Có lỗi khi cập nhật cài đặt quyền riêng tư.')
+            active_tab = 'privacy'
+
+        elif 'disable_two_factor' in request.POST:
+            disable_2fa_form = DisableTwoFactorForm(request.user, request.POST)
+            if disable_2fa_form.is_valid():
+                request.user.two_factor_auth = False
+                request.user.two_factor_secret = None
+                request.user.save(update_fields=['two_factor_auth', 'two_factor_secret'])
+                messages.success(request, 'Đã tắt xác thực hai yếu tố.')
+                return _settings_redirect('security')
+            messages.error(request, 'Không thể tắt 2FA. Kiểm tra mật khẩu hoặc mã xác thực.')
+            active_tab = 'security'
+
+        elif 'update_language' in request.POST:
+            language_form = LanguageSettingsForm(request.POST, instance=request.user)
+            if language_form.is_valid():
+                user = language_form.save()
+                from django.utils import translation
+                from django.conf import settings as django_settings
+                translation.activate(user.language)
+                request.LANGUAGE_CODE = user.language
+                messages.success(
+                    request,
+                    translation.gettext('Đã cập nhật ngôn ngữ hiển thị.')
+                )
+                response = _settings_redirect('language')
+                response.set_cookie(
+                    django_settings.LANGUAGE_COOKIE_NAME,
+                    user.language,
+                    max_age=getattr(django_settings, 'LANGUAGE_COOKIE_AGE', 60 * 60 * 24 * 365),
+                    path=getattr(django_settings, 'LANGUAGE_COOKIE_PATH', '/'),
+                    domain=getattr(django_settings, 'LANGUAGE_COOKIE_DOMAIN', None),
+                    secure=getattr(django_settings, 'LANGUAGE_COOKIE_SECURE', False),
+                    httponly=getattr(django_settings, 'LANGUAGE_COOKIE_HTTPONLY', False),
+                    samesite=getattr(django_settings, 'LANGUAGE_COOKIE_SAMESITE', 'Lax'),
+                )
+                return response
+            active_tab = 'language'
+
         elif 'delete_account' in request.POST:
             delete_form = DeleteAccountForm(request.user, request.POST)
             if delete_form.is_valid():
-                # Lưu lại lý do xóa tài khoản
                 reason = delete_form.cleaned_data.get('reason')
                 request.user.deletion_reason = reason
                 request.user.is_deleted = True
                 request.user.deleted_at = timezone.now()
                 request.user.save()
-                
-                # Đăng xuất người dùng
                 logout(request)
-                
                 messages.success(request, 'Tài khoản của bạn đã được xóa thành công.')
                 return redirect('home')
-            else:
-                # Hiển thị lỗi form nếu form không hợp lệ
-                messages.error(request, 'Có lỗi xảy ra khi xóa tài khoản. Vui lòng kiểm tra các thông tin đã nhập.')
-                active_tab = 'delete'  # Đảm bảo tab delete sẽ được hiển thị khi có lỗi
-                
+            messages.error(request, 'Có lỗi xảy ra khi xóa tài khoản. Vui lòng kiểm tra các thông tin đã nhập.')
+            active_tab = 'delete'
+
         elif 'request_data_download' in request.POST:
             include_media = request.POST.get('include_media', '') == 'on'
-            
-            # Kiểm tra xem có yêu cầu nào đang xử lý không
+            is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+
             if DataDownloadRequest.objects.filter(
                 user=request.user,
                 status='pending',
                 created_at__gte=timezone.now() - timezone.timedelta(days=1)
             ).exists():
-                messages.error(request, 'Bạn đã có một yêu cầu đang được xử lý. Vui lòng thử lại sau.')
-                return redirect('accounts:settings')
-            
-            # Tạo yêu cầu mới
-            DataDownloadRequest.objects.create(
+                error_msg = 'Bạn đã có một yêu cầu đang được xử lý. Vui lòng thử lại sau.'
+                if is_ajax:
+                    return JsonResponse({'status': 'error', 'message': error_msg}, status=400)
+                messages.error(request, error_msg)
+                return _settings_redirect('data')
+
+            data_request = DataDownloadRequest.objects.create(
                 user=request.user,
                 include_media=include_media
             )
-            
-            messages.success(request, 'Yêu cầu của bạn đã được ghi nhận. Chúng tôi sẽ thông báo khi dữ liệu sẵn sàng để tải xuống.')
-            return redirect('accounts:settings')
-    
-    # Lấy danh sách thiết bị
+
+            try:
+                from .tasks import generate_user_data_download
+                generate_user_data_download.delay(data_request.id)
+            except Exception:
+                try:
+                    from .tasks import generate_user_data_download
+                    generate_user_data_download(data_request.id)
+                except Exception:
+                    pass
+
+            success_msg = 'Yêu cầu của bạn đã được ghi nhận. Chúng tôi sẽ thông báo khi dữ liệu sẵn sàng để tải xuống.'
+            if is_ajax:
+                return JsonResponse({'status': 'success', 'message': success_msg})
+            messages.success(request, success_msg)
+            return _settings_redirect('data')
+
     devices = Device.objects.filter(user=request.user).order_by('-last_active')
-    
-    # Lấy yêu cầu tải xuống dữ liệu
     data_requests = DataDownloadRequest.objects.filter(
         user=request.user
     ).order_by('-created_at')[:5]
-    
-    # Lấy danh sách người dùng đã bị chặn
-    blocked_users = UserBlock.objects.filter(blocker=request.user).select_related('blocked').order_by('-created_at')
-    
-    # Thiết lập mặc định cho thông báo
+    blocked_users = UserBlock.objects.filter(
+        blocker=request.user
+    ).select_related('blocked').order_by('-created_at')
+    linked_social = list(request.user.socialaccount_set.values_list('provider', flat=True))
+
     notification_settings = {
-        'push': request.user.push_notifications if hasattr(request.user, 'push_notifications') else False,
-        'email': request.user.email_notifications if hasattr(request.user, 'email_notifications') else False,
-        'likes': request.user.like_notifications if hasattr(request.user, 'like_notifications') else False,
-        'comments': request.user.comment_notifications if hasattr(request.user, 'comment_notifications') else False,
-        'follows': request.user.follow_notifications if hasattr(request.user, 'follow_notifications') else False,
-        'mentions': request.user.mention_notifications if hasattr(request.user, 'mention_notifications') else False,
-        'messages': request.user.message_notifications if hasattr(request.user, 'message_notifications') else False,
-        'summary': getattr(request.user, 'summary_notifications', False),
-        'inactive': getattr(request.user, 'inactive_notifications', False)
+        'push': request.user.push_notifications,
+        'email': request.user.email_notifications,
+        'likes': request.user.like_notifications,
+        'comments': request.user.comment_notifications,
+        'follows': request.user.follow_notifications,
+        'mentions': request.user.mention_notifications,
+        'messages': request.user.message_notifications,
+        'summary': request.user.summary_notifications,
+        'inactive': request.user.inactive_notifications,
     }
-    
-    # Thiết lập mặc định cho quyền riêng tư
     privacy_settings = {
-        'private_account': getattr(request.user, 'private_account', False),
-        'hide_activity': getattr(request.user, 'hide_activity', False),
-        'block_messages': getattr(request.user, 'block_messages', False),
+        'private_account': request.user.private_account,
+        'hide_activity': request.user.hide_activity,
+        'block_messages': request.user.block_messages,
     }
-    
-    # Thiết lập mặc định cho bảo mật
-    security_settings = {
-        'two_factor': request.user.two_factor_auth if hasattr(request.user, 'two_factor_auth') else False,
-    }
-    
+
     context = {
         'active_tab': active_tab,
         'profile_form': profile_form,
         'password_form': password_form,
         'notification_form': notification_form,
         'privacy_form': privacy_form,
-        'security_form': security_form,
         'delete_form': delete_form,
+        'disable_2fa_form': disable_2fa_form,
+        'language_form': language_form,
         'devices': devices,
         'data_requests': data_requests,
         'blocked_users': blocked_users,
-        'security': security_settings
+        'linked_social': linked_social,
+        'notification_settings': notification_settings,
+        'privacy_settings': privacy_settings,
+        'two_factor_enabled': request.user.two_factor_auth,
     }
-    
+
     return render(request, 'accounts/settings.html', context)
 
 @login_required
@@ -269,48 +288,273 @@ def unlink_social(request, provider):
 def setup_two_factor(request):
     if request.user.two_factor_auth:
         messages.error(request, 'Xác thực hai yếu tố đã được kích hoạt.')
-        return redirect('accounts:settings')
-    
-    # Tạo secret key và QR code
-    secret_key = pyotp.random_base32()
-    totp = pyotp.TOTP(secret_key)
-    qr_code = qrcode.make(totp.provisioning_uri(
-        request.user.email,
-        issuer_name="Hoshi"
-    ))
-    
-    # Lưu secret key tạm thời
+        return _settings_redirect('security')
+
+    secret_key = request.session.get('temp_2fa_secret') or pyotp.random_base32()
     request.session['temp_2fa_secret'] = secret_key
-    
-    context = {
-        'qr_code': qr_code,
-        'secret_key': secret_key
-    }
-    
-    return render(request, 'accounts/setup_2fa.html', context)
+
+    totp = pyotp.TOTP(secret_key)
+    provisioning_uri = totp.provisioning_uri(
+        name=request.user.email or request.user.username,
+        issuer_name="Hoshi"
+    )
+    qr_img = qrcode.make(provisioning_uri)
+    buffer = io.BytesIO()
+    qr_img.save(buffer, format='PNG')
+    qr_code_b64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+
+    return render(request, 'accounts/setup_2fa.html', {
+        'qr_code': qr_code_b64,
+        'secret_key': secret_key,
+    })
+
 
 @login_required
 @require_POST
 def verify_two_factor(request):
     code = request.POST.get('code')
     secret_key = request.session.get('temp_2fa_secret')
-    
+
     if not secret_key:
         messages.error(request, 'Phiên thiết lập đã hết hạn. Vui lòng thử lại.')
         return redirect('accounts:setup_two_factor')
-    
+
     totp = pyotp.TOTP(secret_key)
-    if totp.verify(code):
+    if totp.verify(code, valid_window=1):
         request.user.two_factor_auth = True
         request.user.two_factor_secret = secret_key
-        request.user.save()
-        
-        del request.session['temp_2fa_secret']
+        request.user.save(update_fields=['two_factor_auth', 'two_factor_secret'])
+        request.session.pop('temp_2fa_secret', None)
         messages.success(request, 'Xác thực hai yếu tố đã được kích hoạt.')
-        return redirect('accounts:settings')
-    
+        return _settings_redirect('security')
+
     messages.error(request, 'Mã xác thực không chính xác.')
     return redirect('accounts:setup_two_factor')
+
+
+@require_http_methods(['GET', 'POST'])
+def verify_two_factor_login(request):
+    """Second step after password login when 2FA is enabled."""
+    user_id = request.session.get('pending_2fa_user_id')
+    if not user_id:
+        messages.error(request, 'Phiên xác thực đã hết hạn. Vui lòng đăng nhập lại.')
+        return redirect('account_login')
+
+    try:
+        user = User.all_objects.get(pk=user_id)
+    except User.DoesNotExist:
+        request.session.pop('pending_2fa_user_id', None)
+        messages.error(request, 'Không tìm thấy tài khoản. Vui lòng đăng nhập lại.')
+        return redirect('account_login')
+
+    if not user.two_factor_auth or not user.two_factor_secret:
+        request.session.pop('pending_2fa_user_id', None)
+        return redirect('account_login')
+
+    form = VerifyTwoFactorLoginForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        totp = pyotp.TOTP(user.two_factor_secret)
+        if totp.verify(form.cleaned_data['code'], valid_window=1):
+            request.session.pop('pending_2fa_user_id', None)
+            backend = request.session.pop('pending_2fa_backend', None)
+            request.session['two_factor_verified'] = True
+            if backend:
+                user.backend = backend
+            else:
+                user.backend = 'django.contrib.auth.backends.ModelBackend'
+            auth_login(request, user)
+            request.session.pop('two_factor_verified', None)
+            messages.success(request, 'Đăng nhập thành công.')
+            return redirect('home')
+        form.add_error('code', 'Mã xác thực không chính xác.')
+
+    return render(request, 'accounts/verify_2fa_login.html', {'form': form})
+
+
+@login_required
+@require_http_methods(['GET', 'POST'])
+def change_email(request):
+    """Request email change — OTP is sent to the CURRENT email."""
+    from .otp_utils import (
+        generate_otp, store_otp, is_in_cooldown, deliver_contact_otp, get_otp_record
+    )
+
+    pending = get_otp_record(request.user.id, 'change_email')
+    if pending and request.method == 'GET' and request.GET.get('step') == 'verify':
+        return redirect('accounts:verify_change_email')
+
+    form = ChangeEmailRequestForm(request.user, request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        if is_in_cooldown(request.user.id, 'change_email'):
+            messages.error(request, 'Vui lòng đợi khoảng 1 phút trước khi gửi lại mã.')
+            return redirect('accounts:change_email')
+
+        if not request.user.email:
+            messages.error(request, 'Tài khoản chưa có email hiện tại để nhận mã xác thực.')
+            return redirect('accounts:change_email')
+
+        new_email = form.cleaned_data['new_email']
+        code = generate_otp()
+        store_otp(request.user.id, 'change_email', code, {'new_email': new_email})
+        result = deliver_contact_otp(request.user, 'email', code, 'đổi email')
+        if not result['ok']:
+            messages.error(request, result['message'])
+            return redirect('accounts:change_email')
+
+        messages.success(request, result['message'])
+        return redirect('accounts:verify_change_email')
+
+    return render(request, 'accounts/change_email.html', {
+        'form': form,
+        'current_email': request.user.email,
+    })
+
+
+@login_required
+@require_http_methods(['GET', 'POST'])
+def verify_change_email(request):
+    from .otp_utils import verify_otp, get_otp_record, generate_otp, store_otp, deliver_contact_otp, is_in_cooldown
+
+    record = get_otp_record(request.user.id, 'change_email')
+    if not record:
+        messages.error(request, 'Không có yêu cầu đổi email đang chờ. Vui lòng thử lại.')
+        return redirect('accounts:change_email')
+
+    form = ContactOtpVerifyForm(request.POST or None)
+    if request.method == 'POST':
+        if 'resend' in request.POST:
+            if is_in_cooldown(request.user.id, 'change_email'):
+                messages.error(request, 'Vui lòng đợi khoảng 1 phút trước khi gửi lại mã.')
+            else:
+                code = generate_otp()
+                store_otp(request.user.id, 'change_email', code, record.get('payload') or {})
+                result = deliver_contact_otp(request.user, 'email', code, 'đổi email')
+                messages.success(request, result['message'] if result['ok'] else result['message'])
+            return redirect('accounts:verify_change_email')
+
+        if form.is_valid():
+            ok, payload, error = verify_otp(request.user.id, 'change_email', form.cleaned_data['code'])
+            if not ok:
+                form.add_error('code', error)
+            else:
+                new_email = payload.get('new_email')
+                if not new_email:
+                    messages.error(request, 'Yêu cầu không hợp lệ. Vui lòng thử lại.')
+                    return redirect('accounts:change_email')
+                if User.objects.exclude(pk=request.user.pk).filter(email__iexact=new_email).exists():
+                    messages.error(request, 'Email này đã được sử dụng.')
+                    return redirect('accounts:change_email')
+                request.user.email = new_email
+                request.user.save(update_fields=['email'])
+                try:
+                    from allauth.account.models import EmailAddress
+                    EmailAddress.objects.filter(user=request.user, primary=True).update(email=new_email)
+                    EmailAddress.objects.update_or_create(
+                        user=request.user,
+                        email=new_email,
+                        defaults={'primary': True, 'verified': False},
+                    )
+                except Exception:
+                    pass
+                messages.success(request, f'Đã đổi email thành {new_email}.')
+                return _settings_redirect('profile')
+
+    return render(request, 'accounts/verify_contact_change.html', {
+        'form': form,
+        'title': 'Xác thực đổi email',
+        'hint': f'Nhập mã 6 số đã gửi đến email hiện tại: {request.user.email}',
+        'pending_value': (record.get('payload') or {}).get('new_email'),
+        'pending_label': 'Email mới',
+        'resend_url': 'accounts:verify_change_email',
+        'cancel_url': 'accounts:change_email',
+    })
+
+
+@login_required
+@require_http_methods(['GET', 'POST'])
+def change_phone(request):
+    """Request phone change — OTP is sent to the CURRENT phone (email fallback)."""
+    from .otp_utils import (
+        generate_otp, store_otp, is_in_cooldown, deliver_contact_otp, get_otp_record
+    )
+
+    form = ChangePhoneRequestForm(request.user, request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        if is_in_cooldown(request.user.id, 'change_phone'):
+            messages.error(request, 'Vui lòng đợi khoảng 1 phút trước khi gửi lại mã.')
+            return redirect('accounts:change_phone')
+
+        new_phone = form.cleaned_data['new_phone']
+        code = generate_otp()
+        store_otp(request.user.id, 'change_phone', code, {'new_phone': str(new_phone)})
+        result = deliver_contact_otp(request.user, 'phone', code, 'đổi số điện thoại')
+        if not result['ok']:
+            messages.error(request, result['message'])
+            return redirect('accounts:change_phone')
+
+        messages.success(request, result['message'])
+        return redirect('accounts:verify_change_phone')
+
+    return render(request, 'accounts/change_phone.html', {
+        'form': form,
+        'current_phone': request.user.phone_number,
+    })
+
+
+@login_required
+@require_http_methods(['GET', 'POST'])
+def verify_change_phone(request):
+    from .otp_utils import verify_otp, get_otp_record, generate_otp, store_otp, deliver_contact_otp, is_in_cooldown
+
+    record = get_otp_record(request.user.id, 'change_phone')
+    if not record:
+        messages.error(request, 'Không có yêu cầu đổi số điện thoại đang chờ. Vui lòng thử lại.')
+        return redirect('accounts:change_phone')
+
+    form = ContactOtpVerifyForm(request.POST or None)
+    if request.method == 'POST':
+        if 'resend' in request.POST:
+            if is_in_cooldown(request.user.id, 'change_phone'):
+                messages.error(request, 'Vui lòng đợi khoảng 1 phút trước khi gửi lại mã.')
+            else:
+                code = generate_otp()
+                store_otp(request.user.id, 'change_phone', code, record.get('payload') or {})
+                result = deliver_contact_otp(request.user, 'phone', code, 'đổi số điện thoại')
+                messages.success(request, result['message'] if result['ok'] else result['message'])
+            return redirect('accounts:verify_change_phone')
+
+        if form.is_valid():
+            ok, payload, error = verify_otp(request.user.id, 'change_phone', form.cleaned_data['code'])
+            if not ok:
+                form.add_error('code', error)
+            else:
+                new_phone = payload.get('new_phone')
+                if not new_phone:
+                    messages.error(request, 'Yêu cầu không hợp lệ. Vui lòng thử lại.')
+                    return redirect('accounts:change_phone')
+                if User.objects.exclude(pk=request.user.pk).filter(phone_number=new_phone).exists():
+                    messages.error(request, 'Số điện thoại này đã được sử dụng.')
+                    return redirect('accounts:change_phone')
+                request.user.phone_number = new_phone
+                request.user.save(update_fields=['phone_number'])
+                messages.success(request, f'Đã đổi số điện thoại thành {new_phone}.')
+                return _settings_redirect('profile')
+
+    dest_hint = (
+        f'số điện thoại hiện tại: {request.user.phone_number}'
+        if request.user.phone_number
+        else f'email: {request.user.email}'
+    )
+    return render(request, 'accounts/verify_contact_change.html', {
+        'form': form,
+        'title': 'Xác thực đổi số điện thoại',
+        'hint': f'Nhập mã 6 số đã gửi đến {dest_hint}',
+        'pending_value': (record.get('payload') or {}).get('new_phone'),
+        'pending_label': 'SĐT mới',
+        'resend_url': 'accounts:verify_change_phone',
+        'cancel_url': 'accounts:change_phone',
+    })
+
 
 @login_required
 def get_suggestions(request):

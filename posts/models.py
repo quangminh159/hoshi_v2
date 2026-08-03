@@ -101,7 +101,15 @@ class Comment(models.Model):
     author = models.ForeignKey(User,
                              on_delete=models.CASCADE,
                              related_name='comments')
-    text = models.TextField()
+    text = models.TextField(blank=True)
+    image = ProcessedImageField(
+        upload_to='comments/%Y/%m/',
+        processors=[ResizeToFit(1200, 1200)],
+        format='JPEG',
+        options={'quality': 85},
+        blank=True,
+        null=True,
+    )
     parent = models.ForeignKey('self',
                              on_delete=models.CASCADE,
                              null=True,
@@ -119,6 +127,15 @@ class Comment(models.Model):
     
     def __str__(self):
         return f"Comment by {self.author.username} on {self.post}"
+
+    @property
+    def image_url(self):
+        if self.image:
+            try:
+                return self.image.url
+            except Exception:
+                return None
+        return None
 
 class SavedPost(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL,

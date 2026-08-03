@@ -536,6 +536,49 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.add-comment-form input[name="text"]').forEach(input => {
         input.replaceWith(input.cloneNode(true));
     });
+
+    // Preview ảnh bình luận
+    document.querySelectorAll('.add-comment-form').forEach(form => {
+        const imageInput = form.querySelector('.comment-image-input');
+        const preview = form.querySelector('.comment-image-preview');
+        const clearBtn = form.querySelector('.comment-image-clear');
+        if (!imageInput || !preview) return;
+
+        imageInput.addEventListener('change', function() {
+            const file = this.files && this.files[0];
+            const thumb = preview.querySelector('.comment-preview-thumb');
+            if (!file) {
+                preview.classList.add('d-none');
+                if (thumb) thumb.src = '';
+                return;
+            }
+            if (!file.type.startsWith('image/')) {
+                alert('Chỉ được chọn file ảnh');
+                this.value = '';
+                return;
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Ảnh bình luận tối đa 5MB');
+                this.value = '';
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                if (thumb) thumb.src = ev.target.result;
+                preview.classList.remove('d-none');
+            };
+            reader.readAsDataURL(file);
+        });
+
+        if (clearBtn) {
+            clearBtn.addEventListener('click', function() {
+                imageInput.value = '';
+                preview.classList.add('d-none');
+                const thumb = preview.querySelector('.comment-preview-thumb');
+                if (thumb) thumb.src = '';
+            });
+        }
+    });
     
     // Xử lý submit comment bằng event delegation
     document.addEventListener('click', function(e) {
@@ -555,15 +598,17 @@ document.addEventListener('DOMContentLoaded', function() {
         const postId = form.getAttribute('data-post-id');
         const input = form.querySelector('input[name="text"]');
         const text = input.value.trim();
+        const imageInput = form.querySelector('.comment-image-input');
+        const imageFile = imageInput && imageInput.files && imageInput.files[0] ? imageInput.files[0] : null;
         const replyInfo = form.querySelector('.reply-info');
         const isReply = replyInfo && !replyInfo.classList.contains('d-none');
         const parentId = form.getAttribute('data-parent-id');
         
-        if (!text) return;
+        if (!text && !imageFile) return;
         
-        // Chặn comment trùng lặp trong khoảng thời gian ngắn
+        // Chặn comment trùng lặp trong khoảng thời gian ngắn (chỉ text-only)
         const now = Date.now();
-        if (text === lastSubmittedComment && now - lastSubmitTime < 5000) {
+        if (text && !imageFile && text === lastSubmittedComment && now - lastSubmitTime < 5000) {
             console.log('Bạn đang gửi quá nhanh, vui lòng đợi', Math.ceil((5000 - (now - lastSubmitTime))/1000), 'giây');
             return;
         }
@@ -581,26 +626,28 @@ document.addEventListener('DOMContentLoaded', function() {
         if (btnText) btnText.classList.add('d-none');
         if (btnSpinner) btnSpinner.classList.remove('d-none');
         input.disabled = true;
+        if (imageInput) imageInput.disabled = true;
         
         // Tạo request ID duy nhất
-        const requestId = generateRequestId(postId, text);
+        const requestId = generateRequestId(postId, text || ('img-' + now));
         
         console.log('Gửi comment với request_id:', requestId);
         
-        // Gửi bình luận
+        const formData = new FormData();
+        formData.append('post_id', postId);
+        formData.append('text', text);
+        formData.append('request_id', requestId);
+        formData.append('timestamp', String(Date.now()));
+        if (parentId) formData.append('parent_id', parentId);
+        if (imageFile) formData.append('image', imageFile);
+
+        // Gửi bình luận (multipart khi có ảnh)
         fetch('/api/posts/comments/add/', {
             method: 'POST',
             headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
-                'Content-Type': 'application/json'
+                'X-CSRFToken': getCookie('csrftoken')
             },
-            body: JSON.stringify({
-                post_id: postId,
-                text: text,
-                parent_id: parentId || null,
-                timestamp: Date.now(),
-                request_id: requestId
-            })
+            body: formData
         })
         .then(response => response.json())
         .then(data => {
@@ -612,10 +659,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (btnText) btnText.classList.remove('d-none');
                 if (btnSpinner) btnSpinner.classList.add('d-none');
                 input.disabled = false;
+                if (imageInput) imageInput.disabled = false;
                 
                 if (data.comment) {
                     // Xóa nội dung input và ẩn thông tin trả lời
                     input.value = '';
+                    if (imageInput) imageInput.value = '';
+                    const preview = form.querySelector('.comment-image-preview');
+                    if (preview) {
+                        preview.classList.add('d-none');
+                        const thumb = preview.querySelector('.comment-preview-thumb');
+                        if (thumb) thumb.src = '';
+                    }
                     if (replyInfo) replyInfo.classList.add('d-none');
                     form.removeAttribute('data-parent-id');
                     
@@ -641,6 +696,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (btnText) btnText.classList.remove('d-none');
                 if (btnSpinner) btnSpinner.classList.add('d-none');
                 input.disabled = false;
+                if (imageInput) imageInput.disabled = false;
             }, 1000);
             
             alert('Có lỗi xảy ra khi thêm bình luận');
@@ -735,6 +791,22 @@ function urlify(text) {
     return withLinks.replace(/\n/g, '<br>');
 }
 
+function commentImageHtml(comment) {
+    const url = comment.image_url || comment.image;
+    if (!url) return '';
+    return `<div class="comment-image-wrap mt-1">
+        <a href="${url}" target="_blank" rel="noopener">
+            <img src="${url}" alt="Ảnh bình luận" class="comment-image">
+        </a>
+    </div>`;
+}
+
+function commentBodyHtml(comment) {
+    const text = comment.text || '';
+    const textHtml = text ? `<span class="comment-text">${urlify(text)}</span>` : '';
+    return textHtml + commentImageHtml(comment);
+}
+
 // Hàm thêm bình luận vào DOM
 function addCommentToDOM(comment, postId, parentId) {
     // Tăng số lượng bình luận hiển thị
@@ -774,7 +846,7 @@ function addCommentToDOM(comment, postId, parentId) {
                         </a>
                         <span class="text-muted small me-1">đã trả lời</span>
                         <a href="#comment-${parentId}" class="text-dark fw-bold small">@${document.querySelector(`#comment-${parentId} a.text-dark.text-decoration-none.fw-bold`).textContent}</a>:
-                        <span class="comment-text">${urlify(comment.text)}</span>
+                        ${commentBodyHtml(comment)}
                     </div>
                     <div class="dropdown">
                         <button class="btn btn-link btn-sm p-0 text-muted dropdown-toggle" 
@@ -834,7 +906,7 @@ function addCommentToDOM(comment, postId, parentId) {
                            class="text-dark text-decoration-none fw-bold">
                             ${comment.author_username || comment.author.username}
                         </a>
-                        <span class="comment-text">${urlify(comment.text)}</span>
+                        ${commentBodyHtml(comment)}
                     </div>
                     <div class="dropdown">
                         <button class="btn btn-link btn-sm p-0 text-muted dropdown-toggle" 

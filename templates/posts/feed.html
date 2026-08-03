@@ -1,12 +1,13 @@
 {% extends 'base/base.html' %}
 {% load static %}
+{% load i18n %}
 
-{% block title %}{% if title %}{{ title }} - {% else %}Trang chủ - {% endif %}{{ block.super }}{% endblock %}
+{% block title %}{% if title %}{{ title }} - {% else %}{% trans "Trang chủ" %} - {% endif %}{{ block.super }}{% endblock %}
 
 {% block body_class %} feed-layout{% endblock %}
 
 {% block extra_css %}
-<link href="{% static 'css/feed.css' %}?v=share-icon-1" rel="stylesheet">
+<link href="{% static 'css/feed.css' %}?v=comments-mobile-1" rel="stylesheet">
 <link href="{% static 'css/share_post_modal.css' %}" rel="stylesheet">
 {% include 'posts/includes/create_post_composer_assets.html' %}
 <style>
@@ -28,35 +29,35 @@
             {% endif %}
 
             <div class="feed-top d-none d-lg-flex align-items-center justify-content-between mb-2">
-                <h1>Bảng tin</h1>
+                <h1>{% trans "Bảng tin" %}</h1>
             </div>
-            <nav class="feed-tabs" aria-label="Chế độ xem bảng tin">
+            <nav class="feed-tabs" aria-label="{% trans 'Chế độ xem bảng tin' %}">
                 <a href="{% url 'posts:index' %}?feed=diverse"
                    class="feed-tab {% if feed_type == 'diverse' or not feed_type %}active{% endif %}">
-                    Dành cho bạn
+                    {% trans "Dành cho bạn" %}
                 </a>
                 <a href="{% url 'posts:index' %}?feed=flowed"
                    class="feed-tab {% if feed_type == 'flowed' %}active{% endif %}">
-                    Đang theo dõi
+                    {% trans "Đang theo dõi" %}
                 </a>
                 <a href="{% url 'posts:liked_posts' %}"
                    class="feed-tab feed-tab--secondary {% if feed_type == 'liked' %}active{% endif %}">
-                    Đã thích
+                    {% trans "Đã thích" %}
                 </a>
                 <a href="{% url 'posts:saved' %}"
                    class="feed-tab feed-tab--secondary {% if feed_type == 'saved' %}active{% endif %}">
-                    Đã lưu
+                    {% trans "Đã lưu" %}
                 </a>
             </nav>
 
-            <div class="card feed-composer-trigger" role="button" tabindex="0" aria-label="Tạo bài viết mới">
+            <div class="card feed-composer-trigger" role="button" tabindex="0" aria-label="{% trans 'Tạo bài viết mới' %}">
                 <div class="card-body py-3">
                     <div class="d-flex align-items-center">
                         <img src="{{ request.user.get_avatar_url }}"
                              class="rounded-circle me-3 composer-avatar"
                              width="40" height="40"
                              alt="{{ request.user.username }}">
-                        <div class="flex-grow-1 feed-composer-fake-input">Bạn đang nghĩ gì?</div>
+                        <div class="flex-grow-1 feed-composer-fake-input">{% trans "Bạn đang nghĩ gì?" %}</div>
                     </div>
                 </div>
             </div>
@@ -65,8 +66,8 @@
                 <div class="modal-dialog modal-dialog-centered create-post-modal-dialog">
                     <div class="modal-content create-post-modal-content">
                         <div class="create-post-header">
-                            <button type="button" class="create-post-cancel" data-bs-dismiss="modal">Hủy</button>
-                            <h1 id="createPostModalLabel">Tạo bài viết mới</h1>
+                            <button type="button" class="create-post-cancel" data-bs-dismiss="modal">{% trans "Hủy" %}</button>
+                            <h1 id="createPostModalLabel">{% trans "Tạo bài viết mới" %}</h1>
                             <span style="width: 48px;"></span>
                         </div>
                         {% include 'posts/includes/create_post_composer_form.html' %}
@@ -79,17 +80,17 @@
 
             <div id="loading-indicator" class="text-center py-4">
                 <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Đang tải...</span>
+                    <span class="visually-hidden">{% trans "Đang tải..." %}</span>
                 </div>
-                <p class="mt-2 text-muted">Đang tải bài viết...</p>
+                <p class="mt-2 text-muted">{% trans "Đang tải bài viết..." %}</p>
             </div>
 
             <div id="end-message" class="text-center py-4 d-none">
-                <p class="text-muted">Bạn đã xem hết tất cả bài viết</p>
+                <p class="text-muted">{% trans "Bạn đã xem hết tất cả bài viết" %}</p>
             </div>
 
             <div id="empty-message" class="text-center py-5 d-none">
-                <p class="text-muted mb-0">Chưa có bài viết nào để hiển thị</p>
+                <p class="text-muted mb-0">{% trans "Chưa có bài viết nào để hiển thị" %}</p>
             </div>
     </div>
 </div>
@@ -99,7 +100,7 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/infinite_scroll.js' %}?v=share-icon-1"></script>
+<script src="{% static 'js/infinite_scroll.js' %}?v=comment-image-1"></script>
 <script src="{% static 'js/share_post_modal.js' %}?v=share-icon-1"></script>
 <script>
 window.currentUserId = '{{ request.user.id }}';

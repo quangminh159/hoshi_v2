@@ -1,6 +1,19 @@
 """Helpers chuẩn hóa payload tin nhắn chat."""
 
 
+def _attachment_info(message):
+    """Trả về (has_attachment, attachment_type, attachment_url)."""
+    if message.image:
+        return True, 'image', message.image.url
+    if message.video:
+        return True, 'video', message.video.url
+    if message.audio:
+        return True, 'audio', message.audio.url
+    if message.document:
+        return True, 'document', message.document.url
+    return False, None, None
+
+
 def serialize_shared_post(post):
     if not post:
         return None
@@ -26,19 +39,7 @@ def serialize_reply_to(message):
     if not parent:
         return None
 
-    has_attachment = bool(parent.image or parent.video or parent.document)
-    attachment_type = None
-    attachment_url = None
-
-    if parent.image:
-        attachment_type = 'image'
-        attachment_url = parent.image.url
-    elif parent.video:
-        attachment_type = 'video'
-        attachment_url = parent.video.url
-    elif parent.document:
-        attachment_type = 'document'
-        attachment_url = parent.document.url
+    has_attachment, attachment_type, attachment_url = _attachment_info(parent)
 
     return {
         'id': parent.id,
@@ -55,20 +56,7 @@ def serialize_reply_to(message):
 
 def serialize_chat_message(message, user=None):
     sender = user or message.sender
-    has_attachment = bool(message.image or message.video or message.document)
-    attachment_type = None
-    attachment_url = None
-
-    if message.image:
-        attachment_type = 'image'
-        attachment_url = message.image.url
-    elif message.video:
-        attachment_type = 'video'
-        attachment_url = message.video.url
-    elif message.document:
-        attachment_type = 'document'
-        attachment_url = message.document.url
-
+    has_attachment, attachment_type, attachment_url = _attachment_info(message)
     shared_post = getattr(message, 'shared_post', None)
 
     return {

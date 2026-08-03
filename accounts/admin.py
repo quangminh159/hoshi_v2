@@ -17,18 +17,50 @@ class CustomSuspendForm(forms.Form):
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
-    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', '_is_verified', 'is_suspended', 'is_deleted')
+    list_display = (
+        'username',
+        'email',
+        'phone_number',
+        'first_name',
+        'last_name',
+        'is_staff',
+        '_is_verified',
+        'is_suspended',
+        'is_deleted',
+    )
     list_filter = BaseUserAdmin.list_filter + ('_is_verified', 'is_suspended', 'is_deleted')
+    search_fields = ('username', 'email', 'phone_number', 'first_name', 'last_name')
+    readonly_fields = BaseUserAdmin.readonly_fields + ('two_factor_secret',)
     
-    fieldsets = BaseUserAdmin.fieldsets + (
-        ('Thông tin cá nhân', {'fields': ('phone_number', 'bio', 'birth_date', 'gender', 'avatar')}),
+    fieldsets = (
+        (None, {'fields': ('username', 'password')}),
+        ('Thông tin liên hệ', {
+            'fields': ('email', 'phone_number'),
+            'description': 'Email (Gmail) và số điện thoại lưu trong database — dùng để liên hệ / khôi phục tài khoản.',
+        }),
+        ('Thông tin cá nhân', {'fields': ('first_name', 'last_name', 'bio', 'birth_date', 'gender', 'avatar')}),
         ('Liên kết mạng xã hội', {'fields': ('website', 'facebook', 'twitter', 'instagram', 'linkedin')}),
-        ('Cài đặt thông báo', {'fields': ('push_notifications', 'email_notifications', 'like_notifications', 
-                                        'comment_notifications', 'follow_notifications', 'mention_notifications')}),
-        ('Cài đặt quyền riêng tư', {'fields': ('private_account', 'hide_activity', 'block_messages')}),
-        ('Cài đặt bảo mật', {'fields': ('two_factor_auth', '_is_verified')}),
+        ('Cài đặt thông báo', {'fields': (
+            'push_notifications', 'email_notifications',
+            'like_notifications', 'comment_notifications',
+            'follow_notifications', 'mention_notifications',
+            'message_notifications', 'summary_notifications',
+            'inactive_notifications',
+        )}),
+        ('Cài đặt quyền riêng tư', {'fields': ('private_account', 'is_private', 'hide_activity', 'block_messages')}),
+        ('Ngôn ngữ', {'fields': ('language',)}),
+        ('Cài đặt bảo mật', {'fields': ('two_factor_auth', 'two_factor_secret', '_is_verified')}),
         ('Đình chỉ tài khoản', {'fields': ('is_suspended', 'suspension_reason', 'suspension_end_date')}),
         ('Xóa tài khoản', {'fields': ('is_deleted', 'deleted_at', 'deletion_reason')}),
+        ('Quyền hạn', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
+        ('Ngày quan trọng', {'fields': ('last_login', 'date_joined')}),
+    )
+
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('username', 'email', 'phone_number', 'password1', 'password2'),
+        }),
     )
     
     actions = ['suspend_users_3days', 'suspend_users_7days', 'suspend_users_15days', 'suspend_users_30days', 'suspend_users_90days', 'suspend_users_custom', 'unsuspend_users', 'soft_delete_users', 'restore_deleted_users']

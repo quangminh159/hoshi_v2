@@ -1,0 +1,949 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: hoshi\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "%(count)s bình luận"
+msgstr "%(count)s comments"
+
+msgid "%(count)s lượt thích"
+msgstr "%(count)s likes"
+
+msgid "%(counter)s cuộc trò chuyện"
+msgstr "%(counter)s conversations{% plural %}%(counter)s conversations"
+
+msgid "%(time)s trước"
+msgstr "%(time)s ago"
+
+msgid "%(username)s chưa theo dõi ai."
+msgstr "%(username)s doesn't follow anyone yet."
+
+msgid "%(username)s đã chia sẻ"
+msgstr "%(username)s shared"
+
+msgid ""
+"<strong>Chặn tin nhắn</strong> - Chỉ nhận tin nhắn từ người bạn theo dõi"
+msgstr ""
+"<strong>Block messages</strong> - Only receive messages from people you "
+"follow"
+
+msgid ""
+"<strong>Tài khoản riêng tư</strong> - Chỉ những người theo dõi mới có thể "
+"xem bài viết của bạn"
+msgstr ""
+"<strong>Private account</strong> - Only your followers can see your posts"
+
+msgid ""
+"<strong>Ẩn trạng thái hoạt động</strong> - Không hiển thị trạng thái hoạt "
+"động của bạn"
+msgstr ""
+"<strong>Hide activity status</strong> - Does not show your activity status"
+
+msgid "Bao gồm hình ảnh và video"
+msgstr "Includes images and videos"
+
+msgid "Bài viết"
+msgstr "Article"
+
+msgid "Báo cáo"
+msgstr "Report"
+
+msgid "Bình luận"
+msgstr "Comment"
+
+msgid "Bạn chưa chặn người dùng nào."
+msgstr "You haven't blocked any users yet."
+
+msgid "Bạn chưa lưu bài viết nào."
+msgstr "You haven't saved any posts yet."
+
+msgid "Bạn có chắc chắn muốn bỏ chặn"
+msgstr "Are you sure you want to unblock"
+
+msgid "Bạn có chắc chắn muốn chặn"
+msgstr "Are you sure you want to block"
+
+msgid "Bạn có chắc chắn muốn hủy liên kết với"
+msgstr "Are you sure you want to unlink with"
+
+msgid "Bạn có chắc chắn muốn hủy theo dõi"
+msgstr "Are you sure you want to unfollow?"
+
+msgid "Bạn có chắc chắn muốn xoá bài viết này không?"
+msgstr "Are you sure you want to delete this post?"
+
+msgid "Bạn có chắc chắn muốn xóa bài viết này không?"
+msgstr "Are you sure you want to delete this post?"
+
+msgid "Bạn có chắc chắn muốn xóa phương tiện này không?"
+msgstr "Are you sure you want to delete this media?"
+
+msgid "Bạn có chắc chắn muốn xóa tin nhắn này không?"
+msgstr "Are you sure you want to delete this message?"
+
+msgid "Bạn có chắc chắn muốn xóa tài khoản?"
+msgstr "Are you sure you want to delete your account?"
+
+msgid "Bạn có chắc chắn muốn đăng xuất khỏi thiết bị này?"
+msgstr "Are you sure you want to sign out of this device?"
+
+msgid ""
+"Bạn có chắc muốn xóa cuộc trò chuyện này? Hành động này không thể hoàn tác."
+msgstr ""
+"Are you sure you want to delete this conversation? This action cannot be "
+"undone."
+
+msgid "Bạn có thể chọn nhiều ảnh hoặc video cùng lúc."
+msgstr "You can select multiple photos or videos at the same time."
+
+msgid "Bạn không có quyền chỉnh sửa bài viết này."
+msgstr "You do not have permission to edit this article."
+
+msgid "Bạn không có quyền xóa bài viết này."
+msgstr "You do not have permission to delete this post."
+
+msgid "Bạn không có thông báo nào"
+msgstr "You have no notifications"
+
+msgid "Bạn không có thông báo nào."
+msgstr "You have no notifications."
+
+msgid "Bạn sẽ không thấy bài viết của họ và họ không thể tương tác với bạn."
+msgstr "You won't see their posts and they can't interact with you."
+
+msgid "Bạn đang nghĩ gì?"
+msgstr "What are you thinking?"
+
+msgid "Bạn đã chặn"
+msgstr "You have blocked"
+
+msgid "Bạn đã xem hết tất cả bài viết"
+msgstr "You have read all the articles"
+
+msgid "Bạn:"
+msgstr "Friend:"
+
+msgid "Bảng tin"
+msgstr "Feed"
+
+msgid "Bảo mật"
+msgstr "Security"
+
+msgid "Bắt đầu cuộc trò chuyện..."
+msgstr "Start the conversation..."
+
+msgid "Bắt đầu trò chuyện với bạn bè ngay hôm nay"
+msgstr "Start chatting with friends today"
+
+msgid "Bị chặn từ %(date)s"
+msgstr "Blocked from %(date)s"
+
+msgid "Bỏ chặn"
+msgstr "Unblock"
+
+msgid "Chi tiết cuộc trò chuyện"
+msgstr "Chat details"
+
+msgid "Chào mừng trở lại!"
+msgstr "Welcome back!"
+
+msgid "Chính sách bảo mật"
+msgstr "Privacy policy"
+
+msgid "Chưa có ai theo dõi %(username)s."
+msgstr "No one is following %(username)s yet."
+
+msgid "Chưa có bài viết nào được chia sẻ."
+msgstr "There are no posts shared yet."
+
+msgid "Chưa có bài viết nào để hiển thị"
+msgstr "There are no posts to display yet"
+
+msgid "Chưa có bài viết nào."
+msgstr "There are no posts yet."
+
+msgid "Chưa có cuộc trò chuyện nào"
+msgstr "There have been no conversations yet"
+
+msgid "Chưa có tin nhắn"
+msgstr "No messages yet"
+
+msgid "Chưa có tin nhắn nào"
+msgstr "There are no messages yet"
+
+msgid "Chưa có tài khoản mạng xã hội nào được liên kết."
+msgstr "There are no linked social media accounts yet."
+
+msgid "Chưa có tài khoản?"
+msgstr "Don't have an account yet?"
+
+msgid "Chưa cập nhật"
+msgstr "Not updated yet"
+
+msgid "Chặn"
+msgstr "Block"
+
+msgid "Chế độ xem bảng tin"
+msgstr "Message board view"
+
+msgid "Chỉ hỗ trợ Facebook, Twitter/X, Instagram và LinkedIn."
+msgstr "Only supports Facebook, Twitter/X, Instagram and LinkedIn."
+
+msgid "Chỉnh sửa"
+msgstr "Edit"
+
+msgid "Chỉnh sửa bài viết"
+msgstr "Edit article"
+
+msgid "Chỉnh sửa hồ sơ"
+msgstr "Edit profile"
+
+msgid "Chọn các tùy chọn quyền riêng tư bằng cách bật/tắt công tắc bên dưới."
+msgstr "Choose your privacy options by toggling the switch below."
+
+msgid "Chọn giới tính"
+msgstr "Choose gender"
+
+msgid "Chọn lý do"
+msgstr "Choose a reason"
+
+msgid "Chọn mã quốc gia rồi nhập số điện thoại (hỗ trợ mọi quốc gia)."
+msgstr ""
+"Select the country code then enter the phone number (supports all "
+"countries)."
+
+msgid "Chọn ngày sinh của bạn"
+msgstr "Choose your date of birth"
+
+msgid ""
+"Chọn ngôn ngữ hiển thị cho tài khoản của bạn. Tùy chọn này sẽ được lưu và áp"
+" dụng mỗi khi bạn đăng nhập."
+msgstr ""
+"Choose the display language for your account. This preference will be saved "
+"and applied every time you log in."
+
+msgid "Chọn tên người dùng của bạn"
+msgstr "Choose your username"
+
+msgid "Cài đặt"
+msgstr "Settings"
+
+msgid "Cài đặt bảo mật"
+msgstr "Security settings"
+
+msgid "Cài đặt ngôn ngữ"
+msgstr "Language settings"
+
+msgid "Cài đặt quyền riêng tư"
+msgstr "Privacy settings"
+
+msgid "Cài đặt thông báo"
+msgstr "Notification settings"
+
+msgid "Cài đặt tài khoản"
+msgstr "Account settings"
+
+msgid "Có lỗi xảy ra khi cập nhật bài viết."
+msgstr "An error occurred while updating the post."
+
+msgid "Có lỗi xảy ra khi tải danh sách người theo dõi."
+msgstr "An error occurred while loading the follower list."
+
+msgid "Có lỗi xảy ra khi tải danh sách đang theo dõi."
+msgstr "An error occurred while loading the tracking list."
+
+msgid "Có lỗi xảy ra khi xoá bài viết."
+msgstr "An error occurred while deleting the post."
+
+msgid "Có lỗi xảy ra khi xóa bài viết."
+msgstr "An error occurred while deleting the post."
+
+msgid ""
+"Cảm ơn bạn đã báo cáo. Chúng tôi sẽ xem xét nội dung này trong thời gian sớm"
+" nhất."
+msgstr ""
+"Thank you for your report. We will review this content as soon as possible."
+
+msgid "Cảnh báo"
+msgstr "Warning"
+
+msgid "Dành cho bạn"
+msgstr "For you"
+
+msgid "Email"
+msgstr "E-mail"
+
+msgid "Email / Gmail"
+msgstr "Email/Gmail"
+
+msgid "Ghi nhớ đăng nhập"
+msgstr "Remember to log in"
+
+msgid "Giới tính"
+msgstr "Sex"
+
+msgid "Gửi báo cáo"
+msgstr "Submit report"
+
+msgid "Gửi lời chào để bắt đầu cuộc trò chuyện"
+msgstr "Say hello to start a conversation"
+
+msgid "Gửi tin nhắn"
+msgstr "Send a message"
+
+msgid "Gửi tóm tắt hàng ngày"
+msgstr "Send daily summary"
+
+msgid "Home"
+msgstr "Home"
+
+msgid "Hoshi - Mạng xã hội chia sẻ khoảnh khắc"
+msgstr "Hoshi - Social network for sharing moments"
+
+msgid "Hoạt động %(time)s trước"
+msgstr "Operation %(time)s ago"
+
+msgid "Hình ảnh"
+msgstr "Image"
+
+msgid "Hôm nay"
+msgstr "Today"
+
+msgid "Hồ sơ"
+msgstr "File"
+
+msgid "Hủy"
+msgstr "Cancel"
+
+msgid "Hủy liên kết %(name)s"
+msgstr "Unlink %(name)s"
+
+msgid ""
+"Khi bật, bạn sẽ cần nhập mã xác thực từ ứng dụng (Google Authenticator, "
+"Authy…) mỗi khi đăng nhập."
+msgstr ""
+"When enabled, you will need to enter the authentication code from the "
+"application (Google Authenticator, Authy...) every time you log in."
+
+msgid "Khi có người bình luận bài viết của bạn hoặc trả lời bình luận của bạn"
+msgstr "When someone comments on your post or replies to your comment"
+
+msgid "Khi có người gửi tin nhắn cho bạn"
+msgstr "When someone sends you a message"
+
+msgid "Khi có người nhắc đến bạn trong bài viết hoặc bình luận"
+msgstr "When someone mentions you in a post or comment"
+
+msgid "Khi có người theo dõi bạn"
+msgstr "When someone follows you"
+
+msgid "Khi có người thích bài viết hoặc bình luận của bạn"
+msgstr "When someone likes your post or comment"
+
+msgid "Khác"
+msgstr "Other"
+
+msgid "Khôi phục tài khoản"
+msgstr "Account recovery"
+
+msgid "Không có thiết bị nào khác đăng nhập vào tài khoản của bạn."
+msgstr "No other devices are logged into your account."
+
+msgid "Không có thiết bị đăng nhập nào được ghi nhận"
+msgstr "No logged in devices recorded"
+
+msgid "Không thể gửi tin nhắn vì một trong hai người đã chặn người còn lại."
+msgstr "The message cannot be sent because one of you has blocked the other."
+
+msgid "Không thể hủy liên kết tài khoản."
+msgstr "Accounts cannot be unlinked."
+
+msgid "Không thể nhắn tin (đã chặn)"
+msgstr "Can't text (blocked)"
+
+msgid "Không tìm thấy bài viết."
+msgstr "No articles found."
+
+msgid "Liên kết mạng xã hội"
+msgstr "Social network links"
+
+msgid ""
+"Liên kết đã được lưu vào Website. Chỉ hỗ trợ Facebook, Twitter/X, Instagram "
+"và LinkedIn trong danh sách mạng xã hội."
+msgstr ""
+"The link has been saved to the Website. Only Facebook, Twitter/X, Instagram "
+"and LinkedIn are supported in the social network list."
+
+msgid "Loại thông báo"
+msgstr "Notification type"
+
+msgid "Lý do báo cáo"
+msgstr "Reason for reporting"
+
+msgid "Lý do xóa tài khoản"
+msgstr "Reason for account deletion"
+
+msgid "Lưu ngôn ngữ"
+msgstr "Save language"
+
+msgid "Lưu thay đổi"
+msgstr "Save changes"
+
+msgid "Lưu thay đổi quyền riêng tư"
+msgstr "Save privacy changes"
+
+msgid "Lưu thay đổi thông báo"
+msgstr "Save notification changes"
+
+msgid "Lượt thích"
+msgstr "Likes"
+
+msgid "Lỗi khi tải danh sách người theo dõi"
+msgstr "Error loading follower list"
+
+msgid "Lỗi khi tải danh sách đang theo dõi"
+msgstr "Error loading the tracking list"
+
+msgid "Lỗi khi tải lên tệp:"
+msgstr "Error uploading file:"
+
+msgid "Lỗi kết nối tới máy chủ. Vui lòng thử lại sau."
+msgstr "Error connecting to server. Please try again later."
+
+msgid "Menu"
+msgstr "Menu"
+
+msgid "Mô tả chi tiết"
+msgstr "Detailed description"
+
+msgid "Mật khẩu"
+msgstr "Password"
+
+msgid "Mật khẩu và đăng nhập"
+msgstr "Password and login"
+
+msgid "Mục hồ sơ"
+msgstr "Profile section"
+
+msgid "Nam"
+msgstr "Male"
+
+msgid "Ngày sinh"
+msgstr "Date of birth"
+
+msgid "Ngôn ngữ"
+msgstr "Language"
+
+msgid "Ngôn ngữ hiển thị"
+msgstr "Display language"
+
+msgid "Người dùng đã bị chặn"
+msgstr "User has been blocked"
+
+msgid "Người theo dõi (%(count)s)"
+msgstr "Followers (%(count)s)"
+
+msgid "Nhận email tóm tắt các hoạt động mỗi ngày"
+msgstr "Receive emails summarizing daily activities"
+
+msgid "Nhận thông báo ngay cả khi không mở ứng dụng"
+msgstr "Receive notifications even without the app open"
+
+msgid "Nhận thông báo qua địa chỉ email của bạn"
+msgstr "Receive notifications via your email address"
+
+msgid "Nhận thông báo sau 30 ngày không hoạt động"
+msgstr "Get notified after 30 days of inactivity"
+
+msgid "Nhập lại mật khẩu"
+msgstr "Re-enter the password"
+
+msgid "Nhập mật khẩu của bạn"
+msgstr "Enter your password"
+
+msgid "Nhập mật khẩu hoặc mã xác thực để tắt 2FA:"
+msgstr "Enter your password or authentication code to turn off 2FA:"
+
+msgid "Nhập mật khẩu để xác nhận"
+msgstr "Enter password to confirm"
+
+msgid "Nhập tin nhắn..."
+msgstr "Enter message..."
+
+msgid "Nhập tên người dùng của bạn"
+msgstr "Enter your username"
+
+msgid "Nhập địa chỉ email của bạn"
+msgstr "Enter your email address"
+
+msgid "Nhắc đến"
+msgstr "Mentioned"
+
+msgid "Nhắn tin"
+msgstr "Texting"
+
+msgid "Nhắn tin trực tiếp"
+msgstr "Direct message"
+
+msgid "Những người mà %(username)s đang theo dõi"
+msgstr "People %(username)s is following"
+
+msgid "Những người đang theo dõi %(username)s"
+msgstr "People following %(username)s"
+
+msgid "Nội dung"
+msgstr "Content"
+
+msgid "Nội dung không phù hợp"
+msgstr "Inappropriate content"
+
+msgid "Nữ"
+msgstr "Female"
+
+msgid "Offline"
+msgstr "Offline"
+
+msgid "Phân trang thông báo"
+msgstr "Notification pagination"
+
+msgid "Phương thức nhận thông báo"
+msgstr "Method of receiving notifications"
+
+msgid "Phương tiện hiện tại"
+msgstr "Current media"
+
+msgid "Quay lại"
+msgstr "Come back"
+
+msgid "Quyền riêng tư"
+msgstr "Privacy"
+
+msgid "Quên mật khẩu?"
+msgstr "Forgot password?"
+
+msgid ""
+"Quản lý cài đặt bảo mật cho tài khoản của bạn. Bật xác thực hai yếu tố để "
+"tăng cường bảo mật."
+msgstr ""
+"Manage your account's security settings. Enable two-factor authentication "
+"for added security."
+
+msgid ""
+"Quản lý các tài khoản mạng xã hội được liên kết với tài khoản Hoshi của bạn"
+msgstr "Manage social media accounts linked to your Hoshi account"
+
+msgid "Quản lý danh sách người dùng mà bạn đã chặn"
+msgstr "Manage the list of users you've blocked"
+
+msgid "Quấy rối"
+msgstr "Harassment"
+
+msgid "Sẵn sàng tải xuống"
+msgstr "Ready to download"
+
+msgid "Số điện thoại"
+msgstr "Phone number"
+
+msgid "Tham gia cộng đồng Hoshi ngay hôm nay"
+msgstr "Join the Hoshi community today"
+
+msgid "Theo dõi"
+msgstr "Follow"
+
+msgid ""
+"Thiết bị của bạn đã đăng nhập. Bạn có thể đăng xuất khỏi các thiết bị khác "
+"từ đây."
+msgstr ""
+"Your device is signed in. You can sign out of other devices from here."
+
+msgid "Thiết bị hiện tại"
+msgstr "Current equipment"
+
+msgid "Thiết bị khác"
+msgstr "Other equipment"
+
+msgid "Thiết bị đăng nhập"
+msgstr "Login device"
+
+msgid "Thiết lập xác thực hai yếu tố"
+msgstr "Set up two-factor authentication"
+
+msgid "Thêm"
+msgstr "More"
+
+msgid "Thêm bất kỳ liên kết mạng xã hội nào của bạn"
+msgstr "Add any of your social media links"
+
+msgid "Thêm ảnh/video mới"
+msgstr "Add new photos/videos"
+
+msgid "Thông báo"
+msgstr "Notifications"
+
+msgid "Thông báo khi không hoạt động"
+msgstr "Notification when inactive"
+
+msgid "Thông báo qua email"
+msgstr "Notification via email"
+
+msgid "Thông báo đẩy"
+msgstr "Push notifications"
+
+msgid "Thông tin liên hệ (cần xác thực khi đổi)"
+msgstr "Contact information (need to be authenticated when exchanging)"
+
+msgid "Thống kê báo cáo"
+msgstr "Report statistics"
+
+msgid "Tin nhắn"
+msgstr "Messages"
+
+msgid "Trang chủ"
+msgstr "Home"
+
+msgid "Trang cá nhân"
+msgstr "Profile"
+
+msgid "Trang sau"
+msgstr "Next page"
+
+msgid "Trang trước"
+msgstr "Previous page"
+
+msgid "Trò chuyện mới"
+msgstr "New chat"
+
+msgid "Trả lời"
+msgstr "Reply"
+
+msgid "Tài khoản bị xóa?"
+msgstr "Account deleted?"
+
+msgid "Tài khoản giả mạo"
+msgstr "Fake account"
+
+msgid "Tài liệu"
+msgstr "Document"
+
+msgid "Tên người dùng"
+msgstr "User name"
+
+msgid "Tên người dùng không hợp lệ"
+msgstr "Invalid username"
+
+msgid "Tìm kiếm"
+msgstr "Search"
+
+msgid "Tìm kiếm cuộc trò chuyện..."
+msgstr "Search chat..."
+
+msgid "Tìm kiếm..."
+msgstr "Search..."
+
+msgid ""
+"Tôi hiểu rằng sau 30 ngày tài khoản sẽ bị xóa vĩnh viễn và không thể khôi "
+"phục"
+msgstr ""
+"I understand that after 30 days the account will be permanently deleted and "
+"cannot be restored"
+
+msgid "Tôi đồng ý với"
+msgstr "I agree"
+
+msgid "Tùy chỉnh cách bạn nhận thông báo từ Hoshi"
+msgstr "Customize how you receive notifications from Hoshi"
+
+msgid "Tùy chỉnh thời gian đình chỉ"
+msgstr "Customize suspension time"
+
+msgid "Tùy chỉnh thời gian đình chỉ người dùng bị báo cáo"
+msgstr "Customize reported user suspension time"
+
+msgid "Tùy chọn thông báo khác"
+msgstr "More notification options"
+
+msgid "Tạo bài viết"
+msgstr "Create articles"
+
+msgid "Tạo bài viết mới"
+msgstr "Create new article"
+
+msgid "Tạo mật khẩu mới"
+msgstr "Create a new password"
+
+msgid "Tạo tài khoản mới"
+msgstr "Create a new account"
+
+msgid "Tải xuống"
+msgstr "Download"
+
+msgid ""
+"Tải xuống bản sao dữ liệu của bạn, bao gồm bài viết, bình luận, và thông tin"
+" cá nhân."
+msgstr ""
+"Download a copy of your data, including posts, comments, and personal "
+"information."
+
+msgid "Tải xuống dữ liệu"
+msgstr "Download data"
+
+msgid "Tắt bình luận"
+msgstr "Turn off comments"
+
+msgid "Tắt xác thực hai yếu tố"
+msgstr "Turn off two-factor authentication"
+
+msgid "Video"
+msgstr "Video"
+
+msgid "Vui lòng chọn lý do báo cáo."
+msgstr "Please select a reason for reporting."
+
+msgid "Vui lòng cung cấp thêm thông tin..."
+msgstr "Please provide more information..."
+
+msgid "Xem bài viết gốc"
+msgstr "See original article"
+
+msgid "Xem chi tiết"
+msgstr "See details"
+
+msgid "Xem thống kê báo cáo"
+msgstr "View report statistics"
+
+msgid "Xem tất cả thông báo"
+msgstr "See all announcements"
+
+msgid "Xem ảnh"
+msgstr "See photos"
+
+msgid "Xác nhận mật khẩu"
+msgstr "Confirm password"
+
+msgid "Xác thực hai yếu tố"
+msgstr "Two-factor authentication"
+
+msgid ""
+"Xác thực hai yếu tố đang <strong>bật</strong>. Bạn sẽ cần mã từ ứng dụng xác"
+" thực mỗi khi đăng nhập."
+msgstr ""
+"Two-factor authentication is <strong>on</strong>. You'll need the code from "
+"the authenticator app every time you log in."
+
+msgid "Xóa"
+msgstr "Erase"
+
+msgid "Xóa bài viết"
+msgstr "Delete posts"
+
+msgid "Xóa cuộc trò chuyện"
+msgstr "Delete chat"
+
+msgid "Xóa tài khoản"
+msgstr "Delete account"
+
+msgid "Xóa ảnh đại diện hiện tại"
+msgstr "Delete current avatar"
+
+msgid "Yêu cầu của bạn đã được ghi nhận."
+msgstr "Your request has been acknowledged."
+
+msgid "Yêu cầu gần đây"
+msgstr "Recent requests"
+
+msgid "Yêu cầu tải xuống"
+msgstr "Download required"
+
+msgid "bài viết"
+msgstr "article"
+
+msgid "của Hoshi"
+msgstr "by Hoshi"
+
+msgid "hoặc tiếp tục với"
+msgstr "or continue with"
+
+msgid "hoặc đăng ký với"
+msgstr "or register with"
+
+msgid "lượt thích"
+msgstr "likes"
+
+msgid "người theo dõi"
+msgstr "followers"
+
+msgid "thành công."
+msgstr "success."
+
+msgid "thông báo chưa đọc"
+msgstr "unread notification"
+
+msgid "và"
+msgstr "and"
+
+msgid "Đang hoạt động"
+msgstr "Active"
+
+msgid "Đang lưu..."
+msgstr "Saving..."
+
+msgid "Đang theo dõi"
+msgstr "Following"
+
+msgid "Đang theo dõi (%(count)s)"
+msgstr "Following (%(count)s)"
+
+msgid "Đang trả lời"
+msgstr "Replying"
+
+msgid "Đang tải bài viết..."
+msgstr "Loading article..."
+
+msgid "Đang tải..."
+msgstr "Loading..."
+
+msgid "Đang xử lý"
+msgstr "Processing"
+
+msgid "Đang xử lý..."
+msgstr "Processing..."
+
+msgid "Điều hướng nhanh"
+msgstr "Quick navigation"
+
+msgid "Điều khoản sử dụng"
+msgstr "Terms of use"
+
+msgid "Đánh dấu tất cả là đã đọc"
+msgstr "Mark all as read"
+
+msgid "Đã bỏ chặn"
+msgstr "Unblocked"
+
+msgid "Đã chia sẻ"
+msgstr "Shared"
+
+msgid "Đã có tài khoản?"
+msgstr "Already have an account?"
+
+msgid "Đã cập nhật bài viết thành công!"
+msgstr "Post updated successfully!"
+
+msgid "Đã hết hạn"
+msgstr "Expired"
+
+msgid "Đã hủy liên kết"
+msgstr "Unlinked"
+
+msgid "Đã lưu"
+msgstr "Saved"
+
+msgid "Đã thích"
+msgstr "Liked"
+
+msgid "Đã xóa bài viết thành công!"
+msgstr "Post deleted successfully!"
+
+msgid "Đã xảy ra lỗi khi bỏ chặn người dùng."
+msgstr "An error occurred while unblocking the user."
+
+msgid "Đã xảy ra lỗi khi chặn người dùng."
+msgstr "An error occurred while blocking the user."
+
+msgid "Đã xảy ra lỗi khi chặn người dùng. Vui lòng thử lại sau."
+msgstr "An error occurred while blocking the user. Please try again later."
+
+msgid "Đã xảy ra lỗi khi gửi báo cáo."
+msgstr "An error occurred while sending the report."
+
+msgid "Đã xảy ra lỗi khi gửi báo cáo. Vui lòng thử lại sau."
+msgstr "An error occurred while sending the report. Please try again later."
+
+msgid "Đã xảy ra lỗi khi gửi yêu cầu."
+msgstr "An error occurred while sending the request."
+
+msgid "Đã xảy ra lỗi khi hủy liên kết."
+msgstr "An error occurred while unlinking."
+
+msgid "Đã xảy ra lỗi khi thực hiện thao tác. Vui lòng thử lại sau."
+msgstr ""
+"An error occurred while performing the operation. Please try again later."
+
+msgid "Đã xảy ra lỗi khi xóa cuộc trò chuyện."
+msgstr "An error occurred while deleting the chat."
+
+msgid "Đã xảy ra lỗi khi đăng xuất thiết bị."
+msgstr "An error occurred while logging out of the device."
+
+msgid "Đóng"
+msgstr "Close"
+
+msgid "Đăng ký"
+msgstr "Sign up"
+
+msgid "Đăng ký ngay"
+msgstr "Register now"
+
+msgid "Đăng ký với Google"
+msgstr "Sign up with Google"
+
+msgid "Đăng nhập"
+msgstr "Log in"
+
+msgid "Đăng nhập bằng mạng xã hội"
+msgstr "Log in using social networks"
+
+msgid "Đăng nhập ngay"
+msgstr "Sign in now"
+
+msgid "Đăng nhập với Google"
+msgstr "Sign in with Google"
+
+msgid "Đăng nhập để tiếp tục với Hoshi"
+msgstr "Log in to continue with Hoshi"
+
+msgid "Đăng xuất"
+msgstr "Log out"
+
+msgid ""
+"Đảm bảo sử dụng mật khẩu mạnh và không sử dụng lại ở các trang web khác"
+msgstr "Make sure to use strong passwords and don't reuse them on other sites"
+
+msgid "Địa điểm"
+msgstr "Location"
+
+msgid "Đổi"
+msgstr "Change"
+
+msgid ""
+"Đổi SĐT sẽ gửi mã xác thực về số hiện tại (hoặc email nếu SMS không khả "
+"dụng)."
+msgstr ""
+"Changing your phone number will send a verification code to your current "
+"number (or email if SMS is not available)."
+
+msgid "Đổi email sẽ gửi mã xác thực về email hiện tại."
+msgstr ""
+"Changing your email will send a verification code to your current email."
+
+msgid "Đổi mật khẩu"
+msgstr "Change password"
+
+msgid "đang nhập..."
+msgstr "entering..."
+
+msgid "đang theo dõi"
+msgstr "are following"
+
+msgid "Ảnh"
+msgstr "Image"
+
+msgid "Ảnh đầy đủ"
+msgstr "Full photo"
+
+msgid "Ẩn lượt thích"
+msgstr "Hide likes"

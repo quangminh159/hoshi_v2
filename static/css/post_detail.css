@@ -122,6 +122,58 @@
     padding-top: 0.75rem;
 }
 
+.comment-image-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.375rem 0.65rem;
+    color: #737373;
+    border-radius: 0.375rem 0 0 0.375rem !important;
+}
+
+.comment-image-btn:hover {
+    color: var(--primary-color, #405de6);
+    background: #f8f9fa;
+}
+
+.comment-image-preview-inner {
+    position: relative;
+    display: inline-block;
+}
+
+.comment-preview-thumb {
+    max-width: 120px;
+    max-height: 120px;
+    border-radius: 8px;
+    object-fit: cover;
+    display: block;
+}
+
+.comment-image-clear {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border-radius: 50%;
+    line-height: 1;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.comment-image-wrap {
+    max-width: 240px;
+}
+
+.comment-image {
+    max-width: 100%;
+    max-height: 280px;
+    border-radius: 10px;
+    object-fit: cover;
+    display: block;
+    cursor: pointer;
+}
+
 .post-detail-page .like-button.liked .fas.fa-heart {
     color: #ed4956 !important;
 }

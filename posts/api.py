@@ -19,7 +19,7 @@ from accounts.models import UserBlock
 from django.contrib.contenttypes.models import ContentType
 from notifications.models import Notification
 from notifications.signals import send_notification_to_websocket
-from .comment_utils import resolve_reply_parent
+from .comment_utils import resolve_reply_parent, serialize_comment
 from .views import _media_type_for_file
 
 User = get_user_model()
@@ -287,108 +287,120 @@ def comment_replies(request, pk):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def add_comment(request):
+    """API thêm bình luận (text và/hoặc ảnh)."""
     try:
         data = request.data
         post_id = data.get('post_id')
-        text = data.get('text')
-        parent_id = data.get('parent_id')
-        request_id = data.get('request_id', '')
-        
-        # Log để debug
-        print(f"Processing comment request: post_id={post_id}, text={text[:20]}..., parent_id={parent_id}, request_id={request_id}")
-        
-        # Kiểm tra các tham số bắt buộc
-        if not post_id or not text:
+        text = (data.get('text') or '').strip()
+        parent_id = data.get('parent_id') or None
+        request_id = data.get('request_id', '') or ''
+        image = request.FILES.get('image')
+
+        if parent_id in ('', 'null', 'undefined'):
+            parent_id = None
+
+        print(
+            f"Processing comment request: post_id={post_id}, text={text[:20] if text else '[empty]'}..., "
+            f"parent_id={parent_id}, request_id={request_id}, has_image={bool(image)}"
+        )
+
+        if not post_id:
             return Response({'error': 'Missing required fields'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        # Tạo cache key an toàn bằng cách hash nội dung
-        comment_content_hash = hashlib.md5(f"{request.user.id}:{post_id}:{text}:{parent_id or ''}".encode()).hexdigest()
-        cache_key = f"comment:{comment_content_hash}"
-        
-        # Kiểm tra xem request_id này đã được xử lý chưa
+
+        if not text and not image:
+            return Response(
+                {'error': 'Vui lòng nhập nội dung hoặc chọn ảnh bình luận'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if len(text) > 500:
+            return Response(
+                {'error': 'Bình luận quá dài (tối đa 500 ký tự)'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if image:
+            content_type = getattr(image, 'content_type', '') or ''
+            if not content_type.startswith('image/'):
+                return Response({'error': 'File phải là ảnh'}, status=status.HTTP_400_BAD_REQUEST)
+            if image.size > 5 * 1024 * 1024:
+                return Response({'error': 'Ảnh bình luận tối đa 5MB'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            post = Post.objects.get(id=post_id)
+        except Post.DoesNotExist:
+            return Response({'error': 'Post not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        if post.disable_comments:
+            return Response({'error': 'Comments are disabled for this post'}, status=status.HTTP_400_BAD_REQUEST)
+
+        def _build_parent_data(root_parent, direct_parent=None):
+            if not root_parent:
+                return None
+            parent_data = {
+                'id': root_parent.id,
+                'author_username': root_parent.author.username,
+            }
+            if direct_parent and direct_parent.id != root_parent.id:
+                parent_data['reply_to_username'] = direct_parent.author.username
+            return parent_data
+
+        def _payload(comment, is_duplicate=False, parent_data=None):
+            return serialize_comment(
+                comment,
+                post_id=post.id,
+                is_duplicate=is_duplicate,
+                parent_data=parent_data,
+            )
+
+        # Chống duplicate theo request_id
         if request_id:
             request_cache_key = f"request:{request_id}"
             if cache.get(request_cache_key):
                 print(f"Detected duplicate request with request_id={request_id}")
-                # Tìm comment gần đây nhất của user có nội dung này
-                post = Post.objects.get(id=post_id)
                 recent_comment = Comment.objects.filter(
                     post=post,
                     author=request.user,
                     text=text,
-                    parent_id=parent_id
-                ).order_by('-created_at').first()
-                
+                ).select_related('author', 'parent', 'parent__author').order_by('-created_at').first()
                 if recent_comment:
-                    # Trả về comment để tránh client hiển thị lỗi
                     parent_data = None
-                    if recent_comment.parent:
+                    if recent_comment.parent_id:
                         parent_data = {
                             'id': recent_comment.parent.id,
-                            'author_username': recent_comment.parent.author.username
+                            'author_username': recent_comment.parent.author.username,
                         }
-                    
-                    comment_data = {
-                        'id': recent_comment.id,
-                        'text': recent_comment.text,
-                        'author_id': recent_comment.author.id,
-                        'author_username': recent_comment.author.username,
-                        'author_avatar': recent_comment.author.avatar.url if recent_comment.author.avatar else None,
-                        'created_at': recent_comment.created_at.isoformat(),
-                        'likes_count': recent_comment.likes_count,
-                        'parent': parent_data,
-                        'post_id': post_id,
-                        'is_duplicate': True
-                    }
-                    
-                    return Response({'comment': comment_data, 'message': 'Duplicate request detected'})
-            
-            # Đánh dấu request_id này đã được xử lý
-            cache.set(request_cache_key, True, 300)  # 5 phút
-        
-        # Kiểm tra xem nội dung comment này đã được gửi gần đây chưa
-        if cache.get(cache_key):
-            print(f"Detected duplicate comment content via cache: {cache_key}")
-            # Tìm comment gần đây nhất của user có nội dung này
-            post = Post.objects.get(id=post_id)
-            recent_comment = Comment.objects.filter(
-                post=post,
-                author=request.user,
-                text=text,
-                parent_id=parent_id
-            ).order_by('-created_at').first()
-            
-            if recent_comment:
-                # Trả về comment để tránh client hiển thị lỗi
-                parent_data = None
-                if recent_comment.parent:
-                    parent_data = {
-                        'id': recent_comment.parent.id,
-                        'author_username': recent_comment.parent.author.username
-                    }
-                
-                comment_data = {
-                    'id': recent_comment.id,
-                    'text': recent_comment.text,
-                    'author_id': recent_comment.author.id,
-                    'author_username': recent_comment.author.username,
-                    'author_avatar': recent_comment.author.avatar.url if recent_comment.author.avatar else None,
-                    'created_at': recent_comment.created_at.isoformat(),
-                    'likes_count': recent_comment.likes_count,
-                    'parent': parent_data,
-                    'post_id': post_id,
-                    'is_duplicate': True
-                }
-                
-                return Response({'comment': comment_data, 'message': 'Duplicate content detected'})
-        
-        # Đánh dấu nội dung comment này đã được xử lý
-        cache.set(cache_key, True, 30)  # Lưu 30 giây
-        
-        post = Post.objects.get(id=post_id)
-        
-        if post.disable_comments:
-            return Response({'error': 'Comments are disabled for this post'}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response({
+                        'comment': _payload(recent_comment, True, parent_data),
+                        'message': 'Duplicate request detected',
+                    })
+            cache.set(request_cache_key, True, 300)
+
+        # Chống duplicate text-only gần đây (ảnh thường khác nhau mỗi lần)
+        if text and not image:
+            comment_content_hash = hashlib.md5(
+                f"{request.user.id}:{post_id}:{text}:{parent_id or ''}".encode()
+            ).hexdigest()
+            cache_key = f"comment:{comment_content_hash}"
+            if cache.get(cache_key):
+                print(f"Detected duplicate comment content via cache: {cache_key}")
+                recent_comment = Comment.objects.filter(
+                    post=post,
+                    author=request.user,
+                    text=text,
+                ).select_related('author', 'parent', 'parent__author').order_by('-created_at').first()
+                if recent_comment:
+                    parent_data = None
+                    if recent_comment.parent_id:
+                        parent_data = {
+                            'id': recent_comment.parent.id,
+                            'author_username': recent_comment.parent.author.username,
+                        }
+                    return Response({
+                        'comment': _payload(recent_comment, True, parent_data),
+                        'message': 'Duplicate content detected',
+                    })
+            cache.set(cache_key, True, 30)
 
         root_parent = None
         direct_parent = None
@@ -399,82 +411,42 @@ def add_comment(request):
                 stored_parent_id = root_parent.id
             except Comment.DoesNotExist:
                 return Response({'error': 'Parent comment not found'}, status=status.HTTP_404_NOT_FOUND)
-        
-        # Kiểm tra bình luận trùng lặp trong database
-        recent_comments = Comment.objects.filter(
+
+        if text and not image:
+            recent_comments = Comment.objects.filter(
+                post=post,
+                author=request.user,
+                text=text,
+                parent_id=stored_parent_id,
+            ).select_related('author', 'parent', 'parent__author').order_by('-created_at')
+            if recent_comments.exists():
+                recent_comment = recent_comments.first()
+                time_diff = (timezone.now() - recent_comment.created_at).total_seconds()
+                if time_diff < 30:
+                    print(f"Detected duplicate comment within {time_diff} seconds")
+                    parent_data = None
+                    if recent_comment.parent_id:
+                        parent_data = {
+                            'id': recent_comment.parent.id,
+                            'author_username': recent_comment.parent.author.username,
+                        }
+                    return Response({'comment': _payload(recent_comment, True, parent_data)})
+
+        comment = Comment(
             post=post,
             author=request.user,
             text=text,
-            parent_id=stored_parent_id
-        ).order_by('-created_at')
-        
-        # Nếu đã có bình luận giống hệt trong vòng 30 giây qua, không tạo mới
-        if recent_comments.exists():
-            recent_comment = recent_comments.first()
-            time_diff = (timezone.now() - recent_comment.created_at).total_seconds()
-            
-            if time_diff < 30:  # Kiểm tra 30 giây gần nhất
-                print(f"Detected duplicate comment within {time_diff} seconds")
-                # Lấy parent data nếu có
-                parent_data = None
-                if recent_comment.parent:
-                    parent_data = {
-                        'id': recent_comment.parent.id,
-                        'author_username': recent_comment.parent.author.username
-                    }
-                    
-                # Trả về bình luận hiện có thay vì tạo mới
-                comment_data = {
-                    'id': recent_comment.id,
-                    'text': recent_comment.text,
-                    'author_id': recent_comment.author.id,
-                    'author_username': recent_comment.author.username,
-                    'author_avatar': recent_comment.author.avatar.url if recent_comment.author.avatar else None,
-                    'created_at': recent_comment.created_at.isoformat(),
-                    'likes_count': recent_comment.likes_count,
-                    'parent': parent_data,
-                    'post_id': post_id,
-                    'is_duplicate': True  # Đánh dấu là bình luận trùng lặp
-                }
-                
-                return Response({'comment': comment_data})
-        
-        # Create the comment (always attach to root comment for flat thread)
-        comment = Comment.objects.create(
-            post=post,
-            author=request.user,
-            text=text,
-            parent_id=stored_parent_id
+            parent_id=stored_parent_id,
         )
-        
-        # Update post comments count
+        if image:
+            comment.image = image
+        comment.save()
+
         post.comments_count = post.comments.count()
-        post.save()
-        
-        parent_data = None
-        if root_parent:
-            parent_data = {
-                'id': root_parent.id,
-                'author_username': root_parent.author.username,
-            }
-            if direct_parent and direct_parent.id != root_parent.id:
-                parent_data['reply_to_username'] = direct_parent.author.username
-        
-        # Trả về dữ liệu comment
-        comment_data = {
-            'id': comment.id,
-            'text': comment.text,
-            'author_id': request.user.id,
-            'author_username': request.user.username,
-            'author_avatar': request.user.avatar.url if request.user.avatar else None,
-            'created_at': comment.created_at.isoformat(),
-            'likes_count': 0,
-            'parent': parent_data,
-            'parent_id': stored_parent_id,
-            'post_id': post_id,
-            'is_duplicate': False
-        }
-        
+        post.save(update_fields=['comments_count'])
+
+        parent_data = _build_parent_data(root_parent, direct_parent)
+
         if direct_parent and direct_parent.author != request.user:
             notification = Notification.objects.create(
                 recipient=direct_parent.author,
@@ -482,20 +454,21 @@ def add_comment(request):
                 notification_type='comment_reply',
                 text=f"{request.user.username} đã trả lời bình luận của bạn",
                 post=post,
-                comment=comment
+                comment=comment,
             )
             send_notification_to_websocket(notification)
-        
-        return Response({
-            'comment': comment_data
-        })
+
+        comment = Comment.objects.select_related(
+            'author', 'parent', 'parent__author'
+        ).get(pk=comment.pk)
+
+        return Response({'comment': _payload(comment, False, parent_data)})
     except Exception as e:
         print(f"Error in add_comment: {str(e)}")
         import traceback
         traceback.print_exc()
-        return Response({
-            'error': str(e)
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 @api_view(['POST', 'DELETE'])
 @permission_classes([IsAuthenticated])

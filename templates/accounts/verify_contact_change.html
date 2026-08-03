@@ -1,0 +1,69 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h1 class="h4 mb-2">{{ title }}</h1>
+                    <p class="text-muted mb-2">{{ hint }}</p>
+                    {% if pending_value %}
+                        <p class="mb-4">
+                            <span class="text-muted">{{ pending_label }}:</span>
+                            <strong>{{ pending_value }}</strong>
+                        </p>
+                    {% endif %}
+
+                    <form method="post">
+                        {% csrf_token %}
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                        {% endif %}
+                        <div class="mb-3">
+                            <label class="form-label" for="{{ form.code.id_for_label }}">Mã xác thực</label>
+                            {{ form.code }}
+                            {% if form.code.errors %}
+                                <div class="text-danger small mt-1">{{ form.code.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">Xác nhận</button>
+                        </div>
+                    </form>
+
+                    <form method="post" class="mt-3">
+                        {% csrf_token %}
+                        <button type="submit" name="resend" value="1" class="btn btn-link w-100">Gửi lại mã</button>
+                    </form>
+
+                    <div class="text-center mt-2">
+                        <a href="{% url cancel_url %}" class="text-muted small">Quay lại</a>
+                        ·
+                        <a href="{% url 'accounts:settings' %}?tab=profile#profile" class="text-muted small">Về cài đặt</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+input[type="text"] {
+    letter-spacing: 0.4rem;
+    font-family: monospace;
+}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const input = document.getElementById('{{ form.code.id_for_label }}');
+    if (!input) return;
+    input.addEventListener('input', function() {
+        this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6);
+        if (this.value.length === 6) this.form.submit();
+    });
+});
+</script>
+{% endblock %}

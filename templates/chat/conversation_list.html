@@ -1,10 +1,13 @@
 {% extends 'base/base.html' %}
+{% load i18n %}
 {% load static %}
 
-{% block title %}Tin nhắn{% endblock %}
+{% block title %}{% trans "Tin nhắn" %}{% endblock %}
+
+{% block body_class %} chat-layout{% endblock %}
 
 {% block extra_css %}
-<link href="{% static 'css/chat.css' %}" rel="stylesheet">
+<link href="{% static 'css/chat.css' %}?v=voice-mobile-3" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -12,16 +15,16 @@
   <div class="chat-shell">
     <header class="chat-list-header">
       <div>
-        <h1 class="chat-list-title">Tin nhắn</h1>
+        <h1 class="chat-list-title">{% trans "Tin nhắn" %}</h1>
         <p class="chat-list-subtitle">
           {% if conversations %}
-            {{ conversations|length }} cuộc trò chuyện
+            {% blocktrans count counter=conversations|length %}{{ counter }} cuộc trò chuyện{% plural %}{{ counter }} cuộc trò chuyện{% endblocktrans %}
           {% else %}
-            Chưa có cuộc trò chuyện nào
+            {% trans "Chưa có cuộc trò chuyện nào" %}
           {% endif %}
         </p>
       </div>
-      <a href="{% url 'chat:start_conversation' %}" class="chat-btn-icon chat-btn-primary" title="Trò chuyện mới">
+      <a href="{% url 'chat:start_conversation' %}" class="chat-btn-icon chat-btn-primary" title="{% trans 'Trò chuyện mới' %}">
         <i class="fas fa-edit"></i>
       </a>
     </header>
@@ -29,7 +32,7 @@
     {% if conversations %}
     <div class="chat-search-box">
       <i class="fas fa-search"></i>
-      <input type="search" id="conversationSearch" placeholder="Tìm kiếm cuộc trò chuyện..." autocomplete="off">
+      <input type="search" id="conversationSearch" placeholder="{% trans 'Tìm kiếm cuộc trò chuyện...' %}" autocomplete="off">
     </div>
     {% endif %}
 
@@ -54,25 +57,27 @@
                 <div class="conversation-last-message">
                   {% if conversation.is_blocked %}
                     <span class="text-danger">
-                      <i class="fas fa-ban"></i> Không thể nhắn tin (đã chặn)
+                      <i class="fas fa-ban"></i> {% trans "Không thể nhắn tin (đã chặn)" %}
                     </span>
                   {% else %}
                     {% with last_message=conversation.get_last_message %}
                       {% if last_message %}
                         {% if last_message.sender == request.user %}
-                          <span class="you-prefix">Bạn: </span>
+                          <span class="you-prefix">{% trans "Bạn:" %} </span>
                         {% endif %}
                         {% if last_message.content %}
                           {{ last_message.content|truncatechars:45 }}
                         {% elif last_message.image %}
-                          <i class="far fa-image"></i> Hình ảnh
+                          <i class="far fa-image"></i> {% trans "Hình ảnh" %}
                         {% elif last_message.video %}
-                          <i class="far fa-file-video"></i> Video
+                          <i class="far fa-file-video"></i> {% trans "Video" %}
+                        {% elif last_message.audio %}
+                          <i class="fas fa-microphone"></i> {% trans "Tin nhắn thoại" %}
                         {% elif last_message.document %}
-                          <i class="far fa-file-alt"></i> Tài liệu
+                          <i class="far fa-file-alt"></i> {% trans "Tài liệu" %}
                         {% endif %}
                       {% else %}
-                        <em>Bắt đầu cuộc trò chuyện...</em>
+                        <em>{% trans "Bắt đầu cuộc trò chuyện..." %}</em>
                       {% endif %}
                     {% endwith %}
                   {% endif %}
@@ -81,7 +86,7 @@
             </a>
             <button class="delete-conversation"
                     onclick="deleteConversation({{ conversation.id }}, event)"
-                    title="Xóa cuộc trò chuyện">
+                    title="{% trans 'Xóa cuộc trò chuyện' %}">
               <i class="fas fa-trash-alt"></i>
             </button>
           </div>
@@ -92,10 +97,10 @@
           <div class="no-conversations-icon">
             <i class="far fa-comment-dots"></i>
           </div>
-          <h5>Chưa có tin nhắn nào</h5>
-          <p class="text-muted mb-3">Bắt đầu trò chuyện với bạn bè ngay hôm nay</p>
+          <h5>{% trans "Chưa có tin nhắn nào" %}</h5>
+          <p class="text-muted mb-3">{% trans "Bắt đầu trò chuyện với bạn bè ngay hôm nay" %}</p>
           <a href="{% url 'chat:start_conversation' %}" class="btn btn-primary rounded-pill px-4">
-            <i class="fas fa-plus me-1"></i> Trò chuyện mới
+            <i class="fas fa-plus me-1"></i> {% trans "Trò chuyện mới" %}
           </a>
         </div>
       {% endif %}
@@ -107,15 +112,15 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content border-0 shadow">
       <div class="modal-header border-0 pb-0">
-        <h5 class="modal-title fw-bold">Xóa cuộc trò chuyện</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+        <h5 class="modal-title fw-bold">{% trans "Xóa cuộc trò chuyện" %}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Đóng' %}"></button>
       </div>
       <div class="modal-body text-muted">
-        Bạn có chắc muốn xóa cuộc trò chuyện này? Hành động này không thể hoàn tác.
+        {% trans "Bạn có chắc muốn xóa cuộc trò chuyện này? Hành động này không thể hoàn tác." %}
       </div>
       <div class="modal-footer border-0 pt-0">
-        <button type="button" class="btn btn-light rounded-pill" data-bs-dismiss="modal">Hủy</button>
-        <button type="button" class="btn btn-danger rounded-pill" id="confirmDeleteBtn">Xóa</button>
+        <button type="button" class="btn btn-light rounded-pill" data-bs-dismiss="modal">{% trans "Hủy" %}</button>
+        <button type="button" class="btn btn-danger rounded-pill" id="confirmDeleteBtn">{% trans "Xóa" %}</button>
       </div>
     </div>
   </div>
@@ -150,15 +155,15 @@
             document.getElementById('conversationList').innerHTML = `
               <div class="no-conversations">
                 <div class="no-conversations-icon"><i class="far fa-comment-dots"></i></div>
-                <h5>Chưa có tin nhắn nào</h5>
-                <p class="text-muted mb-3">Bắt đầu trò chuyện với bạn bè ngay hôm nay</p>
+                <h5>{% trans "Chưa có tin nhắn nào" %}</h5>
+                <p class="text-muted mb-3">{% trans "Bắt đầu trò chuyện với bạn bè ngay hôm nay" %}</p>
                 <a href="{% url 'chat:start_conversation' %}" class="btn btn-primary rounded-pill px-4">
-                  <i class="fas fa-plus me-1"></i> Trò chuyện mới
+                  <i class="fas fa-plus me-1"></i> {% trans "Trò chuyện mới" %}
                 </a>
               </div>`;
           }
         })
-        .catch(() => alert('Đã xảy ra lỗi khi xóa cuộc trò chuyện.'));
+        .catch(() => alert("{% filter escapejs %}{% trans 'Đã xảy ra lỗi khi xóa cuộc trò chuyện.' %}{% endfilter %}"));
     };
   }
 

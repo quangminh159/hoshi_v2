@@ -90,14 +90,17 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'accounts.middleware.UserLanguageMiddleware',
     'django_otp.middleware.OTPMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
     'accounts.middleware.AccountStatusMiddleware',
+    'accounts.middleware.TwoFactorPendingMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -116,6 +119,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.i18n',
                 'hoshi.context_processors.common_variables',
             ],
         },
@@ -160,6 +164,18 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
 LANGUAGE_CODE = 'vi'
+
+LANGUAGES = [
+    ('vi', 'Tiếng Việt'),
+    ('en', 'English'),
+    ('ja', '日本語'),
+    ('ko', '한국어'),
+    ('zh-hans', '简体中文'),
+]
+
+LOCALE_PATHS = [
+    BASE_DIR / 'locale',
+]
 
 TIME_ZONE = 'Asia/Ho_Chi_Minh'
 
@@ -232,6 +248,15 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'quangminh159159@gmail.com'
 EMAIL_HOST_PASSWORD = 'vjmioramcpgxfesp'
 DEFAULT_FROM_EMAIL = 'Hoshi <noreply@hoshi.vn>'
+
+# Phone numbers: lưu E.164, hỗ trợ mọi quốc gia qua prefix widget
+PHONENUMBER_DB_FORMAT = 'E164'
+PHONENUMBER_DEFAULT_REGION = None
+
+# Optional Twilio SMS for phone OTP (leave empty to fall back to email)
+TWILIO_ACCOUNT_SID = ''
+TWILIO_AUTH_TOKEN = ''
+TWILIO_FROM_NUMBER = ''
 
 # Crispy Forms
 CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
@@ -382,6 +407,7 @@ LOGGING = {
 # AllAuth settings
 ACCOUNT_SESSION_REMEMBER = True
 ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
+ACCOUNT_ADAPTER = 'accounts.adapters.AccountAdapter'
 
 # Template overrides cho django-allauth
 ACCOUNT_TEMPLATE_EXTENSION = 'html'

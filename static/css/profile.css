@@ -38,6 +38,21 @@ body.profile-layout.bg-light {
     position: relative;
 }
 
+.profile-hero__avatar-btn {
+    display: block;
+    padding: 0;
+    border: none;
+    background: transparent;
+    border-radius: 50%;
+    cursor: zoom-in;
+    line-height: 0;
+}
+
+.profile-hero__avatar-btn:focus-visible {
+    outline: 2px solid var(--profile-accent, #405de6);
+    outline-offset: 3px;
+}
+
 .profile-hero__avatar {
     width: 92px;
     height: 92px;
@@ -46,6 +61,50 @@ body.profile-layout.bg-light {
     display: block;
     background: var(--profile-soft);
     box-shadow: 0 0 0 3px #fff, 0 0 0 4px #e5e5e5;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.profile-hero__avatar-btn:hover .profile-hero__avatar {
+    transform: scale(1.03);
+    box-shadow: 0 0 0 3px #fff, 0 0 0 4px #cfcfcf;
+}
+
+.profile-avatar-modal .modal-content {
+    border: none;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #111;
+    color: #fff;
+}
+
+.profile-avatar-modal .modal-header {
+    background: transparent;
+}
+
+.profile-avatar-modal .modal-title {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.profile-avatar-modal .btn-close {
+    filter: invert(1) grayscale(100%);
+    opacity: 0.85;
+}
+
+.profile-avatar-modal .modal-body {
+    padding: 0.5rem 1rem 1.25rem;
+}
+
+.profile-avatar-modal__img {
+    width: min(72vw, 420px);
+    height: min(72vw, 420px);
+    max-width: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    margin: 0 auto;
+    background: #222;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
 }
 
 .profile-hero__main {

@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from posts.views import home
 from django.views.generic.base import RedirectView
 
@@ -11,9 +11,19 @@ def redirect_legacy_profile(request, username):
     return redirect('accounts:profile', username=username)
 
 
+def terms_of_service(request):
+    return render(request, 'legal/terms.html')
+
+
+def privacy_policy(request):
+    return render(request, 'legal/privacy.html')
+
+
 urlpatterns = [
     path('', home, name='home'),
     path('admin/', admin.site.urls),
+    path('legal/terms/', terms_of_service, name='terms'),
+    path('legal/privacy/', privacy_policy, name='privacy'),
     
     # App URLs
     path('posts/', include('posts.urls')),

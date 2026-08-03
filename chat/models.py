@@ -122,6 +122,7 @@ class ConversationMessage(models.Model):
     image = models.ImageField(upload_to=message_file_path, blank=True, null=True)
     video = models.FileField(upload_to=message_file_path, blank=True, null=True)
     document = models.FileField(upload_to=message_file_path, blank=True, null=True)
+    audio = models.FileField(upload_to=message_file_path, blank=True, null=True)
     file_name = models.CharField(max_length=255, blank=True, null=True)
     file_size = models.IntegerField(blank=True, null=True)
     file_type = models.CharField(max_length=50, blank=True, null=True)
@@ -148,7 +149,7 @@ class ConversationMessage(models.Model):
     
     def has_attachment(self):
         """Kiểm tra xem tin nhắn có đính kèm tệp không"""
-        return bool(self.image or self.video or self.document)
+        return bool(self.image or self.video or self.document or self.audio)
     
     def get_attachment_url(self):
         """Lấy URL của tệp đính kèm"""
@@ -158,6 +159,8 @@ class ConversationMessage(models.Model):
             return self.video.url
         elif self.document:
             return self.document.url
+        elif self.audio:
+            return self.audio.url
         return None
 
     def get_reply_preview(self):
@@ -170,6 +173,8 @@ class ConversationMessage(models.Model):
             return '[Hình ảnh]'
         if self.video:
             return '[Video]'
+        if self.audio:
+            return '[Tin nhắn thoại]'
         if self.document:
             name = self.file_name or 'tài liệu'
             return f'[Tài liệu: {name}]'

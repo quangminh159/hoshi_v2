@@ -21,15 +21,19 @@ class CommentSerializer(serializers.ModelSerializer):
     replies_count = serializers.SerializerMethodField()
     likes_count = serializers.SerializerMethodField()
     is_liked = serializers.SerializerMethodField()
+    image_url = serializers.SerializerMethodField()
     
     class Meta:
         model = Comment
         fields = [
-            'id', 'post', 'author', 'text', 'parent',
+            'id', 'post', 'author', 'text', 'image', 'image_url', 'parent',
             'replies_count', 'likes_count', 'is_liked',
             'created_at', 'updated_at'
         ]
         read_only_fields = ['author']
+
+    def get_image_url(self, obj):
+        return obj.image_url
     
     def get_replies_count(self, obj):
         return obj.replies.count()

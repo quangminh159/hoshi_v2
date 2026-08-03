@@ -1,0 +1,297 @@
+%(count)s bình luận
+%(count)s lượt thích
+%(counter)s cuộc trò chuyện{% plural %}%(counter)s cuộc trò chuyện
+%(time)s trước
+%(username)s chưa theo dõi ai.
+%(username)s đã chia sẻ
+<!DOCTYPE html> <html> <head> <meta charset="UTF-8"> <title>Đặt lại mật khẩu cho %(site_name)s</title> <style type="text/css"> body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background-color: #f9f9f9; margin: 0; padding: 0; } .email-container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1); } .email-header { background-color: #3f51b5; color: white; padding: 20px 30px; text-align: center; } .email-body { padding: 30px; } .email-footer { text-align: center; padding: 20px 30px; background-color: #f5f5f5; font-size: 12px; color: #666; } .button { display: inline-block; background-color: #3f51b5; color: white; text-decoration: none; padding: 12px 25px; border-radius: 4px; font-weight: 500; margin: 20px 0; } .url-fallback { word-break: break-all; margin-top: 15px; font-size: 13px; color: #555; } </style> </head> <body> <div class="email-container"> <div class="email-header"> <h1>%(site_name)s</h1> </div> <div class="email-body"> <h2>Đặt lại mật khẩu của bạn</h2> <p>Chào bạn,</p> <p>Bạn nhận được email này vì bạn hoặc ai đó đã yêu cầu đặt lại mật khẩu cho tài khoản của bạn tại %(site_name)s.</p> <p>Để đặt lại mật khẩu của bạn, vui lòng nhấp vào nút bên dưới:</p> <div style="text-align: center;"> <a href="%(password_reset_url)s" class="button">Đặt lại mật khẩu</a> </div> <p class="url-fallback">Nếu nút không hoạt động, bạn có thể sao chép và dán liên kết này vào trình duyệt: <br>%(password_reset_url)s</p> <p>Nếu bạn không yêu cầu đặt lại mật khẩu, bạn có thể bỏ qua email này - tài khoản của bạn vẫn an toàn.</p> <p>Cảm ơn bạn,<br>Đội ngũ %(site_name)s</p> </div> <div class="email-footer"> <p>© %(site_name)s - %(site_domain)s</p> <p>Email này được gửi tự động, vui lòng không trả lời.</p> </div> </div> </body> </html>
+<strong>Chặn tin nhắn</strong> - Chỉ nhận tin nhắn từ người bạn theo dõi
+<strong>Tài khoản riêng tư</strong> - Chỉ những người theo dõi mới có thể xem bài viết của bạn
+<strong>Ẩn trạng thái hoạt động</strong> - Không hiển thị trạng thái hoạt động của bạn
+Bao gồm hình ảnh và video
+Bài viết
+Báo cáo
+Bình luận
+Bạn chưa chặn người dùng nào.
+Bạn chưa lưu bài viết nào.
+Bạn có chắc chắn muốn bỏ chặn
+Bạn có chắc chắn muốn chặn
+Bạn có chắc chắn muốn hủy liên kết với
+Bạn có chắc chắn muốn hủy theo dõi
+Bạn có chắc chắn muốn xoá bài viết này không?
+Bạn có chắc chắn muốn xóa bài viết này không?
+Bạn có chắc chắn muốn xóa phương tiện này không?
+Bạn có chắc chắn muốn xóa tin nhắn này không?
+Bạn có chắc chắn muốn xóa tài khoản?
+Bạn có chắc chắn muốn đăng xuất khỏi thiết bị này?
+Bạn có chắc muốn xóa cuộc trò chuyện này? Hành động này không thể hoàn tác.
+Bạn có thể chọn nhiều ảnh hoặc video cùng lúc.
+Bạn không có quyền chỉnh sửa bài viết này.
+Bạn không có quyền xóa bài viết này.
+Bạn không có thông báo nào
+Bạn không có thông báo nào.
+Bạn sẽ không thấy bài viết của họ và họ không thể tương tác với bạn.
+Bạn đang nghĩ gì?
+Bạn đã chặn
+Bạn đã xem hết tất cả bài viết
+Bạn:
+Bảng tin
+Bảo mật
+Bắt đầu cuộc trò chuyện...
+Bắt đầu trò chuyện với bạn bè ngay hôm nay
+Bị chặn từ %(date)s
+Bỏ chặn
+Chi tiết cuộc trò chuyện
+Chào mừng trở lại!
+Chính sách bảo mật
+Chưa có ai theo dõi %(username)s.
+Chưa có bài viết nào được chia sẻ.
+Chưa có bài viết nào để hiển thị
+Chưa có bài viết nào.
+Chưa có cuộc trò chuyện nào
+Chưa có tin nhắn
+Chưa có tin nhắn nào
+Chưa có tài khoản mạng xã hội nào được liên kết.
+Chưa có tài khoản?
+Chưa cập nhật
+Chặn
+Chế độ xem bảng tin
+Chỉ hỗ trợ Facebook, Twitter/X, Instagram và LinkedIn.
+Chỉnh sửa
+Chỉnh sửa bài viết
+Chỉnh sửa hồ sơ
+Chọn các tùy chọn quyền riêng tư bằng cách bật/tắt công tắc bên dưới.
+Chọn giới tính
+Chọn lý do
+Chọn mã quốc gia rồi nhập số điện thoại (hỗ trợ mọi quốc gia).
+Chọn ngày sinh của bạn
+Chọn ngôn ngữ hiển thị cho tài khoản của bạn. Tùy chọn này sẽ được lưu và áp dụng mỗi khi bạn đăng nhập.
+Chọn tên người dùng của bạn
+Cài đặt
+Cài đặt bảo mật
+Cài đặt ngôn ngữ
+Cài đặt quyền riêng tư
+Cài đặt thông báo
+Cài đặt tài khoản
+Có lỗi xảy ra khi cập nhật bài viết.
+Có lỗi xảy ra khi tải danh sách người theo dõi.
+Có lỗi xảy ra khi tải danh sách đang theo dõi.
+Có lỗi xảy ra khi xoá bài viết.
+Có lỗi xảy ra khi xóa bài viết.
+Cảm ơn bạn đã báo cáo. Chúng tôi sẽ xem xét nội dung này trong thời gian sớm nhất.
+Cảnh báo
+Dành cho bạn
+Email
+Email / Gmail
+Ghi nhớ đăng nhập
+Giới tính
+Gửi báo cáo
+Gửi lời chào để bắt đầu cuộc trò chuyện
+Gửi tin nhắn
+Gửi tóm tắt hàng ngày
+Home
+Hoshi - Mạng xã hội chia sẻ khoảnh khắc
+Hoạt động %(time)s trước
+Hình ảnh
+Hôm nay
+Hồ sơ
+Hủy
+Hủy liên kết %(name)s
+Khi bật, bạn sẽ cần nhập mã xác thực từ ứng dụng (Google Authenticator, Authy…) mỗi khi đăng nhập.
+Khi có người bình luận bài viết của bạn hoặc trả lời bình luận của bạn
+Khi có người gửi tin nhắn cho bạn
+Khi có người nhắc đến bạn trong bài viết hoặc bình luận
+Khi có người theo dõi bạn
+Khi có người thích bài viết hoặc bình luận của bạn
+Khác
+Khôi phục tài khoản
+Không có thiết bị nào khác đăng nhập vào tài khoản của bạn.
+Không có thiết bị đăng nhập nào được ghi nhận
+Không thể gửi tin nhắn vì một trong hai người đã chặn người còn lại.
+Không thể hủy liên kết tài khoản.
+Không thể nhắn tin (đã chặn)
+Không tìm thấy bài viết.
+Liên kết mạng xã hội
+Liên kết đã được lưu vào Website. Chỉ hỗ trợ Facebook, Twitter/X, Instagram và LinkedIn trong danh sách mạng xã hội.
+Loại thông báo
+Lý do báo cáo
+Lý do xóa tài khoản
+Lưu ngôn ngữ
+Lưu thay đổi
+Lưu thay đổi quyền riêng tư
+Lưu thay đổi thông báo
+Lượt thích
+Lỗi khi tải danh sách người theo dõi
+Lỗi khi tải danh sách đang theo dõi
+Lỗi khi tải lên tệp:
+Lỗi kết nối tới máy chủ. Vui lòng thử lại sau.
+Menu
+Mô tả chi tiết
+Mật khẩu
+Mật khẩu và đăng nhập
+Mục hồ sơ
+Nam
+Ngày sinh
+Ngôn ngữ
+Ngôn ngữ hiển thị
+Người dùng đã bị chặn
+Người theo dõi (%(count)s)
+Nhận email tóm tắt các hoạt động mỗi ngày
+Nhận thông báo ngay cả khi không mở ứng dụng
+Nhận thông báo qua địa chỉ email của bạn
+Nhận thông báo sau 30 ngày không hoạt động
+Nhập lại mật khẩu
+Nhập mật khẩu của bạn
+Nhập mật khẩu hoặc mã xác thực để tắt 2FA:
+Nhập mật khẩu để xác nhận
+Nhập tin nhắn...
+Nhập tên người dùng của bạn
+Nhập địa chỉ email của bạn
+Nhắc đến
+Nhắn tin
+Nhắn tin trực tiếp
+Những người mà %(username)s đang theo dõi
+Những người đang theo dõi %(username)s
+Nội dung
+Nội dung không phù hợp
+Nữ
+Offline
+Phân trang thông báo
+Phương thức nhận thông báo
+Phương tiện hiện tại
+Quay lại
+Quyền riêng tư
+Quên mật khẩu?
+Quản lý cài đặt bảo mật cho tài khoản của bạn. Bật xác thực hai yếu tố để tăng cường bảo mật.
+Quản lý các tài khoản mạng xã hội được liên kết với tài khoản Hoshi của bạn
+Quản lý danh sách người dùng mà bạn đã chặn
+Quấy rối
+Sẵn sàng tải xuống
+Số điện thoại
+Tham gia cộng đồng Hoshi ngay hôm nay
+Theo dõi
+Thiết bị của bạn đã đăng nhập. Bạn có thể đăng xuất khỏi các thiết bị khác từ đây.
+Thiết bị hiện tại
+Thiết bị khác
+Thiết bị đăng nhập
+Thiết lập xác thực hai yếu tố
+Thêm
+Thêm bất kỳ liên kết mạng xã hội nào của bạn
+Thêm ảnh/video mới
+Thông báo
+Thông báo khi không hoạt động
+Thông báo qua email
+Thông báo đẩy
+Thông tin liên hệ (cần xác thực khi đổi)
+Thống kê báo cáo
+Tin nhắn
+Trang chủ
+Trang cá nhân
+Trang sau
+Trang trước
+Trò chuyện mới
+Trả lời
+Tài khoản bị xóa?
+Tài khoản giả mạo
+Tài liệu
+Tên người dùng
+Tên người dùng không hợp lệ
+Tìm kiếm
+Tìm kiếm cuộc trò chuyện...
+Tìm kiếm...
+Tôi hiểu rằng sau 30 ngày tài khoản sẽ bị xóa vĩnh viễn và không thể khôi phục
+Tôi đồng ý với
+Tùy chỉnh cách bạn nhận thông báo từ Hoshi
+Tùy chỉnh thời gian đình chỉ
+Tùy chỉnh thời gian đình chỉ người dùng bị báo cáo
+Tùy chọn thông báo khác
+Tạo bài viết
+Tạo bài viết mới
+Tạo mật khẩu mới
+Tạo tài khoản mới
+Tải xuống
+Tải xuống bản sao dữ liệu của bạn, bao gồm bài viết, bình luận, và thông tin cá nhân.
+Tải xuống dữ liệu
+Tắt bình luận
+Tắt xác thực hai yếu tố
+Video
+Việc xóa tài khoản là <strong>tạm thời</strong> trong vòng 30 ngày. Trong thời gian này, bạn có thể khôi phục lại tài khoản bằng cách đăng nhập lại hoặc sử dụng trang <a href="%(restore_url)s" class="alert-link">khôi phục tài khoản</a>. Sau 30 ngày, tài khoản và tất cả dữ liệu sẽ bị xóa vĩnh viễn.
+Vui lòng chọn lý do báo cáo.
+Vui lòng cung cấp thêm thông tin...
+Xem bài viết gốc
+Xem chi tiết
+Xem thống kê báo cáo
+Xem tất cả thông báo
+Xem ảnh
+Xác nhận mật khẩu
+Xác thực hai yếu tố
+Xác thực hai yếu tố đang <strong>bật</strong>. Bạn sẽ cần mã từ ứng dụng xác thực mỗi khi đăng nhập.
+Xóa
+Xóa bài viết
+Xóa cuộc trò chuyện
+Xóa tài khoản
+Xóa ảnh đại diện hiện tại
+Yêu cầu của bạn đã được ghi nhận.
+Yêu cầu gần đây
+Yêu cầu tải xuống
+bài viết
+của Hoshi
+hoặc tiếp tục với
+hoặc đăng ký với
+lượt thích
+người theo dõi
+thành công.
+thông báo chưa đọc
+và
+Đang hoạt động
+Đang lưu...
+Đang theo dõi
+Đang theo dõi (%(count)s)
+Đang trả lời
+Đang tải bài viết...
+Đang tải...
+Đang xử lý
+Đang xử lý...
+Điều hướng nhanh
+Điều khoản sử dụng
+Đánh dấu tất cả là đã đọc
+Đã bỏ chặn
+Đã chia sẻ
+Đã có tài khoản?
+Đã cập nhật bài viết thành công!
+Đã hết hạn
+Đã hủy liên kết
+Đã lưu
+Đã thích
+Đã xóa bài viết thành công!
+Đã xảy ra lỗi khi bỏ chặn người dùng.
+Đã xảy ra lỗi khi chặn người dùng.
+Đã xảy ra lỗi khi chặn người dùng. Vui lòng thử lại sau.
+Đã xảy ra lỗi khi gửi báo cáo.
+Đã xảy ra lỗi khi gửi báo cáo. Vui lòng thử lại sau.
+Đã xảy ra lỗi khi gửi yêu cầu.
+Đã xảy ra lỗi khi hủy liên kết.
+Đã xảy ra lỗi khi thực hiện thao tác. Vui lòng thử lại sau.
+Đã xảy ra lỗi khi xóa cuộc trò chuyện.
+Đã xảy ra lỗi khi đăng xuất thiết bị.
+Đóng
+Đăng ký
+Đăng ký ngay
+Đăng ký với Google
+Đăng nhập
+Đăng nhập bằng mạng xã hội
+Đăng nhập ngay
+Đăng nhập với Google
+Đăng nhập để tiếp tục với Hoshi
+Đăng xuất
+Đảm bảo sử dụng mật khẩu mạnh và không sử dụng lại ở các trang web khác
+Địa điểm
+Đổi
+Đổi SĐT sẽ gửi mã xác thực về số hiện tại (hoặc email nếu SMS không khả dụng).
+Đổi email sẽ gửi mã xác thực về email hiện tại.
+Đổi mật khẩu
+đang nhập...
+đang theo dõi
+Ảnh
+Ảnh đầy đủ
+Ẩn lượt thích

@@ -3,7 +3,7 @@
 {% load static %}
 {% load crispy_forms_tags %}
 
-{% block title %}Cài đặt tài khoản - {{ block.super }}{% endblock %}
+{% block title %}{% trans "Cài đặt tài khoản" %} - {{ block.super }}{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -60,6 +60,49 @@
         color: #0d6efd;
         border-bottom: 2px solid #0d6efd;
         padding-bottom: 0.5rem;
+    }
+
+    .language-options {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 0.75rem;
+    }
+
+    .language-option-card {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.9rem 1rem;
+        border: 1px solid #dee2e6;
+        border-radius: 0.75rem;
+        background: #fff;
+        cursor: pointer;
+        margin: 0;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .language-option-card:hover {
+        border-color: #0d6efd;
+    }
+
+    .language-option-card.selected,
+    .language-option-card:has(input:checked) {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.15);
+        background: #f0f7ff;
+    }
+
+    .language-option-card input {
+        margin: 0;
+    }
+
+    .language-flag {
+        font-size: 1.35rem;
+        line-height: 1;
+    }
+
+    .language-label {
+        font-weight: 500;
     }
     
     .avatar-upload {
@@ -295,35 +338,39 @@
                 <nav class="settings-nav nav flex-column">
                     <a class="nav-link {% if active_tab == 'profile' %}active{% endif %}" 
                        href="#profile" data-tab="profile">
-                        <i class="fas fa-user me-2"></i>Chỉnh sửa hồ sơ
+                        <i class="fas fa-user me-2"></i>{% trans "Chỉnh sửa hồ sơ" %}
                     </a>
                     <a class="nav-link {% if active_tab == 'password' %}active{% endif %}" 
                        href="#password" data-tab="password">
-                        <i class="fas fa-lock me-2"></i>Đổi mật khẩu
+                        <i class="fas fa-lock me-2"></i>{% trans "Đổi mật khẩu" %}
                     </a>
                     <a class="nav-link {% if active_tab == 'notifications' %}active{% endif %}" 
                        href="#notifications" data-tab="notifications">
-                        <i class="fas fa-bell me-2"></i>Thông báo
+                        <i class="fas fa-bell me-2"></i>{% trans "Thông báo" %}
                     </a>
                     <a class="nav-link {% if active_tab == 'privacy' %}active{% endif %}" 
                        href="#privacy" data-tab="privacy">
-                        <i class="fas fa-shield-alt me-2"></i>Quyền riêng tư
+                        <i class="fas fa-shield-alt me-2"></i>{% trans "Quyền riêng tư" %}
+                    </a>
+                    <a class="nav-link {% if active_tab == 'language' %}active{% endif %}"
+                       href="#language" data-tab="language">
+                        <i class="fas fa-globe me-2"></i>{% trans "Ngôn ngữ" %}
                     </a>
                     <a class="nav-link {% if active_tab == 'security' %}active{% endif %}" 
                        href="#security" data-tab="security">
-                        <i class="fas fa-fingerprint me-2"></i>Bảo mật
+                        <i class="fas fa-fingerprint me-2"></i>{% trans "Bảo mật" %}
                     </a>
                     <a class="nav-link {% if active_tab == 'devices' %}active{% endif %}" 
                        href="#devices" data-tab="devices">
-                        <i class="fas fa-mobile-alt me-2"></i>Thiết bị đăng nhập
+                        <i class="fas fa-mobile-alt me-2"></i>{% trans "Thiết bị đăng nhập" %}
                     </a>
                     <a class="nav-link {% if active_tab == 'data' %}active{% endif %}" 
                        href="#data" data-tab="data">
-                        <i class="fas fa-download me-2"></i>Tải xuống dữ liệu
+                        <i class="fas fa-download me-2"></i>{% trans "Tải xuống dữ liệu" %}
                     </a>
                     <a class="nav-link text-danger {% if active_tab == 'delete' %}active{% endif %}" 
                        href="#delete" data-tab="delete">
-                        <i class="fas fa-trash-alt me-2"></i>Xóa tài khoản
+                        <i class="fas fa-trash-alt me-2"></i>{% trans "Xóa tài khoản" %}
                     </a>
                 </nav>
             </div>
@@ -334,7 +381,7 @@
             <div class="settings-main">
                 <!-- Profile Section -->
                 <div class="settings-section" id="profile">
-                    <h4 class="mb-4">Chỉnh sửa hồ sơ</h4>
+                    <h4 class="mb-4">{% trans "Chỉnh sửa hồ sơ" %}</h4>
                     
                     <form method="post" enctype="multipart/form-data">
                         {% csrf_token %}
@@ -362,7 +409,7 @@
                             <div class="form-check">
                                 {{ profile_form.remove_avatar }}
                                 <label class="form-check-label" for="id_remove_avatar">
-                                    Xóa ảnh đại diện hiện tại
+                                    {% trans "Xóa ảnh đại diện hiện tại" %}
                                 </label>
                             </div>
                         </div>
@@ -379,16 +426,47 @@
                         <div class="mb-3">
                             {{ profile_form.username|as_crispy_field }}
                         </div>
-                        
-                        <div class="mb-3">
-                            {{ profile_form.email|as_crispy_field }}
+
+                        <div class="card mb-4 border-0 bg-light">
+                            <div class="card-body">
+                                <h6 class="mb-3">{% trans "Thông tin liên hệ " %}</h6>
+                                <div class="mb-3">
+                                    <label class="form-label">{% trans "Email / Gmail" %}</label>
+                                    <div class="input-group">
+                                        <input type="email" class="form-control" value="{{ user.email }}" readonly>
+                                        <a href="{% url 'accounts:change_email' %}" class="btn btn-outline-primary">
+                                            <i class="fas fa-pen me-1"></i>{% trans "Đổi" %}
+                                        </a>
+                                    </div>
+                                    <div class="form-text">{% trans "Đổi email sẽ gửi mã xác thực về email hiện tại." %}</div>
+                                </div>
+                                <div class="mb-0">
+                                    <label class="form-label">{% trans "Số điện thoại" %}</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" value="{% if user.phone_number %}{{ user.phone_number }}{% else %}{% trans 'Chưa cập nhật' %}{% endif %}" readonly>
+                                        <a href="{% url 'accounts:change_phone' %}" class="btn btn-outline-primary">
+                                            <i class="fas fa-pen me-1"></i>{% trans "Đổi" %}
+                                        </a>
+                                    </div>
+                                    <div class="form-text">{% trans "Đổi SĐT sẽ gửi mã xác thực về số hiện tại (hoặc email nếu SMS không khả dụng)." %}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ profile_form.birth_date|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ profile_form.gender|as_crispy_field }}
+                            </div>
                         </div>
                         
                         <div class="mb-3">
                             {{ profile_form.bio|as_crispy_field }}
                         </div>
                         
-                        <h5 class="mb-3 mt-4">Liên kết mạng xã hội</h5>
+                        <h5 class="mb-3 mt-4">{% trans "Liên kết mạng xã hội" %}</h5>
                         
                         <div class="card mb-4">
                             <div class="card-body">
@@ -400,7 +478,7 @@
                                     <span class="input-group-text bg-light">
                                         <i class="fas fa-link"></i>
                                     </span>
-                                    <input type="text" class="form-control" id="socialLink" placeholder="Thêm bất kỳ liên kết mạng xã hội nào của bạn">
+                                    <input type="text" class="form-control" id="socialLink" placeholder="{% trans 'Thêm bất kỳ liên kết mạng xã hội nào của bạn' %}">
                                     <button class="btn btn-outline-primary" type="button" id="addSocialBtn">
                                         <i class="fas fa-plus"></i>
                                     </button>
@@ -455,14 +533,14 @@
                         </div>
                         
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save me-2"></i>Lưu thay đổi
+                            <i class="fas fa-save me-2"></i>{% trans "Lưu thay đổi" %}
                         </button>
                     </form>
                 </div>
                 
                 <!-- Password Section -->
                 <div class="settings-section" id="password">
-                    <h4 class="mb-4">Đổi mật khẩu</h4>
+                    <h4 class="mb-4">{% trans "Đổi mật khẩu" %}</h4>
                     
                     <form method="post">
                         {% csrf_token %}
@@ -481,18 +559,18 @@
                         </div>
                         
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-key me-2"></i>Đổi mật khẩu
+                            <i class="fas fa-key me-2"></i>{% trans "Đổi mật khẩu" %}
                         </button>
                     </form>
                 </div>
                 
                 <!-- Notifications Section -->
                 <div class="settings-section notification-section" id="notifications">
-                    <h4 class="mb-4 text-primary">Cài đặt thông báo</h4>
+                    <h4 class="mb-4 text-primary">{% trans "Cài đặt thông báo" %}</h4>
                     
                     <div class="alert alert-info mb-4">
                         <i class="fas fa-info-circle me-2"></i>
-                        Tùy chỉnh cách bạn nhận thông báo từ Hoshi
+                        {% trans "Tùy chỉnh cách bạn nhận thông báo từ Hoshi" %}
                     </div>
                     
                     <form method="post">
@@ -501,14 +579,14 @@
                         
                         <div class="card mb-4">
                             <div class="card-header bg-light">
-                                <h5 class="mb-0">Phương thức nhận thông báo</h5>
+                                <h5 class="mb-0">{% trans "Phương thức nhận thông báo" %}</h5>
                             </div>
                             <div class="card-body">
                                 <div class="mb-4">
                                     <div class="d-flex justify-content-between align-items-center mb-3">
                                         <div>
-                                            <h6 class="mb-0">Thông báo đẩy</h6>
-                                            <p class="text-muted small mb-0">Nhận thông báo ngay cả khi không mở ứng dụng</p>
+                                            <h6 class="mb-0">{% trans "Thông báo đẩy" %}</h6>
+                                            <p class="text-muted small mb-0">{% trans "Nhận thông báo ngay cả khi không mở ứng dụng" %}</p>
                                         </div>
                                         <div class="form-check form-switch">
                                             {{ notification_form.push_notifications }}
@@ -520,8 +598,8 @@
                                 <div class="mb-4">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
-                                            <h6 class="mb-0">Thông báo qua email</h6>
-                                            <p class="text-muted small mb-0">Nhận thông báo qua địa chỉ email của bạn</p>
+                                            <h6 class="mb-0">{% trans "Thông báo qua email" %}</h6>
+                                            <p class="text-muted small mb-0">{% trans "Nhận thông báo qua địa chỉ email của bạn" %}</p>
                                         </div>
                                         <div class="form-check form-switch">
                                             {{ notification_form.email_notifications }}
@@ -534,14 +612,14 @@
                         
                         <div class="card mb-4">
                             <div class="card-header bg-light">
-                                <h5 class="mb-0">Loại thông báo</h5>
+                                <h5 class="mb-0">{% trans "Loại thông báo" %}</h5>
                             </div>
                             <div class="card-body">
                                 <div class="mb-4">
                                     <div class="d-flex justify-content-between align-items-center mb-3">
                                         <div>
-                                            <h6 class="mb-0">Lượt thích</h6>
-                                            <p class="text-muted small mb-0">Khi có người thích bài viết hoặc bình luận của bạn</p>
+                                            <h6 class="mb-0">{% trans "Lượt thích" %}</h6>
+                                            <p class="text-muted small mb-0">{% trans "Khi có người thích bài viết hoặc bình luận của bạn" %}</p>
                                         </div>
                                         <div class="form-check form-switch">
                                             {{ notification_form.like_notifications }}
@@ -553,8 +631,8 @@
                                 <div class="mb-4">
                                     <div class="d-flex justify-content-between align-items-center mb-3">
                                         <div>
-                                            <h6 class="mb-0">Bình luận</h6>
-                                            <p class="text-muted small mb-0">Khi có người bình luận bài viết của bạn hoặc trả lời bình luận của bạn</p>
+                                            <h6 class="mb-0">{% trans "Bình luận" %}</h6>
+                                            <p class="text-muted small mb-0">{% trans "Khi có người bình luận bài viết của bạn hoặc trả lời bình luận của bạn" %}</p>
                                         </div>
                                         <div class="form-check form-switch">
                                             {{ notification_form.comment_notifications }}
@@ -566,8 +644,8 @@
                                 <div class="mb-4">
                                     <div class="d-flex justify-content-between align-items-center mb-3">
                                         <div>
-                                            <h6 class="mb-0">Theo dõi</h6>
-                                            <p class="text-muted small mb-0">Khi có người theo dõi bạn</p>
+                                            <h6 class="mb-0">{% trans "Theo dõi" %}</h6>
+                                            <p class="text-muted small mb-0">{% trans "Khi có người theo dõi bạn" %}</p>
                                         </div>
                                         <div class="form-check form-switch">
                                             {{ notification_form.follow_notifications }}
@@ -579,8 +657,8 @@
                                 <div class="mb-4">
                                     <div class="d-flex justify-content-between align-items-center mb-3">
                                         <div>
-                                            <h6 class="mb-0">Nhắc đến</h6>
-                                            <p class="text-muted small mb-0">Khi có người nhắc đến bạn trong bài viết hoặc bình luận</p>
+                                            <h6 class="mb-0">{% trans "Nhắc đến" %}</h6>
+                                            <p class="text-muted small mb-0">{% trans "Khi có người nhắc đến bạn trong bài viết hoặc bình luận" %}</p>
                                         </div>
                                         <div class="form-check form-switch">
                                             {{ notification_form.mention_notifications }}
@@ -592,8 +670,8 @@
                                 <div class="mb-3">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
-                                            <h6 class="mb-0">Tin nhắn</h6>
-                                            <p class="text-muted small mb-0">Khi có người gửi tin nhắn cho bạn</p>
+                                            <h6 class="mb-0">{% trans "Tin nhắn" %}</h6>
+                                            <p class="text-muted small mb-0">{% trans "Khi có người gửi tin nhắn cho bạn" %}</p>
                                         </div>
                                         <div class="form-check form-switch">
                                             {{ notification_form.message_notifications }}
@@ -606,40 +684,46 @@
                         
                         <div class="card mb-4">
                             <div class="card-header bg-light">
-                                <h5 class="mb-0">Tùy chọn thông báo khác</h5>
+                                <h5 class="mb-0">{% trans "Tùy chọn thông báo khác" %}</h5>
                             </div>
                             <div class="card-body">
-                                <div class="form-check mb-3">
-                                    <input class="form-check-input" type="checkbox" id="summaryNotifications" name="summary_notifications" {% if notification_settings.summary %}checked{% endif %}>
-                                    <label class="form-check-label" for="summaryNotifications">
-                                        <strong>Gửi tóm tắt hàng ngày</strong>
-                                        <div class="text-muted small">Nhận email tóm tắt các hoạt động mỗi ngày</div>
-                                    </label>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div>
+                                        <h6 class="mb-0">{% trans "Gửi tóm tắt hàng ngày" %}</h6>
+                                        <p class="text-muted small mb-0">{% trans "Nhận email tóm tắt các hoạt động mỗi ngày" %}</p>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        {{ notification_form.summary_notifications }}
+                                        <label class="form-check-label" for="{{ notification_form.summary_notifications.id_for_label }}"></label>
+                                    </div>
                                 </div>
-                                
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="inactiveNotifications" name="inactive_notifications" {% if notification_settings.inactive %}checked{% endif %}>
-                                    <label class="form-check-label" for="inactiveNotifications">
-                                        <strong>Thông báo khi không hoạt động</strong>
-                                        <div class="text-muted small">Nhận thông báo sau 30 ngày không hoạt động</div>
-                                    </label>
+
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-0">{% trans "Thông báo khi không hoạt động" %}</h6>
+                                        <p class="text-muted small mb-0">{% trans "Nhận thông báo sau 30 ngày không hoạt động" %}</p>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        {{ notification_form.inactive_notifications }}
+                                        <label class="form-check-label" for="{{ notification_form.inactive_notifications.id_for_label }}"></label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         
                         <button type="submit" class="btn btn-primary btn-lg w-100">
-                            <i class="fas fa-save me-2"></i>Lưu thay đổi thông báo
+                            <i class="fas fa-save me-2"></i>{% trans "Lưu thay đổi thông báo" %}
                         </button>
                     </form>
                 </div>
                 
                 <!-- Privacy Section -->
                 <div class="settings-section privacy-section" id="privacy">
-                    <h4 class="mb-4 text-primary">Cài đặt quyền riêng tư</h4>
+                    <h4 class="mb-4 text-primary">{% trans "Cài đặt quyền riêng tư" %}</h4>
                     
                     <div class="alert alert-info mb-4">
                         <i class="fas fa-info-circle me-2"></i>
-                        Chọn các tùy chọn quyền riêng tư bằng cách bật/tắt công tắc bên dưới.
+                        {% trans "Chọn các tùy chọn quyền riêng tư bằng cách bật/tắt công tắc bên dưới." %}
                     </div>
                     
                     <form method="post" action="{% url 'accounts:settings' %}">
@@ -648,14 +732,14 @@
                         
                         <div class="card mb-4">
                             <div class="card-header bg-light">
-                                <h5 class="mb-0">Cài đặt tài khoản</h5>
+                                <h5 class="mb-0">{% trans "Cài đặt tài khoản" %}</h5>
                             </div>
                             <div class="card-body">
                                 <div class="mb-3">
                                     <div class="form-check form-switch">
                                         {{ privacy_form.private_account }}
                                         <label class="form-check-label" for="privateAccount">
-                                            <strong>Tài khoản riêng tư</strong> - Chỉ những người theo dõi mới có thể xem bài viết của bạn
+                                            {% blocktrans %}<strong>Tài khoản riêng tư</strong> - Chỉ những người theo dõi mới có thể xem bài viết của bạn{% endblocktrans %}
                                         </label>
                                     </div>
                                 </div>
@@ -664,7 +748,7 @@
                                     <div class="form-check form-switch">
                                         {{ privacy_form.hide_activity }}
                                         <label class="form-check-label" for="hideActivity">
-                                            <strong>Ẩn trạng thái hoạt động</strong> - Không hiển thị trạng thái hoạt động của bạn
+                                            {% blocktrans %}<strong>Ẩn trạng thái hoạt động</strong> - Không hiển thị trạng thái hoạt động của bạn{% endblocktrans %}
                                         </label>
                                     </div>
                                 </div>
@@ -673,7 +757,7 @@
                                     <div class="form-check form-switch">
                                         {{ privacy_form.block_messages }}
                                         <label class="form-check-label" for="blockMessages">
-                                            <strong>Chặn tin nhắn</strong> - Chỉ nhận tin nhắn từ người bạn theo dõi
+                                            {% blocktrans %}<strong>Chặn tin nhắn</strong> - Chỉ nhận tin nhắn từ người bạn theo dõi{% endblocktrans %}
                                         </label>
                                     </div>
                                 </div>
@@ -683,11 +767,11 @@
                         <!-- Danh sách người dùng đã bị chặn -->
                         <div class="card mb-4">
                             <div class="card-header bg-light">
-                                <h5 class="mb-0">Người dùng đã bị chặn</h5>
+                                <h5 class="mb-0">{% trans "Người dùng đã bị chặn" %}</h5>
                             </div>
                             <div class="card-body">
                                 <p class="card-text text-muted mb-3">
-                                    Quản lý danh sách người dùng mà bạn đã chặn
+                                    {% trans "Quản lý danh sách người dùng mà bạn đã chặn" %}
                                 </p>
                                 
                                 {% if blocked_users %}
@@ -699,126 +783,176 @@
                                                      class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">
                                                 <div>
                                                     <h6 class="mb-0">{{ blocked_user.blocked.username }}</h6>
-                                                    <small class="text-muted">Bị chặn từ {{ blocked_user.created_at|date:"d/m/Y" }}</small>
+                                                    <small class="text-muted">{% blocktrans with date=blocked_user.created_at|date:'d/m/Y' %}Bị chặn từ {{ date }}{% endblocktrans %}</small>
                                                 </div>
                                             </div>
                                             <a href="#" onclick="unblockUser({{ blocked_user.blocked.id }}, '{{ blocked_user.blocked.username }}'); return false;" class="btn btn-sm btn-outline-danger">
-                                                <i class="fas fa-user-times me-1"></i> Bỏ chặn
+                                                <i class="fas fa-user-times me-1"></i> {% trans "Bỏ chặn" %}
                                             </a>
                                         </div>
                                         {% endfor %}
                                     </div>
                                 {% else %}
                                     <div class="alert alert-info">
-                                        Bạn chưa chặn người dùng nào.
+                                        {% trans "Bạn chưa chặn người dùng nào." %}
                                     </div>
                                 {% endif %}
                             </div>
                         </div>
                         
                         <button type="submit" class="btn btn-primary btn-lg w-100">
-                            <i class="fas fa-save me-2"></i>Lưu thay đổi quyền riêng tư
+                            <i class="fas fa-save me-2"></i>{% trans "Lưu thay đổi quyền riêng tư" %}
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Language Section -->
+                <div class="settings-section privacy-section" id="language">
+                    <h4 class="mb-4 text-primary">{% trans "Cài đặt ngôn ngữ" %}</h4>
+
+                    <div class="alert alert-info mb-4">
+                        <i class="fas fa-info-circle me-2"></i>
+                        {% trans "Chọn ngôn ngữ hiển thị cho tài khoản của bạn. Tùy chọn này sẽ được lưu và áp dụng mỗi khi bạn đăng nhập." %}
+                    </div>
+
+                    <form method="post" action="{% url 'accounts:settings' %}?tab=language">
+                        {% csrf_token %}
+                        <input type="hidden" name="update_language" value="1">
+
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">{% trans "Ngôn ngữ hiển thị" %}</h5>
+                            </div>
+                            <div class="card-body">
+                                {% if language_form.language.errors %}
+                                    <div class="alert alert-danger">{{ language_form.language.errors }}</div>
+                                {% endif %}
+                                <div class="language-options">
+                                    {% for value, label in language_form.language.field.choices %}
+                                        <label class="language-option-card {% if language_form.language.value == value %}selected{% endif %}">
+                                            <input type="radio"
+                                                   name="language"
+                                                   value="{{ value }}"
+                                                   class="form-check-input"
+                                                   id="lang_{{ value }}"
+                                                   {% if language_form.language.value == value %}checked{% endif %}>
+                                            <span class="language-flag">
+                                                {% if value == 'vi' %}🇻🇳
+                                                {% elif value == 'en' %}🇺🇸
+                                                {% elif value == 'ja' %}🇯🇵
+                                                {% elif value == 'ko' %}🇰🇷
+                                                {% elif value == 'zh-hans' %}🇨🇳
+                                                {% else %}🌐{% endif %}
+                                            </span>
+                                            <span class="language-label">{{ label }}</span>
+                                        </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100">
+                            <i class="fas fa-save me-2"></i>{% trans "Lưu ngôn ngữ" %}
                         </button>
                     </form>
                 </div>
                 
                 <!-- Security Section -->
                 <div class="settings-section security-section" id="security">
-                    <h4 class="mb-4 text-primary">Cài đặt bảo mật</h4>
+                    <h4 class="mb-4 text-primary">{% trans "Cài đặt bảo mật" %}</h4>
                     
                     <div class="alert alert-info mb-4">
                         <i class="fas fa-info-circle me-2"></i>
-                        Quản lý cài đặt bảo mật cho tài khoản của bạn. Bật xác thực hai yếu tố để tăng cường bảo mật.
+                        {% trans "Quản lý cài đặt bảo mật cho tài khoản của bạn. Bật xác thực hai yếu tố để tăng cường bảo mật." %}
                     </div>
                     
-                    <form method="post" action="{% url 'accounts:settings' %}">
-                        {% csrf_token %}
-                        <input type="hidden" name="update_security" value="1">
-                    
-                        <div class="card mb-4">
-                            <div class="card-header bg-light">
-                                <h5 class="mb-0">Xác thực hai yếu tố</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="mb-3">
-                                    <div class="form-check form-switch">
-                                        {{ security_form.two_factor_auth }}
-                                        <label class="form-check-label" for="twoFactor">
-                                            <strong>Bảo vệ tài khoản bằng mã xác thực</strong> - Cung cấp lớp bảo mật bổ sung cho tài khoản của bạn
-                                        </label>
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">{% trans "Xác thực hai yếu tố" %}</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if two_factor_enabled %}
+                                <div class="alert alert-success mb-3">
+                                    <i class="fas fa-shield-alt me-2"></i>
+                                    {% blocktrans %}Xác thực hai yếu tố đang <strong>bật</strong>. Bạn sẽ cần mã từ ứng dụng xác thực mỗi khi đăng nhập.{% endblocktrans %}
+                                </div>
+                                <form method="post" action="{% url 'accounts:settings' %}?tab=security">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="disable_two_factor" value="1">
+                                    <p class="text-muted small">{% trans "Nhập mật khẩu hoặc mã xác thực để tắt 2FA:" %}</p>
+                                    {% if disable_2fa_form.non_field_errors %}
+                                        <div class="alert alert-danger">{{ disable_2fa_form.non_field_errors }}</div>
+                                    {% endif %}
+                                    <div class="mb-3">
+                                        {{ disable_2fa_form.password }}
                                     </div>
-                                    <p class="text-muted small mb-0 mt-2">Khi bật, bạn sẽ cần nhập mã xác thực từ ứng dụng xác thực mỗi khi đăng nhập.</p>
-                                </div>
-                                
-                                {% if not security_form.two_factor_auth.value %}
-                                    <button type="button" 
-                                            class="btn btn-outline-primary mt-3"
-                                            onclick="setupTwoFactor()">
-                                        <i class="fas fa-shield-alt me-2"></i>Thiết lập xác thực hai yếu tố
+                                    <div class="mb-3">
+                                        {{ disable_2fa_form.code }}
+                                    </div>
+                                    <button type="submit" class="btn btn-outline-danger">
+                                        <i class="fas fa-times me-2"></i>{% trans "Tắt xác thực hai yếu tố" %}
                                     </button>
-                                {% endif %}
-                            </div>
-                        </div>
-                        
-                        <div class="card mb-4">
-                            <div class="card-header bg-light">
-                                <h5 class="mb-0">Đăng nhập bằng mạng xã hội</h5>
-                            </div>
-                            <div class="card-body">
-                                <p class="text-muted mb-3">Quản lý các tài khoản mạng xã hội được liên kết với tài khoản Hoshi của bạn</p>
-                                
-                                <div class="d-flex flex-wrap gap-2">
-                                    <button type="button" 
-                                            class="btn btn-outline-danger"
-                                            onclick="unlinkSocial('google')">
-                                        <i class="fab fa-google me-2"></i>Hủy liên kết Google
-                                    </button>
-                                    <button type="button" 
-                                            class="btn btn-outline-primary"
-                                            onclick="unlinkSocial('facebook')">
-                                        <i class="fab fa-facebook me-2"></i>Hủy liên kết Facebook
-                                    </button>
-                                    <button type="button" 
-                                            class="btn btn-outline-dark"
-                                            onclick="unlinkSocial('apple')">
-                                        <i class="fab fa-apple me-2"></i>Hủy liên kết Apple
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="card mb-4">
-                            <div class="card-header bg-light">
-                                <h5 class="mb-0">Mật khẩu và đăng nhập</h5>
-                            </div>
-                            <div class="card-body">
-                                <p class="text-muted mb-3">Đảm bảo sử dụng mật khẩu mạnh và không sử dụng lại ở các trang web khác</p>
-                                
-                                <a href="#password" class="btn btn-outline-primary" data-tab="password">
-                                    <i class="fas fa-key me-2"></i>Đổi mật khẩu
+                                </form>
+                            {% else %}
+                                <p class="text-muted mb-3">
+                                    {% trans "Khi bật, bạn sẽ cần nhập mã xác thực từ ứng dụng (Google Authenticator, Authy…) mỗi khi đăng nhập." %}
+                                </p>
+                                <a href="{% url 'accounts:setup_two_factor' %}" class="btn btn-outline-primary">
+                                    <i class="fas fa-shield-alt me-2"></i>{% trans "Thiết lập xác thực hai yếu tố" %}
                                 </a>
-                            </div>
+                            {% endif %}
                         </div>
-                        
-                        <button type="submit" class="btn btn-primary btn-lg w-100">
-                            <i class="fas fa-save me-2"></i>Lưu thay đổi bảo mật
-                        </button>
-                    </form>
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">{% trans "Đăng nhập bằng mạng xã hội" %}</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted mb-3">{% trans "Quản lý các tài khoản mạng xã hội được liên kết với tài khoản Hoshi của bạn" %}</p>
+                            
+                            {% if linked_social %}
+                                <div class="d-flex flex-wrap gap-2">
+                                    {% for provider in linked_social %}
+                                        <button type="button"
+                                                class="btn btn-outline-danger"
+                                                onclick="unlinkSocial('{{ provider }}')">
+                                            <i class="fab fa-{{ provider }} me-2"></i>{% blocktrans with name=provider|title %}Hủy liên kết {{ name }}{% endblocktrans %}
+                                        </button>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-muted mb-0">{% trans "Chưa có tài khoản mạng xã hội nào được liên kết." %}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">{% trans "Mật khẩu và đăng nhập" %}</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted mb-3">{% trans "Đảm bảo sử dụng mật khẩu mạnh và không sử dụng lại ở các trang web khác" %}</p>
+                            <a href="#password" class="btn btn-outline-primary" data-tab="password">
+                                <i class="fas fa-key me-2"></i>{% trans "Đổi mật khẩu" %}
+                            </a>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- Devices Section -->
                 <div class="settings-section security-section" id="devices">
-                    <h4 class="mb-4 text-primary">Thiết bị đăng nhập</h4>
+                    <h4 class="mb-4 text-primary">{% trans "Thiết bị đăng nhập" %}</h4>
                     
                     <div class="alert alert-info mb-4">
                         <i class="fas fa-info-circle me-2"></i>
-                        Thiết bị của bạn đã đăng nhập. Bạn có thể đăng xuất khỏi các thiết bị khác từ đây.
+                        {% trans "Thiết bị của bạn đã đăng nhập. Bạn có thể đăng xuất khỏi các thiết bị khác từ đây." %}
                     </div>
                     
                     {% if devices %}
                         <div class="card mb-4">
                             <div class="card-header bg-light">
-                                <h5 class="mb-0">Thiết bị hiện tại</h5>
+                                <h5 class="mb-0">{% trans "Thiết bị hiện tại" %}</h5>
                             </div>
                             <div class="card-body">
                                 {% for device in devices %}
@@ -833,11 +967,11 @@
                                                 <small>
                                                     <i class="fas fa-map-marker-alt me-1"></i>{{ device.ip_address }}
                                                     <span class="mx-2">•</span>
-                                                    <i class="fas fa-clock me-1"></i>{{ device.last_active|timesince }} trước
+                                                    <i class="fas fa-clock me-1"></i>{% blocktrans with time=device.last_active|timesince %}{{ time }} trước{% endblocktrans %}
                                                 </small>
                                             </p>
                                             <span class="badge bg-success mt-2">
-                                                <i class="fas fa-circle me-1"></i>Thiết bị hiện tại
+                                                <i class="fas fa-circle me-1"></i>{% trans "Thiết bị hiện tại" %}
                                             </span>
                                         </div>
                                     </div>
@@ -848,7 +982,7 @@
                         
                         <div class="card mb-4">
                             <div class="card-header bg-light">
-                                <h5 class="mb-0">Thiết bị khác</h5>
+                                <h5 class="mb-0">{% trans "Thiết bị khác" %}</h5>
                             </div>
                             <div class="card-body">
                                 <div class="list-group">
@@ -868,7 +1002,7 @@
                                                     <small class="text-muted">
                                                         <i class="fas fa-map-marker-alt me-1"></i>{{ device.ip_address }}
                                                         <span class="mx-2">•</span>
-                                                        <i class="fas fa-clock me-1"></i>{{ device.last_active|timesince }} trước
+                                                        <i class="fas fa-clock me-1"></i>{% blocktrans with time=device.last_active|timesince %}{{ time }} trước{% endblocktrans %}
                                                     </small>
                                                 </div>
                                             </div>
@@ -876,7 +1010,7 @@
                                         <button type="button" 
                                                 class="btn btn-outline-danger btn-sm"
                                                 onclick="revokeDevice('{{ device.id }}')">
-                                            <i class="fas fa-sign-out-alt me-1"></i>Đăng xuất
+                                            <i class="fas fa-sign-out-alt me-1"></i>{% trans "Đăng xuất" %}
                                         </button>
                                     </div>
                                     {% endif %}
@@ -885,24 +1019,24 @@
                                 
                                 {% if not devices|length > 1 %}
                                 <div class="alert alert-info mt-3">
-                                    Không có thiết bị nào khác đăng nhập vào tài khoản của bạn.
+                                    {% trans "Không có thiết bị nào khác đăng nhập vào tài khoản của bạn." %}
                                 </div>
                                 {% endif %}
                             </div>
                         </div>
                     {% else %}
                         <div class="alert alert-info">
-                            Không có thiết bị đăng nhập nào được ghi nhận
+                            {% trans "Không có thiết bị đăng nhập nào được ghi nhận" %}
                         </div>
                     {% endif %}
                 </div>
                 
                 <!-- Data Section -->
                 <div class="settings-section" id="data">
-                    <h4 class="mb-4">Tải xuống dữ liệu</h4>
+                    <h4 class="mb-4">{% trans "Tải xuống dữ liệu" %}</h4>
                     
                     <p class="text-muted">
-                        Tải xuống bản sao dữ liệu của bạn, bao gồm bài viết, bình luận, và thông tin cá nhân.
+                        {% trans "Tải xuống bản sao dữ liệu của bạn, bao gồm bài viết, bình luận, và thông tin cá nhân." %}
                     </p>
                     
                     <form method="post">
@@ -916,18 +1050,18 @@
                                        id="includeMedia"
                                        name="include_media">
                                 <label class="form-check-label" for="includeMedia">
-                                    Bao gồm hình ảnh và video
+                                    {% trans "Bao gồm hình ảnh và video" %}
                                 </label>
                             </div>
                         </div>
                         
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-download me-2"></i>Yêu cầu tải xuống
+                            <i class="fas fa-download me-2"></i>{% trans "Yêu cầu tải xuống" %}
                         </button>
                         
                         {% if data_requests %}
                             <div class="mt-4">
-                                <h5 class="mb-3">Yêu cầu gần đây</h5>
+                                <h5 class="mb-3">{% trans "Yêu cầu gần đây" %}</h5>
                                 {% for request in data_requests %}
                                     <div class="notification-item">
                                         <div class="d-flex justify-content-between align-items-center">
@@ -937,15 +1071,15 @@
                                                     <small>
                                                         {% if request.status == 'pending' %}
                                                             <span class="text-warning">
-                                                                <i class="fas fa-clock me-1"></i>Đang xử lý
+                                                                <i class="fas fa-clock me-1"></i>{% trans "Đang xử lý" %}
                                                             </span>
                                                         {% elif request.status == 'ready' %}
                                                             <span class="text-success">
-                                                                <i class="fas fa-check me-1"></i>Sẵn sàng tải xuống
+                                                                <i class="fas fa-check me-1"></i>{% trans "Sẵn sàng tải xuống" %}
                                                             </span>
                                                         {% else %}
                                                             <span class="text-danger">
-                                                                <i class="fas fa-times me-1"></i>Đã hết hạn
+                                                                <i class="fas fa-times me-1"></i>{% trans "Đã hết hạn" %}
                                                             </span>
                                                         {% endif %}
                                                     </small>
@@ -954,7 +1088,7 @@
                                             {% if request.status == 'ready' %}
                                                 <a href="{{ request.download_url }}" 
                                                    class="btn btn-outline-primary btn-sm">
-                                                    <i class="fas fa-download me-2"></i>Tải xuống
+                                                    <i class="fas fa-download me-2"></i>{% trans "Tải xuống" %}
                                                 </a>
                                             {% endif %}
                                         </div>
@@ -967,14 +1101,15 @@
                 
                 <!-- Delete Account Section -->
                 <div class="settings-section" id="delete">
-                    <h4 class="mb-4">Xóa tài khoản</h4>
+                    <h4 class="mb-4">{% trans "Xóa tài khoản" %}</h4>
                     
                     <div class="alert alert-danger">
                         <h5 class="alert-heading">
-                            <i class="fas fa-exclamation-triangle me-2"></i>Cảnh báo
+                            <i class="fas fa-exclamation-triangle me-2"></i>{% trans "Cảnh báo" %}
                         </h5>
                         <p class="mb-0">
-                            Việc xóa tài khoản là <strong>tạm thời</strong> trong vòng 30 ngày. Trong thời gian này, bạn có thể khôi phục lại tài khoản bằng cách đăng nhập lại hoặc sử dụng trang <a href="{% url 'accounts:restore_account' %}" class="alert-link">khôi phục tài khoản</a>. Sau 30 ngày, tài khoản và tất cả dữ liệu sẽ bị xóa vĩnh viễn.
+                            {% url 'accounts:restore_account' as restore_url %}
+                            {% blocktrans %}Việc xóa tài khoản là <strong>tạm thời</strong> trong vòng 30 ngày. Trong thời gian này, bạn có thể khôi phục lại tài khoản bằng cách đăng nhập lại hoặc sử dụng trang <a href="{{ restore_url }}" class="alert-link">khôi phục tài khoản</a>. Sau 30 ngày, tài khoản và tất cả dữ liệu sẽ bị xóa vĩnh viễn.{% endblocktrans %}
                         </p>
                     </div>
                     
@@ -984,7 +1119,7 @@
                         
                         <div class="mb-3">
                             <label for="{{ delete_form.reason.id_for_label }}" class="form-label">
-                                Lý do xóa tài khoản
+                                {% trans "Lý do xóa tài khoản" %}
                             </label>
                             {{ delete_form.reason }}
                             {% if delete_form.reason.errors %}
@@ -996,7 +1131,7 @@
                         
                         <div class="mb-3">
                             <label for="{{ delete_form.password.id_for_label }}" class="form-label">
-                                Nhập mật khẩu để xác nhận
+                                {% trans "Nhập mật khẩu để xác nhận" %}
                             </label>
                             {{ delete_form.password }}
                             {% if delete_form.password.errors %}
@@ -1009,7 +1144,7 @@
                         <div class="form-check mb-3">
                             {{ delete_form.confirm }}
                             <label class="form-check-label" for="{{ delete_form.confirm.id_for_label }}">
-                                Tôi hiểu rằng sau 30 ngày tài khoản sẽ bị xóa vĩnh viễn và không thể khôi phục
+                                {% trans "Tôi hiểu rằng sau 30 ngày tài khoản sẽ bị xóa vĩnh viễn và không thể khôi phục" %}
                             </label>
                             {% if delete_form.confirm.errors %}
                                 <div class="invalid-feedback d-block">
@@ -1020,8 +1155,8 @@
                         
                         <button type="submit" 
                                 class="btn btn-danger"
-                                onclick="return confirm('Bạn có chắc chắn muốn xóa tài khoản?')">
-                            <i class="fas fa-trash-alt me-2"></i>Xóa tài khoản
+                                onclick="return confirm('{% filter escapejs %}{% trans "Bạn có chắc chắn muốn xóa tài khoản?" %}{% endfilter %}')">
+                            <i class="fas fa-trash-alt me-2"></i>{% trans "Xóa tài khoản" %}
                         </button>
                     </form>
                 </div>
@@ -1051,187 +1186,89 @@
         const socialLinkInput = document.getElementById('socialLink');
         const addSocialBtn = document.getElementById('addSocialBtn');
         const socialLinksDisplay = document.getElementById('socialLinksDisplay');
-        
-        // Các nút xóa liên kết đã có
-        const existingRemoveButtons = document.querySelectorAll('.remove-social');
-        existingRemoveButtons.forEach(button => {
+        const websiteInput = document.getElementById('id_website');
+        const supportedTypes = {
+            facebook: { icon: 'fab fa-facebook', bgClass: 'bg-primary', label: 'Facebook' },
+            twitter: { icon: 'fab fa-twitter', bgClass: 'bg-info', label: 'Twitter' },
+            instagram: { icon: 'fab fa-instagram', bgClass: 'bg-danger', label: 'Instagram' },
+            linkedin: { icon: 'fab fa-linkedin', bgClass: 'bg-primary', label: 'LinkedIn' },
+        };
+
+        function detectSocialType(url) {
+            if (url.includes('facebook.com') || url.includes('fb.com')) return 'facebook';
+            if (url.includes('twitter.com') || url.includes('x.com')) return 'twitter';
+            if (url.includes('instagram.com')) return 'instagram';
+            if (url.includes('linkedin.com')) return 'linkedin';
+            return null;
+        }
+
+        function bindRemove(button) {
             button.addEventListener('click', function() {
                 const linkItem = this.closest('.social-link-item');
                 const linkType = linkItem.dataset.type;
-                
-                // Xóa input hidden nếu là liên kết tùy chỉnh
-                if (linkType.startsWith('custom_')) {
-                    const hiddenInput = document.getElementById('id_' + linkType);
-                    if (hiddenInput) {
-                        hiddenInput.remove();
-                    }
-                } else {
-                    document.getElementById('id_' + linkType).value = '';
+                const hiddenInput = document.getElementById('id_' + linkType);
+                if (hiddenInput) {
+                    hiddenInput.value = '';
                 }
-                
                 linkItem.remove();
             });
-        });
-        
-        // Thêm liên kết mới
-        addSocialBtn.addEventListener('click', function() {
-            const url = socialLinkInput.value.trim();
-            if (!url) return;
-            
-            let type = '';
-            let icon = '';
-            let bgClass = '';
-            let label = '';
-            
-            // Xác định loại mạng xã hội
-            if (url.includes('facebook.com') || url.includes('fb.com')) {
-                type = 'facebook';
-                icon = 'fab fa-facebook';
-                bgClass = 'bg-primary';
-                label = 'Facebook';
-            } else if (url.includes('twitter.com') || url.includes('x.com')) {
-                type = 'twitter';
-                icon = 'fab fa-twitter';
-                bgClass = 'bg-info';
-                label = 'Twitter';
-            } else if (url.includes('instagram.com')) {
-                type = 'instagram';
-                icon = 'fab fa-instagram';
-                bgClass = 'bg-danger';
-                label = 'Instagram';
-            } else if (url.includes('linkedin.com')) {
-                type = 'linkedin';
-                icon = 'fab fa-linkedin';
-                bgClass = 'bg-primary';
-                label = 'LinkedIn';
-            } else if (url.includes('youtube.com') || url.includes('youtu.be')) {
-                type = 'youtube';
-                icon = 'fab fa-youtube';
-                bgClass = 'bg-danger';
-                label = 'YouTube';
-            } else if (url.includes('tiktok.com')) {
-                type = 'tiktok';
-                icon = 'fab fa-tiktok';
-                bgClass = 'bg-dark';
-                label = 'TikTok';
-            } else if (url.includes('pinterest.com')) {
-                type = 'pinterest';
-                icon = 'fab fa-pinterest';
-                bgClass = 'bg-danger';
-                label = 'Pinterest';
-            } else if (url.includes('github.com')) {
-                type = 'github';
-                icon = 'fab fa-github';
-                bgClass = 'bg-dark';
-                label = 'GitHub';
-            } else if (url.includes('whatsapp.com')) {
-                type = 'whatsapp';
-                icon = 'fab fa-whatsapp';
-                bgClass = 'bg-success';
-                label = 'WhatsApp';
-            } else if (url.includes('telegram.')) {
-                type = 'telegram';
-                icon = 'fab fa-telegram';
-                bgClass = 'bg-info';
-                label = 'Telegram';
-            } else if (url.includes('snapchat.com')) {
-                type = 'snapchat';
-                icon = 'fab fa-snapchat';
-                bgClass = 'bg-warning';
-                label = 'Snapchat';
-            } else if (url.includes('discord.') || url.includes('discord.gg')) {
-                type = 'discord';
-                icon = 'fab fa-discord';
-                bgClass = 'bg-primary';
-                label = 'Discord';
-            } else {
-                // Mạng xã hội khác hoặc website tùy chỉnh
-                type = 'custom';
-                icon = 'fas fa-globe';
-                bgClass = 'bg-secondary';
-                
-                // Thử lấy tên miền cho label
-                try {
-                    const domain = new URL(url).hostname.replace('www.', '');
-                    label = domain.charAt(0).toUpperCase() + domain.slice(1);
-                } catch (e) {
-                    label = 'Website';
+        }
+
+        document.querySelectorAll('.remove-social').forEach(bindRemove);
+
+        if (addSocialBtn && socialLinkInput) {
+            addSocialBtn.addEventListener('click', function() {
+                const url = socialLinkInput.value.trim();
+                if (!url) return;
+
+                const type = detectSocialType(url);
+                if (!type) {
+                    if (websiteInput) {
+                        websiteInput.value = url;
+                        alert("{% filter escapejs %}{% trans 'Liên kết đã được lưu vào Website. Chỉ hỗ trợ Facebook, Twitter/X, Instagram và LinkedIn trong danh sách mạng xã hội.' %}{% endfilter %}");
+                    } else {
+                        alert("{% filter escapejs %}{% trans 'Chỉ hỗ trợ Facebook, Twitter/X, Instagram và LinkedIn.' %}{% endfilter %}");
+                    }
+                    socialLinkInput.value = '';
+                    return;
                 }
-            }
-            
-            // Nếu là custom, tạo ID ngẫu nhiên để tránh trùng lặp
-            if (type === 'custom') {
-                // Tạo một ID ngẫu nhiên cho field name
-                const uniqueId = Math.random().toString(36).substring(2, 10);
-                const fieldName = 'social_link_' + uniqueId;
-                
-                // Tạo input hidden mới cho liên kết tùy chỉnh
-                const hiddenInput = document.createElement('input');
-                hiddenInput.type = 'hidden';
-                hiddenInput.name = fieldName;
-                hiddenInput.id = 'id_' + fieldName;
-                hiddenInput.value = url;
-                document.getElementById('socialLinks').appendChild(hiddenInput);
-                
-                // Thay đổi type để sử dụng cho data-type
-                type = fieldName;
-            } else {
-                // Kiểm tra nếu đã có liên kết loại này
+
+                const meta = supportedTypes[type];
                 const existingLink = document.querySelector(`.social-link-item[data-type="${type}"]`);
                 if (existingLink) {
                     existingLink.remove();
                 }
-                
-                // Lưu giá trị vào input hidden
-                document.getElementById('id_' + type).value = url;
-            }
-            
-            // Hiển thị badge
-            const linkHtml = `
-                <div class="social-link-item mb-2" data-type="${type}" data-url="${url}">
-                    <span class="badge ${bgClass} rounded-pill">
-                        <i class="${icon} me-1"></i>${label}
-                        <button type="button" class="btn-close btn-close-white ms-2 remove-social" aria-label="Close"></button>
-                    </span>
-                </div>
-            `;
-            
-            socialLinksDisplay.insertAdjacentHTML('beforeend', linkHtml);
-            socialLinkInput.value = '';
-            
-            // Thêm sự kiện xóa
-            const newRemoveButton = socialLinksDisplay.querySelector(`.social-link-item[data-type="${type}"] .remove-social`);
-            newRemoveButton.addEventListener('click', function() {
-                const linkItem = this.closest('.social-link-item');
-                const linkType = linkItem.dataset.type;
-                
-                // Xóa input hidden
-                if (linkType.startsWith('social_link_') || linkType.startsWith('custom_')) {
-                    const hiddenInput = document.getElementById('id_' + linkType);
-                    if (hiddenInput) {
-                        hiddenInput.remove();
-                    }
-                } else {
-                    document.getElementById('id_' + linkType).value = '';
+
+                const hiddenInput = document.getElementById('id_' + type);
+                if (hiddenInput) {
+                    hiddenInput.value = url;
                 }
-                
-                // Xóa phần tử hiển thị
-                linkItem.remove();
+
+                const linkHtml = `
+                    <div class="social-link-item mb-2" data-type="${type}" data-url="${url}">
+                        <span class="badge ${meta.bgClass} rounded-pill">
+                            <i class="${meta.icon} me-1"></i>${meta.label}
+                            <button type="button" class="btn-close btn-close-white ms-2 remove-social" aria-label="Close"></button>
+                        </span>
+                    </div>
+                `;
+                socialLinksDisplay.insertAdjacentHTML('beforeend', linkHtml);
+                socialLinkInput.value = '';
+                bindRemove(socialLinksDisplay.querySelector(`.social-link-item[data-type="${type}"] .remove-social`));
             });
-        });
-        
-        // Cho phép nhấn Enter để thêm liên kết
-        socialLinkInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                addSocialBtn.click();
-            }
-        });
+
+            socialLinkInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addSocialBtn.click();
+                }
+            });
+        }
     });
     
     // Xử lý xóa thiết bị
     function revokeDevice(deviceId) {
-        if (confirm('Bạn có chắc chắn muốn đăng xuất khỏi thiết bị này?')) {
+        if (confirm("{% filter escapejs %}{% trans 'Bạn có chắc chắn muốn đăng xuất khỏi thiết bị này?' %}{% endfilter %}")) {
             fetch(`/users/settings/revoke-device/${deviceId}/`, {
                 method: 'POST',
                 headers: {
@@ -1242,18 +1279,17 @@
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
-                    // Xóa phần tử thiết bị từ DOM
                     const deviceElement = document.querySelector(`[data-device-id="${deviceId}"]`);
                     if (deviceElement) {
                         deviceElement.remove();
                     }
                 } else {
-                    alert(data.message || 'Đã xảy ra lỗi khi đăng xuất thiết bị.');
+                    alert(data.message || "{% filter escapejs %}{% trans 'Đã xảy ra lỗi khi đăng xuất thiết bị.' %}{% endfilter %}");
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Đã xảy ra lỗi khi đăng xuất thiết bị.');
+                alert("{% filter escapejs %}{% trans 'Đã xảy ra lỗi khi đăng xuất thiết bị.' %}{% endfilter %}");
             });
         }
     }
@@ -1266,25 +1302,23 @@
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
-                'X-CSRFToken': '{{ csrf_token }}'
+                'X-CSRFToken': '{{ csrf_token }}',
+                'X-Requested-With': 'XMLHttpRequest'
             },
-            body: `include_media=${includeMedia}&request_data_download=1`
+            body: `include_media=${includeMedia ? 'on' : ''}&request_data_download=1`
         })
         .then(response => response.json())
         .then(data => {
             if (data.status === 'success') {
-                // Hiển thị thông báo thành công
-                alert(data.message || 'Yêu cầu của bạn đã được ghi nhận.');
-                
-                // Tải lại trang để cập nhật danh sách yêu cầu
-                window.location.reload();
+                alert(data.message || "{% filter escapejs %}{% trans 'Yêu cầu của bạn đã được ghi nhận.' %}{% endfilter %}");
+                window.location.href = '/users/settings/?tab=data#data';
             } else {
-                alert(data.message || 'Đã xảy ra lỗi khi gửi yêu cầu.');
+                alert(data.message || "{% filter escapejs %}{% trans 'Đã xảy ra lỗi khi gửi yêu cầu.' %}{% endfilter %}");
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Đã xảy ra lỗi khi gửi yêu cầu.');
+            alert("{% filter escapejs %}{% trans 'Đã xảy ra lỗi khi gửi yêu cầu.' %}{% endfilter %}");
         });
     }
     
@@ -1295,14 +1329,34 @@
     
     // Hủy liên kết mạng xã hội
     function unlinkSocial(provider) {
-        if (confirm(`Bạn có chắc chắn muốn hủy liên kết với ${provider}?`)) {
-            window.location.href = `/users/settings/unlink-social/${provider}/`;
+        if (!confirm("{% filter escapejs %}{% trans 'Bạn có chắc chắn muốn hủy liên kết với' %}{% endfilter %} " + provider + "?")) {
+            return;
         }
+        fetch(`/users/settings/unlink-social/${provider}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert("{% filter escapejs %}{% trans 'Đã hủy liên kết' %}{% endfilter %} " + provider + ".");
+                window.location.href = '/users/settings/?tab=security#security';
+            } else {
+                alert(data.message || "{% filter escapejs %}{% trans 'Không thể hủy liên kết tài khoản.' %}{% endfilter %}");
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert("{% filter escapejs %}{% trans 'Đã xảy ra lỗi khi hủy liên kết.' %}{% endfilter %}");
+        });
     }
     
     // Xử lý bỏ chặn người dùng
     function unblockUser(userId, username) {
-        if (confirm(`Bạn có chắc chắn muốn bỏ chặn ${username}?`)) {
+        if (confirm("{% filter escapejs %}{% trans 'Bạn có chắc chắn muốn bỏ chặn' %}{% endfilter %} " + username + "?")) {
             fetch(`/users/unblock/${userId}/`, {
                 method: 'POST',
                 headers: {
@@ -1320,7 +1374,7 @@
                     }
                     
                     // Hiển thị thông báo
-                    alert(`Đã bỏ chặn ${username} thành công.`);
+                    alert("{% filter escapejs %}{% trans 'Đã bỏ chặn' %}{% endfilter %} " + username + " {% filter escapejs %}{% trans 'thành công.' %}{% endfilter %}");
                     
                     // Kiểm tra nếu không còn người dùng bị chặn thì hiển thị thông báo
                     const remainingItems = document.querySelectorAll('.list-group-item').length;
@@ -1329,29 +1383,41 @@
                         if (listGroup) {
                             listGroup.innerHTML = `
                                 <div class="alert alert-info mt-3">
-                                    Bạn chưa chặn người dùng nào.
+                                    {% trans "Bạn chưa chặn người dùng nào." %}
                                 </div>
                             `;
                         }
                     }
                 } else {
-                    alert('Đã xảy ra lỗi khi bỏ chặn người dùng.');
+                    alert("{% filter escapejs %}{% trans 'Đã xảy ra lỗi khi bỏ chặn người dùng.' %}{% endfilter %}");
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Đã xảy ra lỗi khi bỏ chặn người dùng.');
+                alert("{% filter escapejs %}{% trans 'Đã xảy ra lỗi khi bỏ chặn người dùng.' %}{% endfilter %}");
             });
         }
     }
     
-    // Xử lý tab bằng hash, luôn hiển thị đúng section
+    // Xử lý tab bằng hash / query tab
     document.addEventListener('DOMContentLoaded', function() {
         const navLinks = document.querySelectorAll('.settings-nav .nav-link');
         const settingsSections = document.querySelectorAll('.settings-section');
+        const serverTab = '{{ active_tab|default:"profile" }}';
+
+        function resolveTab() {
+            if (window.location.hash) {
+                return window.location.hash.substring(1);
+            }
+            const params = new URLSearchParams(window.location.search);
+            return params.get('tab') || serverTab || 'profile';
+        }
 
         function showSectionByHash() {
-            const hash = window.location.hash ? window.location.hash.substring(1) : 'profile';
+            const hash = resolveTab();
+            if (!window.location.hash) {
+                history.replaceState(null, '', '#' + hash);
+            }
             settingsSections.forEach(section => {
                 section.style.display = (section.id === hash) ? 'block' : 'none';
             });
@@ -1364,11 +1430,9 @@
             });
         }
 
-        // Hiển thị đúng section khi load trang hoặc đổi hash
         showSectionByHash();
         window.addEventListener('hashchange', showSectionByHash);
 
-        // Khi click tab thì đổi hash
         navLinks.forEach(link => {
             link.addEventListener('click', function(e) {
                 e.preventDefault();

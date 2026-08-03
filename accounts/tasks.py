@@ -107,7 +107,12 @@ def cleanup_unverified_users():
 def send_inactivity_notification(user_id):
     """Send notification to inactive users."""
     user = User.objects.get(id=user_id)
-    
+
+    if not getattr(user, 'email_notifications', True):
+        return
+    if not getattr(user, 'inactive_notifications', True):
+        return
+
     if not user.last_login or (
         timezone.now() - user.last_login > timezone.timedelta(days=30)
     ):
@@ -281,11 +286,44 @@ def generate_user_data_download(request_id):
         # có thể thêm logic retry ở đây
 
 @shared_task
+def send_summary_notification(user_id):
+    """Send daily/weekly activity summary email if the user opted in."""
+    user = User.objects.get(id=user_id)
+
+    if not getattr(user, 'email_notifications', True):
+        return
+    if not getattr(user, 'summary_notifications', True):
+        return
+    if not user.email:
+        return
+
+    context = {
+        'user': user,
+        'site_name': settings.SITE_NAME,
+        'site_url': settings.SITE_URL,
+    }
+    html_message = render_to_string(
+        'accounts/email/inactivity_notification.html',
+        context
+    )
+    send_mail(
+        subject=f'[{settings.SITE_NAME}] Tóm tắt hoạt động của bạn',
+        message='',
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[user.email],
+        html_message=html_message
+    )
+
+
+@shared_task
 def send_data_download_ready_notification(request_id):
     """Gửi thông báo cho người dùng khi dữ liệu đã sẵn sàng để tải xuống."""
     download_request = DataDownloadRequest.objects.get(id=request_id)
     user = download_request.user
-    
+
+    if not getattr(user, 'email_notifications', True):
+        return
+
     context = {
         'user': user,
         'site_name': settings.SITE_NAME,

@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 {% load static %}
 {% load i18n %}
-<html lang="vi">
+<html lang="{{ LANGUAGE_CODE|default:'vi' }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Hoshi - Mạng xã hội chia sẻ khoảnh khắc{% endblock %}</title>
+    <title>{% block title %}{% trans "Hoshi - Mạng xã hội chia sẻ khoảnh khắc" %}{% endblock %}</title>
     
     <!-- Favicon -->
     <link rel="shortcut icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
@@ -17,7 +17,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <!-- Custom CSS -->
-    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+    <link href="{% static 'css/style.css' %}?v=chat-hide-nav-1" rel="stylesheet">
     <link href="{% static 'css/notification_dropdown.css' %}" rel="stylesheet">
     
     {% if user.is_authenticated %}
@@ -30,18 +30,18 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom fixed-top site-navbar">
         <div class="container">
-            <a class="navbar-brand brand-logo" href="{% url 'home' %}" aria-label="Trang chủ">
+            <a class="navbar-brand brand-logo" href="{% url 'home' %}" aria-label="{% trans 'Trang chủ' %}">
                 <img src="{% static 'images/logo-mark.svg' %}" alt="M" class="brand-logo__mark">
             </a>
             
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Menu">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="{% trans 'Menu' %}">
                 <span class="navbar-toggler-icon"></span>
             </button>
             
             <div class="collapse navbar-collapse" id="navbarNav">
                 <form class="d-flex mx-auto navbar-search-form" action="{% url 'posts:search' %}" method="get">
                     <div class="input-group">
-                        <input type="search" class="form-control" name="q" placeholder="Tìm kiếm...">
+                        <input type="search" class="form-control" name="q" placeholder="{% trans 'Tìm kiếm...' %}">
                         <button class="btn btn-outline-secondary" type="submit">
                             <i class="fas fa-search"></i>
                         </button>
@@ -66,23 +66,23 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'posts:search' %}" title="Tìm kiếm">
+                            <a class="nav-link" href="{% url 'posts:search' %}" title="{% trans 'Tìm kiếm' %}">
                                 <i class="fas fa-search"></i>
                             </a>
                         </li>
                         <li class="nav-item dropdown position-relative">
-                            <a class="nav-link" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <a class="nav-link" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" title="{% trans 'Thông báo' %}">
                                 <i class="fas fa-bell"></i>
                                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-badge" id="notification-count" style="{% if notification_count == 0 %}display: none;{% endif %}">
                                     {{ notification_count }}
-                                    <span class="visually-hidden">thông báo chưa đọc</span>
+                                    <span class="visually-hidden">{% trans "thông báo chưa đọc" %}</span>
                                 </span>
                             </a>
                             <div class="dropdown-menu dropdown-menu-end notification-dropdown p-0" aria-labelledby="notificationsDropdown">
                                 <div class="notification-header d-flex justify-content-between align-items-center p-3 border-bottom">
-                                    <h6 class="mb-0">Thông báo</h6>
+                                    <h6 class="mb-0">{% trans "Thông báo" %}</h6>
                                     <a href="{% url 'notifications:mark_all_as_read' %}" class="text-decoration-none text-primary small mark-all-read">
-                                        Đánh dấu tất cả là đã đọc
+                                        {% trans "Đánh dấu tất cả là đã đọc" %}
                                     </a>
                                 </div>
                                 <div class="notification-list" style="max-height: 350px; overflow-y: auto;">
@@ -96,7 +96,7 @@
                                                     <img src="{{ notification.sender.get_avatar_url }}" class="rounded-circle me-2" width="40" height="40" alt="{{ notification.sender.username }}">
                                                     <div>
                                                         <p class="mb-1">{{ notification.text }}</p>
-                                                        <small class="text-muted">{{ notification.created_at|timesince }} trước</small>
+                                                        <small class="text-muted">{% blocktrans with time=notification.created_at|timesince %}{{ time }} trước{% endblocktrans %}</small>
                                                     </div>
                                                 </div>
                                             </a>
@@ -104,12 +104,12 @@
                                     {% else %}
                                         <div class="p-3 text-center text-muted">
                                             <i class="far fa-bell-slash mb-2" style="font-size: 2rem;"></i>
-                                            <p class="mb-0">Bạn không có thông báo nào</p>
+                                            <p class="mb-0">{% trans "Bạn không có thông báo nào" %}</p>
                                         </div>
                                     {% endif %}
                                 </div>
                                 <div class="notification-footer p-2 text-center border-top">
-                                    <a href="{% url 'notifications:list' %}" class="btn btn-link text-decoration-none w-100">Xem tất cả thông báo</a>
+                                    <a href="{% url 'notifications:list' %}" class="btn btn-link text-decoration-none w-100">{% trans "Xem tất cả thông báo" %}</a>
                                 </div>
                             </div>
                         </li>
@@ -132,33 +132,33 @@
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li>
                                     <a class="dropdown-item" href="{% url 'accounts:profile' user.username %}">
-                                        <i class="fas fa-user me-2"></i>Trang cá nhân
+                                        <i class="fas fa-user me-2"></i>{% trans "Trang cá nhân" %}
                                     </a>
                                 </li>
                                 <li>
                                     <a class="dropdown-item" href="{% url 'posts:saved' %}">
-                                        <i class="fas fa-bookmark me-2"></i>Đã lưu
+                                        <i class="fas fa-bookmark me-2"></i>{% trans "Đã lưu" %}
                                     </a>
                                 </li>
                                 <li>
                                     <a class="dropdown-item" href="{% url 'accounts:settings' %}">
-                                        <i class="fas fa-cog me-2"></i>Cài đặt
+                                        <i class="fas fa-cog me-2"></i>{% trans "Cài đặt" %}
                                     </a>
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <a class="dropdown-item" href="{% url 'account_logout' %}">
-                                        <i class="fas fa-sign-out-alt me-2"></i>Đăng xuất
+                                        <i class="fas fa-sign-out-alt me-2"></i>{% trans "Đăng xuất" %}
                                     </a>
                                 </li>
                             </ul>
                         </li>
                     {% else %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'account_login' %}">Đăng nhập</a>
+                            <a class="nav-link" href="{% url 'account_login' %}">{% trans "Đăng nhập" %}</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'account_signup' %}">Đăng ký</a>
+                            <a class="nav-link" href="{% url 'account_signup' %}">{% trans "Đăng ký" %}</a>
                         </li>
                     {% endif %}
                 </ul>
@@ -182,30 +182,30 @@
 
     <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileFeedMenu" aria-labelledby="mobileFeedMenuLabel">
         <div class="offcanvas-header border-bottom">
-            <h5 class="offcanvas-title" id="mobileFeedMenuLabel">Menu</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Đóng"></button>
+            <h5 class="offcanvas-title" id="mobileFeedMenuLabel">{% trans "Menu" %}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="{% trans 'Đóng' %}"></button>
         </div>
         <div class="offcanvas-body p-0">
             <a class="mobile-menu-link" href="{% url 'accounts:profile' user.username %}">
                 <img src="{{ user.get_avatar_url }}" class="rounded-circle" width="36" height="36" alt="">
                 <span>{{ user.username }}</span>
             </a>
-            <a class="mobile-menu-link" href="{% url 'posts:liked_posts' %}"><i class="fas fa-heart"></i><span>Đã thích</span></a>
-            <a class="mobile-menu-link" href="{% url 'posts:saved' %}"><i class="fas fa-bookmark"></i><span>Đã lưu</span></a>
-            <a class="mobile-menu-link" href="{% url 'accounts:settings' %}"><i class="fas fa-cog"></i><span>Cài đặt</span></a>
-            <a class="mobile-menu-link text-danger" href="{% url 'account_logout' %}"><i class="fas fa-sign-out-alt"></i><span>Đăng xuất</span></a>
+            <a class="mobile-menu-link" href="{% url 'posts:liked_posts' %}"><i class="fas fa-heart"></i><span>{% trans "Đã thích" %}</span></a>
+            <a class="mobile-menu-link" href="{% url 'posts:saved' %}"><i class="fas fa-bookmark"></i><span>{% trans "Đã lưu" %}</span></a>
+            <a class="mobile-menu-link" href="{% url 'accounts:settings' %}"><i class="fas fa-cog"></i><span>{% trans "Cài đặt" %}</span></a>
+            <a class="mobile-menu-link text-danger" href="{% url 'account_logout' %}"><i class="fas fa-sign-out-alt"></i><span>{% trans "Đăng xuất" %}</span></a>
         </div>
     </div>
 
     <!-- Mobile bottom nav -->
-    <nav class="mobile-bottom-nav d-lg-none" aria-label="Điều hướng nhanh">
+    <nav class="mobile-bottom-nav d-lg-none" aria-label="{% trans 'Điều hướng nhanh' %}">
         <a href="{% url 'home' %}" class="mobile-bottom-nav__item" data-nav="home">
             <i class="fas fa-home"></i>
         </a>
-        <a href="{% url 'chat:conversation_list' %}" class="mobile-bottom-nav__item" data-nav="messages" aria-label="Tin nhắn">
+        <a href="{% url 'chat:conversation_list' %}" class="mobile-bottom-nav__item" data-nav="messages" aria-label="{% trans 'Tin nhắn' %}">
             <i class="far fa-paper-plane"></i>
         </a>
-        <button type="button" class="mobile-bottom-nav__item mobile-bottom-nav__create" data-nav="create" aria-label="Tạo bài viết">
+        <button type="button" class="mobile-bottom-nav__item mobile-bottom-nav__create" data-nav="create" aria-label="{% trans 'Tạo bài viết' %}">
             <i class="fas fa-plus"></i>
         </button>
         <a href="{% url 'notifications:list' %}" class="mobile-bottom-nav__item" data-nav="activity">

@@ -1,0 +1,921 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: hoshi\n"
+"Language: zh-Hans\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "%(count)s bình luận"
+msgstr "%(count)s 条评论"
+
+msgid "%(count)s lượt thích"
+msgstr "%(count)s 赞"
+
+msgid "%(counter)s cuộc trò chuyện"
+msgstr "%(counter)s 个对话{% 复数 %}%(counter)s 个对话"
+
+msgid "%(time)s trước"
+msgstr "%(时间)s 前"
+
+msgid "%(username)s chưa theo dõi ai."
+msgstr "%(username)s 尚未关注任何人。"
+
+msgid "%(username)s đã chia sẻ"
+msgstr "%(用户名)s 已共享"
+
+msgid ""
+"<strong>Chặn tin nhắn</strong> - Chỉ nhận tin nhắn từ người bạn theo dõi"
+msgstr "<strong>阻止消息</strong> - 只接收来自您关注的人的消息"
+
+msgid ""
+"<strong>Tài khoản riêng tư</strong> - Chỉ những người theo dõi mới có thể "
+"xem bài viết của bạn"
+msgstr "<strong>私人帐户</strong> - 只有您的关注者才能看到您的帖子"
+
+msgid ""
+"<strong>Ẩn trạng thái hoạt động</strong> - Không hiển thị trạng thái hoạt "
+"động của bạn"
+msgstr "<strong>隐藏活动状态</strong> - 不显示您的活动状态"
+
+msgid "Bao gồm hình ảnh và video"
+msgstr "包括图像和视频"
+
+msgid "Bài viết"
+msgstr "文章"
+
+msgid "Báo cáo"
+msgstr "报告"
+
+msgid "Bình luận"
+msgstr "评论"
+
+msgid "Bạn chưa chặn người dùng nào."
+msgstr "您尚未阻止任何用户。"
+
+msgid "Bạn chưa lưu bài viết nào."
+msgstr "您尚未保存任何帖子。"
+
+msgid "Bạn có chắc chắn muốn bỏ chặn"
+msgstr "您确定要解锁吗"
+
+msgid "Bạn có chắc chắn muốn chặn"
+msgstr "您确定要阻止吗"
+
+msgid "Bạn có chắc chắn muốn hủy liên kết với"
+msgstr "您确定要取消链接吗"
+
+msgid "Bạn có chắc chắn muốn hủy theo dõi"
+msgstr "您确定要取消关注吗？"
+
+msgid "Bạn có chắc chắn muốn xoá bài viết này không?"
+msgstr "您确定要删除此帖子吗？"
+
+msgid "Bạn có chắc chắn muốn xóa bài viết này không?"
+msgstr "您确定要删除此帖子吗？"
+
+msgid "Bạn có chắc chắn muốn xóa phương tiện này không?"
+msgstr "您确定要删除该媒体吗？"
+
+msgid "Bạn có chắc chắn muốn xóa tin nhắn này không?"
+msgstr "您确定要删除此消息吗？"
+
+msgid "Bạn có chắc chắn muốn xóa tài khoản?"
+msgstr "您确定要删除您的帐户吗？"
+
+msgid "Bạn có chắc chắn muốn đăng xuất khỏi thiết bị này?"
+msgstr "您确定要退出此设备吗？"
+
+msgid ""
+"Bạn có chắc muốn xóa cuộc trò chuyện này? Hành động này không thể hoàn tác."
+msgstr "您确定要删除此对话吗？此操作无法撤消。"
+
+msgid "Bạn có thể chọn nhiều ảnh hoặc video cùng lúc."
+msgstr "您可以同时选择多张照片或视频。"
+
+msgid "Bạn không có quyền chỉnh sửa bài viết này."
+msgstr "您没有编辑这篇文章的权限。"
+
+msgid "Bạn không có quyền xóa bài viết này."
+msgstr "您无权删除此帖子。"
+
+msgid "Bạn không có thông báo nào"
+msgstr "您没有任何通知"
+
+msgid "Bạn không có thông báo nào."
+msgstr "您没有任何通知。"
+
+msgid "Bạn sẽ không thấy bài viết của họ và họ không thể tương tác với bạn."
+msgstr "您不会看到他们的帖子，他们也无法与您互动。"
+
+msgid "Bạn đang nghĩ gì?"
+msgstr "你在想什么？"
+
+msgid "Bạn đã chặn"
+msgstr "你已屏蔽"
+
+msgid "Bạn đã xem hết tất cả bài viết"
+msgstr "您已阅读所有文章"
+
+msgid "Bạn:"
+msgstr "朋友："
+
+msgid "Bảng tin"
+msgstr "留言板"
+
+msgid "Bảo mật"
+msgstr "安全"
+
+msgid "Bắt đầu cuộc trò chuyện..."
+msgstr "开始对话..."
+
+msgid "Bắt đầu trò chuyện với bạn bè ngay hôm nay"
+msgstr "今天开始与朋友聊天"
+
+msgid "Bị chặn từ %(date)s"
+msgstr "已于 %(date)s 屏蔽"
+
+msgid "Bỏ chặn"
+msgstr "解锁"
+
+msgid "Chi tiết cuộc trò chuyện"
+msgstr "聊天详情"
+
+msgid "Chào mừng trở lại!"
+msgstr "欢迎回来！"
+
+msgid "Chính sách bảo mật"
+msgstr "隐私政策"
+
+msgid "Chưa có ai theo dõi %(username)s."
+msgstr "尚未有人关注 %(username)s。"
+
+msgid "Chưa có bài viết nào được chia sẻ."
+msgstr "还没有分享帖子。"
+
+msgid "Chưa có bài viết nào để hiển thị"
+msgstr "还没有可显示的帖子"
+
+msgid "Chưa có bài viết nào."
+msgstr "还没有帖子。"
+
+msgid "Chưa có cuộc trò chuyện nào"
+msgstr "还没有任何对话"
+
+msgid "Chưa có tin nhắn"
+msgstr "还没有消息"
+
+msgid "Chưa có tin nhắn nào"
+msgstr "还没有留言"
+
+msgid "Chưa có tài khoản mạng xã hội nào được liên kết."
+msgstr "目前还没有关联的社交媒体帐户。"
+
+msgid "Chưa có tài khoản?"
+msgstr "还没有帐户？"
+
+msgid "Chưa cập nhật"
+msgstr "尚未更新"
+
+msgid "Chặn"
+msgstr "堵塞"
+
+msgid "Chế độ xem bảng tin"
+msgstr "留言板视图"
+
+msgid "Chỉ hỗ trợ Facebook, Twitter/X, Instagram và LinkedIn."
+msgstr "仅支持 Facebook、Twitter/X、Instagram 和 LinkedIn。"
+
+msgid "Chỉnh sửa"
+msgstr "编辑"
+
+msgid "Chỉnh sửa bài viết"
+msgstr "编辑文章"
+
+msgid "Chỉnh sửa hồ sơ"
+msgstr "编辑个人资料"
+
+msgid "Chọn các tùy chọn quyền riêng tư bằng cách bật/tắt công tắc bên dưới."
+msgstr "通过切换下面的开关来选择您的隐私选项。"
+
+msgid "Chọn giới tính"
+msgstr "选择性别"
+
+msgid "Chọn lý do"
+msgstr "选择一个理由"
+
+msgid "Chọn mã quốc gia rồi nhập số điện thoại (hỗ trợ mọi quốc gia)."
+msgstr "选择国家/地区代码，然后输入电话号码（支持所有国家/地区）。"
+
+msgid "Chọn ngày sinh của bạn"
+msgstr "选择您的出生日期"
+
+msgid ""
+"Chọn ngôn ngữ hiển thị cho tài khoản của bạn. Tùy chọn này sẽ được lưu và áp"
+" dụng mỗi khi bạn đăng nhập."
+msgstr "选择您帐户的显示语言。每次登录时都会保存并应用此首选项。"
+
+msgid "Chọn tên người dùng của bạn"
+msgstr "选择你的用户名"
+
+msgid "Cài đặt"
+msgstr "环境"
+
+msgid "Cài đặt bảo mật"
+msgstr "安全设置"
+
+msgid "Cài đặt ngôn ngữ"
+msgstr "语言设置"
+
+msgid "Cài đặt quyền riêng tư"
+msgstr "隐私设置"
+
+msgid "Cài đặt thông báo"
+msgstr "通知设置"
+
+msgid "Cài đặt tài khoản"
+msgstr "账户设置"
+
+msgid "Có lỗi xảy ra khi cập nhật bài viết."
+msgstr "更新帖子时发生错误。"
+
+msgid "Có lỗi xảy ra khi tải danh sách người theo dõi."
+msgstr "加载关注者列表时出错。"
+
+msgid "Có lỗi xảy ra khi tải danh sách đang theo dõi."
+msgstr "加载跟踪列表时发生错误。"
+
+msgid "Có lỗi xảy ra khi xoá bài viết."
+msgstr "删除帖子时发生错误。"
+
+msgid "Có lỗi xảy ra khi xóa bài viết."
+msgstr "删除帖子时发生错误。"
+
+msgid ""
+"Cảm ơn bạn đã báo cáo. Chúng tôi sẽ xem xét nội dung này trong thời gian sớm"
+" nhất."
+msgstr "感谢您的报告。我们将尽快审核此内容。"
+
+msgid "Cảnh báo"
+msgstr "警告"
+
+msgid "Dành cho bạn"
+msgstr "为你"
+
+msgid "Email"
+msgstr "电子邮件"
+
+msgid "Email / Gmail"
+msgstr "电子邮件/Gmail"
+
+msgid "Ghi nhớ đăng nhập"
+msgstr "记得登录"
+
+msgid "Giới tính"
+msgstr "性别"
+
+msgid "Gửi báo cáo"
+msgstr "提交报告"
+
+msgid "Gửi lời chào để bắt đầu cuộc trò chuyện"
+msgstr "打个招呼即可开始对话"
+
+msgid "Gửi tin nhắn"
+msgstr "发送消息"
+
+msgid "Gửi tóm tắt hàng ngày"
+msgstr "发送每日摘要"
+
+msgid "Home"
+msgstr "家"
+
+msgid "Hoshi - Mạng xã hội chia sẻ khoảnh khắc"
+msgstr "Hoshi - 分享时刻的社交网络"
+
+msgid "Hoạt động %(time)s trước"
+msgstr "%(time)s 前操作"
+
+msgid "Hình ảnh"
+msgstr "图像"
+
+msgid "Hôm nay"
+msgstr "今天"
+
+msgid "Hồ sơ"
+msgstr "文件"
+
+msgid "Hủy"
+msgstr "取消"
+
+msgid "Hủy liên kết %(name)s"
+msgstr "取消链接 %(name)s"
+
+msgid ""
+"Khi bật, bạn sẽ cần nhập mã xác thực từ ứng dụng (Google Authenticator, "
+"Authy…) mỗi khi đăng nhập."
+msgstr "启用后，您每次登录时都需要输入应用程序（Google Authenticator、Authy...）中的验证码。"
+
+msgid "Khi có người bình luận bài viết của bạn hoặc trả lời bình luận của bạn"
+msgstr "当有人评论您的帖子或回复您的评论时"
+
+msgid "Khi có người gửi tin nhắn cho bạn"
+msgstr "当有人给你发消息时"
+
+msgid "Khi có người nhắc đến bạn trong bài viết hoặc bình luận"
+msgstr "当有人在帖子或评论中提到您时"
+
+msgid "Khi có người theo dõi bạn"
+msgstr "当有人跟踪你时"
+
+msgid "Khi có người thích bài viết hoặc bình luận của bạn"
+msgstr "当有人喜欢你的帖子或评论时"
+
+msgid "Khác"
+msgstr "其他"
+
+msgid "Khôi phục tài khoản"
+msgstr "帐户恢复"
+
+msgid "Không có thiết bị nào khác đăng nhập vào tài khoản của bạn."
+msgstr "没有其他设备登录您的帐户。"
+
+msgid "Không có thiết bị đăng nhập nào được ghi nhận"
+msgstr "没有记录登录设备"
+
+msgid "Không thể gửi tin nhắn vì một trong hai người đã chặn người còn lại."
+msgstr "由于你们中的一个人阻止了另一个人，因此无法发送该消息。"
+
+msgid "Không thể hủy liên kết tài khoản."
+msgstr "帐户无法取消关联。"
+
+msgid "Không thể nhắn tin (đã chặn)"
+msgstr "无法发短信（被阻止）"
+
+msgid "Không tìm thấy bài viết."
+msgstr "没有找到文章。"
+
+msgid "Liên kết mạng xã hội"
+msgstr "社交网络链接"
+
+msgid ""
+"Liên kết đã được lưu vào Website. Chỉ hỗ trợ Facebook, Twitter/X, Instagram "
+"và LinkedIn trong danh sách mạng xã hội."
+msgstr "该链接已保存到网站。社交网络列表仅支持 Facebook、Twitter/X、Instagram 和 LinkedIn。"
+
+msgid "Loại thông báo"
+msgstr "通知类型"
+
+msgid "Lý do báo cáo"
+msgstr "举报原因"
+
+msgid "Lý do xóa tài khoản"
+msgstr "帐户删除原因"
+
+msgid "Lưu ngôn ngữ"
+msgstr "保存语言"
+
+msgid "Lưu thay đổi"
+msgstr "保存更改"
+
+msgid "Lưu thay đổi quyền riêng tư"
+msgstr "保存隐私更改"
+
+msgid "Lưu thay đổi thông báo"
+msgstr "保存通知更改"
+
+msgid "Lượt thích"
+msgstr "喜欢"
+
+msgid "Lỗi khi tải danh sách người theo dõi"
+msgstr "加载关注者列表时出错"
+
+msgid "Lỗi khi tải danh sách đang theo dõi"
+msgstr "加载跟踪列表时出错"
+
+msgid "Lỗi khi tải lên tệp:"
+msgstr "上传文件时出错："
+
+msgid "Lỗi kết nối tới máy chủ. Vui lòng thử lại sau."
+msgstr "连接到服务器时出错。请稍后重试。"
+
+msgid "Menu"
+msgstr "菜单"
+
+msgid "Mô tả chi tiết"
+msgstr "详细说明"
+
+msgid "Mật khẩu"
+msgstr "密码"
+
+msgid "Mật khẩu và đăng nhập"
+msgstr "密码和登录"
+
+msgid "Mục hồ sơ"
+msgstr "型材部分"
+
+msgid "Nam"
+msgstr "男性"
+
+msgid "Ngày sinh"
+msgstr "出生日期"
+
+msgid "Ngôn ngữ"
+msgstr "语言"
+
+msgid "Ngôn ngữ hiển thị"
+msgstr "显示语言"
+
+msgid "Người dùng đã bị chặn"
+msgstr "用户已被屏蔽"
+
+msgid "Người theo dõi (%(count)s)"
+msgstr "关注者 (%(count)s)"
+
+msgid "Nhận email tóm tắt các hoạt động mỗi ngày"
+msgstr "接收总结日常活动的电子邮件"
+
+msgid "Nhận thông báo ngay cả khi không mở ứng dụng"
+msgstr "即使未打开应用程序也能收到通知"
+
+msgid "Nhận thông báo qua địa chỉ email của bạn"
+msgstr "通过您的电子邮件地址接收通知"
+
+msgid "Nhận thông báo sau 30 ngày không hoạt động"
+msgstr "30 天不活动后收到通知"
+
+msgid "Nhập lại mật khẩu"
+msgstr "重新输入密码"
+
+msgid "Nhập mật khẩu của bạn"
+msgstr "输入您的密码"
+
+msgid "Nhập mật khẩu hoặc mã xác thực để tắt 2FA:"
+msgstr "输入您的密码或验证码以关闭 2FA："
+
+msgid "Nhập mật khẩu để xác nhận"
+msgstr "输入密码进行确认"
+
+msgid "Nhập tin nhắn..."
+msgstr "输入留言..."
+
+msgid "Nhập tên người dùng của bạn"
+msgstr "输入您的用户名"
+
+msgid "Nhập địa chỉ email của bạn"
+msgstr "输入您的电子邮件地址"
+
+msgid "Nhắc đến"
+msgstr "提及"
+
+msgid "Nhắn tin"
+msgstr "发短信"
+
+msgid "Nhắn tin trực tiếp"
+msgstr "直接留言"
+
+msgid "Những người mà %(username)s đang theo dõi"
+msgstr "%(用户名)s 正在关注"
+
+msgid "Những người đang theo dõi %(username)s"
+msgstr "关注 %(用户名)s 的人"
+
+msgid "Nội dung"
+msgstr "内容"
+
+msgid "Nội dung không phù hợp"
+msgstr "不当内容"
+
+msgid "Nữ"
+msgstr "女性"
+
+msgid "Offline"
+msgstr "离线"
+
+msgid "Phân trang thông báo"
+msgstr "通知分页"
+
+msgid "Phương thức nhận thông báo"
+msgstr "接收通知的方法"
+
+msgid "Phương tiện hiện tại"
+msgstr "当前媒体"
+
+msgid "Quay lại"
+msgstr "回来"
+
+msgid "Quyền riêng tư"
+msgstr "隐私"
+
+msgid "Quên mật khẩu?"
+msgstr "忘记密码？"
+
+msgid ""
+"Quản lý cài đặt bảo mật cho tài khoản của bạn. Bật xác thực hai yếu tố để "
+"tăng cường bảo mật."
+msgstr "管理您帐户的安全设置。启用双因素身份验证以提高安全性。"
+
+msgid ""
+"Quản lý các tài khoản mạng xã hội được liên kết với tài khoản Hoshi của bạn"
+msgstr "管理与您的 Hoshi 帐户关联的社交媒体帐户"
+
+msgid "Quản lý danh sách người dùng mà bạn đã chặn"
+msgstr "管理您已阻止的用户列表"
+
+msgid "Quấy rối"
+msgstr "骚扰"
+
+msgid "Sẵn sàng tải xuống"
+msgstr "准备下载"
+
+msgid "Số điện thoại"
+msgstr "电话号码"
+
+msgid "Tham gia cộng đồng Hoshi ngay hôm nay"
+msgstr "立即加入 Hoshi 社区"
+
+msgid "Theo dõi"
+msgstr "监视器"
+
+msgid ""
+"Thiết bị của bạn đã đăng nhập. Bạn có thể đăng xuất khỏi các thiết bị khác "
+"từ đây."
+msgstr "您的设备已登录。您可以从此处退出其他设备。"
+
+msgid "Thiết bị hiện tại"
+msgstr "现有设备"
+
+msgid "Thiết bị khác"
+msgstr "其他设备"
+
+msgid "Thiết bị đăng nhập"
+msgstr "登录设备"
+
+msgid "Thiết lập xác thực hai yếu tố"
+msgstr "设置双因素身份验证"
+
+msgid "Thêm"
+msgstr "更多的"
+
+msgid "Thêm bất kỳ liên kết mạng xã hội nào của bạn"
+msgstr "添加您的任何社交媒体链接"
+
+msgid "Thêm ảnh/video mới"
+msgstr "添加新照片/视频"
+
+msgid "Thông báo"
+msgstr "通知"
+
+msgid "Thông báo khi không hoạt động"
+msgstr "不活动时的通知"
+
+msgid "Thông báo qua email"
+msgstr "通过电子邮件通知"
+
+msgid "Thông báo đẩy"
+msgstr "推送通知"
+
+msgid "Thông tin liên hệ (cần xác thực khi đổi)"
+msgstr "联系方式（交换时需认证）"
+
+msgid "Thống kê báo cáo"
+msgstr "报告统计"
+
+msgid "Tin nhắn"
+msgstr "信息"
+
+msgid "Trang chủ"
+msgstr "主页"
+
+msgid "Trang cá nhân"
+msgstr "个人页面"
+
+msgid "Trang sau"
+msgstr "下一页"
+
+msgid "Trang trước"
+msgstr "上一页"
+
+msgid "Trò chuyện mới"
+msgstr "新聊天"
+
+msgid "Trả lời"
+msgstr "回复"
+
+msgid "Tài khoản bị xóa?"
+msgstr "帐号被删除？"
+
+msgid "Tài khoản giả mạo"
+msgstr "假账户"
+
+msgid "Tài liệu"
+msgstr "文档"
+
+msgid "Tên người dùng"
+msgstr "用户名"
+
+msgid "Tên người dùng không hợp lệ"
+msgstr "用户名无效"
+
+msgid "Tìm kiếm"
+msgstr "搜索"
+
+msgid "Tìm kiếm cuộc trò chuyện..."
+msgstr "搜索聊天..."
+
+msgid "Tìm kiếm..."
+msgstr "搜索..."
+
+msgid ""
+"Tôi hiểu rằng sau 30 ngày tài khoản sẽ bị xóa vĩnh viễn và không thể khôi "
+"phục"
+msgstr "我了解 30 天后该帐户将被永久删除且无法恢复"
+
+msgid "Tôi đồng ý với"
+msgstr "我同意"
+
+msgid "Tùy chỉnh cách bạn nhận thông báo từ Hoshi"
+msgstr "自定义您接收 Hoshi 通知的方式"
+
+msgid "Tùy chỉnh thời gian đình chỉ"
+msgstr "自定义暂停时间"
+
+msgid "Tùy chỉnh thời gian đình chỉ người dùng bị báo cáo"
+msgstr "自定义报告的用户暂停时间"
+
+msgid "Tùy chọn thông báo khác"
+msgstr "更多通知选项"
+
+msgid "Tạo bài viết"
+msgstr "创建文章"
+
+msgid "Tạo bài viết mới"
+msgstr "创建新文章"
+
+msgid "Tạo mật khẩu mới"
+msgstr "创建新密码"
+
+msgid "Tạo tài khoản mới"
+msgstr "创建一个新帐户"
+
+msgid "Tải xuống"
+msgstr "下载"
+
+msgid ""
+"Tải xuống bản sao dữ liệu của bạn, bao gồm bài viết, bình luận, và thông tin"
+" cá nhân."
+msgstr "下载您的数据副本，包括帖子、评论和个人信息。"
+
+msgid "Tải xuống dữ liệu"
+msgstr "下载数据"
+
+msgid "Tắt bình luận"
+msgstr "关闭评论"
+
+msgid "Tắt xác thực hai yếu tố"
+msgstr "关闭双因素身份验证"
+
+msgid "Video"
+msgstr "视频"
+
+msgid "Vui lòng chọn lý do báo cáo."
+msgstr "请选择举报原因。"
+
+msgid "Vui lòng cung cấp thêm thông tin..."
+msgstr "请提供更多信息..."
+
+msgid "Xem bài viết gốc"
+msgstr "查看原文"
+
+msgid "Xem chi tiết"
+msgstr "查看详情"
+
+msgid "Xem thống kê báo cáo"
+msgstr "查看报告统计数据"
+
+msgid "Xem tất cả thông báo"
+msgstr "查看所有公告"
+
+msgid "Xem ảnh"
+msgstr "查看照片"
+
+msgid "Xác nhận mật khẩu"
+msgstr "确认密码"
+
+msgid "Xác thực hai yếu tố"
+msgstr "双因素身份验证"
+
+msgid ""
+"Xác thực hai yếu tố đang <strong>bật</strong>. Bạn sẽ cần mã từ ứng dụng xác"
+" thực mỗi khi đăng nhập."
+msgstr "双因素身份验证已<strong>开启</strong>。每次登录时，您都需要来自身份验证器应用程序的代码。"
+
+msgid "Xóa"
+msgstr "擦除"
+
+msgid "Xóa bài viết"
+msgstr "删除帖子"
+
+msgid "Xóa cuộc trò chuyện"
+msgstr "删除聊天记录"
+
+msgid "Xóa tài khoản"
+msgstr "删除帐户"
+
+msgid "Xóa ảnh đại diện hiện tại"
+msgstr "删除当前头像"
+
+msgid "Yêu cầu của bạn đã được ghi nhận."
+msgstr "您的请求已被确认。"
+
+msgid "Yêu cầu gần đây"
+msgstr "最近的请求"
+
+msgid "Yêu cầu tải xuống"
+msgstr "需要下载"
+
+msgid "bài viết"
+msgstr "文章"
+
+msgid "của Hoshi"
+msgstr "通过 星"
+
+msgid "hoặc tiếp tục với"
+msgstr "或继续"
+
+msgid "hoặc đăng ký với"
+msgstr "或注册"
+
+msgid "lượt thích"
+msgstr "喜欢"
+
+msgid "người theo dõi"
+msgstr "追随者"
+
+msgid "thành công."
+msgstr "成功。"
+
+msgid "thông báo chưa đọc"
+msgstr "未读通知"
+
+msgid "và"
+msgstr "和"
+
+msgid "Đang hoạt động"
+msgstr "积极的"
+
+msgid "Đang lưu..."
+msgstr "保存..."
+
+msgid "Đang theo dõi"
+msgstr "下列的"
+
+msgid "Đang theo dõi (%(count)s)"
+msgstr "已关注 (%(count)s)"
+
+msgid "Đang trả lời"
+msgstr "正在回复"
+
+msgid "Đang tải bài viết..."
+msgstr "正在加载文章..."
+
+msgid "Đang tải..."
+msgstr "加载中..."
+
+msgid "Đang xử lý"
+msgstr "加工"
+
+msgid "Đang xử lý..."
+msgstr "加工..."
+
+msgid "Điều hướng nhanh"
+msgstr "快速导航"
+
+msgid "Điều khoản sử dụng"
+msgstr "使用条款"
+
+msgid "Đánh dấu tất cả là đã đọc"
+msgstr "全部标记为已读"
+
+msgid "Đã bỏ chặn"
+msgstr "畅通"
+
+msgid "Đã chia sẻ"
+msgstr "共享"
+
+msgid "Đã có tài khoản?"
+msgstr "已经有帐户？"
+
+msgid "Đã cập nhật bài viết thành công!"
+msgstr "帖子更新成功！"
+
+msgid "Đã hết hạn"
+msgstr "已到期"
+
+msgid "Đã hủy liên kết"
+msgstr "未链接"
+
+msgid "Đã lưu"
+msgstr "已保存"
+
+msgid "Đã thích"
+msgstr "喜欢"
+
+msgid "Đã xóa bài viết thành công!"
+msgstr "帖子删除成功！"
+
+msgid "Đã xảy ra lỗi khi bỏ chặn người dùng."
+msgstr "取消阻止用户时发生错误。"
+
+msgid "Đã xảy ra lỗi khi chặn người dùng."
+msgstr "阻止用户时发生错误。"
+
+msgid "Đã xảy ra lỗi khi chặn người dùng. Vui lòng thử lại sau."
+msgstr "阻止用户时发生错误。请稍后重试。"
+
+msgid "Đã xảy ra lỗi khi gửi báo cáo."
+msgstr "发送报告时发生错误。"
+
+msgid "Đã xảy ra lỗi khi gửi báo cáo. Vui lòng thử lại sau."
+msgstr "发送报告时发生错误。请稍后重试。"
+
+msgid "Đã xảy ra lỗi khi gửi yêu cầu."
+msgstr "发送请求时发生错误。"
+
+msgid "Đã xảy ra lỗi khi hủy liên kết."
+msgstr "取消链接时发生错误。"
+
+msgid "Đã xảy ra lỗi khi thực hiện thao tác. Vui lòng thử lại sau."
+msgstr "执行操作时发生错误。请稍后重试。"
+
+msgid "Đã xảy ra lỗi khi xóa cuộc trò chuyện."
+msgstr "删除聊天时出错。"
+
+msgid "Đã xảy ra lỗi khi đăng xuất thiết bị."
+msgstr "注销设备时发生错误。"
+
+msgid "Đóng"
+msgstr "关闭"
+
+msgid "Đăng ký"
+msgstr "登记"
+
+msgid "Đăng ký ngay"
+msgstr "立即注册"
+
+msgid "Đăng ký với Google"
+msgstr "使用 Google 注册"
+
+msgid "Đăng nhập"
+msgstr "登录"
+
+msgid "Đăng nhập bằng mạng xã hội"
+msgstr "使用社交网络登录"
+
+msgid "Đăng nhập ngay"
+msgstr "立即登录"
+
+msgid "Đăng nhập với Google"
+msgstr "使用 Google 登录"
+
+msgid "Đăng nhập để tiếp tục với Hoshi"
+msgstr "登录并继续使用 Hoshi"
+
+msgid "Đăng xuất"
+msgstr "登出"
+
+msgid ""
+"Đảm bảo sử dụng mật khẩu mạnh và không sử dụng lại ở các trang web khác"
+msgstr "确保使用强密码，并且不要在其他网站上重复使用它们"
+
+msgid "Địa điểm"
+msgstr "地点"
+
+msgid "Đổi"
+msgstr "改变"
+
+msgid ""
+"Đổi SĐT sẽ gửi mã xác thực về số hiện tại (hoặc email nếu SMS không khả "
+"dụng)."
+msgstr "更改您的电话号码会将验证码发送到您当前的号码（如果短信不可用，则发送电子邮件）。"
+
+msgid "Đổi email sẽ gửi mã xác thực về email hiện tại."
+msgstr "更改您的电子邮件将会向您当前的电子邮件发送验证码。"
+
+msgid "Đổi mật khẩu"
+msgstr "更改密码"
+
+msgid "đang nhập..."
+msgstr "进入..."
+
+msgid "đang theo dõi"
+msgstr "正在关注"
+
+msgid "Ảnh"
+msgstr "图像"
+
+msgid "Ảnh đầy đủ"
+msgstr "完整照片"
+
+msgid "Ẩn lượt thích"
+msgstr "隐藏喜欢"

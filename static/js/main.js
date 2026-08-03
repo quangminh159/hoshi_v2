@@ -713,11 +713,13 @@ function initializeCommentForms() {
             const postId = this.getAttribute('data-post-id');
             const commentInput = this.querySelector('input[name="text"]');
             const text = commentInput.value.trim();
+            const imageInput = this.querySelector('.comment-image-input');
+            const imageFile = imageInput && imageInput.files && imageInput.files[0] ? imageInput.files[0] : null;
             const replyInfo = this.querySelector('.reply-info');
             const isReply = replyInfo && !replyInfo.classList.contains('d-none');
             let parentId = this.getAttribute('data-parent-id');
             
-            if (!text) return;
+            if (!text && !imageFile) return;
             
             // Tạo một khóa duy nhất cho yêu cầu này
             const requestKey = `${postId}-${text}-${parentId || ''}`;
@@ -771,19 +773,20 @@ function initializeCommentForms() {
             window.Hoshi.processedRequests.add(requestKey);
             
             // Gửi bình luận lên server
+            const formData = new FormData();
+            formData.append('post_id', postId);
+            formData.append('text', text);
+            formData.append('timestamp', String(timestamp));
+            formData.append('request_id', requestId);
+            if (parentId) formData.append('parent_id', parentId);
+            if (imageFile) formData.append('image', imageFile);
+
             fetch('/api/posts/comments/add/', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
                     'X-CSRFToken': getCookie('csrftoken')
                 },
-                body: JSON.stringify({
-                    post_id: postId,
-                    text: text,
-                    parent_id: parentId || null,
-                    timestamp: timestamp,
-                    request_id: requestId
-                })
+                body: formData
             })
             .then(response => response.json())
             .then(data => {
@@ -820,6 +823,7 @@ function initializeCommentForms() {
                     
                     // Xóa nội dung input và ẩn thông tin trả lời
                     commentInput.value = '';
+                    if (imageInput) imageInput.value = '';
                     if (replyInfo) replyInfo.classList.add('d-none');
                     form.removeAttribute('data-parent-id');
                 } else {
@@ -1016,7 +1020,8 @@ function addCommentToDOM(comment, postId, isReply, parentId) {
     // Chuẩn hóa dữ liệu comment từ API
     const normalizedComment = {
         id: comment.id,
-        text: comment.text,
+        text: comment.text || '',
+        image: comment.image_url || comment.image || null,
         created_at: comment.created_at,
         author: {
             username: comment.author ? comment.author.username : comment.author_username,
@@ -1032,6 +1037,10 @@ function addCommentToDOM(comment, postId, isReply, parentId) {
         console.error(`Không tìm thấy bài viết với ID ${postId}`);
         return;
     }
+
+    const imageHtml = normalizedComment.image
+        ? `<div class="comment-image-wrap mt-1"><a href="${normalizedComment.image}" target="_blank" rel="noopener"><img src="${normalizedComment.image}" alt="Ảnh bình luận" class="comment-image"></a></div>`
+        : '';
     
     // Tạo HTML cho comment mới
     const commentHTML = `
@@ -1042,7 +1051,8 @@ function addCommentToDOM(comment, postId, isReply, parentId) {
                        class="text-dark text-decoration-none fw-bold">
                         ${normalizedComment.author.username}
                     </a>
-                    ${normalizedComment.text}
+                    ${normalizedComment.text ? `<span class="ms-1">${normalizedComment.text}</span>` : ''}
+                    ${imageHtml}
                 </div>
                 <div class="dropdown">
                     <button class="btn btn-link btn-sm p-0 text-muted dropdown-toggle" 

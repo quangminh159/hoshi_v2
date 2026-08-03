@@ -13,6 +13,11 @@ urlpatterns = [
     path('settings/unlink-social/<str:provider>/', views.unlink_social, name='unlink_social'),
     path('settings/setup-2fa/', views.setup_two_factor, name='setup_two_factor'),
     path('settings/verify-2fa/', views.verify_two_factor, name='verify_two_factor'),
+    path('settings/change-email/', views.change_email, name='change_email'),
+    path('settings/change-email/verify/', views.verify_change_email, name='verify_change_email'),
+    path('settings/change-phone/', views.change_phone, name='change_phone'),
+    path('settings/change-phone/verify/', views.verify_change_phone, name='verify_change_phone'),
+    path('verify-2fa-login/', views.verify_two_factor_login, name='verify_two_factor_login'),
     
     # Block/Unblock URLs
     path('block/<int:user_id>/', views.block_user, name='block_user'),

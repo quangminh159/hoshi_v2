@@ -62,6 +62,25 @@ def _apply_attachment_to_message(message, request):
         message.file_size = video_file.size
         message.file_type = 'video'
         return True
+    if 'audio' in request.FILES:
+        audio_file = request.FILES['audio']
+        # Giới hạn ~10MB cho tin nhắn thoại (~2 phút)
+        if audio_file.size > 10 * 1024 * 1024:
+            return False
+        content_type = getattr(audio_file, 'content_type', '') or ''
+        if content_type and not content_type.startswith('audio/') and content_type not in (
+            'application/octet-stream',
+            'video/webm',  # một số trình duyệt ghi audio/webm dưới dạng video/webm
+        ):
+            # vẫn cho phép nếu tên file là voice.*
+            name = (audio_file.name or '').lower()
+            if not name.endswith(('.webm', '.m4a', '.ogg', '.mp3', '.wav', '.mp4')):
+                return False
+        message.audio = audio_file
+        message.file_name = audio_file.name
+        message.file_size = audio_file.size
+        message.file_type = 'audio'
+        return True
     if 'document' in request.FILES:
         document_file = request.FILES['document']
         message.document = document_file
@@ -177,9 +196,17 @@ def send_message(request, conversation_id):
             from django.contrib import messages
             messages.error(request, f'Không thể gửi tin nhắn vì một trong hai người đã chặn người còn lại.')
             return redirect('chat:conversation_detail', conversation_id=conversation_id)
+
+        if other_participant and not other_participant.can_receive_message_from(user):
+            from django.contrib import messages
+            messages.error(
+                request,
+                f'{other_participant.username} chỉ nhận tin nhắn từ người họ đang theo dõi.'
+            )
+            return redirect('chat:conversation_detail', conversation_id=conversation_id)
         
         message_content = request.POST.get('message', '').strip()
-        has_attachment = 'image' in request.FILES or 'video' in request.FILES or 'document' in request.FILES
+        has_attachment = any(key in request.FILES for key in ('image', 'video', 'document', 'audio'))
         
         # Tạo tin nhắn mới nếu có nội dung hoặc đính kèm
         if message_content or has_attachment:
@@ -190,29 +217,7 @@ def send_message(request, conversation_id):
                 content=message_content
             )
             
-            # Xử lý đính kèm hình ảnh
-            if 'image' in request.FILES:
-                image_file = request.FILES['image']
-                message.image = image_file
-                message.file_name = image_file.name
-                message.file_size = image_file.size
-                message.file_type = 'image'
-                
-            # Xử lý đính kèm video
-            elif 'video' in request.FILES:
-                video_file = request.FILES['video']
-                message.video = video_file
-                message.file_name = video_file.name
-                message.file_size = video_file.size
-                message.file_type = 'video'
-                
-            # Xử lý đính kèm tài liệu
-            elif 'document' in request.FILES:
-                document_file = request.FILES['document']
-                message.document = document_file
-                message.file_name = document_file.name
-                message.file_size = document_file.size
-                message.file_type = 'document'
+            _apply_attachment_to_message(message, request)
             
             # Lưu tin nhắn sau khi đã xử lý đính kèm
             message.save()
@@ -255,6 +260,13 @@ def direct_chat(request, username):
     ).first()
     
     if not conversation:
+        if not recipient.can_receive_message_from(user):
+            from django.contrib import messages
+            messages.error(
+                request,
+                f'{username} chỉ nhận tin nhắn từ người họ đang theo dõi.'
+            )
+            return redirect('chat:conversation_list')
         # Tạo cuộc trò chuyện mới
         conversation = Conversation.objects.create()
         ConversationParticipant.objects.create(conversation=conversation, user=user)
@@ -290,6 +302,13 @@ def start_conversation(request):
         ).first()
         
         if not conversation:
+            if not recipient.can_receive_message_from(request.user):
+                from django.contrib import messages
+                messages.error(
+                    request,
+                    f'{recipient.username} chỉ nhận tin nhắn từ người họ đang theo dõi.'
+                )
+                return redirect('chat:conversation_list')
             # Tạo cuộc trò chuyện mới
             conversation = Conversation.objects.create()
             ConversationParticipant.objects.create(conversation=conversation, user=request.user)
@@ -545,7 +564,7 @@ def upload_attachment(request, conversation_id):
     ):
         return JsonResponse({'status': 'error', 'message': 'Không thể gửi tin nhắn do bị chặn'}, status=403)
 
-    if not any(key in request.FILES for key in ('image', 'video', 'document')):
+    if not any(key in request.FILES for key in ('image', 'video', 'document', 'audio')):
         return JsonResponse({'status': 'error', 'message': 'Không có tệp đính kèm'}, status=400)
 
     message_content = request.POST.get('message', '').strip()

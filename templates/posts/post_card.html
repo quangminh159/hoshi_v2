@@ -1,4 +1,5 @@
 {% load static %}
+{% load i18n %}
 <div class="card mb-4" data-post-id="{{ post.id }}">
     <!-- Post Header -->
     <div class="card-header bg-white border-0 py-3">
@@ -24,7 +25,7 @@
             </div>
             <div class="d-flex align-items-center">
                 <div class="text-muted small me-3">
-                    {{ post.created_at|timesince }} trước
+                    {% blocktrans with time=post.created_at|timesince %}{{ time }} trước{% endblocktrans %}
                 </div>
                 {% if request.user == post.author %}
                 <div class="dropdown">
@@ -37,17 +38,17 @@
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li>
                             <a href="/posts/{{ post.id }}/" class="dropdown-item">
-                                <i class="fas fa-eye me-2"></i>Xem chi tiết
+                                <i class="fas fa-eye me-2"></i>{% trans "Xem chi tiết" %}
                             </a>
                         </li>
                         <li>
                             <a href="#" class="dropdown-item edit-post-btn" data-post-id="{{ post.id }}" data-bs-toggle="modal" data-bs-target="#editPostModal-{{ post.id }}">
-                                <i class="fas fa-edit me-2"></i>Chỉnh sửa
+                                <i class="fas fa-edit me-2"></i>{% trans "Chỉnh sửa" %}
                             </a>
                         </li>
                         <li>
                             <button class="dropdown-item text-danger" onclick="deletePost({{ post.id }})">
-                                <i class="fas fa-trash-alt me-2"></i>Xóa bài viết
+                                <i class="fas fa-trash-alt me-2"></i>{% trans "Xóa bài viết" %}
                             </button>
                         </li>
                     </ul>
@@ -72,7 +73,7 @@
         <!-- Thêm phần tiêu đề chia sẻ -->
         <div class="share-title p-2">
             <i class="fas fa-retweet text-primary me-1"></i>
-            <span class="text-muted">{{ post.author.username }} đã chia sẻ</span>
+            <span class="text-muted">{% blocktrans with username=post.author.username %}{{ username }} đã chia sẻ{% endblocktrans %}</span>
         </div>
         <div class="p-3">
             <!-- Caption của người chia sẻ -->
@@ -103,7 +104,7 @@
                             </span>
                             {% endif %}
                             <span>
-                                <i class="far fa-clock me-1"></i>{{ post.shared_from.created_at|timesince }} trước
+                                <i class="far fa-clock me-1"></i>{% blocktrans with time=post.shared_from.created_at|timesince %}{{ time }} trước{% endblocktrans %}
                             </span>
                         </div>
                     </div>
@@ -175,15 +176,15 @@
                 <div class="d-flex align-items-center small text-muted border-top pt-2">
                     <div class="me-3">
                         <i class="far fa-heart me-1"></i>
-                        <span>{{ post.shared_from.likes_count }} lượt thích</span>
+                        <span>{% blocktrans with count=post.shared_from.likes_count %}{{ count }} lượt thích{% endblocktrans %}</span>
                     </div>
                     <div class="me-3">
                         <i class="far fa-comment me-1"></i>
-                        <span>{{ post.shared_from.comments_count }} bình luận</span>
+                        <span>{% blocktrans with count=post.shared_from.comments_count %}{{ count }} bình luận{% endblocktrans %}</span>
                     </div>
                     <div>
                         <i class="far fa-share-square me-1"></i>
-                        <a href="{% url 'posts:post_detail' post_id=post.shared_from.id %}" class="text-muted text-decoration-none">Xem bài viết gốc</a>
+                        <a href="{% url 'posts:post_detail' post_id=post.shared_from.id %}" class="text-muted text-decoration-none">{% trans "Xem bài viết gốc" %}</a>
                     </div>
                 </div>
             </div>
@@ -274,7 +275,7 @@
         {% if not post.hide_likes %}
         <p class="mb-2 likes-count-display">
             <a href="#" class="text-dark text-decoration-none fw-bold" data-post-id="{{ post.id }}">
-                {{ post.likes_count }} lượt thích
+                {% blocktrans with count=post.likes_count %}{{ count }} lượt thích{% endblocktrans %}
             </a>
         </p>
         {% endif %}
@@ -324,7 +325,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Cập nhật các hiển thị số lượt like khác trên trang
                 document.querySelectorAll(`.likes-count-display a[data-post-id="${postId}"]`).forEach(element => {
-                    element.textContent = `${data.likes_count} lượt thích`;
+                    element.textContent = `${data.likes_count} {% trans "lượt thích" %}`;
                 });
             })
             .catch(error => {
@@ -369,7 +370,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const mediaId = this.dataset.mediaId;
             const mediaItem = this.closest('.media-item');
             
-            if (confirm('Bạn có chắc chắn muốn xóa phương tiện này không?')) {
+            if (confirm('{% trans "Bạn có chắc chắn muốn xóa phương tiện này không?" %}')) {
                 mediaItem.classList.add('opacity-50');
                 mediaItem.dataset.deleted = 'true';
             }
@@ -433,7 +434,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Disable button to prevent multiple submissions
             this.disabled = true;
-            this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Đang lưu...';
+            this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> {% trans "Đang lưu..." %}';
             
             // Tạo FormData để hỗ trợ tải file
             const formData = new FormData();
@@ -485,9 +486,9 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => {
                 if (!response.ok) {
                     if (response.status === 403) {
-                        throw new Error('Bạn không có quyền chỉnh sửa bài viết này.');
+                        throw new Error('{% trans "Bạn không có quyền chỉnh sửa bài viết này." %}');
                     } else {
-                        throw new Error('Có lỗi xảy ra khi cập nhật bài viết.');
+                        throw new Error('{% trans "Có lỗi xảy ra khi cập nhật bài viết." %}');
                     }
                 }
                 return response.json();
@@ -495,7 +496,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 // Restore button state
                 this.disabled = false;
-                this.innerHTML = 'Lưu thay đổi';
+                this.innerHTML = '{% trans "Lưu thay đổi" %}';
                 
                 if (data.status === 'success') {
                     // Update post content in the UI
@@ -512,11 +513,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                     
                     // Thông báo thành công
-                    alert('Đã cập nhật bài viết thành công!');
+                    alert('{% trans "Đã cập nhật bài viết thành công!" %}');
                     try { sessionStorage.setItem('postsFeedStale', '1'); } catch (_) {}
                     window.location.replace(`${window.location.pathname.split('?')[0]}?_=${Date.now()}`);
                 } else {
-                    alert(data.message || 'Có lỗi xảy ra khi cập nhật bài viết.');
+                    alert(data.message || '{% trans "Có lỗi xảy ra khi cập nhật bài viết." %}');
                 }
             })
             .catch(error => {
@@ -524,9 +525,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Restore button state
                 this.disabled = false;
-                this.innerHTML = 'Lưu thay đổi';
+                this.innerHTML = '{% trans "Lưu thay đổi" %}';
                 
-                alert(error.message || 'Có lỗi xảy ra khi cập nhật bài viết.');
+                alert(error.message || '{% trans "Có lỗi xảy ra khi cập nhật bài viết." %}');
             });
         });
     });
@@ -536,7 +537,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Function to delete post
 function deletePost(postId) {
-    if (confirm('Bạn có chắc chắn muốn xóa bài viết này không?')) {
+    if (confirm('{% trans "Bạn có chắc chắn muốn xóa bài viết này không?" %}')) {
         // Hiển thị trạng thái loading
         const postCard = document.querySelector(`.card[data-post-id="${postId}"]`);
         if (postCard) {
@@ -552,11 +553,11 @@ function deletePost(postId) {
         .then(response => {
             if (!response.ok) {
                 if (response.status === 403) {
-                    throw new Error('Bạn không có quyền xóa bài viết này.');
+                    throw new Error('{% trans "Bạn không có quyền xóa bài viết này." %}');
                 } else if (response.status === 404) {
-                    throw new Error('Không tìm thấy bài viết.');
+                    throw new Error('{% trans "Không tìm thấy bài viết." %}');
                 } else {
-                    throw new Error('Có lỗi xảy ra khi xóa bài viết.');
+                    throw new Error('{% trans "Có lỗi xảy ra khi xóa bài viết." %}');
                 }
             }
             return response.json();
@@ -572,7 +573,7 @@ function deletePost(postId) {
                 }
                 
                 // Hiển thị thông báo thành công
-                alert(data.message || 'Đã xóa bài viết thành công!');
+                alert(data.message || '{% trans "Đã xóa bài viết thành công!" %}');
             } else {
                 // Khôi phục trạng thái card
                 if (postCard) {
@@ -580,7 +581,7 @@ function deletePost(postId) {
                 }
                 
                 // Hiển thị thông báo lỗi
-                alert(data.message || 'Có lỗi xảy ra khi xóa bài viết.');
+                alert(data.message || '{% trans "Có lỗi xảy ra khi xóa bài viết." %}');
             }
         })
         .catch(error => {
@@ -591,7 +592,7 @@ function deletePost(postId) {
                 postCard.style.opacity = '1';
             }
             
-            alert(error.message || 'Có lỗi xảy ra khi xóa bài viết.');
+            alert(error.message || '{% trans "Có lỗi xảy ra khi xóa bài viết." %}');
         });
     }
 }
@@ -618,23 +619,23 @@ function getCookie(name) {
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="editPostModalLabel-{{ post.id }}">Chỉnh sửa bài viết</h5>
+                <h5 class="modal-title" id="editPostModalLabel-{{ post.id }}">{% trans "Chỉnh sửa bài viết" %}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="editPostForm-{{ post.id }}" enctype="multipart/form-data">
                     <div class="mb-3">
-                        <label for="edit-caption-{{ post.id }}" class="form-label">Nội dung</label>
+                        <label for="edit-caption-{{ post.id }}" class="form-label">{% trans "Nội dung" %}</label>
                         <textarea class="form-control" id="edit-caption-{{ post.id }}" rows="5">{{ post.caption }}</textarea>
                     </div>
                     <div class="mb-3">
-                        <label for="edit-location-{{ post.id }}" class="form-label">Địa điểm</label>
+                        <label for="edit-location-{{ post.id }}" class="form-label">{% trans "Địa điểm" %}</label>
                         <input type="text" class="form-control" id="edit-location-{{ post.id }}" value="{{ post.location }}">
                     </div>
                     
                     <!-- Hiển thị media hiện tại -->
                     <div class="mb-3">
-                        <label class="form-label">Phương tiện hiện tại</label>
+                        <label class="form-label">{% trans "Phương tiện hiện tại" %}</label>
                         <div class="current-media-container d-flex flex-wrap gap-2">
                             {% for media in post.media.all %}
                             <div class="media-item position-relative" data-media-id="{{ media.id }}">
@@ -655,9 +656,9 @@ function getCookie(name) {
                     
                     <!-- Thêm media mới -->
                     <div class="mb-3">
-                        <label for="edit-new-media-{{ post.id }}" class="form-label">Thêm ảnh/video mới</label>
+                        <label for="edit-new-media-{{ post.id }}" class="form-label">{% trans "Thêm ảnh/video mới" %}</label>
                         <input type="file" class="form-control" id="edit-new-media-{{ post.id }}" multiple accept="image/*,video/*">
-                        <div class="form-text">Bạn có thể chọn nhiều ảnh hoặc video cùng lúc.</div>
+                        <div class="form-text">{% trans "Bạn có thể chọn nhiều ảnh hoặc video cùng lúc." %}</div>
                         
                         <!-- Preview media mới -->
                         <div class="new-media-preview d-flex flex-wrap gap-2 mt-2"></div>
@@ -666,20 +667,20 @@ function getCookie(name) {
                     <div class="mb-3">
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" id="edit-disable-comments-{{ post.id }}" {% if post.disable_comments %}checked{% endif %}>
-                            <label class="form-check-label" for="edit-disable-comments-{{ post.id }}">Tắt bình luận</label>
+                            <label class="form-check-label" for="edit-disable-comments-{{ post.id }}">{% trans "Tắt bình luận" %}</label>
                         </div>
                     </div>
                     <div class="mb-3">
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" id="edit-hide-likes-{{ post.id }}" {% if post.hide_likes %}checked{% endif %}>
-                            <label class="form-check-label" for="edit-hide-likes-{{ post.id }}">Ẩn lượt thích</label>
+                            <label class="form-check-label" for="edit-hide-likes-{{ post.id }}">{% trans "Ẩn lượt thích" %}</label>
                         </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                <button type="button" class="btn btn-primary save-post-changes" data-post-id="{{ post.id }}">Lưu thay đổi</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Hủy" %}</button>
+                <button type="button" class="btn btn-primary save-post-changes" data-post-id="{{ post.id }}">{% trans "Lưu thay đổi" %}</button>
             </div>
         </div>
     </div>

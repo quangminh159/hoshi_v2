@@ -2,7 +2,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth import get_user_model
 from accounts.models import UserFollowing
-from posts.models import Like, Comment
+from posts.models import Like, Comment, Mention
 from chat.models import ConversationMessage
 from .models import Notification
 from channels.layers import get_channel_layer
@@ -12,11 +12,19 @@ User = get_user_model()
 channel_layer = get_channel_layer()
 
 
+def _pref_enabled(user, flag_name):
+    return bool(getattr(user, flag_name, True))
+
+
 def send_notification_to_websocket(notification):
-    """Gửi thông báo đến WebSocket."""
+    """Gửi thông báo đến WebSocket nếu recipient bật push."""
     try:
+        recipient = notification.recipient
+        if not _pref_enabled(recipient, 'push_notifications'):
+            return
+
         unread_count = Notification.objects.filter(
-            recipient=notification.recipient,
+            recipient=recipient,
             is_read=False
         ).count()
 
@@ -46,7 +54,7 @@ def send_notification_to_websocket(notification):
         }
 
         async_to_sync(channel_layer.group_send)(
-            f'notifications_{notification.recipient.id}',
+            f'notifications_{recipient.id}',
             notification_data
         )
     except Exception as e:
@@ -55,29 +63,61 @@ def send_notification_to_websocket(notification):
 
 @receiver(post_save, sender=Like)
 def create_like_notification(sender, instance, created, **kwargs):
-    if created and instance.user != instance.post.author:
-        notification = Notification.objects.create(
-            recipient=instance.post.author,
-            sender=instance.user,
-            notification_type='like',
-            post=instance.post,
-            text=f'{instance.user.username} đã thích bài viết của bạn'
-        )
-        send_notification_to_websocket(notification)
+    if not created or instance.user == instance.post.author:
+        return
+    recipient = instance.post.author
+    if not _pref_enabled(recipient, 'like_notifications'):
+        return
+
+    notification = Notification.objects.create(
+        recipient=recipient,
+        sender=instance.user,
+        notification_type='like',
+        post=instance.post,
+        text=f'{instance.user.username} đã thích bài viết của bạn'
+    )
+    send_notification_to_websocket(notification)
 
 
 @receiver(post_save, sender=Comment)
 def create_comment_notification(sender, instance, created, **kwargs):
-    if created and instance.author != instance.post.author:
-        notification = Notification.objects.create(
-            recipient=instance.post.author,
-            sender=instance.author,
-            notification_type='comment',
-            post=instance.post,
-            comment=instance,
-            text=f'{instance.author.username} đã bình luận về bài viết của bạn'
-        )
-        send_notification_to_websocket(notification)
+    if not created or instance.author == instance.post.author:
+        return
+    recipient = instance.post.author
+    if not _pref_enabled(recipient, 'comment_notifications'):
+        return
+
+    notification = Notification.objects.create(
+        recipient=recipient,
+        sender=instance.author,
+        notification_type='comment',
+        post=instance.post,
+        comment=instance,
+        text=f'{instance.author.username} đã bình luận về bài viết của bạn'
+    )
+    send_notification_to_websocket(notification)
+
+
+@receiver(post_save, sender=Mention)
+def create_mention_notification(sender, instance, created, **kwargs):
+    if not created:
+        return
+    recipient = instance.user
+    sender_user = getattr(instance.post, 'author', None)
+    if not sender_user or sender_user == recipient:
+        return
+    if not _pref_enabled(recipient, 'mention_notifications'):
+        return
+
+    notification = Notification.objects.create(
+        recipient=recipient,
+        sender=sender_user,
+        notification_type='mention',
+        post=instance.post,
+        comment=instance.comment,
+        text=f'{sender_user.username} đã nhắc đến bạn'
+    )
+    send_notification_to_websocket(notification)
 
 
 @receiver(post_save, sender=ConversationMessage)
@@ -86,7 +126,7 @@ def create_conversation_message_notification(sender, instance, created, **kwargs
         return
 
     for participant in instance.conversation.participants.exclude(id=instance.sender_id):
-        if hasattr(participant, 'message_notifications') and not participant.message_notifications:
+        if not _pref_enabled(participant, 'message_notifications'):
             continue
 
         notification = Notification.objects.create(
@@ -107,7 +147,7 @@ def create_follow_notification(sender, instance, created, **kwargs):
     followed_user = instance.following_user
     follower = instance.user
 
-    if hasattr(followed_user, 'follow_notifications') and not followed_user.follow_notifications:
+    if not _pref_enabled(followed_user, 'follow_notifications'):
         return
 
     notification = Notification.objects.create(

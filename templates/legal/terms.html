@@ -1,0 +1,109 @@
+{% extends 'base/auth_base.html' %}
+{% load static %}
+
+{% block title %}Điều khoản sử dụng - Hoshi{% endblock %}
+
+{% block extra_css %}
+<style>
+.legal-page {
+    min-height: 100vh;
+    padding: 2.5rem 0 3rem;
+    background: linear-gradient(160deg, #f7f9fc 0%, #eef2f7 55%, #f8fafc 100%);
+}
+.legal-card {
+    background: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 0.5rem 1.5rem rgba(15, 23, 42, 0.06);
+    padding: 2rem;
+}
+.legal-card h1 {
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+}
+.legal-card .updated {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 1.75rem;
+}
+.legal-card h2 {
+    font-size: 1.15rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+.legal-card p,
+.legal-card li {
+    color: #334155;
+    line-height: 1.65;
+}
+.legal-card ul {
+    padding-left: 1.25rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="legal-page">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="legal-card">
+                    <div class="mb-3">
+                        <a href="{% url 'account_signup' %}" class="text-decoration-none">
+                            <i class="fas fa-arrow-left me-1"></i>Quay lại đăng ký
+                        </a>
+                    </div>
+                    <h1>Điều khoản sử dụng</h1>
+                    <p class="updated">Cập nhật lần cuối: 04/08/2026</p>
+
+                    <p>
+                        Chào mừng bạn đến với Hoshi. Khi tạo tài khoản hoặc sử dụng dịch vụ,
+                        bạn đồng ý tuân thủ các điều khoản dưới đây.
+                    </p>
+
+                    <h2>1. Tài khoản người dùng</h2>
+                    <ul>
+                        <li>Bạn phải cung cấp thông tin chính xác (tên người dùng, email, số điện thoại) khi đăng ký.</li>
+                        <li>Bạn chịu trách nhiệm bảo mật mật khẩu và mọi hoạt động diễn ra trên tài khoản của mình.</li>
+                        <li>Không được tạo tài khoản giả mạo hoặc mạo danh người khác.</li>
+                    </ul>
+
+                    <h2>2. Nội dung và hành vi</h2>
+                    <ul>
+                        <li>Không đăng nội dung bất hợp pháp, bạo lực, thù địch, khiêu dâm hoặc xâm phạm quyền riêng tư.</li>
+                        <li>Không spam, lừa đảo, phát tán malware hoặc cố gắng tấn công hệ thống.</li>
+                        <li>Hoshi có quyền gỡ nội dung hoặc đình chỉ tài khoản nếu vi phạm.</li>
+                    </ul>
+
+                    <h2>3. Quyền sở hữu</h2>
+                    <p>
+                        Bạn giữ quyền đối với nội dung bạn đăng. Bằng việc đăng tải, bạn cấp cho Hoshi
+                        quyền hiển thị và phân phối nội dung đó trong phạm vi dịch vụ.
+                    </p>
+
+                    <h2>4. Chấm dứt dịch vụ</h2>
+                    <p>
+                        Bạn có thể xóa tài khoản bất cứ lúc nào trong phần Cài đặt.
+                        Hoshi có thể tạm dừng hoặc chấm dứt quyền truy cập nếu phát hiện vi phạm nghiêm trọng.
+                    </p>
+
+                    <h2>5. Thay đổi điều khoản</h2>
+                    <p>
+                        Chúng tôi có thể cập nhật Điều khoản sử dụng theo thời gian.
+                        Phiên bản mới sẽ được đăng tại trang này kèm ngày cập nhật.
+                    </p>
+
+                    <h2>6. Liên hệ</h2>
+                    <p>
+                        Nếu có thắc mắc về điều khoản, vui lòng liên hệ đội ngũ hỗ trợ Hoshi qua email đã đăng ký trên hệ thống.
+                    </p>
+
+                    <div class="mt-4 d-flex gap-2 flex-wrap">
+                        <a href="{% url 'privacy' %}" class="btn btn-outline-primary">Xem Chính sách bảo mật</a>
+                        <a href="{% url 'account_signup' %}" class="btn btn-primary">Tiếp tục đăng ký</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

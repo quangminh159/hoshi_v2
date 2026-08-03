@@ -167,7 +167,14 @@
                                class="text-dark text-decoration-none fw-bold">
                                 {{ comment.author.username }}
                             </a>
-                            <span class="comment-text">{{ comment.text|urlize|linebreaksbr }}</span>
+                            {% if comment.text %}<span class="comment-text">{{ comment.text|urlize|linebreaksbr }}</span>{% endif %}
+                            {% if comment.image %}
+                            <div class="comment-image-wrap mt-1">
+                                <a href="{{ comment.image.url }}" target="_blank" rel="noopener">
+                                    <img src="{{ comment.image.url }}" alt="Ảnh bình luận" class="comment-image">
+                                </a>
+                            </div>
+                            {% endif %}
                         </div>
                         <div class="dropdown flex-shrink-0">
                             <button class="btn btn-link btn-sm p-0 text-muted" type="button" data-bs-toggle="dropdown">
@@ -227,7 +234,14 @@
                                     </a>
                                     <span class="text-muted small me-1">đã trả lời</span>
                                     <a href="#comment-{{ comment.id }}" class="text-dark fw-bold small">@{{ comment.author.username }}</a>:
-                                    <span class="comment-text">{{ reply.reply.text|urlize|linebreaksbr }}</span>
+                                    {% if reply.reply.text %}<span class="comment-text">{{ reply.reply.text|urlize|linebreaksbr }}</span>{% endif %}
+                                    {% if reply.reply.image %}
+                                    <div class="comment-image-wrap mt-1">
+                                        <a href="{{ reply.reply.image.url }}" target="_blank" rel="noopener">
+                                            <img src="{{ reply.reply.image.url }}" alt="Ảnh bình luận" class="comment-image">
+                                        </a>
+                                    </div>
+                                    {% endif %}
                                 </div>
                                 <div class="dropdown flex-shrink-0">
                                     <button class="btn btn-link btn-sm p-0 text-muted" type="button" data-bs-toggle="dropdown">
@@ -289,13 +303,30 @@
         </div>
 
         {% if not post.disable_comments %}
-        <form class="add-comment-form post-detail-comment-form" data-post-id="{{ post.id }}" data-no-auto="true" onsubmit="return false;">
+        <form class="add-comment-form post-detail-comment-form" data-post-id="{{ post.id }}" data-no-auto="true" enctype="multipart/form-data" onsubmit="return false;">
+            <div class="comment-image-preview d-none mb-2" id="comment-image-preview-{{ post.id }}">
+                <div class="comment-image-preview-inner">
+                    <img src="" alt="Xem trước ảnh" class="comment-preview-thumb">
+                    <button type="button" class="btn btn-sm btn-light comment-image-clear" title="Xóa ảnh">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
             <div class="input-group">
+                <label class="btn btn-light border comment-image-btn mb-0" title="Đính kèm ảnh" for="comment-image-{{ post.id }}">
+                    <i class="far fa-image"></i>
+                </label>
+                <input type="file"
+                       class="d-none comment-image-input"
+                       id="comment-image-{{ post.id }}"
+                       name="image"
+                       accept="image/*">
                 <input type="text"
                        class="form-control"
                        placeholder="Viết bình luận..."
                        name="text"
-                       id="comment-input">
+                       id="comment-input"
+                       autocomplete="off">
                 <button class="btn btn-primary comment-btn" type="button">
                     <span class="btn-text">Gửi</span>
                     <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>

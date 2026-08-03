@@ -3,7 +3,7 @@
 {% load static %}
 {% load account socialaccount %}
 
-{% block title %}Đăng ký - {{ block.super }}{% endblock %}
+{% block title %}{% trans "Đăng ký" %} - {{ block.super }}{% endblock %}
 
 {% block content %}
 <div class="auth-page">
@@ -14,8 +14,8 @@
                     <div class="card-body">
                         <div class="text-center mb-4">
                             <img src="{% static 'images/logo-mark.svg' %}" alt="M" class="auth-logo">
-                            <h1 class="auth-title">Tạo tài khoản mới</h1>
-                            <p class="auth-subtitle">Tham gia cộng đồng Hoshi ngay hôm nay</p>
+                            <h1 class="auth-title">{% trans "Tạo tài khoản mới" %}</h1>
+                            <p class="auth-subtitle">{% trans "Tham gia cộng đồng Hoshi ngay hôm nay" %}</p>
                         </div>
 
                         {% if form.errors %}
@@ -42,7 +42,7 @@
                             {% csrf_token %}
 
                             <div class="mb-4">
-                                <label for="id_username" class="form-label">Tên người dùng</label>
+                                <label for="id_username" class="form-label">{% trans "Tên người dùng" %}</label>
                                 <div class="input-group">
                                     <span class="input-group-text">
                                         <i class="fas fa-user"></i>
@@ -51,7 +51,7 @@
                                            class="form-control {% if form.username.errors %}is-invalid{% endif %}" 
                                            id="id_username" 
                                            name="username" 
-                                           placeholder="Chọn tên người dùng của bạn"
+                                           placeholder="{% trans 'Chọn tên người dùng của bạn' %}"
                                            required>
                                     {% if form.username.errors %}
                                         <div class="invalid-feedback">
@@ -64,7 +64,7 @@
                             </div>
 
                             <div class="mb-4">
-                                <label for="id_email" class="form-label">Email</label>
+                                <label for="id_email" class="form-label">{% trans "Email" %}</label>
                                 <div class="input-group">
                                     <span class="input-group-text">
                                         <i class="fas fa-envelope"></i>
@@ -73,7 +73,7 @@
                                            class="form-control {% if form.email.errors %}is-invalid{% endif %}" 
                                            id="id_email" 
                                            name="email" 
-                                           placeholder="Nhập địa chỉ email của bạn"
+                                           placeholder="{% trans 'Nhập địa chỉ email của bạn' %}"
                                            required>
                                     {% if form.email.errors %}
                                         <div class="invalid-feedback">
@@ -86,29 +86,22 @@
                             </div>
 
                             <div class="mb-4">
-                                <label for="id_phone_number" class="form-label">Số điện thoại</label>
-                                <div class="input-group">
-                                    <span class="input-group-text">
-                                        <i class="fas fa-phone"></i>
-                                    </span>
-                                    <input type="tel" 
-                                           class="form-control {% if form.phone_number.errors %}is-invalid{% endif %}" 
-                                           id="id_phone_number" 
-                                           name="phone_number" 
-                                           placeholder="Nhập số điện thoại của bạn"
-                                           required>
-                                    {% if form.phone_number.errors %}
-                                        <div class="invalid-feedback">
-                                            {% for error in form.phone_number.errors %}
-                                                {{ error }}
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
+                                <label for="id_phone_number_1" class="form-label">{% trans "Số điện thoại" %}</label>
+                                <div class="phone-intl-field {% if form.phone_number.errors %}is-invalid-group{% endif %}">
+                                    {{ form.phone_number }}
                                 </div>
+                                <div class="form-text">{% trans "Chọn mã quốc gia rồi nhập số điện thoại (hỗ trợ mọi quốc gia)." %}</div>
+                                {% if form.phone_number.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.phone_number.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
                             </div>
 
                             <div class="mb-4">
-                                <label for="id_birth_date" class="form-label">Ngày sinh</label>
+                                <label for="id_birth_date" class="form-label">{% trans "Ngày sinh" %}</label>
                                 <div class="input-group">
                                     <span class="input-group-text">
                                         <i class="fas fa-calendar-alt"></i>
@@ -117,7 +110,7 @@
                                            class="form-control {% if form.birth_date.errors %}is-invalid{% endif %}" 
                                            id="id_birth_date" 
                                            name="birth_date" 
-                                           placeholder="Chọn ngày sinh của bạn"
+                                           placeholder="{% trans 'Chọn ngày sinh của bạn' %}"
                                            required>
                                     {% if form.birth_date.errors %}
                                         <div class="invalid-feedback">
@@ -130,7 +123,7 @@
                             </div>
 
                             <div class="mb-4">
-                                <label for="id_gender" class="form-label">Giới tính</label>
+                                <label for="id_gender" class="form-label">{% trans "Giới tính" %}</label>
                                 <div class="input-group">
                                     <span class="input-group-text">
                                         <i class="fas fa-venus-mars"></i>
@@ -141,10 +134,10 @@
                                         name="gender" 
                                         required
                                     >
-                                        <option value="">Chọn giới tính</option>
-                                        <option value="M">Nam</option>
-                                        <option value="F">Nữ</option>
-                                        <option value="O">Khác</option>
+                                        <option value="">{% trans "Chọn giới tính" %}</option>
+                                        <option value="M">{% trans "Nam" %}</option>
+                                        <option value="F">{% trans "Nữ" %}</option>
+                                        <option value="O">{% trans "Khác" %}</option>
                                     </select>
                                     {% if form.gender.errors %}
                                         <div class="invalid-feedback">
@@ -157,7 +150,7 @@
                             </div>
 
                             <div class="mb-4">
-                                <label for="id_password1" class="form-label">Mật khẩu</label>
+                                <label for="id_password1" class="form-label">{% trans "Mật khẩu" %}</label>
                                 <div class="input-group">
                                     <span class="input-group-text">
                                         <i class="fas fa-lock"></i>
@@ -166,7 +159,7 @@
                                            class="form-control {% if form.password1.errors %}is-invalid{% endif %}" 
                                            id="id_password1" 
                                            name="password1" 
-                                           placeholder="Tạo mật khẩu mới"
+                                           placeholder="{% trans 'Tạo mật khẩu mới' %}"
                                            required>
                                     <button class="btn btn-outline-secondary" type="button" id="togglePassword1">
                                         <i class="fas fa-eye"></i>
@@ -187,7 +180,7 @@
                             </div>
 
                             <div class="mb-4">
-                                <label for="id_password2" class="form-label">Xác nhận mật khẩu</label>
+                                <label for="id_password2" class="form-label">{% trans "Xác nhận mật khẩu" %}</label>
                                 <div class="input-group">
                                     <span class="input-group-text">
                                         <i class="fas fa-lock"></i>
@@ -196,7 +189,7 @@
                                            class="form-control {% if form.password2.errors %}is-invalid{% endif %}" 
                                            id="id_password2" 
                                            name="password2" 
-                                           placeholder="Nhập lại mật khẩu"
+                                           placeholder="{% trans 'Nhập lại mật khẩu' %}"
                                            required>
                                     <button class="btn btn-outline-secondary" type="button" id="togglePassword2">
                                         <i class="fas fa-eye"></i>
@@ -213,10 +206,26 @@
 
                             <div class="mb-4">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="terms" required>
-                                    <label class="form-check-label small" for="terms">
-                                        Tôi đồng ý với <a href="#" target="_blank">Điều khoản sử dụng</a> và <a href="#" target="_blank">Chính sách bảo mật</a>
+                                    <input class="form-check-input {% if form.agree_terms.errors %}is-invalid{% endif %}"
+                                           type="checkbox"
+                                           id="id_agree_terms"
+                                           name="agree_terms"
+                                           {% if form.agree_terms.value %}checked{% endif %}
+                                           required>
+                                    <label class="form-check-label small" for="id_agree_terms">
+                                        {% trans "Tôi đồng ý với" %}
+                                        <a href="{% url 'terms' %}" target="_blank" rel="noopener">{% trans "Điều khoản sử dụng" %}</a>
+                                        {% trans "và" %}
+                                        <a href="{% url 'privacy' %}" target="_blank" rel="noopener">{% trans "Chính sách bảo mật" %}</a>
+                                        {% trans "của Hoshi" %}
                                     </label>
+                                    {% if form.agree_terms.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.agree_terms.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
                                 </div>
                             </div>
 
@@ -225,12 +234,12 @@
                             {% endif %}
 
                             <button type="submit" class="btn btn-primary w-100">
-                                <i class="fas fa-user-plus me-2"></i>Đăng ký
+                                <i class="fas fa-user-plus me-2"></i>{% trans "Đăng ký" %}
                             </button>
                         </form>
 
                         <div class="auth-separator">
-                            <span>hoặc đăng ký với</span>
+                            <span>{% trans "hoặc đăng ký với" %}</span>
                         </div>
 
                         <div class="social-login">
@@ -239,7 +248,7 @@
                                 {% if provider.id == 'google' %}
                                     <a href="{% provider_login_url provider.id process='signup' %}" class="social-btn google">
                                         <i class="fab fa-google"></i>
-                                        <span>Đăng ký với Google</span>
+                                        <span>{% trans "Đăng ký với Google" %}</span>
                                     </a>
                                 
                                 {% endif %}
@@ -247,7 +256,7 @@
                         </div>
 
                         <div class="auth-footer">
-                            <p>Đã có tài khoản? <a href="{% url 'account_login' %}">Đăng nhập ngay</a></p>
+                            <p>{% trans "Đã có tài khoản?" %} <a href="{% url 'account_login' %}">{% trans "Đăng nhập ngay" %}</a></p>
                         </div>
                     </div>
                 </div>
@@ -280,4 +289,4 @@ function setupPasswordToggle(buttonId, passwordId) {
 setupPasswordToggle('togglePassword1', 'id_password1');
 setupPasswordToggle('togglePassword2', 'id_password2');
 </script>
-{% endblock %} 
+{% endblock %}

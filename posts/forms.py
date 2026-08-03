@@ -37,12 +37,23 @@ class CommentForm(forms.ModelForm):
             'aria-label': 'Thêm bình luận',
             'aria-describedby': 'button-addon2'
         }),
-        max_length=500
+        max_length=500,
+        required=False,
     )
+    image = forms.ImageField(required=False)
     
     class Meta:
         model = Comment
-        fields = ['text']
+        fields = ['text', 'image']
+
+    def clean(self):
+        cleaned = super().clean()
+        text = (cleaned.get('text') or '').strip()
+        image = cleaned.get('image')
+        if not text and not image:
+            raise forms.ValidationError('Vui lòng nhập nội dung hoặc chọn ảnh bình luận.')
+        cleaned['text'] = text
+        return cleaned
 
 class PostReportForm(forms.ModelForm):
     """Form báo cáo bài viết vi phạm"""

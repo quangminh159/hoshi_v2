@@ -685,6 +685,29 @@ a:hover {
     font-weight: 500;
 }
 
+.phone-intl-field {
+    display: flex;
+    gap: 0.5rem;
+    align-items: stretch;
+}
+
+.phone-intl-field select.phone-country-select,
+.phone-intl-field select {
+    max-width: 42%;
+    min-width: 7.5rem;
+    flex: 0 0 auto;
+}
+
+.phone-intl-field input {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.phone-intl-field.is-invalid-group select,
+.phone-intl-field.is-invalid-group input {
+    border-color: #dc3545;
+}
+
 .auth-form .btn-primary {
     padding: 0.875rem 1.5rem;
     font-size: 1.1rem;
@@ -1316,5 +1339,18 @@ body {
         padding-top: 72px !important;
         padding-bottom: 72px !important;
         margin-top: 0 !important;
+    }
+
+    /* An thanh task duoi khi dang o phan tin nhan (sau rule chung de khong bi ghi de) */
+    body.user-authenticated.chat-layout .mobile-bottom-nav,
+    body.user-authenticated.chat-detail-layout .mobile-bottom-nav,
+    body.user-authenticated:has(.chat-page) .mobile-bottom-nav {
+        display: none !important;
+    }
+
+    body.user-authenticated.chat-layout .site-main,
+    body.user-authenticated.chat-detail-layout .site-main,
+    body.user-authenticated:has(.chat-page) .site-main {
+        padding-bottom: 0 !important;
     }
 } 

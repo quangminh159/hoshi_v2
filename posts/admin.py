@@ -205,10 +205,14 @@ class PostMediaAdmin(admin.ModelAdmin):
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ('id', 'author', 'post', 'text', 'created_at', 'likes_count')
+    list_display = ('id', 'author', 'post', 'text', 'has_image', 'created_at', 'likes_count')
     list_filter = ('created_at',)
     search_fields = ('author__username', 'text', 'post__caption')
     readonly_fields = ('created_at', 'updated_at', 'likes_count')
+
+    @admin.display(boolean=True, description='Ảnh')
+    def has_image(self, obj):
+        return bool(obj.image)
 
 @admin.register(Like)
 class LikeAdmin(admin.ModelAdmin):

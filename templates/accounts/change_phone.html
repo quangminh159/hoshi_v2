@@ -1,0 +1,48 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Đổi số điện thoại - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h1 class="h4 mb-2">Đổi số điện thoại</h1>
+                    <p class="text-muted mb-4">
+                        {% if current_phone %}
+                            Chúng tôi sẽ gửi mã xác thực đến số hiện tại
+                            <strong>{{ current_phone }}</strong>
+                            (nếu SMS không khả dụng, mã sẽ gửi về email của bạn).
+                        {% else %}
+                            Bạn chưa có SĐT. Mã xác thực sẽ được gửi về email hiện tại để thêm số mới.
+                        {% endif %}
+                    </p>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                        {% endif %}
+                        <div class="mb-3">
+                            <label class="form-label" for="id_new_phone_1">Số điện thoại mới</label>
+                            <div class="phone-intl-field {% if form.new_phone.errors %}is-invalid-group{% endif %}">
+                                {{ form.new_phone }}
+                            </div>
+                            <div class="form-text">Chọn mã quốc gia rồi nhập số (hỗ trợ mọi quốc gia).</div>
+                            {% if form.new_phone.errors %}
+                                <div class="text-danger small mt-1">{{ form.new_phone.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Gửi mã xác thực</button>
+                            <a href="{% url 'accounts:settings' %}?tab=profile#profile" class="btn btn-outline-secondary">Hủy</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

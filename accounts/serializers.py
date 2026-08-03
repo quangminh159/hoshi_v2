@@ -69,9 +69,22 @@ class UserSettingsSerializer(serializers.ModelSerializer):
             'push_notifications', 'email_notifications',
             'like_notifications', 'comment_notifications',
             'follow_notifications', 'mention_notifications',
+            'message_notifications', 'summary_notifications',
+            'inactive_notifications',
             'private_account', 'hide_activity', 'block_messages',
+            'language',
             'two_factor_auth'
         ]
+        read_only_fields = ['two_factor_auth']
+
+    def update(self, instance, validated_data):
+        if 'private_account' in validated_data:
+            validated_data['is_private'] = validated_data['private_account']
+        elif 'is_private' in validated_data:
+            validated_data['private_account'] = validated_data['is_private']
+        # Never allow enabling 2FA via API without TOTP verify
+        validated_data.pop('two_factor_auth', None)
+        return super().update(instance, validated_data)
 
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(required=True)

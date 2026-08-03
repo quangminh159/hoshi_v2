@@ -3,11 +3,54 @@ from django.urls import reverse, resolve
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.utils.deprecation import MiddlewareMixin
+from django.utils import translation
+from django.conf import settings as django_settings
 import re
 import uuid
 from user_agents import parse
 from .models import Device
 from ipware import get_client_ip
+
+
+class UserLanguageMiddleware(MiddlewareMixin):
+    """Activate the authenticated user's preferred language and keep the language cookie in sync."""
+
+    def process_request(self, request):
+        user = getattr(request, 'user', None)
+        if not user or not getattr(user, 'is_authenticated', False):
+            return None
+
+        lang = getattr(user, 'language', None) or django_settings.LANGUAGE_CODE
+        supported = {code for code, _ in django_settings.LANGUAGES}
+        if lang not in supported:
+            lang = django_settings.LANGUAGE_CODE
+
+        translation.activate(lang)
+        request.LANGUAGE_CODE = lang
+        return None
+
+    def process_response(self, request, response):
+        user = getattr(request, 'user', None)
+        if not user or not getattr(user, 'is_authenticated', False):
+            return response
+
+        lang = getattr(user, 'language', None)
+        if not lang:
+            return response
+
+        cookie_name = django_settings.LANGUAGE_COOKIE_NAME
+        if request.COOKIES.get(cookie_name) != lang:
+            response.set_cookie(
+                cookie_name,
+                lang,
+                max_age=getattr(django_settings, 'LANGUAGE_COOKIE_AGE', 60 * 60 * 24 * 365),
+                path=getattr(django_settings, 'LANGUAGE_COOKIE_PATH', '/'),
+                domain=getattr(django_settings, 'LANGUAGE_COOKIE_DOMAIN', None),
+                secure=getattr(django_settings, 'LANGUAGE_COOKIE_SECURE', False),
+                httponly=getattr(django_settings, 'LANGUAGE_COOKIE_HTTPONLY', False),
+                samesite=getattr(django_settings, 'LANGUAGE_COOKIE_SAMESITE', 'Lax'),
+            )
+        return response
 
 class AccountStatusMiddleware(MiddlewareMixin):
     """
@@ -23,6 +66,7 @@ class AccountStatusMiddleware(MiddlewareMixin):
             '/accounts/logout/',
             '/accounts/signup/',
             '/accounts/password/reset/',
+            '/legal/',
             '/admin/',
             '/static/',
             '/media/',
@@ -87,6 +131,33 @@ class AccountStatusMiddleware(MiddlewareMixin):
         
         # Tài khoản bình thường, tiếp tục xử lý
         return None
+
+
+class TwoFactorPendingMiddleware(MiddlewareMixin):
+    """Force users with a pending 2FA challenge onto the verify page."""
+
+    ALLOWED_PREFIXES = (
+        '/users/verify-2fa-login/',
+        '/accounts/logout/',
+        '/accounts/login/',
+        '/legal/',
+        '/static/',
+        '/media/',
+        '/admin/',
+    )
+
+    def process_request(self, request):
+        pending_id = request.session.get('pending_2fa_user_id')
+        if not pending_id:
+            return None
+
+        path = request.path
+        for prefix in self.ALLOWED_PREFIXES:
+            if path.startswith(prefix):
+                return None
+
+        return redirect(reverse('accounts:verify_two_factor_login'))
+
 
 class DeviceTrackingMiddleware(MiddlewareMixin):
     """

@@ -1,10 +1,13 @@
 {% extends 'base/base.html' %}
+{% load i18n %}
 {% load static %}
 
-{% block title %}Chi tiết cuộc trò chuyện{% endblock %}
+{% block title %}{% trans "Chi tiết cuộc trò chuyện" %}{% endblock %}
+
+{% block body_class %} chat-layout chat-detail-layout{% endblock %}
 
 {% block extra_css %}
-<link href="{% static 'css/chat.css' %}" rel="stylesheet">
+<link href="{% static 'css/chat.css' %}?v=voice-mobile-3" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -26,22 +29,22 @@
                    data-hide-activity="{{ other_user.hide_activity|yesno:'true,false' }}"
                    {% if other_presence.last_seen %}data-last-seen="{{ other_presence.last_seen|date:'c' }}"{% endif %}>
                 {% if other_user.hide_activity %}
-                  Nhắn tin trực tiếp
+                  {% trans "Nhắn tin trực tiếp" %}
                 {% elif other_presence.is_online %}
-                  <span class="status-dot status-dot--online"></span>Đang hoạt động
+                  <span class="status-dot status-dot--online"></span>{% trans "Đang hoạt động" %}
                 {% elif other_presence.last_seen %}
-                  Hoạt động {{ other_presence.last_seen|timesince }} trước
+                  {% blocktrans with time=other_presence.last_seen|timesince %}Hoạt động {{ time }} trước{% endblocktrans %}
                 {% else %}
-                  Offline
+                  {% trans "Offline" %}
                 {% endif %}
               </div>
             </div>
           </a>
         {% endwith %}
         <div class="chat-actions">
-          <a href="{% url 'chat:conversation_list' %}" class="btn-back" title="Quay lại">
+          <a href="{% url 'chat:conversation_list' %}" class="btn-back" title="{% trans 'Quay lại' %}">
             <i class="fas fa-arrow-left"></i>
-            <span class="d-none d-sm-inline">Quay lại</span>
+            <span class="d-none d-sm-inline">{% trans "Quay lại" %}</span>
           </a>
         </div>
       </div>
@@ -53,7 +56,7 @@
               <div class="message-date-divider">
                 <span>
                   {% if message.created_at.date == today %}
-                    Hôm nay
+                    {% trans "Hôm nay" %}
                   {% else %}
                     {{ message.created_at|date:"d/m/Y" }}
                   {% endif %}
@@ -65,7 +68,7 @@
                  data-sender-id="{{ message.sender.id }}"
                  data-sender-name="{{ message.sender.username|escapejs }}"
                  data-reply-preview="{{ message.get_reply_preview|escapejs }}"
-                 {% if message.image %}data-attachment-type="image" data-attachment-url="{{ message.image.url }}"{% elif message.video %}data-attachment-type="video" data-attachment-url="{{ message.video.url }}"{% elif message.document %}data-attachment-type="document" data-attachment-url="{{ message.document.url }}"{% endif %}
+                 {% if message.image %}data-attachment-type="image" data-attachment-url="{{ message.image.url }}"{% elif message.video %}data-attachment-type="video" data-attachment-url="{{ message.video.url }}"{% elif message.audio %}data-attachment-type="audio" data-attachment-url="{{ message.audio.url }}"{% elif message.document %}data-attachment-type="document" data-attachment-url="{{ message.document.url }}"{% endif %}
                  {% if message.file_name %}data-file-name="{{ message.file_name|escapejs }}"{% endif %}
                  {% if message.shared_post %}data-shared-post="1"{% endif %}>
               <div class="message-content">
@@ -79,13 +82,22 @@
 
                 {% if message.image %}
                   <div class="message-media">
-                    <img src="{{ message.image.url }}" alt="Ảnh" loading="lazy" onclick="openImageModal('{{ message.image.url }}')">
+                    <img src="{{ message.image.url }}" alt="{% trans 'Ảnh' %}" loading="lazy" onclick="openImageModal('{{ message.image.url }}')">
                   </div>
                 {% endif %}
 
                 {% if message.video %}
                   <div class="message-media">
                     <video src="{{ message.video.url }}" controls preload="metadata"></video>
+                  </div>
+                {% endif %}
+
+                {% if message.audio %}
+                  <div class="message-media message-audio">
+                    <div class="voice-message">
+                      <i class="fas fa-microphone voice-message-icon"></i>
+                      <audio src="{{ message.audio.url }}" controls preload="metadata"></audio>
+                    </div>
                   </div>
                 {% endif %}
 
@@ -129,11 +141,11 @@
               </div>
 
               <div class="message-options">
-                <button type="button" class="message-option-btn reply" title="Trả lời" onclick="replyToMessage(this)">
+                <button type="button" class="message-option-btn reply" title="{% trans 'Trả lời' %}" onclick="replyToMessage(this)">
                   <i class="fas fa-reply"></i>
                 </button>
                 {% if message.sender == request.user %}
-                  <button type="button" class="message-option-btn delete" title="Xóa" onclick="deleteMessage({{ message.id }})">
+                  <button type="button" class="message-option-btn delete" title="{% trans 'Xóa' %}" onclick="deleteMessage({{ message.id }})">
                     <i class="fas fa-trash-alt"></i>
                   </button>
                 {% endif %}
@@ -145,21 +157,21 @@
             <div class="no-messages-icon">
               <i class="far fa-comment-dots"></i>
             </div>
-            <div class="no-messages-text">Chưa có tin nhắn</div>
-            <div class="no-messages-hint">Gửi lời chào để bắt đầu cuộc trò chuyện</div>
+            <div class="no-messages-text">{% trans "Chưa có tin nhắn" %}</div>
+            <div class="no-messages-hint">{% trans "Gửi lời chào để bắt đầu cuộc trò chuyện" %}</div>
           </div>
         {% endif %}
       </div>
 
       <div class="typing-indicator" id="typingIndicator" style="display: none;">
-        <span id="typingUsername"></span> đang nhập...
+        <span id="typingUsername"></span> {% trans "đang nhập..." %}
       </div>
 
       <div class="chat-input">
       {% if is_blocked %}
         <div class="block-alert">
           <i class="fas fa-ban"></i>
-          <div>Không thể gửi tin nhắn vì một trong hai người đã chặn người còn lại.</div>
+          <div>{% trans "Không thể gửi tin nhắn vì một trong hai người đã chặn người còn lại." %}</div>
         </div>
       {% else %}
         <form id="messageForm" class="message-form" enctype="multipart/form-data">
@@ -167,7 +179,7 @@
           <div class="attachment-preview" id="attachmentPreview"></div>
           
           <div class="reply-preview" id="replyPreview">
-            <div class="reply-preview-header" id="replyHeader">Đang trả lời</div>
+            <div class="reply-preview-header" id="replyHeader">{% trans "Đang trả lời" %}</div>
             <div class="reply-preview-body">
               <div class="reply-preview-media" id="replyPreviewMedia"></div>
               <div class="reply-preview-content" id="replyContent"></div>
@@ -186,23 +198,39 @@
               <button type="button" class="attachment-btn" id="attachmentBtn">
                 <i class="fas fa-paperclip"></i>
               </button>
-              <textarea name="message" placeholder="Nhập tin nhắn..." id="messageInput" autocomplete="off" rows="1"></textarea>
+              <textarea name="message" placeholder="{% trans 'Nhập tin nhắn...' %}" id="messageInput" autocomplete="off" rows="1"></textarea>
               <div class="attachment-options" id="attachmentOptions">
                 <div class="attachment-option" id="imageOption">
                   <i class="far fa-image"></i>
-                  <span>Hình ảnh</span>
+                  <span>{% trans "Hình ảnh" %}</span>
                 </div>
                 <div class="attachment-option" id="videoOption">
                   <i class="far fa-file-video"></i>
-                  <span>Video</span>
+                  <span>{% trans "Video" %}</span>
                 </div>
                 <div class="attachment-option" id="documentOption">
                   <i class="far fa-file-alt"></i>
-                  <span>Tài liệu</span>
+                  <span>{% trans "Tài liệu" %}</span>
                 </div>
               </div>
             </div>
-            <button type="submit" aria-label="Gửi tin nhắn">
+            <button type="button" class="voice-record-btn" id="voiceRecordBtn" title="{% trans 'Ghi âm' %}" aria-label="{% trans 'Ghi âm tin nhắn thoại' %}">
+              <i class="fas fa-microphone"></i>
+            </button>
+            <button type="submit" aria-label="{% trans 'Gửi tin nhắn' %}">
+              <i class="fas fa-paper-plane"></i>
+            </button>
+          </div>
+          <div class="voice-recording-bar d-none" id="voiceRecordingBar">
+            <button type="button" class="voice-cancel-btn" id="voiceCancelBtn" title="{% trans 'Hủy' %}">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+            <div class="voice-recording-info">
+              <span class="voice-recording-dot"></span>
+              <span id="voiceRecordingTimer">0:00</span>
+              <span class="voice-recording-label">{% trans "Đang ghi âm..." %}</span>
+            </div>
+            <button type="button" class="voice-send-btn" id="voiceSendBtn" title="{% trans 'Gửi tin nhắn thoại' %}">
               <i class="fas fa-paper-plane"></i>
             </button>
           </div>
@@ -221,17 +249,17 @@
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title fw-semibold">Xem ảnh</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+        <h5 class="modal-title fw-semibold">{% trans "Xem ảnh" %}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Đóng' %}"></button>
       </div>
       <div class="modal-body text-center p-0">
-        <img src="" id="modalImage" class="img-fluid" alt="Ảnh đầy đủ">
+        <img src="" id="modalImage" class="img-fluid" alt="{% trans 'Ảnh đầy đủ' %}">
       </div>
       <div class="modal-footer">
         <a href="#" id="downloadImage" class="btn btn-primary rounded-pill" download>
-          <i class="fas fa-download me-1"></i> Tải xuống
+          <i class="fas fa-download me-1"></i> {% trans "Tải xuống" %}
         </a>
-        <button type="button" class="btn btn-light rounded-pill" data-bs-dismiss="modal">Đóng</button>
+        <button type="button" class="btn btn-light rounded-pill" data-bs-dismiss="modal">{% trans "Đóng" %}</button>
       </div>
     </div>
   </div>
@@ -566,7 +594,7 @@
         chatMessages.scrollTop = chatMessages.scrollHeight;
       } catch (error) {
         console.error('Upload error:', error);
-        alert('Lỗi khi tải lên tệp: ' + error.message);
+        alert("{% filter escapejs %}{% trans 'Lỗi khi tải lên tệp:' %}{% endfilter %} " + error.message);
       } finally {
         if (submitButton) resetSubmitButton();
       }
@@ -611,6 +639,11 @@
           badge.innerHTML = '<i class="fas fa-play"></i>';
           media.appendChild(badge);
           quote.appendChild(media);
+        } else if (replyTo.attachment_type === 'audio') {
+          const audioQuote = document.createElement('div');
+          audioQuote.className = 'message-quote-doc';
+          audioQuote.innerHTML = '<i class="fas fa-microphone"></i><span>Tin nhắn thoại</span>';
+          quote.appendChild(audioQuote);
         } else if (replyTo.attachment_type === 'document') {
           const doc = document.createElement('div');
           doc.className = 'message-quote-doc';
@@ -644,7 +677,11 @@
       messageElement.dataset.messageId = message.id;
       if (message.sender_id) messageElement.dataset.senderId = message.sender_id;
       if (message.sender_username) messageElement.dataset.senderName = message.sender_username;
-      messageElement.dataset.replyPreview = message.content || message.shared_post?.caption || message.reply_to?.preview || '';
+      messageElement.dataset.replyPreview = message.content
+        || (message.attachment_type === 'audio' ? '[Tin nhắn thoại]' : '')
+        || message.shared_post?.caption
+        || message.reply_to?.preview
+        || '';
       if (message.has_attachment) {
         messageElement.dataset.attachmentType = message.attachment_type || '';
         messageElement.dataset.attachmentUrl = message.attachment_url || '';
@@ -684,6 +721,19 @@
           video.controls = true;
           video.preload = 'metadata';
           mediaDiv.appendChild(video);
+          messageContent.appendChild(mediaDiv);
+        } else if (message.attachment_type === 'audio') {
+          const mediaDiv = document.createElement('div');
+          mediaDiv.className = 'message-media message-audio';
+          const voiceWrap = document.createElement('div');
+          voiceWrap.className = 'voice-message';
+          voiceWrap.innerHTML = '<i class="fas fa-microphone voice-message-icon"></i>';
+          const audio = document.createElement('audio');
+          audio.src = message.attachment_url;
+          audio.controls = true;
+          audio.preload = 'metadata';
+          voiceWrap.appendChild(audio);
+          mediaDiv.appendChild(voiceWrap);
           messageContent.appendChild(mediaDiv);
         } else if (message.attachment_type === 'document') {
           const docLink = document.createElement('a');
@@ -983,6 +1033,203 @@
       scrollToQuotedMessage(quote.dataset.replyToId);
     });
 
+    // ===== Voice recording =====
+    const voiceRecordBtn = document.getElementById('voiceRecordBtn');
+    const voiceRecordingBar = document.getElementById('voiceRecordingBar');
+    const voiceCancelBtn = document.getElementById('voiceCancelBtn');
+    const voiceSendBtn = document.getElementById('voiceSendBtn');
+    const voiceRecordingTimer = document.getElementById('voiceRecordingTimer');
+    const chatInputRow = document.querySelector('.chat-input-row');
+    const MAX_VOICE_SECONDS = 120;
+
+    let mediaRecorder = null;
+    let mediaStream = null;
+    let recordedChunks = [];
+    let recordingStartedAt = 0;
+    let recordingTimerId = null;
+    let shouldSendVoice = false;
+    let isUploadingVoice = false;
+
+    function formatVoiceTimer(seconds) {
+      const m = Math.floor(seconds / 60);
+      const s = seconds % 60;
+      return `${m}:${String(s).padStart(2, '0')}`;
+    }
+
+    function pickAudioMimeType() {
+      const candidates = [
+        'audio/webm;codecs=opus',
+        'audio/webm',
+        'audio/mp4',
+        'audio/ogg;codecs=opus',
+      ];
+      if (!window.MediaRecorder || !MediaRecorder.isTypeSupported) {
+        return '';
+      }
+      return candidates.find((t) => MediaRecorder.isTypeSupported(t)) || '';
+    }
+
+    function stopVoiceTracks() {
+      if (mediaStream) {
+        mediaStream.getTracks().forEach((t) => t.stop());
+        mediaStream = null;
+      }
+    }
+
+    function resetVoiceUI() {
+      if (recordingTimerId) {
+        clearInterval(recordingTimerId);
+        recordingTimerId = null;
+      }
+      if (voiceRecordingBar) voiceRecordingBar.classList.add('d-none');
+      if (chatInputRow) chatInputRow.classList.remove('d-none');
+      if (voiceRecordingTimer) voiceRecordingTimer.textContent = '0:00';
+      if (voiceRecordBtn) voiceRecordBtn.classList.remove('is-recording');
+      recordedChunks = [];
+      mediaRecorder = null;
+      shouldSendVoice = false;
+    }
+
+    async function startVoiceRecording() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert("{% filter escapejs %}{% trans 'Trình duyệt không hỗ trợ ghi âm.' %}{% endfilter %}");
+        return;
+      }
+      if (typeof MediaRecorder === 'undefined') {
+        alert("{% filter escapejs %}{% trans 'Trình duyệt không hỗ trợ ghi âm.' %}{% endfilter %}");
+        return;
+      }
+      if (isUploadingVoice || (mediaRecorder && mediaRecorder.state === 'recording')) return;
+
+      try {
+        mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      } catch (err) {
+        console.error('Mic permission error:', err);
+        alert("{% filter escapejs %}{% trans 'Không thể truy cập micro. Hãy cho phép quyền micro rồi thử lại.' %}{% endfilter %}");
+        return;
+      }
+
+      recordedChunks = [];
+      shouldSendVoice = false;
+      const mimeType = pickAudioMimeType();
+      try {
+        mediaRecorder = mimeType
+          ? new MediaRecorder(mediaStream, { mimeType })
+          : new MediaRecorder(mediaStream);
+      } catch (err) {
+        console.error('MediaRecorder error:', err);
+        stopVoiceTracks();
+        alert("{% filter escapejs %}{% trans 'Không thể bắt đầu ghi âm.' %}{% endfilter %}");
+        return;
+      }
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data && event.data.size > 0) recordedChunks.push(event.data);
+      };
+
+      mediaRecorder.onstop = async () => {
+        stopVoiceTracks();
+        const sendIt = shouldSendVoice;
+        const chunks = recordedChunks.slice();
+        const type = (mediaRecorder && mediaRecorder.mimeType) ? mediaRecorder.mimeType : (mimeType || 'audio/webm');
+        resetVoiceUI();
+        if (!sendIt || !chunks.length) return;
+        const blob = new Blob(chunks, { type });
+        if (blob.size < 500) {
+          alert("{% filter escapejs %}{% trans 'Tin nhắn thoại quá ngắn.' %}{% endfilter %}");
+          return;
+        }
+        await uploadVoiceBlob(blob, type);
+      };
+
+      mediaRecorder.start(250);
+      recordingStartedAt = Date.now();
+      if (chatInputRow) chatInputRow.classList.add('d-none');
+      if (voiceRecordingBar) voiceRecordingBar.classList.remove('d-none');
+      if (voiceRecordBtn) voiceRecordBtn.classList.add('is-recording');
+      if (voiceRecordingTimer) voiceRecordingTimer.textContent = '0:00';
+
+      recordingTimerId = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - recordingStartedAt) / 1000);
+        if (voiceRecordingTimer) voiceRecordingTimer.textContent = formatVoiceTimer(elapsed);
+        if (elapsed >= MAX_VOICE_SECONDS) {
+          shouldSendVoice = true;
+          if (mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
+        }
+      }, 250);
+    }
+
+    function cancelVoiceRecording() {
+      shouldSendVoice = false;
+      if (mediaRecorder && mediaRecorder.state === 'recording') {
+        mediaRecorder.stop();
+      } else {
+        stopVoiceTracks();
+        resetVoiceUI();
+      }
+    }
+
+    function finishVoiceRecordingAndSend() {
+      if (!mediaRecorder || mediaRecorder.state !== 'recording') return;
+      const elapsed = Math.floor((Date.now() - recordingStartedAt) / 1000);
+      if (elapsed < 1) {
+        alert("{% filter escapejs %}{% trans 'Giữ ghi âm ít nhất 1 giây.' %}{% endfilter %}");
+        return;
+      }
+      shouldSendVoice = true;
+      mediaRecorder.stop();
+    }
+
+    async function uploadVoiceBlob(blob, mimeType) {
+      if (isUploadingVoice) return;
+      isUploadingVoice = true;
+      if (voiceSendBtn) voiceSendBtn.disabled = true;
+      if (voiceRecordBtn) voiceRecordBtn.disabled = true;
+
+      const ext = mimeType.includes('mp4') ? 'm4a'
+        : mimeType.includes('ogg') ? 'ogg'
+        : 'webm';
+      const file = new File([blob], `voice-${Date.now()}.${ext}`, { type: mimeType || 'audio/webm' });
+      const formData = new FormData();
+      formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+      formData.append('audio', file);
+      formData.append('message', '');
+
+      try {
+        const response = await fetch(`/chat/upload_attachment/${conversationId}/`, {
+          method: 'POST',
+          body: formData,
+          headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        });
+        const data = await response.json();
+        if (!response.ok || data.status === 'error') {
+          throw new Error(data.message || "{% filter escapejs %}{% trans 'Không gửi được tin nhắn thoại' %}{% endfilter %}");
+        }
+        if (data.message) {
+          displayMessage(normalizeUploadedMessage(data.message));
+        }
+        cancelReply();
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      } catch (error) {
+        console.error('Voice upload error:', error);
+        alert(error.message || "{% filter escapejs %}{% trans 'Lỗi khi gửi tin nhắn thoại' %}{% endfilter %}");
+      } finally {
+        isUploadingVoice = false;
+        if (voiceSendBtn) voiceSendBtn.disabled = false;
+        if (voiceRecordBtn) voiceRecordBtn.disabled = false;
+      }
+    }
+
+    if (voiceRecordBtn) {
+      voiceRecordBtn.addEventListener('click', startVoiceRecording);
+    }
+    if (voiceCancelBtn) {
+      voiceCancelBtn.addEventListener('click', cancelVoiceRecording);
+    }
+    if (voiceSendBtn) {
+      voiceSendBtn.addEventListener('click', finishVoiceRecordingAndSend);
+    }
+
     chatMessages.scrollTop = chatMessages.scrollHeight;
   });
   
@@ -1063,6 +1310,9 @@
     } else if (attachmentType === 'video' && attachmentUrl) {
       replyPreviewMedia.innerHTML = `<video src="${attachmentUrl}" muted preload="metadata"></video>`;
       replyContent.textContent = previewText || 'Video';
+    } else if (attachmentType === 'audio') {
+      replyPreviewMedia.innerHTML = `<div class="reply-doc-icon"><i class="fas fa-microphone"></i></div>`;
+      replyContent.textContent = previewText || 'Tin nhắn thoại';
     } else if (attachmentType === 'document') {
       replyPreviewMedia.innerHTML = `<div class="reply-doc-icon"><i class="far fa-file-alt"></i></div>`;
       replyContent.textContent = fileName || previewText || 'Tài liệu';
@@ -1095,7 +1345,7 @@
   
   // Hàm xử lý xóa tin nhắn
   function deleteMessage(messageId) {
-    if (confirm('Bạn có chắc chắn muốn xóa tin nhắn này không?')) {
+    if (confirm("{% filter escapejs %}{% trans 'Bạn có chắc chắn muốn xóa tin nhắn này không?' %}{% endfilter %}")) {
       // Gửi yêu cầu xóa qua WebSocket
       chatSocket.send(JSON.stringify({
         'type': 'delete_message',

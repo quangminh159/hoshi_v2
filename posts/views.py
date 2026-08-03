@@ -671,21 +671,37 @@ def save_post(request, post_id):
 @login_required
 @require_POST
 def add_comment(request, post_id):
-    """Thêm bình luận vào bài viết"""
+    """Thêm bình luận vào bài viết (text và/hoặc ảnh)."""
     post = get_object_or_404(Post, id=post_id)
-    
-    text = request.POST.get('text')
+
+    text = (request.POST.get('text') or '').strip()
     parent_id = request.POST.get('parent_id')
-    
-    if not text:
+    image = request.FILES.get('image')
+
+    if not text and not image:
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({
                 'success': False,
-                'message': 'Nội dung bình luận không được để trống'
+                'message': 'Vui lòng nhập nội dung hoặc chọn ảnh bình luận'
             })
-        messages.error(request, 'Nội dung bình luận không được để trống')
+        messages.error(request, 'Vui lòng nhập nội dung hoặc chọn ảnh bình luận')
         return redirect('posts:post_detail', post_id=post_id)
-    
+
+    if image:
+        content_type = getattr(image, 'content_type', '') or ''
+        if not content_type.startswith('image/'):
+            msg = 'File phải là ảnh'
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'message': msg})
+            messages.error(request, msg)
+            return redirect('posts:post_detail', post_id=post_id)
+        if image.size > 5 * 1024 * 1024:
+            msg = 'Ảnh bình luận tối đa 5MB'
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'message': msg})
+            messages.error(request, msg)
+            return redirect('posts:post_detail', post_id=post_id)
+
     # Kiểm tra xem bài viết có tắt bình luận không
     if post.disable_comments:
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -695,7 +711,7 @@ def add_comment(request, post_id):
             })
         messages.error(request, 'Bài viết này đã tắt bình luận')
         return redirect('posts:post_detail', post_id=post_id)
-    
+
     # Nếu là trả lời bình luận, kiểm tra parent comment
     parent = None
     direct_parent = None
@@ -711,19 +727,22 @@ def add_comment(request, post_id):
                 })
             messages.error(request, 'Bình luận gốc không tồn tại')
             return redirect('posts:post_detail', post_id=post_id)
-    
+
     # Tạo bình luận mới
-    comment = Comment.objects.create(
+    comment = Comment(
         post=post,
         author=request.user,
         text=text,
-        parent=parent
+        parent=parent,
     )
-    
+    if image:
+        comment.image = image
+    comment.save()
+
     # Tăng comment_count
     post.comments_count = post.comments.count()
     post.save()
-    
+
     # Gửi thông báo cho người đăng bài viết
     if post.author != request.user:
         Notification.objects.get_or_create(
@@ -736,7 +755,7 @@ def add_comment(request, post_id):
             content_type=ContentType.objects.get_for_model(post),
             object_id=post.id
         )
-    
+
     # Gửi thông báo cho người được trả lời
     notify_parent = direct_parent or parent
     if notify_parent and notify_parent.author != request.user:
@@ -750,13 +769,15 @@ def add_comment(request, post_id):
             content_type=ContentType.objects.get_for_model(comment),
             object_id=comment.id
         )
-    
+
     # Nếu là AJAX request, trả về JSON response
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return JsonResponse({
             'success': True,
             'id': comment.id,
-            'text': comment.text,
+            'text': comment.text or '',
+            'image': comment.image_url,
+            'image_url': comment.image_url,
             'created_at': comment.created_at.isoformat(),
             'author': {
                 'id': request.user.id,
@@ -766,7 +787,7 @@ def add_comment(request, post_id):
             'post_id': post.id,
             'parent_id': parent.id if parent else None
         })
-    
+
     # Nếu không phải AJAX, redirect như bình thường
     messages.success(request, 'Đã thêm bình luận thành công')
     return redirect('posts:post_detail', post_id=post_id)
@@ -1061,7 +1082,9 @@ FEED_REPLIES_PAGE_SIZE = 7
 def _comment_payload(comment_obj, liked_comment_ids, parent_id=None):
     data = {
         'id': comment_obj.id,
-        'text': comment_obj.text,
+        'text': comment_obj.text or '',
+        'image': comment_obj.image_url,
+        'image_url': comment_obj.image_url,
         'created_at': comment_obj.created_at.isoformat(),
         'author_username': comment_obj.author.username,
         'likes_count': comment_obj.likes_count,

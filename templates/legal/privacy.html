@@ -1,0 +1,122 @@
+{% extends 'base/auth_base.html' %}
+{% load static %}
+
+{% block title %}Chính sách bảo mật - Hoshi{% endblock %}
+
+{% block extra_css %}
+<style>
+.legal-page {
+    min-height: 100vh;
+    padding: 2.5rem 0 3rem;
+    background: linear-gradient(160deg, #f7f9fc 0%, #eef2f7 55%, #f8fafc 100%);
+}
+.legal-card {
+    background: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 0.5rem 1.5rem rgba(15, 23, 42, 0.06);
+    padding: 2rem;
+}
+.legal-card h1 {
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+}
+.legal-card .updated {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 1.75rem;
+}
+.legal-card h2 {
+    font-size: 1.15rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+.legal-card p,
+.legal-card li {
+    color: #334155;
+    line-height: 1.65;
+}
+.legal-card ul {
+    padding-left: 1.25rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="legal-page">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="legal-card">
+                    <div class="mb-3">
+                        <a href="{% url 'account_signup' %}" class="text-decoration-none">
+                            <i class="fas fa-arrow-left me-1"></i>Quay lại đăng ký
+                        </a>
+                    </div>
+                    <h1>Chính sách bảo mật</h1>
+                    <p class="updated">Cập nhật lần cuối: 04/08/2026</p>
+
+                    <p>
+                        Chính sách này giải thích cách Hoshi thu thập, sử dụng và bảo vệ thông tin cá nhân của bạn
+                        khi bạn sử dụng dịch vụ.
+                    </p>
+
+                    <h2>1. Thông tin chúng tôi thu thập</h2>
+                    <ul>
+                        <li><strong>Thông tin tài khoản:</strong> tên người dùng, email (Gmail), số điện thoại, ngày sinh, giới tính.</li>
+                        <li><strong>Nội dung:</strong> bài viết, bình luận, tin nhắn, ảnh/video bạn tải lên.</li>
+                        <li><strong>Dữ liệu kỹ thuật:</strong> thiết bị đăng nhập, địa chỉ IP, trình duyệt (để bảo mật tài khoản).</li>
+                    </ul>
+
+                    <h2>2. Mục đích sử dụng</h2>
+                    <ul>
+                        <li>Tạo và quản lý tài khoản, xác thực đăng nhập.</li>
+                        <li>Cung cấp tính năng mạng xã hội (feed, chat, thông báo).</li>
+                        <li>Bảo vệ an toàn, chống gian lận và xử lý vi phạm.</li>
+                        <li>Gửi thông báo dịch vụ (nếu bạn bật trong Cài đặt).</li>
+                    </ul>
+
+                    <h2>3. Chia sẻ thông tin</h2>
+                    <p>
+                        Chúng tôi không bán thông tin cá nhân của bạn. Thông tin có thể được chia sẻ khi:
+                    </p>
+                    <ul>
+                        <li>Bạn công khai nội dung trên hồ sơ/bài viết.</li>
+                        <li>Có yêu cầu hợp pháp từ cơ quan có thẩm quyền.</li>
+                        <li>Cần thiết để bảo vệ quyền và an toàn của người dùng Hoshi.</li>
+                    </ul>
+
+                    <h2>4. Bảo mật dữ liệu</h2>
+                    <p>
+                        Chúng tôi áp dụng biện pháp kỹ thuật và tổ chức hợp lý để bảo vệ dữ liệu
+                        (mã hóa mật khẩu, kiểm soát truy cập, theo dõi thiết bị đăng nhập).
+                        Không có hệ thống nào an toàn tuyệt đối; hãy bảo vệ mật khẩu của bạn.
+                    </p>
+
+                    <h2>5. Quyền của bạn</h2>
+                    <ul>
+                        <li>Xem và chỉnh sửa hồ sơ (email, số điện thoại) trong Cài đặt.</li>
+                        <li>Tùy chỉnh thông báo và quyền riêng tư.</li>
+                        <li>Yêu cầu tải xuống dữ liệu hoặc xóa tài khoản.</li>
+                    </ul>
+
+                    <h2>6. Lưu trữ</h2>
+                    <p>
+                        Dữ liệu được lưu trong thời gian tài khoản còn hoạt động.
+                        Khi xóa tài khoản, thông tin sẽ được xử lý theo quy trình xóa/soft-delete của hệ thống.
+                    </p>
+
+                    <h2>7. Liên hệ</h2>
+                    <p>
+                        Nếu bạn có câu hỏi về quyền riêng tư, vui lòng liên hệ đội ngũ hỗ trợ Hoshi.
+                    </p>
+
+                    <div class="mt-4 d-flex gap-2 flex-wrap">
+                        <a href="{% url 'terms' %}" class="btn btn-outline-primary">Xem Điều khoản sử dụng</a>
+                        <a href="{% url 'account_signup' %}" class="btn btn-primary">Tiếp tục đăng ký</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

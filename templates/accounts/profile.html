@@ -8,7 +8,7 @@
 
 {% block extra_css %}
 <link href="{% static 'css/feed.css' %}" rel="stylesheet">
-<link href="{% static 'css/profile.css' %}" rel="stylesheet">
+<link href="{% static 'css/profile.css' %}?v=avatar-view-1" rel="stylesheet">
 <link href="{% static 'css/share_post_modal.css' %}" rel="stylesheet">
 {% endblock %}
 
@@ -20,14 +20,20 @@
 <meta name="has-more" content="true">
 
 <div class="profile-shell">
-    <section class="profile-hero" aria-label="Hồ sơ">
+    <section class="profile-hero" aria-label="{% trans 'Hồ sơ' %}">
         <div class="profile-hero__top">
             <div class="profile-hero__avatar-wrap">
-                <img src="{{ profile_user.get_avatar_url }}"
-                     alt="{{ profile_user.username }}"
-                     class="profile-hero__avatar"
-                     width="110"
-                     height="110">
+                <button type="button"
+                        class="profile-hero__avatar-btn"
+                        data-bs-toggle="modal"
+                        data-bs-target="#avatarPreviewModal"
+                        aria-label="{% trans 'Xem ảnh đại diện' %}">
+                    <img src="{{ profile_user.get_avatar_url }}"
+                         alt="{{ profile_user.username }}"
+                         class="profile-hero__avatar"
+                         width="110"
+                         height="110">
+                </button>
             </div>
 
             <div class="profile-hero__main">
@@ -49,20 +55,20 @@
                             <button type="button"
                                     class="profile-btn profile-btn--muted unfollow-button"
                                     data-username="{{ profile_user.username }}">
-                                Đang theo dõi
+                                {% trans "Đang theo dõi" %}
                             </button>
                         {% else %}
                             <button type="button"
                                     class="profile-btn profile-btn--primary follow-button"
                                     data-username="{{ profile_user.username }}">
-                                Theo dõi
+                                {% trans "Theo dõi" %}
                             </button>
                         {% endif %}
                         <a href="{% url 'chat:direct_chat' username=profile_user.username %}"
                            class="profile-btn profile-btn--muted"
-                           aria-label="Nhắn tin">
+                           aria-label="{% trans 'Nhắn tin' %}">
                             <i class="far fa-paper-plane"></i>
-                            <span>Nhắn tin</span>
+                            <span>{% trans "Nhắn tin" %}</span>
                         </a>
                         <div class="dropdown">
                             <button class="profile-btn profile-btn--ghost dropdown-toggle"
@@ -70,17 +76,17 @@
                                     id="profileDropdown"
                                     data-bs-toggle="dropdown"
                                     aria-expanded="false"
-                                    aria-label="Thêm">
+                                    aria-label="{% trans 'Thêm' %}">
                                 <i class="fas fa-ellipsis-h"></i>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
-                                <li><a class="dropdown-item" href="#" id="report-user-btn">Báo cáo</a></li>
-                                <li><a class="dropdown-item" href="#" id="block-user-btn">Chặn</a></li>
+                                <li><a class="dropdown-item" href="#" id="report-user-btn">{% trans "Báo cáo" %}</a></li>
+                                <li><a class="dropdown-item" href="#" id="block-user-btn">{% trans "Chặn" %}</a></li>
                             </ul>
                         </div>
                     {% elif user == profile_user %}
                         <a href="{% url 'accounts:settings' %}" class="profile-btn profile-btn--muted">
-                            Chỉnh sửa hồ sơ
+                            {% trans "Chỉnh sửa hồ sơ" %}
                         </a>
                     {% endif %}
                 </div>
@@ -90,21 +96,21 @@
         <div class="profile-stats">
             <div class="profile-stat">
                 <span class="profile-stat__value">{{ posts_count }}</span>
-                <span class="profile-stat__label">bài viết</span>
+                <span class="profile-stat__label">{% trans "bài viết" %}</span>
             </div>
             <button type="button"
                     class="profile-stat"
                     data-bs-toggle="modal"
                     data-bs-target="#followersModal">
                 <span class="profile-stat__value" id="followers-count">{{ followers_count }}</span>
-                <span class="profile-stat__label">người theo dõi</span>
+                <span class="profile-stat__label">{% trans "người theo dõi" %}</span>
             </button>
             <button type="button"
                     class="profile-stat"
                     data-bs-toggle="modal"
                     data-bs-target="#followingModal">
                 <span class="profile-stat__value" id="following-count">{{ following_count }}</span>
-                <span class="profile-stat__label">đang theo dõi</span>
+                <span class="profile-stat__label">{% trans "đang theo dõi" %}</span>
             </button>
         </div>
 
@@ -147,23 +153,23 @@
         </div>
     </section>
 
-    <nav class="profile-tabs{% if not is_own_profile %} profile-tabs--two{% endif %}" aria-label="Mục hồ sơ">
+    <nav class="profile-tabs{% if not is_own_profile %} profile-tabs--two{% endif %}" aria-label="{% trans 'Mục hồ sơ' %}">
         <a href="{% url 'accounts:profile' username=profile_user.username %}"
            class="profile-tab {% if not is_saved_posts and not is_shared_posts %}is-active{% endif %}">
             <i class="fas fa-stream"></i>
-            <span>Bài viết</span>
+            <span>{% trans "Bài viết" %}</span>
         </a>
         {% if is_own_profile %}
         <a href="{% url 'accounts:profile' username=profile_user.username %}?tab=saved"
            class="profile-tab {% if is_saved_posts %}is-active{% endif %}">
             <i class="fas fa-bookmark"></i>
-            <span>Đã lưu</span>
+            <span>{% trans "Đã lưu" %}</span>
         </a>
         {% endif %}
         <a href="{% url 'accounts:profile' username=profile_user.username %}?tab=shared"
            class="profile-tab {% if is_shared_posts %}is-active{% endif %}">
             <i class="fas fa-share-alt"></i>
-            <span>Đã chia sẻ</span>
+            <span>{% trans "Đã chia sẻ" %}</span>
         </a>
     </nav>
 
@@ -172,26 +178,43 @@
 
         <div id="loading-indicator" class="text-center py-4">
             <div class="spinner-border text-dark" role="status">
-                <span class="visually-hidden">Đang tải...</span>
+                <span class="visually-hidden">{% trans "Đang tải..." %}</span>
             </div>
-            <p class="mt-2 text-muted mb-0">Đang tải bài viết...</p>
+            <p class="mt-2 text-muted mb-0">{% trans "Đang tải bài viết..." %}</p>
         </div>
 
         <div id="end-message" class="text-center py-4 d-none">
-            <p class="text-muted mb-0">Bạn đã xem hết tất cả bài viết</p>
+            <p class="text-muted mb-0">{% trans "Bạn đã xem hết tất cả bài viết" %}</p>
         </div>
 
         <div id="empty-message" class="text-center py-5 d-none">
             <div class="profile-empty-icon"><i class="far fa-file-alt"></i></div>
             {% if is_saved_posts and is_own_profile %}
-                <p class="text-muted mb-0">Bạn chưa lưu bài viết nào.</p>
+                <p class="text-muted mb-0">{% trans "Bạn chưa lưu bài viết nào." %}</p>
             {% elif is_shared_posts %}
-                <p class="text-muted mb-0">Chưa có bài viết nào được chia sẻ.</p>
+                <p class="text-muted mb-0">{% trans "Chưa có bài viết nào được chia sẻ." %}</p>
             {% else %}
-                <p class="text-muted mb-0">Chưa có bài viết nào.</p>
+                <p class="text-muted mb-0">{% trans "Chưa có bài viết nào." %}</p>
             {% endif %}
         </div>
     </div>
+</div>
+
+<!-- Modal xem ảnh đại diện -->
+<div class="modal fade profile-avatar-modal" id="avatarPreviewModal" tabindex="-1" aria-labelledby="avatarPreviewModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title" id="avatarPreviewModalLabel">{{ profile_user.username }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Đóng' %}"></button>
+      </div>
+      <div class="modal-body text-center pt-2">
+        <img src="{{ profile_user.get_avatar_url }}"
+             alt="{% blocktrans with username=profile_user.username %}Ảnh đại diện của {{ username }}{% endblocktrans %}"
+             class="profile-avatar-modal__img">
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Modal chia sẻ -->
@@ -202,14 +225,14 @@
   <div class="modal-dialog modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="followersModalLabel">Người theo dõi ({{ followers_count }})</h5>
-        <div class="modal-subtitle text-muted small">Những người đang theo dõi {{ profile_user.username }}</div>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <h5 class="modal-title" id="followersModalLabel">{% blocktrans with count=followers_count %}Người theo dõi ({{ count }}){% endblocktrans %}</h5>
+        <div class="modal-subtitle text-muted small">{% blocktrans with username=profile_user.username %}Những người đang theo dõi {{ username }}{% endblocktrans %}</div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Đóng' %}"></button>
       </div>
       <div class="modal-body">
         <div class="d-flex justify-content-center mb-3">
           <div class="spinner-border text-dark" role="status" id="followers-spinner">
-            <span class="visually-hidden">Đang tải...</span>
+            <span class="visually-hidden">{% trans "Đang tải..." %}</span>
           </div>
         </div>
         <div id="followers-list" class="user-list"></div>
@@ -223,14 +246,14 @@
   <div class="modal-dialog modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="followingModalLabel">Đang theo dõi ({{ following_count }})</h5>
-        <div class="modal-subtitle text-muted small">Những người mà {{ profile_user.username }} đang theo dõi</div>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <h5 class="modal-title" id="followingModalLabel">{% blocktrans with count=following_count %}Đang theo dõi ({{ count }}){% endblocktrans %}</h5>
+        <div class="modal-subtitle text-muted small">{% blocktrans with username=profile_user.username %}Những người mà {{ username }} đang theo dõi{% endblocktrans %}</div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Đóng' %}"></button>
       </div>
       <div class="modal-body">
         <div class="d-flex justify-content-center mb-3">
           <div class="spinner-border text-dark" role="status" id="following-spinner">
-            <span class="visually-hidden">Đang tải...</span>
+            <span class="visually-hidden">{% trans "Đang tải..." %}</span>
           </div>
         </div>
         <div id="following-list" class="user-list"></div>
@@ -283,7 +306,7 @@ function createUserListItem(user) {
         ${username !== "{{ user.username }}" ? 
             `<button class="btn btn-sm ${isFollowing ? 'btn-secondary unfollow-button' : 'btn-primary follow-button'}"
                     data-username="${username}">
-                ${isFollowing ? 'Đang theo dõi' : 'Theo dõi'}
+                ${isFollowing ? '{% trans "Đang theo dõi" %}' : '{% trans "Theo dõi" %}'}
             </button>` : ''}
     `;
     
@@ -309,7 +332,7 @@ function handleFollowButton(button) {
     
     // Hiển thị trạng thái loading
     button.disabled = true;
-    button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Đang xử lý...';
+    button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> {% trans "Đang xử lý..." %}';
     
     fetch(`/api/accounts/follow/${username}/`, {
         method: 'POST',
@@ -325,10 +348,10 @@ function handleFollowButton(button) {
                     window.location.reload();
                     return {aborted: true};
                 }
-                throw new Error((data && data.error) ? data.error : 'Lỗi kết nối tới máy chủ. Vui lòng thử lại sau.');
+                throw new Error((data && data.error) ? data.error : '{% trans "Lỗi kết nối tới máy chủ. Vui lòng thử lại sau." %}');
             }).catch(error => {
                 // Nếu không thể parse JSON từ lỗi
-                throw new Error('Lỗi kết nối tới máy chủ. Vui lòng thử lại sau.');
+                throw new Error('{% trans "Lỗi kết nối tới máy chủ. Vui lòng thử lại sau." %}');
             });
         }
         return response.json();
@@ -343,7 +366,7 @@ function handleFollowButton(button) {
         // Thay đổi nút thành "Đang theo dõi"
         button.classList.remove('follow-button', 'profile-btn--primary', 'btn-primary');
         button.classList.add('unfollow-button', 'profile-btn--muted', 'btn-secondary');
-        button.textContent = 'Đang theo dõi';
+        button.textContent = '{% trans "Đang theo dõi" %}';
         
         // Cập nhật số lượng người theo dõi và đang theo dõi
         const isProfilePage = username === "{{ profile_user.username }}";
@@ -368,10 +391,10 @@ function handleFollowButton(button) {
     .catch(error => {
         // Khôi phục trạng thái nút khi có lỗi
         button.disabled = false;
-        button.textContent = 'Theo dõi';
+        button.textContent = '{% trans "Theo dõi" %}';
         
         console.error('Lỗi:', error);
-        alert(error.message || 'Đã xảy ra lỗi khi thực hiện thao tác. Vui lòng thử lại sau.');
+        alert(error.message || '{% trans "Đã xảy ra lỗi khi thực hiện thao tác. Vui lòng thử lại sau." %}');
     });
 }
 
@@ -380,10 +403,10 @@ function handleUnfollowButton(button) {
     const username = button.dataset.username;
     
     // Xác nhận hủy theo dõi
-    if (confirm(`Bạn có chắc chắn muốn hủy theo dõi ${username}?`)) {
+    if (confirm('{% trans "Bạn có chắc chắn muốn hủy theo dõi" %} ' + username + '?')) {
         // Hiển thị trạng thái loading
         button.disabled = true;
-        button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Đang xử lý...';
+        button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> {% trans "Đang xử lý..." %}';
         
         fetch(`/api/accounts/unfollow/${username}/`, {
             method: 'POST',
@@ -399,10 +422,10 @@ function handleUnfollowButton(button) {
                         window.location.reload();
                         return {aborted: true};
                     }
-                    throw new Error((data && data.error) ? data.error : 'Lỗi kết nối tới máy chủ. Vui lòng thử lại sau.');
+                    throw new Error((data && data.error) ? data.error : '{% trans "Lỗi kết nối tới máy chủ. Vui lòng thử lại sau." %}');
                 }).catch(error => {
                     // Nếu không thể parse JSON từ lỗi
-                    throw new Error('Lỗi kết nối tới máy chủ. Vui lòng thử lại sau.');
+                    throw new Error('{% trans "Lỗi kết nối tới máy chủ. Vui lòng thử lại sau." %}');
                 });
             }
             return response.json();
@@ -417,7 +440,7 @@ function handleUnfollowButton(button) {
             // Thay đổi nút thành "Theo dõi"
             button.classList.remove('unfollow-button', 'profile-btn--muted', 'btn-secondary');
             button.classList.add('follow-button', 'profile-btn--primary', 'btn-primary');
-            button.textContent = 'Theo dõi';
+            button.textContent = '{% trans "Theo dõi" %}';
             
             // Cập nhật số lượng người theo dõi và đang theo dõi
             const isProfilePage = username === "{{ profile_user.username }}";
@@ -442,10 +465,10 @@ function handleUnfollowButton(button) {
         .catch(error => {
             // Khôi phục trạng thái nút khi có lỗi
             button.disabled = false;
-            button.textContent = 'Đang theo dõi';
+            button.textContent = '{% trans "Đang theo dõi" %}';
             
             console.error('Lỗi:', error);
-            alert(error.message || 'Đã xảy ra lỗi khi thực hiện thao tác. Vui lòng thử lại sau.');
+            alert(error.message || '{% trans "Đã xảy ra lỗi khi thực hiện thao tác. Vui lòng thử lại sau." %}');
         });
     }
 }
@@ -456,7 +479,7 @@ document.addEventListener('click', function(e) {
         const button = e.target.closest('.delete-post-btn');
         const postId = button.dataset.postId;
         
-        if (confirm('Bạn có chắc chắn muốn xoá bài viết này không?')) {
+        if (confirm('{% trans "Bạn có chắc chắn muốn xoá bài viết này không?" %}')) {
             fetch(`/posts/${postId}/delete/`, {
                 method: 'POST',
                 headers: {
@@ -481,12 +504,12 @@ document.addEventListener('click', function(e) {
                     alert(data.message);
                 } else {
                     // Hiển thị thông báo lỗi
-                    alert(data.message || 'Có lỗi xảy ra khi xoá bài viết.');
+                    alert(data.message || '{% trans "Có lỗi xảy ra khi xoá bài viết." %}');
                 }
             })
             .catch(error => {
                 console.error('Error deleting post:', error);
-                alert('Có lỗi xảy ra khi xoá bài viết.');
+                alert('{% trans "Có lỗi xảy ra khi xoá bài viết." %}');
             });
         }
     }
@@ -517,7 +540,7 @@ document.getElementById('followersModal').addEventListener('show.bs.modal', func
     // Kiểm tra username hợp lệ
     if (!username || username === 'undefined') {
         followersSpinner.classList.add('d-none');
-        followersList.innerHTML = '<p class="text-center text-danger">Tên người dùng không hợp lệ</p>';
+        followersList.innerHTML = '<p class="text-center text-danger">{% trans "Tên người dùng không hợp lệ" %}</p>';
         return;
     }
     
@@ -529,7 +552,7 @@ document.getElementById('followersModal').addEventListener('show.bs.modal', func
     fetch(`/api/accounts/users/${username}/followers/`)
         .then(response => {
             if (!response.ok) {
-                throw new Error('Lỗi khi tải danh sách người theo dõi');
+                throw new Error('{% trans "Lỗi khi tải danh sách người theo dõi" %}');
             }
             return response.json();
         })
@@ -544,13 +567,13 @@ document.getElementById('followersModal').addEventListener('show.bs.modal', func
                     followersList.appendChild(userItem);
                 });
             } else {
-                followersList.innerHTML = '<p class="text-center text-muted">Chưa có ai theo dõi {{ profile_user.username }}.</p>';
+                followersList.innerHTML = '<p class="text-center text-muted">{% blocktrans with username=profile_user.username %}Chưa có ai theo dõi {{ username }}.{% endblocktrans %}</p>';
             }
         })
         .catch(error => {
             console.error('Error:', error);
             followersSpinner.classList.add('d-none');
-            followersList.innerHTML = '<p class="text-center text-danger">Có lỗi xảy ra khi tải danh sách người theo dõi.</p>';
+            followersList.innerHTML = '<p class="text-center text-danger">{% trans "Có lỗi xảy ra khi tải danh sách người theo dõi." %}</p>';
         });
 });
 
@@ -563,7 +586,7 @@ document.getElementById('followingModal').addEventListener('show.bs.modal', func
     // Kiểm tra username hợp lệ
     if (!username || username === 'undefined') {
         followingSpinner.classList.add('d-none');
-        followingList.innerHTML = '<p class="text-center text-danger">Tên người dùng không hợp lệ</p>';
+        followingList.innerHTML = '<p class="text-center text-danger">{% trans "Tên người dùng không hợp lệ" %}</p>';
         return;
     }
     
@@ -575,7 +598,7 @@ document.getElementById('followingModal').addEventListener('show.bs.modal', func
     fetch(`/api/accounts/users/${username}/following/`)
         .then(response => {
             if (!response.ok) {
-                throw new Error('Lỗi khi tải danh sách đang theo dõi');
+                throw new Error('{% trans "Lỗi khi tải danh sách đang theo dõi" %}');
             }
             return response.json();
         })
@@ -590,13 +613,13 @@ document.getElementById('followingModal').addEventListener('show.bs.modal', func
                     followingList.appendChild(userItem);
                 });
             } else {
-                followingList.innerHTML = '<p class="text-center text-muted">{{ profile_user.username }} chưa theo dõi ai.</p>';
+                followingList.innerHTML = '<p class="text-center text-muted">{% blocktrans with username=profile_user.username %}{{ username }} chưa theo dõi ai.{% endblocktrans %}</p>';
             }
         })
         .catch(error => {
             console.error('Error:', error);
             followingSpinner.classList.add('d-none');
-            followingList.innerHTML = '<p class="text-center text-danger">Có lỗi xảy ra khi tải danh sách đang theo dõi.</p>';
+            followingList.innerHTML = '<p class="text-center text-danger">{% trans "Có lỗi xảy ra khi tải danh sách đang theo dõi." %}</p>';
         });
 });
 
@@ -617,11 +640,11 @@ document.addEventListener('DOMContentLoaded', function() {
             if (isFollowing) {
                 button.classList.remove('follow-button', 'btn-primary', 'profile-btn--primary');
                 button.classList.add('unfollow-button', 'btn-secondary', 'profile-btn--muted');
-                button.textContent = 'Đang theo dõi';
+                button.textContent = '{% trans "Đang theo dõi" %}';
             } else {
                 button.classList.remove('unfollow-button', 'btn-secondary', 'profile-btn--muted');
                 button.classList.add('follow-button', 'btn-primary', 'profile-btn--primary');
-                button.textContent = 'Theo dõi';
+                button.textContent = '{% trans "Theo dõi" %}';
             }
         });
     }
@@ -629,7 +652,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Xử lý chức năng báo cáo người dùng
 document.addEventListener('click', function(event) {
-    if (event.target.closest('.dropdown-item') && event.target.textContent === 'Báo cáo') {
+    if (event.target.closest('.dropdown-item') && event.target.textContent === '{% trans "Báo cáo" %}') {
         event.preventDefault();
         
         // Lấy username của người dùng cần báo cáo
@@ -642,14 +665,14 @@ document.addEventListener('click', function(event) {
 
 // Xử lý chức năng chặn người dùng
 document.addEventListener('click', function(event) {
-    if (event.target.closest('.dropdown-item') && event.target.textContent === 'Chặn') {
+    if (event.target.closest('.dropdown-item') && event.target.textContent === '{% trans "Chặn" %}') {
         event.preventDefault();
         
         // Lấy username của người dùng cần chặn
         const username = "{{ profile_user.username }}";
         
         // Xác nhận trước khi chặn
-        if (confirm(`Bạn có chắc chắn muốn chặn ${username}? Bạn sẽ không thấy bài viết của họ và họ không thể tương tác với bạn.`)) {
+        if (confirm('{% trans "Bạn có chắc chắn muốn chặn" %} ' + username + '? {% trans "Bạn sẽ không thấy bài viết của họ và họ không thể tương tác với bạn." %}')) {
             blockUser(username);
         }
     }
@@ -663,31 +686,31 @@ function showReportModal(username) {
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="reportModalLabel">Báo cáo ${username}</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <h5 class="modal-title" id="reportModalLabel">{% trans "Báo cáo" %} ${username}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Đóng' %}"></button>
           </div>
           <div class="modal-body">
             <form id="reportForm">
               <div class="mb-3">
-                <label for="reportReason" class="form-label">Lý do báo cáo</label>
+                <label for="reportReason" class="form-label">{% trans "Lý do báo cáo" %}</label>
                 <select class="form-select" id="reportReason" required>
-                  <option value="" selected disabled>Chọn lý do</option>
+                  <option value="" selected disabled>{% trans "Chọn lý do" %}</option>
                   <option value="spam">Spam</option>
-                  <option value="inappropriate">Nội dung không phù hợp</option>
-                  <option value="harassment">Quấy rối</option>
-                  <option value="fake_account">Tài khoản giả mạo</option>
-                  <option value="other">Khác</option>
+                  <option value="inappropriate">{% trans "Nội dung không phù hợp" %}</option>
+                  <option value="harassment">{% trans "Quấy rối" %}</option>
+                  <option value="fake_account">{% trans "Tài khoản giả mạo" %}</option>
+                  <option value="other">{% trans "Khác" %}</option>
                 </select>
               </div>
               <div class="mb-3">
-                <label for="reportDescription" class="form-label">Mô tả chi tiết</label>
-                <textarea class="form-control" id="reportDescription" rows="3" placeholder="Vui lòng cung cấp thêm thông tin..."></textarea>
+                <label for="reportDescription" class="form-label">{% trans "Mô tả chi tiết" %}</label>
+                <textarea class="form-control" id="reportDescription" rows="3" placeholder="{% trans 'Vui lòng cung cấp thêm thông tin...' %}"></textarea>
               </div>
             </form>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-            <button type="button" class="btn btn-danger" id="submitReport">Gửi báo cáo</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Hủy" %}</button>
+            <button type="button" class="btn btn-danger" id="submitReport">{% trans "Gửi báo cáo" %}</button>
           </div>
         </div>
       </div>
@@ -707,7 +730,7 @@ function showReportModal(username) {
         const description = document.getElementById('reportDescription').value;
         
         if (!reason) {
-            alert('Vui lòng chọn lý do báo cáo.');
+            alert('{% trans "Vui lòng chọn lý do báo cáo." %}');
             return;
         }
         
@@ -741,21 +764,21 @@ function submitReport(username, reason, description) {
     .then(response => {
         if (!response.ok) {
             return response.json().then(data => {
-                throw new Error(data.error || 'Đã xảy ra lỗi khi gửi báo cáo.');
+                throw new Error(data.error || '{% trans "Đã xảy ra lỗi khi gửi báo cáo." %}');
             });
         }
         return response.json();
     })
     .then(data => {
         if (data.status === 'success') {
-            alert('Cảm ơn bạn đã báo cáo. Chúng tôi sẽ xem xét nội dung này trong thời gian sớm nhất.');
+            alert('{% trans "Cảm ơn bạn đã báo cáo. Chúng tôi sẽ xem xét nội dung này trong thời gian sớm nhất." %}');
         } else {
-            alert(data.message || 'Đã xảy ra lỗi khi gửi báo cáo. Vui lòng thử lại sau.');
+            alert(data.message || '{% trans "Đã xảy ra lỗi khi gửi báo cáo. Vui lòng thử lại sau." %}');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert(error.message || 'Đã xảy ra lỗi khi gửi báo cáo. Vui lòng thử lại sau.');
+        alert(error.message || '{% trans "Đã xảy ra lỗi khi gửi báo cáo. Vui lòng thử lại sau." %}');
     });
 }
 
@@ -774,23 +797,23 @@ function blockUser(username) {
     .then(response => {
         if (!response.ok) {
             return response.json().then(data => {
-                throw new Error(data.error || 'Đã xảy ra lỗi khi chặn người dùng.');
+                throw new Error(data.error || '{% trans "Đã xảy ra lỗi khi chặn người dùng." %}');
             });
         }
         return response.json();
     })
     .then(data => {
         if (data.status === 'success') {
-            alert(data.message || `Bạn đã chặn ${username} thành công.`);
+            alert(data.message || ('{% trans "Bạn đã chặn" %} ' + username + ' {% trans "thành công." %}'));
             // Chuyển hướng về trang chủ sau khi chặn
             window.location.href = '/';
         } else {
-            alert(data.message || 'Đã xảy ra lỗi khi chặn người dùng. Vui lòng thử lại sau.');
+            alert(data.message || '{% trans "Đã xảy ra lỗi khi chặn người dùng. Vui lòng thử lại sau." %}');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert(error.message || 'Đã xảy ra lỗi khi chặn người dùng. Vui lòng thử lại sau.');
+        alert(error.message || '{% trans "Đã xảy ra lỗi khi chặn người dùng. Vui lòng thử lại sau." %}');
     });
 }
 </script>

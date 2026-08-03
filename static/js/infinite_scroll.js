@@ -203,8 +203,20 @@
                         ${buildLoadMoreCommentsHtml(post)}`}
                     </div>
                     ${post.disable_comments ? '' : `
-                    <form class="mt-3 add-comment-form" data-post-id="${post.id}" data-no-auto="true" data-ajax-submit="true">
+                    <form class="mt-3 add-comment-form" data-post-id="${post.id}" data-no-auto="true" data-ajax-submit="true" enctype="multipart/form-data">
+                        <div class="comment-image-preview d-none mb-2">
+                            <div class="comment-image-preview-inner">
+                                <img src="" alt="Xem trước ảnh" class="comment-preview-thumb">
+                                <button type="button" class="btn btn-sm btn-light comment-image-clear" title="Xóa ảnh">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
                         <div class="input-group">
+                            <label class="btn btn-light border comment-image-btn mb-0" title="Đính kèm ảnh" for="comment-image-${post.id}">
+                                <i class="far fa-image"></i>
+                            </label>
+                            <input type="file" class="d-none comment-image-input" id="comment-image-${post.id}" name="image" accept="image/*">
                             <input type="text" name="text" id="comment-input-${post.id}" class="form-control comment-input"
                                    placeholder="Viết bình luận..." aria-label="Comment input" autocomplete="off">
                             <button class="btn btn-primary" type="submit">Gửi</button>
@@ -350,6 +362,16 @@
         }
     }
 
+    function commentImageHtml(comment) {
+        const url = comment.image_url || comment.image;
+        if (!url) return '';
+        return `<div class="comment-image-wrap mt-1">
+            <a href="${escapeHtml(url)}" target="_blank" rel="noopener">
+                <img src="${escapeHtml(url)}" alt="Ảnh bình luận" class="comment-image">
+            </a>
+        </div>`;
+    }
+
     function buildRootCommentBodyHtml(comment, postId) {
         const username = comment.author_username || comment.author?.username || 'user';
         const commentId = comment.id;
@@ -366,7 +388,8 @@
 
         return `
             <a href="${profileUrl(username)}" class="text-dark text-decoration-none fw-bold">${escapeHtml(username)}</a>
-            <span class="ms-1">${escapeHtml(comment.text)}</span>
+            ${comment.text ? `<span class="ms-1">${escapeHtml(comment.text)}</span>` : ''}
+            ${commentImageHtml(comment)}
             <div class="text-muted small d-flex align-items-center flex-wrap mt-1">
                 <span>${timeLabel}</span>
                 <span class="mx-1">·</span>
@@ -402,7 +425,8 @@
         return `
             <div class="comment reply-comment mb-2" id="comment-${commentId}" data-comment-id="${commentId}">
                 <a href="${profileUrl(username)}" class="text-dark text-decoration-none fw-bold">${escapeHtml(username)}</a>
-                <span class="ms-1">${escapeHtml(comment.text)}</span>
+                ${comment.text ? `<span class="ms-1">${escapeHtml(comment.text)}</span>` : ''}
+                ${commentImageHtml(comment)}
                 <div class="text-muted small d-flex align-items-center flex-wrap mt-1">
                     <span>${timeLabel}</span>
                     <span class="mx-1">·</span>
@@ -756,7 +780,7 @@
         initPostInteractions(commentEl);
     }
 
-    function addComment(postId, text, parentId, form) {
+    function addComment(postId, text, parentId, form, imageFile) {
         const submitBtn = form?.querySelector('button[type="submit"]');
         const originalBtnHtml = submitBtn?.innerHTML;
         if (submitBtn) {
@@ -765,20 +789,20 @@
         }
 
         const requestId = `feed-${postId}-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+        const formData = new FormData();
+        formData.append('post_id', postId);
+        formData.append('text', text || '');
+        formData.append('request_id', requestId);
+        if (parentId) formData.append('parent_id', parentId);
+        if (imageFile) formData.append('image', imageFile);
 
         fetch('/api/posts/comments/add/', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
                 'X-CSRFToken': getCsrfToken(),
             },
             credentials: 'same-origin',
-            body: JSON.stringify({
-                post_id: parseInt(postId, 10),
-                text,
-                parent_id: parentId ? parseInt(parentId, 10) : null,
-                request_id: requestId,
-            }),
+            body: formData,
         })
         .then(async (response) => {
             const data = await response.json();
@@ -794,6 +818,14 @@
                 updateFeedCommentCount(postId);
                 const input = document.getElementById(`comment-input-${postId}`);
                 if (input) input.value = '';
+                const imageInput = form?.querySelector('.comment-image-input');
+                if (imageInput) imageInput.value = '';
+                const preview = form?.querySelector('.comment-image-preview');
+                if (preview) {
+                    preview.classList.add('d-none');
+                    const thumb = preview.querySelector('.comment-preview-thumb');
+                    if (thumb) thumb.src = '';
+                }
                 const replyInfo = form?.querySelector('.reply-info');
                 if (replyInfo) {
                     replyInfo.classList.add('d-none');
@@ -923,16 +955,58 @@
         }
 
         scope.querySelectorAll('.add-comment-form:not([data-initialized])').forEach((form) => {
+            const imageInput = form.querySelector('.comment-image-input');
+            const preview = form.querySelector('.comment-image-preview');
+            const clearBtn = form.querySelector('.comment-image-clear');
+
+            if (imageInput && preview && !imageInput.dataset.previewBound) {
+                imageInput.dataset.previewBound = '1';
+                imageInput.addEventListener('change', () => {
+                    const file = imageInput.files && imageInput.files[0];
+                    const thumb = preview.querySelector('.comment-preview-thumb');
+                    if (!file) {
+                        preview.classList.add('d-none');
+                        if (thumb) thumb.src = '';
+                        return;
+                    }
+                    if (!file.type.startsWith('image/')) {
+                        alert('Chỉ được chọn file ảnh');
+                        imageInput.value = '';
+                        return;
+                    }
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert('Ảnh bình luận tối đa 5MB');
+                        imageInput.value = '';
+                        return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        if (thumb) thumb.src = ev.target.result;
+                        preview.classList.remove('d-none');
+                    };
+                    reader.readAsDataURL(file);
+                });
+                if (clearBtn) {
+                    clearBtn.addEventListener('click', () => {
+                        imageInput.value = '';
+                        preview.classList.add('d-none');
+                        const thumb = preview.querySelector('.comment-preview-thumb');
+                        if (thumb) thumb.src = '';
+                    });
+                }
+            }
+
             form.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const postId = form.getAttribute('data-post-id');
                 const input = document.getElementById(`comment-input-${postId}`);
-                const text = input?.value.trim();
-                if (!text) return;
+                const text = input?.value.trim() || '';
+                const imageFile = imageInput && imageInput.files && imageInput.files[0] ? imageInput.files[0] : null;
+                if (!text && !imageFile) return;
                 const replyInfo = form.querySelector('.reply-info');
                 const parentId = replyInfo && !replyInfo.classList.contains('d-none')
                     ? replyInfo.getAttribute('data-parent-id') : null;
-                addComment(postId, text, parentId, form);
+                addComment(postId, text, parentId, form, imageFile);
             });
             form.setAttribute('data-initialized', 'true');
         });

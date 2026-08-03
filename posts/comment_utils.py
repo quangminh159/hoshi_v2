@@ -9,6 +9,27 @@ def get_root_comment(comment):
     return root
 
 
+def serialize_comment(comment, post_id=None, is_duplicate=False, parent_data=None):
+    """JSON payload for comment create/list responses."""
+    return {
+        'id': comment.id,
+        'text': comment.text or '',
+        'image': comment.image_url,
+        'image_url': comment.image_url,
+        'author_id': comment.author_id,
+        'author_username': comment.author.username,
+        'author_avatar': comment.author.get_avatar_url() if hasattr(comment.author, 'get_avatar_url') else (
+            comment.author.avatar.url if getattr(comment.author, 'avatar', None) else None
+        ),
+        'created_at': comment.created_at.isoformat(),
+        'likes_count': comment.likes_count,
+        'parent': parent_data,
+        'parent_id': comment.parent_id,
+        'post_id': post_id or comment.post_id,
+        'is_duplicate': is_duplicate,
+    }
+
+
 def get_thread_reply_ids(post, root_id):
     """All reply comment IDs under a root comment (any nesting depth)."""
     frontier = {root_id}

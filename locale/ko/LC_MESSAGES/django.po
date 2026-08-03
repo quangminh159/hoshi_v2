@@ -1,0 +1,924 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: hoshi\n"
+"Language: ko\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "%(count)s bình luận"
+msgstr "%(count)개의 댓글"
+
+msgid "%(count)s lượt thích"
+msgstr "%(count)개의 좋아요"
+
+msgid "%(counter)s cuộc trò chuyện"
+msgstr "%(counter)s 대화{% plural %}%(counter)s 대화"
+
+msgid "%(time)s trước"
+msgstr "%(시간)초 전"
+
+msgid "%(username)s chưa theo dõi ai."
+msgstr "%(username)s님은 아직 팔로우하는 사람이 없습니다."
+
+msgid "%(username)s đã chia sẻ"
+msgstr "%(사용자 이름)님이 공유했습니다"
+
+msgid ""
+"<strong>Chặn tin nhắn</strong> - Chỉ nhận tin nhắn từ người bạn theo dõi"
+msgstr "<strong>메시지 차단</strong> - 내가 팔로우하는 사람들의 메시지만 받습니다."
+
+msgid ""
+"<strong>Tài khoản riêng tư</strong> - Chỉ những người theo dõi mới có thể "
+"xem bài viết của bạn"
+msgstr "<strong>비공개 계정</strong> - 내 팔로어만 내 게시물을 볼 수 있습니다."
+
+msgid ""
+"<strong>Ẩn trạng thái hoạt động</strong> - Không hiển thị trạng thái hoạt "
+"động của bạn"
+msgstr "<strong>활동 상태 숨기기</strong> - 활동 상태를 표시하지 않습니다."
+
+msgid "Bao gồm hình ảnh và video"
+msgstr "이미지와 비디오가 포함되어 있습니다."
+
+msgid "Bài viết"
+msgstr "기사"
+
+msgid "Báo cáo"
+msgstr "보고서"
+
+msgid "Bình luận"
+msgstr "논평"
+
+msgid "Bạn chưa chặn người dùng nào."
+msgstr "아직 차단한 사용자가 없습니다."
+
+msgid "Bạn chưa lưu bài viết nào."
+msgstr "아직 저장한 게시물이 없습니다."
+
+msgid "Bạn có chắc chắn muốn bỏ chặn"
+msgstr "차단을 해제하시겠습니까?"
+
+msgid "Bạn có chắc chắn muốn chặn"
+msgstr "정말 차단하시겠습니까?"
+
+msgid "Bạn có chắc chắn muốn hủy liên kết với"
+msgstr "정말로 와 연결을 해제하시겠습니까?"
+
+msgid "Bạn có chắc chắn muốn hủy theo dõi"
+msgstr "팔로우를 취소하시겠습니까?"
+
+msgid "Bạn có chắc chắn muốn xoá bài viết này không?"
+msgstr "이 게시물을 삭제하시겠습니까?"
+
+msgid "Bạn có chắc chắn muốn xóa bài viết này không?"
+msgstr "이 게시물을 삭제하시겠습니까?"
+
+msgid "Bạn có chắc chắn muốn xóa phương tiện này không?"
+msgstr "이 미디어를 삭제하시겠습니까?"
+
+msgid "Bạn có chắc chắn muốn xóa tin nhắn này không?"
+msgstr "이 메시지를 삭제하시겠습니까?"
+
+msgid "Bạn có chắc chắn muốn xóa tài khoản?"
+msgstr "정말로 계정을 삭제하시겠습니까?"
+
+msgid "Bạn có chắc chắn muốn đăng xuất khỏi thiết bị này?"
+msgstr "이 기기에서 로그아웃하시겠습니까?"
+
+msgid ""
+"Bạn có chắc muốn xóa cuộc trò chuyện này? Hành động này không thể hoàn tác."
+msgstr "이 대화를 삭제하시겠습니까? 이 작업은 취소할 수 없습니다."
+
+msgid "Bạn có thể chọn nhiều ảnh hoặc video cùng lúc."
+msgstr "여러 개의 사진이나 비디오를 동시에 선택할 수 있습니다."
+
+msgid "Bạn không có quyền chỉnh sửa bài viết này."
+msgstr "이 글을 편집할 수 있는 권한이 없습니다."
+
+msgid "Bạn không có quyền xóa bài viết này."
+msgstr "이 게시물을 삭제할 권한이 없습니다."
+
+msgid "Bạn không có thông báo nào"
+msgstr "알림이 없습니다"
+
+msgid "Bạn không có thông báo nào."
+msgstr "알림이 없습니다."
+
+msgid "Bạn sẽ không thấy bài viết của họ và họ không thể tương tác với bạn."
+msgstr "귀하는 해당 사용자의 게시물을 볼 수 없으며 해당 사용자는 귀하와 상호작용할 수 없습니다."
+
+msgid "Bạn đang nghĩ gì?"
+msgstr "당신은 무엇을 생각하고 있습니까?"
+
+msgid "Bạn đã chặn"
+msgstr "차단했습니다"
+
+msgid "Bạn đã xem hết tất cả bài viết"
+msgstr "모든 기사를 읽었습니다."
+
+msgid "Bạn:"
+msgstr "친구:"
+
+msgid "Bảng tin"
+msgstr "게시판"
+
+msgid "Bảo mật"
+msgstr "보안"
+
+msgid "Bắt đầu cuộc trò chuyện..."
+msgstr "대화를 시작하세요..."
+
+msgid "Bắt đầu trò chuyện với bạn bè ngay hôm nay"
+msgstr "오늘부터 친구들과 채팅을 시작해 보세요"
+
+msgid "Bị chặn từ %(date)s"
+msgstr "%(date)s부터 차단됨"
+
+msgid "Bỏ chặn"
+msgstr "차단 해제"
+
+msgid "Chi tiết cuộc trò chuyện"
+msgstr "채팅 세부정보"
+
+msgid "Chào mừng trở lại!"
+msgstr "돌아온 것을 환영합니다!"
+
+msgid "Chính sách bảo mật"
+msgstr "개인 정보 보호 정책"
+
+msgid "Chưa có ai theo dõi %(username)s."
+msgstr "아직 %(username)s을(를) 팔로우하는 사람이 없습니다."
+
+msgid "Chưa có bài viết nào được chia sẻ."
+msgstr "아직 공유된 게시물이 없습니다."
+
+msgid "Chưa có bài viết nào để hiển thị"
+msgstr "아직 표시할 게시물이 없습니다."
+
+msgid "Chưa có bài viết nào."
+msgstr "아직 게시물이 없습니다."
+
+msgid "Chưa có cuộc trò chuyện nào"
+msgstr "아직 대화가 없습니다"
+
+msgid "Chưa có tin nhắn"
+msgstr "아직 메시지가 없습니다"
+
+msgid "Chưa có tin nhắn nào"
+msgstr "아직 메시지가 없습니다"
+
+msgid "Chưa có tài khoản mạng xã hội nào được liên kết."
+msgstr "아직 연결된 소셜 미디어 계정이 없습니다."
+
+msgid "Chưa có tài khoản?"
+msgstr "아직 계정이 없나요?"
+
+msgid "Chưa cập nhật"
+msgstr "아직 업데이트되지 않았습니다."
+
+msgid "Chặn"
+msgstr "차단하다"
+
+msgid "Chế độ xem bảng tin"
+msgstr "게시판 보기"
+
+msgid "Chỉ hỗ trợ Facebook, Twitter/X, Instagram và LinkedIn."
+msgstr "Facebook, Twitter/X, Instagram 및 LinkedIn만 지원합니다."
+
+msgid "Chỉnh sửa"
+msgstr "편집하다"
+
+msgid "Chỉnh sửa bài viết"
+msgstr "기사 편집"
+
+msgid "Chỉnh sửa hồ sơ"
+msgstr "프로필 수정"
+
+msgid "Chọn các tùy chọn quyền riêng tư bằng cách bật/tắt công tắc bên dưới."
+msgstr "아래 스위치를 전환하여 개인정보 보호 옵션을 선택하세요."
+
+msgid "Chọn giới tính"
+msgstr "성별을 선택하세요"
+
+msgid "Chọn lý do"
+msgstr "이유를 선택하세요"
+
+msgid "Chọn mã quốc gia rồi nhập số điện thoại (hỗ trợ mọi quốc gia)."
+msgstr "국가번호를 선택한 후 전화번호를 입력하세요. (모든 국가 지원)"
+
+msgid "Chọn ngày sinh của bạn"
+msgstr "생년월일을 선택하세요"
+
+msgid ""
+"Chọn ngôn ngữ hiển thị cho tài khoản của bạn. Tùy chọn này sẽ được lưu và áp"
+" dụng mỗi khi bạn đăng nhập."
+msgstr "계정의 표시 언어를 선택하세요. 이 기본 설정은 로그인할 때마다 저장되고 적용됩니다."
+
+msgid "Chọn tên người dùng của bạn"
+msgstr "사용자 이름을 선택하세요"
+
+msgid "Cài đặt"
+msgstr "환경"
+
+msgid "Cài đặt bảo mật"
+msgstr "보안 설정"
+
+msgid "Cài đặt ngôn ngữ"
+msgstr "언어 설정"
+
+msgid "Cài đặt quyền riêng tư"
+msgstr "개인정보 설정"
+
+msgid "Cài đặt thông báo"
+msgstr "알림 설정"
+
+msgid "Cài đặt tài khoản"
+msgstr "계정 설정"
+
+msgid "Có lỗi xảy ra khi cập nhật bài viết."
+msgstr "게시물을 업데이트하는 중에 오류가 발생했습니다."
+
+msgid "Có lỗi xảy ra khi tải danh sách người theo dõi."
+msgstr "팔로어 목록을 로드하는 중에 오류가 발생했습니다."
+
+msgid "Có lỗi xảy ra khi tải danh sách đang theo dõi."
+msgstr "추적 목록을 로드하는 동안 오류가 발생했습니다."
+
+msgid "Có lỗi xảy ra khi xoá bài viết."
+msgstr "게시물을 삭제하는 중에 오류가 발생했습니다."
+
+msgid "Có lỗi xảy ra khi xóa bài viết."
+msgstr "게시물을 삭제하는 중에 오류가 발생했습니다."
+
+msgid ""
+"Cảm ơn bạn đã báo cáo. Chúng tôi sẽ xem xét nội dung này trong thời gian sớm"
+" nhất."
+msgstr "신고해 주셔서 감사합니다. 최대한 빨리 이 내용을 검토하겠습니다."
+
+msgid "Cảnh báo"
+msgstr "경고"
+
+msgid "Dành cho bạn"
+msgstr "당신을 위한"
+
+msgid "Email"
+msgstr "이메일"
+
+msgid "Email / Gmail"
+msgstr "이메일/지메일"
+
+msgid "Ghi nhớ đăng nhập"
+msgstr "로그인을 기억하세요"
+
+msgid "Giới tính"
+msgstr "섹스"
+
+msgid "Gửi báo cáo"
+msgstr "보고서 제출"
+
+msgid "Gửi lời chào để bắt đầu cuộc trò chuyện"
+msgstr "대화를 시작하려면 인사하세요."
+
+msgid "Gửi tin nhắn"
+msgstr "메시지 보내기"
+
+msgid "Gửi tóm tắt hàng ngày"
+msgstr "일일 요약 보내기"
+
+msgid "Home"
+msgstr "집"
+
+msgid "Hoshi - Mạng xã hội chia sẻ khoảnh khắc"
+msgstr "Hoshi - 순간을 공유하는 소셜 네트워크"
+
+msgid "Hoạt động %(time)s trước"
+msgstr "%(time)s 전 작업"
+
+msgid "Hình ảnh"
+msgstr "영상"
+
+msgid "Hôm nay"
+msgstr "오늘"
+
+msgid "Hồ sơ"
+msgstr "파일"
+
+msgid "Hủy"
+msgstr "취소"
+
+msgid "Hủy liên kết %(name)s"
+msgstr "%(name)s 연결 해제"
+
+msgid ""
+"Khi bật, bạn sẽ cần nhập mã xác thực từ ứng dụng (Google Authenticator, "
+"Authy…) mỗi khi đăng nhập."
+msgstr ""
+"활성화하면 로그인할 때마다 애플리케이션(Google Authenticator, Authy...)에서 인증 코드를 입력해야 합니다."
+
+msgid "Khi có người bình luận bài viết của bạn hoặc trả lời bình luận của bạn"
+msgstr "누군가가 내 게시물에 댓글을 달거나 내 댓글에 답글을 달 때"
+
+msgid "Khi có người gửi tin nhắn cho bạn"
+msgstr "누군가 당신에게 메시지를 보낼 때"
+
+msgid "Khi có người nhắc đến bạn trong bài viết hoặc bình luận"
+msgstr "누군가가 게시물이나 댓글에서 귀하를 언급할 때"
+
+msgid "Khi có người theo dõi bạn"
+msgstr "누군가 당신을 따라오면"
+
+msgid "Khi có người thích bài viết hoặc bình luận của bạn"
+msgstr "누군가가 귀하의 게시물이나 댓글에 좋아요를 누른 경우"
+
+msgid "Khác"
+msgstr "다른"
+
+msgid "Khôi phục tài khoản"
+msgstr "계정 복구"
+
+msgid "Không có thiết bị nào khác đăng nhập vào tài khoản của bạn."
+msgstr "다른 장치는 귀하의 계정에 로그인되어 있지 않습니다."
+
+msgid "Không có thiết bị đăng nhập nào được ghi nhận"
+msgstr "로그인된 장치가 기록되지 않았습니다."
+
+msgid "Không thể gửi tin nhắn vì một trong hai người đã chặn người còn lại."
+msgstr "한 사람이 다른 사람을 차단했기 때문에 메시지를 보낼 수 없습니다."
+
+msgid "Không thể hủy liên kết tài khoản."
+msgstr "계정은 연결 해제할 수 없습니다."
+
+msgid "Không thể nhắn tin (đã chặn)"
+msgstr "문자 메시지를 보낼 수 없습니다(차단됨)"
+
+msgid "Không tìm thấy bài viết."
+msgstr "기사를 찾을 수 없습니다."
+
+msgid "Liên kết mạng xã hội"
+msgstr "소셜 네트워크 링크"
+
+msgid ""
+"Liên kết đã được lưu vào Website. Chỉ hỗ trợ Facebook, Twitter/X, Instagram "
+"và LinkedIn trong danh sách mạng xã hội."
+msgstr ""
+"링크가 웹사이트에 저장되었습니다. 소셜 네트워크 목록에서는 Facebook, Twitter/X, Instagram 및 LinkedIn만 "
+"지원됩니다."
+
+msgid "Loại thông báo"
+msgstr "알림 유형"
+
+msgid "Lý do báo cáo"
+msgstr "신고 이유"
+
+msgid "Lý do xóa tài khoản"
+msgstr "계정 삭제 이유"
+
+msgid "Lưu ngôn ngữ"
+msgstr "언어 저장"
+
+msgid "Lưu thay đổi"
+msgstr "변경사항 저장"
+
+msgid "Lưu thay đổi quyền riêng tư"
+msgstr "개인정보 보호 변경사항 저장"
+
+msgid "Lưu thay đổi thông báo"
+msgstr "알림 변경 사항 저장"
+
+msgid "Lượt thích"
+msgstr "좋아요"
+
+msgid "Lỗi khi tải danh sách người theo dõi"
+msgstr "팔로어 목록을 로드하는 중에 오류가 발생했습니다."
+
+msgid "Lỗi khi tải danh sách đang theo dõi"
+msgstr "추적 목록을 로드하는 중 오류가 발생했습니다."
+
+msgid "Lỗi khi tải lên tệp:"
+msgstr "파일 업로드 오류:"
+
+msgid "Lỗi kết nối tới máy chủ. Vui lòng thử lại sau."
+msgstr "서버에 연결하는 중에 오류가 발생했습니다. 나중에 다시 시도해 주세요."
+
+msgid "Menu"
+msgstr "메뉴"
+
+msgid "Mô tả chi tiết"
+msgstr "자세한 설명"
+
+msgid "Mật khẩu"
+msgstr "비밀번호"
+
+msgid "Mật khẩu và đăng nhập"
+msgstr "비밀번호 및 로그인"
+
+msgid "Mục hồ sơ"
+msgstr "프로필 섹션"
+
+msgid "Nam"
+msgstr "남성"
+
+msgid "Ngày sinh"
+msgstr "생일"
+
+msgid "Ngôn ngữ"
+msgstr "언어"
+
+msgid "Ngôn ngữ hiển thị"
+msgstr "표시 언어"
+
+msgid "Người dùng đã bị chặn"
+msgstr "사용자가 차단되었습니다"
+
+msgid "Người theo dõi (%(count)s)"
+msgstr "팔로어(%(count)s)"
+
+msgid "Nhận email tóm tắt các hoạt động mỗi ngày"
+msgstr "일일 활동을 요약한 이메일을 받습니다."
+
+msgid "Nhận thông báo ngay cả khi không mở ứng dụng"
+msgstr "앱을 열지 않고도 알림을 받을 수 있습니다."
+
+msgid "Nhận thông báo qua địa chỉ email của bạn"
+msgstr "이메일 주소를 통해 알림 받기"
+
+msgid "Nhận thông báo sau 30 ngày không hoạt động"
+msgstr "30일 동안 활동이 없으면 알림 받기"
+
+msgid "Nhập lại mật khẩu"
+msgstr "비밀번호를 다시 입력하세요."
+
+msgid "Nhập mật khẩu của bạn"
+msgstr "비밀번호를 입력하세요"
+
+msgid "Nhập mật khẩu hoặc mã xác thực để tắt 2FA:"
+msgstr "2FA를 끄려면 비밀번호 또는 인증 코드를 입력하세요."
+
+msgid "Nhập mật khẩu để xác nhận"
+msgstr "확인을 위해 비밀번호를 입력하세요"
+
+msgid "Nhập tin nhắn..."
+msgstr "메시지를 입력하세요..."
+
+msgid "Nhập tên người dùng của bạn"
+msgstr "사용자 이름을 입력하세요"
+
+msgid "Nhập địa chỉ email của bạn"
+msgstr "이메일 주소를 입력하세요"
+
+msgid "Nhắc đến"
+msgstr "말하는"
+
+msgid "Nhắn tin"
+msgstr "문자 메시지"
+
+msgid "Nhắn tin trực tiếp"
+msgstr "다이렉트 메시지"
+
+msgid "Những người mà %(username)s đang theo dõi"
+msgstr "%(username)s님이 팔로우하고 있습니다."
+
+msgid "Những người đang theo dõi %(username)s"
+msgstr "%(username)s을(를) 팔로우하는 사람들"
+
+msgid "Nội dung"
+msgstr "콘텐츠"
+
+msgid "Nội dung không phù hợp"
+msgstr "부적절한 콘텐츠"
+
+msgid "Nữ"
+msgstr "여성"
+
+msgid "Offline"
+msgstr "오프라인"
+
+msgid "Phân trang thông báo"
+msgstr "알림 페이지 매김"
+
+msgid "Phương thức nhận thông báo"
+msgstr "알림 수신 방법"
+
+msgid "Phương tiện hiện tại"
+msgstr "현재 미디어"
+
+msgid "Quay lại"
+msgstr "돌아와"
+
+msgid "Quyền riêng tư"
+msgstr "은둔"
+
+msgid "Quên mật khẩu?"
+msgstr "비밀번호를 잊으셨나요?"
+
+msgid ""
+"Quản lý cài đặt bảo mật cho tài khoản của bạn. Bật xác thực hai yếu tố để "
+"tăng cường bảo mật."
+msgstr "계정의 보안 설정을 관리하세요. 보안을 강화하려면 2단계 인증을 활성화하세요."
+
+msgid ""
+"Quản lý các tài khoản mạng xã hội được liên kết với tài khoản Hoshi của bạn"
+msgstr "Hoshi 계정에 연결된 소셜 미디어 계정을 관리하세요"
+
+msgid "Quản lý danh sách người dùng mà bạn đã chặn"
+msgstr "차단한 사용자 목록 관리"
+
+msgid "Quấy rối"
+msgstr "괴롭힘"
+
+msgid "Sẵn sàng tải xuống"
+msgstr "다운로드 준비 완료"
+
+msgid "Số điện thoại"
+msgstr "전화 번호"
+
+msgid "Tham gia cộng đồng Hoshi ngay hôm nay"
+msgstr "지금 Hoshi 커뮤니티에 가입하세요"
+
+msgid "Theo dõi"
+msgstr "감시 장치"
+
+msgid ""
+"Thiết bị của bạn đã đăng nhập. Bạn có thể đăng xuất khỏi các thiết bị khác "
+"từ đây."
+msgstr "귀하의 장치는 로그인되어 있습니다. 여기에서 다른 장치에서 로그아웃할 수 있습니다."
+
+msgid "Thiết bị hiện tại"
+msgstr "현재 장비"
+
+msgid "Thiết bị khác"
+msgstr "기타 장비"
+
+msgid "Thiết bị đăng nhập"
+msgstr "로그인 장치"
+
+msgid "Thiết lập xác thực hai yếu tố"
+msgstr "이중 인증 설정"
+
+msgid "Thêm"
+msgstr "더"
+
+msgid "Thêm bất kỳ liên kết mạng xã hội nào của bạn"
+msgstr "소셜 미디어 링크를 추가하세요."
+
+msgid "Thêm ảnh/video mới"
+msgstr "새 사진/비디오 추가"
+
+msgid "Thông báo"
+msgstr "공고"
+
+msgid "Thông báo khi không hoạt động"
+msgstr "비활성 시 알림"
+
+msgid "Thông báo qua email"
+msgstr "이메일을 통한 알림"
+
+msgid "Thông báo đẩy"
+msgstr "푸시 알림"
+
+msgid "Thông tin liên hệ (cần xác thực khi đổi)"
+msgstr "연락처 (교환시 인증 필요)"
+
+msgid "Thống kê báo cáo"
+msgstr "보고서 통계"
+
+msgid "Tin nhắn"
+msgstr "메시지"
+
+msgid "Trang chủ"
+msgstr "홈페이지"
+
+msgid "Trang cá nhân"
+msgstr "개인 페이지"
+
+msgid "Trang sau"
+msgstr "다음 페이지"
+
+msgid "Trang trước"
+msgstr "이전 페이지"
+
+msgid "Trò chuyện mới"
+msgstr "새 채팅"
+
+msgid "Trả lời"
+msgstr "회신하다"
+
+msgid "Tài khoản bị xóa?"
+msgstr "계정이 삭제되었나요?"
+
+msgid "Tài khoản giả mạo"
+msgstr "가짜 계정"
+
+msgid "Tài liệu"
+msgstr "문서"
+
+msgid "Tên người dùng"
+msgstr "사용자 이름"
+
+msgid "Tên người dùng không hợp lệ"
+msgstr "잘못된 사용자 이름"
+
+msgid "Tìm kiếm"
+msgstr "찾다"
+
+msgid "Tìm kiếm cuộc trò chuyện..."
+msgstr "채팅 검색..."
+
+msgid "Tìm kiếm..."
+msgstr "찾다..."
+
+msgid ""
+"Tôi hiểu rằng sau 30 ngày tài khoản sẽ bị xóa vĩnh viễn và không thể khôi "
+"phục"
+msgstr "30일 후에는 계정이 영구적으로 삭제되며 복원할 수 없다는 점을 이해합니다."
+
+msgid "Tôi đồng ý với"
+msgstr "나는 동의한다"
+
+msgid "Tùy chỉnh cách bạn nhận thông báo từ Hoshi"
+msgstr "Hoshi로부터 알림을 받는 방법을 맞춤설정하세요."
+
+msgid "Tùy chỉnh thời gian đình chỉ"
+msgstr "정지 시간 맞춤설정"
+
+msgid "Tùy chỉnh thời gian đình chỉ người dùng bị báo cáo"
+msgstr "보고된 사용자 정지 시간 맞춤설정"
+
+msgid "Tùy chọn thông báo khác"
+msgstr "추가 알림 옵션"
+
+msgid "Tạo bài viết"
+msgstr "기사 작성"
+
+msgid "Tạo bài viết mới"
+msgstr "새 기사 만들기"
+
+msgid "Tạo mật khẩu mới"
+msgstr "새 비밀번호 만들기"
+
+msgid "Tạo tài khoản mới"
+msgstr "새 계정 만들기"
+
+msgid "Tải xuống"
+msgstr "다운로드"
+
+msgid ""
+"Tải xuống bản sao dữ liệu của bạn, bao gồm bài viết, bình luận, và thông tin"
+" cá nhân."
+msgstr "게시물, 댓글, 개인 정보를 포함한 데이터 사본을 다운로드하세요."
+
+msgid "Tải xuống dữ liệu"
+msgstr "데이터 다운로드"
+
+msgid "Tắt bình luận"
+msgstr "댓글 끄기"
+
+msgid "Tắt xác thực hai yếu tố"
+msgstr "이중 인증 끄기"
+
+msgid "Video"
+msgstr "동영상"
+
+msgid "Vui lòng chọn lý do báo cáo."
+msgstr "신고 사유를 선택해 주세요."
+
+msgid "Vui lòng cung cấp thêm thông tin..."
+msgstr "더 많은 정보를 제공해 주세요..."
+
+msgid "Xem bài viết gốc"
+msgstr "원본 기사 보기"
+
+msgid "Xem chi tiết"
+msgstr "세부정보 보기"
+
+msgid "Xem thống kê báo cáo"
+msgstr "보고서 통계 보기"
+
+msgid "Xem tất cả thông báo"
+msgstr "모든 공지사항 보기"
+
+msgid "Xem ảnh"
+msgstr "사진 보기"
+
+msgid "Xác nhận mật khẩu"
+msgstr "비밀번호 확인"
+
+msgid "Xác thực hai yếu tố"
+msgstr "이중 인증"
+
+msgid ""
+"Xác thực hai yếu tố đang <strong>bật</strong>. Bạn sẽ cần mã từ ứng dụng xác"
+" thực mỗi khi đăng nhập."
+msgstr "이중 인증이 <strong>켜져</strong> 있습니다. 로그인할 때마다 인증 앱의 코드가 필요합니다."
+
+msgid "Xóa"
+msgstr "지우다"
+
+msgid "Xóa bài viết"
+msgstr "게시물 삭제"
+
+msgid "Xóa cuộc trò chuyện"
+msgstr "채팅 삭제"
+
+msgid "Xóa tài khoản"
+msgstr "계정 삭제"
+
+msgid "Xóa ảnh đại diện hiện tại"
+msgstr "현재 아바타 삭제"
+
+msgid "Yêu cầu của bạn đã được ghi nhận."
+msgstr "귀하의 요청이 승인되었습니다."
+
+msgid "Yêu cầu gần đây"
+msgstr "최근 요청"
+
+msgid "Yêu cầu tải xuống"
+msgstr "다운로드 필요"
+
+msgid "bài viết"
+msgstr "기사"
+
+msgid "của Hoshi"
+msgstr "호시로"
+
+msgid "hoặc tiếp tục với"
+msgstr "아니면 계속"
+
+msgid "hoặc đăng ký với"
+msgstr "또는 등록"
+
+msgid "lượt thích"
+msgstr "좋아한다"
+
+msgid "người theo dõi"
+msgstr "추종자"
+
+msgid "thành công."
+msgstr "성공."
+
+msgid "thông báo chưa đọc"
+msgstr "읽지 않은 알림"
+
+msgid "và"
+msgstr "그리고"
+
+msgid "Đang hoạt động"
+msgstr "활동적인"
+
+msgid "Đang lưu..."
+msgstr "절약..."
+
+msgid "Đang theo dõi"
+msgstr "수행원"
+
+msgid "Đang theo dõi (%(count)s)"
+msgstr "팔로잉(%(count)s)"
+
+msgid "Đang trả lời"
+msgstr "답장하다"
+
+msgid "Đang tải bài viết..."
+msgstr "기사 로드 중..."
+
+msgid "Đang tải..."
+msgstr "로드 중..."
+
+msgid "Đang xử lý"
+msgstr "처리"
+
+msgid "Đang xử lý..."
+msgstr "처리 중..."
+
+msgid "Điều hướng nhanh"
+msgstr "빠른 탐색"
+
+msgid "Điều khoản sử dụng"
+msgstr "이용약관"
+
+msgid "Đánh dấu tất cả là đã đọc"
+msgstr "모두 읽음으로 표시"
+
+msgid "Đã bỏ chặn"
+msgstr "차단 해제됨"
+
+msgid "Đã chia sẻ"
+msgstr "공유됨"
+
+msgid "Đã có tài khoản?"
+msgstr "이미 계정이 있나요?"
+
+msgid "Đã cập nhật bài viết thành công!"
+msgstr "게시물이 업데이트되었습니다."
+
+msgid "Đã hết hạn"
+msgstr "만료됨"
+
+msgid "Đã hủy liên kết"
+msgstr "연결 해제됨"
+
+msgid "Đã lưu"
+msgstr "저장됨"
+
+msgid "Đã thích"
+msgstr "좋아요를 누른"
+
+msgid "Đã xóa bài viết thành công!"
+msgstr "게시물이 삭제되었습니다."
+
+msgid "Đã xảy ra lỗi khi bỏ chặn người dùng."
+msgstr "사용자 차단을 해제하는 중에 오류가 발생했습니다."
+
+msgid "Đã xảy ra lỗi khi chặn người dùng."
+msgstr "사용자를 차단하는 중에 오류가 발생했습니다."
+
+msgid "Đã xảy ra lỗi khi chặn người dùng. Vui lòng thử lại sau."
+msgstr "사용자를 차단하는 중에 오류가 발생했습니다. 나중에 다시 시도해 주세요."
+
+msgid "Đã xảy ra lỗi khi gửi báo cáo."
+msgstr "보고서를 보내는 동안 오류가 발생했습니다."
+
+msgid "Đã xảy ra lỗi khi gửi báo cáo. Vui lòng thử lại sau."
+msgstr "보고서를 보내는 동안 오류가 발생했습니다. 나중에 다시 시도해 주세요."
+
+msgid "Đã xảy ra lỗi khi gửi yêu cầu."
+msgstr "요청을 보내는 동안 오류가 발생했습니다."
+
+msgid "Đã xảy ra lỗi khi hủy liên kết."
+msgstr "연결을 해제하는 중에 오류가 발생했습니다."
+
+msgid "Đã xảy ra lỗi khi thực hiện thao tác. Vui lòng thử lại sau."
+msgstr "작업을 수행하는 동안 오류가 발생했습니다. 나중에 다시 시도해 주세요."
+
+msgid "Đã xảy ra lỗi khi xóa cuộc trò chuyện."
+msgstr "채팅을 삭제하는 중에 오류가 발생했습니다."
+
+msgid "Đã xảy ra lỗi khi đăng xuất thiết bị."
+msgstr "기기에서 로그아웃하는 중 오류가 발생했습니다."
+
+msgid "Đóng"
+msgstr "닫다"
+
+msgid "Đăng ký"
+msgstr "등록하다"
+
+msgid "Đăng ký ngay"
+msgstr "지금 등록하세요"
+
+msgid "Đăng ký với Google"
+msgstr "Google에 가입"
+
+msgid "Đăng nhập"
+msgstr "로그인"
+
+msgid "Đăng nhập bằng mạng xã hội"
+msgstr "소셜 네트워크를 사용하여 로그인"
+
+msgid "Đăng nhập ngay"
+msgstr "지금 로그인하세요"
+
+msgid "Đăng nhập với Google"
+msgstr "Google로 로그인"
+
+msgid "Đăng nhập để tiếp tục với Hoshi"
+msgstr "Hoshi를 계속하려면 로그인하세요."
+
+msgid "Đăng xuất"
+msgstr "로그아웃"
+
+msgid ""
+"Đảm bảo sử dụng mật khẩu mạnh và không sử dụng lại ở các trang web khác"
+msgstr "강력한 비밀번호를 사용하고 다른 사이트에서 재사용하지 마세요."
+
+msgid "Địa điểm"
+msgstr "위치"
+
+msgid "Đổi"
+msgstr "변화"
+
+msgid ""
+"Đổi SĐT sẽ gửi mã xác thực về số hiện tại (hoặc email nếu SMS không khả "
+"dụng)."
+msgstr "전화번호를 변경하면 현재 전화번호(또는 SMS를 사용할 수 없는 경우 이메일)로 인증 코드가 전송됩니다."
+
+msgid "Đổi email sẽ gửi mã xác thực về email hiện tại."
+msgstr "이메일을 변경하면 현재 이메일로 인증 코드가 전송됩니다."
+
+msgid "Đổi mật khẩu"
+msgstr "비밀번호 변경"
+
+msgid "đang nhập..."
+msgstr "들어가다..."
+
+msgid "đang theo dõi"
+msgstr "팔로우 중입니다"
+
+msgid "Ảnh"
+msgstr "영상"
+
+msgid "Ảnh đầy đủ"
+msgstr "전체 사진"
+
+msgid "Ẩn lượt thích"
+msgstr "좋아요 숨기기"

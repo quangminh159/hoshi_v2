@@ -25,7 +25,7 @@ class AllUserManager(UserManager):
 
 class User(AbstractUser):
     email = models.EmailField(_('email address'), unique=True)
-    phone_number = PhoneNumberField(_('phone number'), blank=True, null=True, unique=True)
+    phone_number = PhoneNumberField(_('phone number'), blank=True, null=True, unique=True, region=None)
     avatar = ProcessedImageField(upload_to='avatars',
                                processors=[ResizeToFill(300, 300)],
                                format='JPEG',
@@ -79,6 +79,21 @@ class User(AbstractUser):
     
     # Security settings
     two_factor_auth = models.BooleanField(_('two-factor authentication'), default=False)
+    two_factor_secret = models.CharField(_('two-factor secret'), max_length=32, blank=True, null=True)
+
+    LANGUAGE_CHOICES = [
+        ('vi', 'Tiếng Việt'),
+        ('en', 'English'),
+        ('ja', '日本語'),
+        ('ko', '한국어'),
+        ('zh-hans', '简体中文'),
+    ]
+    language = models.CharField(
+        _('language'),
+        max_length=10,
+        choices=LANGUAGE_CHOICES,
+        default='vi',
+    )
     
     # Relationships
     followers = models.ManyToManyField(
@@ -144,6 +159,43 @@ class User(AbstractUser):
         if not other_user:
             return False
         return self.following_relationships.filter(following_user=other_user).exists()
+
+    def sync_privacy_flags(self):
+        """Keep is_private and private_account aligned (private_account is source of truth)."""
+        if self.is_private != self.private_account:
+            self.is_private = self.private_account
+
+    def can_receive_message_from(self, sender):
+        """Whether sender may message this user (respects block_messages)."""
+        if not sender or sender == self:
+            return False
+        if self.has_block_relationship(sender):
+            return False
+        if self.block_messages and not self.is_following_user(sender):
+            return False
+        return True
+
+    def save(self, *args, **kwargs):
+        # Keep dual privacy flags in sync whenever either may have changed
+        if self.is_private != self.private_account:
+            # Prefer private_account when both differ after form saves;
+            # callers that set is_private should also set private_account.
+            update_fields = kwargs.get('update_fields')
+            if update_fields is not None:
+                update_fields = set(update_fields)
+                if 'private_account' in update_fields and 'is_private' not in update_fields:
+                    self.is_private = self.private_account
+                    update_fields.add('is_private')
+                    kwargs['update_fields'] = list(update_fields)
+                elif 'is_private' in update_fields and 'private_account' not in update_fields:
+                    self.private_account = self.is_private
+                    update_fields.add('private_account')
+                    kwargs['update_fields'] = list(update_fields)
+                else:
+                    self.is_private = self.private_account
+            else:
+                self.is_private = self.private_account
+        super().save(*args, **kwargs)
 
     def get_blocked_user_ids(self):
         """User IDs blocked in either direction."""
