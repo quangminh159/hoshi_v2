@@ -1,0 +1,54 @@
+.share-post-tabs .nav-link {
+    font-size: 0.875rem;
+    padding: 0.45rem 0.75rem;
+}
+
+.share-recipients-list {
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.share-recipient-item {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.55rem 0.75rem;
+    margin: 0;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    transition: background 0.12s ease;
+}
+
+.share-recipient-item:last-child {
+    border-bottom: none;
+}
+
+.share-recipient-item:hover {
+    background: rgba(0, 0, 0, 0.03);
+}
+
+.share-recipient-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.share-recipient-name {
+    flex: 1;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.share-recipient-badge {
+    font-size: 0.7rem;
+    color: #6c757d;
+    background: #f1f3f5;
+    padding: 0.15rem 0.45rem;
+    border-radius: 999px;
+}
+
+.share-recipient-check {
+    flex-shrink: 0;
+}

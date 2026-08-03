@@ -132,6 +132,13 @@ class ConversationMessage(models.Model):
         blank=True,
         related_name='replies',
     )
+    shared_post = models.ForeignKey(
+        'posts.Post',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='shared_in_messages',
+    )
     
     class Meta:
         ordering = ['created_at']
@@ -155,6 +162,8 @@ class ConversationMessage(models.Model):
 
     def get_reply_preview(self):
         """Nội dung rút gọn để hiển thị khi được trả lời."""
+        if self.shared_post_id and self.shared_post:
+            return f'[Bài viết của @{self.shared_post.author.username}]'
         if self.content:
             return self.content
         if self.image:

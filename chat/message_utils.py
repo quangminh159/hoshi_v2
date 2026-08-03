@@ -1,6 +1,26 @@
 """Helpers chuẩn hóa payload tin nhắn chat."""
 
 
+def serialize_shared_post(post):
+    if not post:
+        return None
+    first_media = post.media.order_by('order').first()
+    media_preview = None
+    if first_media:
+        media_preview = {
+            'url': first_media.file.url,
+            'media_type': first_media.media_type,
+        }
+    return {
+        'id': post.id,
+        'author_username': post.author.username,
+        'author_avatar': post.author.get_avatar_url(),
+        'caption': (post.caption or '')[:120],
+        'url': post.get_absolute_url(),
+        'media': media_preview,
+    }
+
+
 def serialize_reply_to(message):
     parent = getattr(message, 'reply_to', None)
     if not parent:
@@ -49,6 +69,8 @@ def serialize_chat_message(message, user=None):
         attachment_type = 'document'
         attachment_url = message.document.url
 
+    shared_post = getattr(message, 'shared_post', None)
+
     return {
         'id': message.id,
         'content': message.content or '',
@@ -61,4 +83,5 @@ def serialize_chat_message(message, user=None):
         'file_name': message.file_name,
         'file_size': message.file_size,
         'reply_to': serialize_reply_to(message),
+        'shared_post': serialize_shared_post(shared_post),
     }

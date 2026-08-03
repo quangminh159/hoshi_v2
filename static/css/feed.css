@@ -448,7 +448,7 @@
         width: 100% !important;
         margin: 0 !important;
         padding: 0 !important;
-        padding-top: 52px !important;
+        padding-top: 72px !important;
         padding-bottom: 72px !important;
     }
 
@@ -612,4 +612,21 @@
     .mobile-bottom-nav {
         display: none !important;
     }
+}
+
+/* Share button: icon only (hide leftover "Chia sẻ" text / cached HTML) */
+.feed-page .share-button,
+#posts-container .share-button {
+    font-size: 0 !important;
+    letter-spacing: 0;
+}
+
+.feed-page .share-button i,
+#posts-container .share-button i {
+    font-size: 1rem !important;
+}
+
+.feed-page .share-button span,
+#posts-container .share-button span {
+    display: none !important;
 }

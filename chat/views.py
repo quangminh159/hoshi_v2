@@ -136,7 +136,10 @@ def conversation_detail(request, conversation_id):
     # Lấy tin nhắn
     chat_messages = ConversationMessage.objects.filter(
         conversation=conversation
-    ).select_related('sender', 'reply_to', 'reply_to__sender').order_by('created_at')
+    ).select_related(
+        'sender', 'reply_to', 'reply_to__sender',
+        'shared_post', 'shared_post__author',
+    ).prefetch_related('shared_post__media').order_by('created_at')
     
     context = {
         'conversation': conversation,

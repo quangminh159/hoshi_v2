@@ -6,7 +6,8 @@
 {% block body_class %} feed-layout{% endblock %}
 
 {% block extra_css %}
-<link href="{% static 'css/feed.css' %}" rel="stylesheet">
+<link href="{% static 'css/feed.css' %}?v=share-icon-1" rel="stylesheet">
+<link href="{% static 'css/share_post_modal.css' %}" rel="stylesheet">
 {% include 'posts/includes/create_post_composer_assets.html' %}
 <style>
 .feed-page #posts-container .fas.fa-heart { color: inherit !important; }
@@ -94,42 +95,12 @@
 </div>
 
 <!-- Modal chia sẻ (dùng chung cho mọi bài) -->
-<div class="modal fade" id="sharePostModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Chia sẻ bài viết</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
-            </div>
-            <div class="modal-body">
-                <form id="sharePostForm" action="{% url 'posts:share_post' %}" method="POST">
-                    {% csrf_token %}
-                    <input type="hidden" name="post_id" id="share-post-id" value="">
-                    <input type="hidden" name="current_feed" value="{{ feed_type }}">
-                    <div class="mb-3">
-                        <label for="share-caption" class="form-label">Viết gì đó về bài viết này</label>
-                        <textarea class="form-control" id="share-caption" name="caption" rows="3"
-                                  placeholder="Bạn đang nghĩ gì về bài viết này?"></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="share-as-new-post" name="as_new_post" value="1" checked>
-                            <label class="form-check-label" for="share-as-new-post">Đăng như bài viết mới</label>
-                        </div>
-                    </div>
-                    <div class="d-flex justify-content-end gap-2">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                        <button type="submit" class="btn btn-primary">Chia sẻ</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+{% include 'posts/includes/share_post_modal.html' %}
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/infinite_scroll.js' %}"></script>
+<script src="{% static 'js/infinite_scroll.js' %}?v=share-icon-1"></script>
+<script src="{% static 'js/share_post_modal.js' %}?v=share-icon-1"></script>
 <script>
 window.currentUserId = '{{ request.user.id }}';
 </script>
@@ -147,71 +118,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const homeNav = document.querySelector('.mobile-bottom-nav__item[data-nav="home"]');
     if (homeNav) homeNav.classList.add('is-active');
-
-    const shareForm = document.getElementById('sharePostForm');
-    if (shareForm) {
-        shareForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            const postId = document.getElementById('share-post-id')?.value;
-            const caption = document.getElementById('share-caption')?.value || '';
-            const asNewPost = document.getElementById('share-as-new-post')?.checked ?? true;
-            const submitBtn = shareForm.querySelector('button[type="submit"]');
-
-            if (!postId) {
-                alert('Không tìm thấy bài viết để chia sẻ.');
-                return;
-            }
-
-            if (submitBtn) {
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Đang chia sẻ...';
-            }
-
-            fetch(shareForm.action, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || '',
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json',
-                },
-                body: JSON.stringify({
-                    post_id: postId,
-                    caption: caption,
-                    as_new_post: asNewPost,
-                }),
-            })
-            .then((response) => response.json().then((data) => ({ ok: response.ok, data })))
-            .then(({ ok, data }) => {
-                if (!ok || data.status !== 'success') {
-                    throw new Error(data.message || 'Có lỗi xảy ra khi chia sẻ bài viết.');
-                }
-
-                const modalEl = document.getElementById('sharePostModal');
-                const modal = bootstrap.Modal.getInstance(modalEl);
-                if (modal) modal.hide();
-
-                shareForm.reset();
-                document.getElementById('share-as-new-post').checked = true;
-
-                if (data.post_id) {
-                    window.location.href = `/posts/${data.post_id}/`;
-                } else {
-                    window.location.reload();
-                }
-            })
-            .catch((error) => {
-                alert(error.message || 'Có lỗi xảy ra khi chia sẻ bài viết.');
-            })
-            .finally(() => {
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'Chia sẻ';
-                }
-            });
-        });
-    }
 });
 </script>
 {% endblock %}

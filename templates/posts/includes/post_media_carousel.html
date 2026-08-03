@@ -1,0 +1,42 @@
+{% comment %}
+  Carousel ảnh/video cho bài viết.
+  Biến: carousel_post, carousel_prefix (vd: "carousel" hoặc "carousel-shared")
+{% endcomment %}
+{% if carousel_post.media.exists %}
+<div id="{{ carousel_prefix }}-{{ carousel_post.id }}" class="carousel slide {{ carousel_css_class|default:'' }}" data-bs-ride="false">
+    {% if carousel_post.media.count > 1 %}
+    <div class="carousel-indicators">
+        {% for media in carousel_post.media.all %}
+        <button type="button"
+                data-bs-target="#{{ carousel_prefix }}-{{ carousel_post.id }}"
+                data-bs-slide-to="{{ forloop.counter0 }}"
+                {% if forloop.first %}class="active" aria-current="true"{% endif %}
+                aria-label="Slide {{ forloop.counter }}"></button>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="carousel-inner">
+        {% for media in carousel_post.media.all %}
+        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+            {% if media.media_type == 'image' %}
+            <img src="{{ media.file.url }}?v={{ carousel_post.updated_at|date:'U' }}-{{ media.id }}" class="d-block w-100" alt="Post image" loading="lazy">
+            {% else %}
+            <video class="d-block w-100 feed-video" controls preload="metadata" playsinline src="{{ media.file.url }}?v={{ carousel_post.updated_at|date:'U' }}-{{ media.id }}"></video>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if carousel_post.media.count > 1 %}
+    <button class="carousel-control-prev" type="button" data-bs-target="#{{ carousel_prefix }}-{{ carousel_post.id }}" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#{{ carousel_prefix }}-{{ carousel_post.id }}" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+    </button>
+    {% endif %}
+</div>
+{% endif %}

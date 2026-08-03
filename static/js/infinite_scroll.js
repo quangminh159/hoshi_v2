@@ -71,13 +71,19 @@
         postDiv.className = 'card feed-post-card';
         postDiv.id = `post-${post.id}`;
 
-        function buildMediaCarousel(mediaList, carouselId, clickUrl) {
+        function mediaUrlWithCache(media, cacheVersion) {
+            const v = cacheVersion || Date.now();
+            const sep = media.file_url.includes('?') ? '&' : '?';
+            return `${media.file_url}${sep}v=${v}-${media.id}`;
+        }
+
+        function buildMediaCarousel(mediaList, carouselId, clickUrl, cacheVersion) {
             if (!mediaList || mediaList.length === 0) return '';
             const slides = mediaList.map((media, index) => `
                 <div class="carousel-item ${index === 0 ? 'active' : ''}">
                     ${media.media_type === 'image'
-                        ? `<img src="${media.file_url}" class="d-block w-100" alt="Post image" loading="lazy" decoding="async">`
-                        : `<video class="d-block w-100 feed-video" muted loop playsinline preload="metadata" controls src="${media.file_url}" onclick="event.stopPropagation()"></video>`
+                        ? `<img src="${mediaUrlWithCache(media, cacheVersion)}" class="d-block w-100" alt="Post image" loading="lazy" decoding="async">`
+                        : `<video class="d-block w-100 feed-video" muted loop playsinline preload="metadata" controls src="${mediaUrlWithCache(media, cacheVersion)}" onclick="event.stopPropagation()"></video>`
                     }
                 </div>
             `).join('');
@@ -108,12 +114,14 @@
         }
 
         let sharedHTML = '';
+        const mediaCacheVersion = post.updated_at ? new Date(post.updated_at).getTime() : post.id;
         if (post.shared_from) {
             const original = post.shared_from;
             const originalMedia = buildMediaCarousel(
                 original.media,
                 `carousel-shared-${post.id}`,
-                `/posts/${original.id}/`
+                `/posts/${original.id}/`,
+                original.updated_at ? new Date(original.updated_at).getTime() : original.id
             );
             sharedHTML = `
                 <div class="shared-post-container border rounded bg-white">
@@ -142,7 +150,7 @@
 
         const mediaHTML = post.shared_from
             ? ''
-            : buildMediaCarousel(post.media, `carousel-${post.id}`, `/posts/${post.id}/`);
+            : buildMediaCarousel(post.media, `carousel-${post.id}`, `/posts/${post.id}/`, mediaCacheVersion);
 
         postDiv.innerHTML = `
             <div class="feed-post-body">
@@ -172,16 +180,16 @@
                         <div class="d-flex align-items-center">
                             <button class="btn btn-light btn-sm me-2 like-button ${post.is_liked ? 'liked' : ''}" data-post-id="${post.id}">
                                 <i class="${post.is_liked ? 'fas' : 'far'} fa-heart"></i>
-                                <span class="likes-count" data-post-id="${post.id}">${post.likes_count}</span>
+                                ${post.hide_likes ? '' : `<span class="likes-count" data-post-id="${post.id}">${post.likes_count}</span>`}
                             </button>
                             <a href="/posts/${post.id}/" class="btn btn-light btn-sm me-2">
                                 <i class="far fa-comment"></i>
                                 <span>${post.comments_count}</span>
                             </a>
                             <button class="btn btn-light btn-sm share-button" data-post-id="${post.id}"
-                                    data-bs-toggle="modal" data-bs-target="#sharePostModal">
+                                    data-bs-toggle="modal" data-bs-target="#sharePostModal"
+                                    title="Chia sẻ" aria-label="Chia sẻ">
                                 <i class="far fa-share-square"></i>
-                                <span>Chia sẻ</span>
                             </button>
                         </div>
                         <button class="btn btn-light btn-sm save-button" data-post-id="${post.id}">
@@ -189,9 +197,12 @@
                         </button>
                     </div>
                     <div class="comments-section px-0 pb-1">
-                        <div class="root-comments-list">${renderCommentsHtml(post)}</div>
-                        ${buildLoadMoreCommentsHtml(post)}
+                        ${post.disable_comments
+                            ? '<p class="text-muted small mb-2">Bài viết này đã tắt bình luận.</p>'
+                            : `<div class="root-comments-list">${renderCommentsHtml(post)}</div>
+                        ${buildLoadMoreCommentsHtml(post)}`}
                     </div>
+                    ${post.disable_comments ? '' : `
                     <form class="mt-3 add-comment-form" data-post-id="${post.id}" data-no-auto="true" data-ajax-submit="true">
                         <div class="input-group">
                             <input type="text" name="text" id="comment-input-${post.id}" class="form-control comment-input"
@@ -206,7 +217,7 @@
                                 </button>
                             </small>
                         </div>
-                    </form>
+                    </form>`}
                 </div>
             </div>`;
 
@@ -889,13 +900,27 @@
         });
 
         scope.querySelectorAll('.share-button:not([data-initialized])').forEach((button) => {
+            // Remove leftover text label if present (old cached markup)
+            button.querySelectorAll('span').forEach((span) => span.remove());
+            button.setAttribute('title', 'Chia sẻ');
+            button.setAttribute('aria-label', 'Chia sẻ');
             button.addEventListener('click', () => {
                 const postId = button.getAttribute('data-post-id');
-                const input = document.getElementById('share-post-id');
-                if (input) input.value = postId;
+                const targetSelector = button.getAttribute('data-bs-target');
+                const modal = targetSelector
+                    ? document.querySelector(targetSelector)
+                    : document.getElementById('sharePostModal');
+                if (modal && postId) {
+                    const input = modal.querySelector('.share-post-id');
+                    if (input) input.value = postId;
+                }
             });
             button.setAttribute('data-initialized', 'true');
         });
+
+        if (typeof window.initSharePostModals === 'function') {
+            window.initSharePostModals(scope);
+        }
 
         scope.querySelectorAll('.add-comment-form:not([data-initialized])').forEach((form) => {
             form.addEventListener('submit', (e) => {
@@ -1061,7 +1086,12 @@
 
     scrollObserver.observe(sentinel);
 
-    loadMorePosts();
+    if (sessionStorage.getItem('postsFeedStale') === '1') {
+        sessionStorage.removeItem('postsFeedStale');
+        resetAndReload();
+    } else {
+        loadMorePosts();
+    }
 
     window.restoreInteractionStates = restoreInteractionStates;
     window.infiniteScroll = { loadMorePosts, resetAndReload, refresh: restoreInteractionStates };

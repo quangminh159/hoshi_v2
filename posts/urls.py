@@ -41,6 +41,8 @@ urlpatterns = [
     path('api/location-suggestions/', api.location_suggestions, name='location_suggestions'),
     path('api/reverse-geocode/', api.reverse_geocode, name='reverse_geocode'),
     path('share/', api.share_post, name='share_post'),
+    path('share/recipients/', api.share_message_recipients, name='share_message_recipients'),
+    path('share/via-message/', api.share_post_via_message, name='share_post_via_message'),
     path('<int:post_id>/report-modal/', views.report_post_modal, name='report_post_modal'),
     path('<int:post_id>/report-ajax/', views.report_post_ajax, name='report_post_ajax'),
 ]

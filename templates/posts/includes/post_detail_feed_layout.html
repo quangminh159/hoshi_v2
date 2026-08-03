@@ -1,0 +1,315 @@
+<article class="card feed-post-card post-detail-card mb-0" data-post-id="{{ post.id }}">
+    <div class="feed-post-body">
+        <div class="feed-post-avatar-col">
+            <a href="{% url 'accounts:profile' username=post.author.username %}" class="feed-post-avatar-link">
+                <img src="{{ post.author.get_avatar_url }}"
+                     class="rounded-circle feed-post-avatar"
+                     width="40" height="40"
+                     alt="{{ post.author.username }}">
+            </a>
+        </div>
+
+        <div class="feed-post-main">
+            <div class="feed-post-meta">
+                <div class="feed-post-meta-left">
+                    <a href="{% url 'accounts:profile' username=post.author.username %}"
+                       class="text-dark text-decoration-none fw-bold feed-post-username">
+                        {{ post.author.username }}
+                    </a>
+                    <span class="text-muted small feed-post-time">{{ post.created_at|timesince }} trước</span>
+                    {% if post.shared_from %}
+                    <span class="text-muted small"><i class="fas fa-retweet me-1"></i>đã chia sẻ</span>
+                    {% endif %}
+                    {% if post.location %}
+                    <span class="text-muted small"><i class="fas fa-map-marker-alt me-1"></i>{{ post.location }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="post-detail-menu">
+                    {% if request.user == post.author %}
+                    <div class="dropdown">
+                        <button class="btn btn-link p-1" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <button class="dropdown-item edit-post-btn"
+                                        data-post-id="{{ post.id }}"
+                                        data-caption="{{ post.caption|escapejs }}"
+                                        data-location="{{ post.location|default:''|escapejs }}"
+                                        data-disable-comments="{{ post.disable_comments|yesno:'true,false' }}"
+                                        data-hide-likes="{{ post.hide_likes|yesno:'true,false' }}"
+                                        type="button">
+                                    <i class="fas fa-edit me-2"></i>Chỉnh sửa
+                                </button>
+                            </li>
+                            <li>
+                                <button class="dropdown-item text-danger" onclick="deletePost({{ post.id }})">
+                                    <i class="fas fa-trash-alt me-2"></i>Xóa bài viết
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                    {% else %}
+                    <div class="dropdown">
+                        <button class="btn btn-link p-1" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <button class="dropdown-item text-danger report-btn"
+                                        data-post-id="{{ post.id }}"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#reportModal">
+                                    <i class="fas fa-flag me-2"></i>Báo cáo bài viết
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if post.caption %}
+            <div class="feed-post-caption">
+                <p class="card-text mb-0 post-detail-caption">{{ post.caption|urlize|linebreaksbr }}</p>
+            </div>
+            {% endif %}
+
+            {% if post.shared_from %}
+            <div class="shared-post-container border rounded bg-white">
+                <div class="share-title p-2 border-bottom">
+                    <i class="fas fa-retweet text-primary me-1"></i>
+                    <span class="text-muted">Bài viết gốc</span>
+                </div>
+                <a href="{% url 'posts:post_detail' post_id=post.shared_from.id %}" class="text-decoration-none text-dark shared-post-header d-block p-2">
+                    <div class="d-flex align-items-center mb-2">
+                        <img src="{{ post.shared_from.author.get_avatar_url }}"
+                             class="rounded-circle me-2" width="32" height="32"
+                             alt="{{ post.shared_from.author.username }}">
+                        <div>
+                            <span class="fw-bold">{{ post.shared_from.author.username }}</span>
+                            {% if post.shared_from.location %}
+                            <div class="text-muted small">{{ post.shared_from.location }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if post.shared_from.caption %}
+                    <p class="card-text mb-0 small">{{ post.shared_from.caption|urlize|linebreaksbr }}</p>
+                    {% endif %}
+                </a>
+                <div class="shared-post-media">
+                    {% include 'posts/includes/post_media_carousel.html' with carousel_post=post.shared_from carousel_prefix="carousel-shared" carousel_css_class="post-detail-media" %}
+                </div>
+            </div>
+            {% else %}
+            {% include 'posts/includes/post_media_carousel.html' with carousel_post=post carousel_prefix="carousel" carousel_css_class="post-detail-media" %}
+            {% endif %}
+
+            <div class="card-footer d-flex justify-content-between py-2 bg-white feed-post-actions px-0">
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-light btn-sm me-2 like-button {% if is_liked %}liked{% endif %}"
+                            data-post-id="{{ post.id }}">
+                        <i class="{% if is_liked %}fas{% else %}far{% endif %} fa-heart"></i>
+                        {% if not post.hide_likes %}
+                        <span class="likes-count" data-post-id="{{ post.id }}">{{ post.likes_count }}</span>
+                        {% endif %}
+                    </button>
+                    <button class="btn btn-light btn-sm me-2" type="button" onclick="document.getElementById('comment-input').focus()">
+                        <i class="far fa-comment"></i>
+                        <span id="post-comment-count">{{ post.comments_count }}</span>
+                    </button>
+                    <button class="btn btn-light btn-sm me-2 share-button"
+                            data-post-id="{{ post.id }}"
+                            data-bs-toggle="modal"
+                            data-bs-target="#sharePostModal"
+                            title="Chia sẻ"
+                            aria-label="Chia sẻ">
+                        <i class="far fa-share-square"></i>
+                    </button>
+                </div>
+                <button class="btn btn-light btn-sm save-button" data-post-id="{{ post.id }}">
+                    <i class="{% if request.user in post.saved_by.all %}fas{% else %}far{% endif %} fa-bookmark"></i>
+                </button>
+            </div>
+
+            {% if not post.hide_likes %}
+            <p class="mb-0 likes-count-display">
+                <a href="#" class="text-dark text-decoration-none fw-bold show-likes-button" data-post-id="{{ post.id }}">
+                    <span class="likes-count-text">{{ post.likes_count }} lượt thích</span>
+                </a>
+            </p>
+            {% endif %}
+        </div>
+    </div>
+
+    <section class="post-detail-comments-section" aria-label="Bình luận">
+        <div class="post-detail-comments-header">
+            <h2>Bình luận <span class="text-muted fw-normal">({{ total_comments }})</span></h2>
+        </div>
+
+        <div id="post-detail-comments-list" class="post-detail-comments-list">
+            {% if post.disable_comments %}
+            <p class="text-muted text-center small mb-3">Bài viết này đã tắt bình luận.</p>
+            {% endif %}
+
+            {% for comment_item in comments_data %}
+            {% with comment=comment_item.comment %}
+            <div class="d-flex comment" id="comment-{{ comment.id }}" data-comment-id="{{ comment.id }}">
+                <img src="{{ comment.author.get_avatar_url }}"
+                     class="rounded-circle me-2 flex-shrink-0"
+                     width="32" height="32"
+                     alt="{{ comment.author.username }}">
+                <div class="flex-grow-1 min-w-0">
+                    <div class="d-flex justify-content-between gap-2">
+                        <div class="min-w-0">
+                            <a href="{% url 'accounts:profile' username=comment.author.username %}"
+                               class="text-dark text-decoration-none fw-bold">
+                                {{ comment.author.username }}
+                            </a>
+                            <span class="comment-text">{{ comment.text|urlize|linebreaksbr }}</span>
+                        </div>
+                        <div class="dropdown flex-shrink-0">
+                            <button class="btn btn-link btn-sm p-0 text-muted" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <button class="dropdown-item reply-button"
+                                            data-username="{{ comment.author.username }}"
+                                            data-post-id="{{ post.id }}">
+                                        <i class="fas fa-reply me-2"></i>Trả lời
+                                    </button>
+                                </li>
+                                {% if request.user == comment.author or request.user == post.author %}
+                                <li>
+                                    <button class="dropdown-item text-danger" onclick="deleteComment({{ comment.id }})">
+                                        <i class="fas fa-trash-alt me-2"></i>Xóa
+                                    </button>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="text-muted small">
+                        {{ comment.created_at|timesince }} trước ·
+                        <button class="btn btn-link btn-sm p-0 text-muted like-comment-button"
+                                data-comment-id="{{ comment.id }}">
+                            {% if comment_item.is_liked %}
+                            <span class="text-primary">Đã thích</span>
+                            {% else %}
+                            <span>Thích</span>
+                            {% endif %}
+                        </button>
+                        <span>·</span>
+                        <button class="btn btn-link btn-sm p-0 text-muted reply-button"
+                                data-username="{{ comment.author.username }}"
+                                data-post-id="{{ post.id }}">
+                            Trả lời
+                        </button>
+                        {% if comment.likes_count > 0 %}
+                        <span class="ms-2">
+                            <i class="fas fa-heart text-danger small"></i>
+                            <span class="comment-likes-count" data-comment-id="{{ comment.id }}">{{ comment.likes_count }}</span>
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    {% if comment_item.replies %}
+                    <div class="comment-replies ps-3 ps-md-4 mt-2 border-start">
+                        {% for reply in comment_item.replies %}
+                        <div class="reply-comment mb-2" id="comment-{{ reply.reply.id }}" data-comment-id="{{ reply.reply.id }}">
+                            <div class="d-flex justify-content-between gap-2">
+                                <div class="min-w-0">
+                                    <a href="{% url 'accounts:profile' username=reply.reply.author.username %}"
+                                       class="text-dark text-decoration-none fw-bold">
+                                        {{ reply.reply.author.username }}
+                                    </a>
+                                    <span class="text-muted small me-1">đã trả lời</span>
+                                    <a href="#comment-{{ comment.id }}" class="text-dark fw-bold small">@{{ comment.author.username }}</a>:
+                                    <span class="comment-text">{{ reply.reply.text|urlize|linebreaksbr }}</span>
+                                </div>
+                                <div class="dropdown flex-shrink-0">
+                                    <button class="btn btn-link btn-sm p-0 text-muted" type="button" data-bs-toggle="dropdown">
+                                        <i class="fas fa-ellipsis-h"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <button class="dropdown-item reply-button"
+                                                    data-username="{{ reply.reply.author.username }}"
+                                                    data-post-id="{{ post.id }}">
+                                                <i class="fas fa-reply me-2"></i>Trả lời
+                                            </button>
+                                        </li>
+                                        {% if request.user == reply.reply.author or request.user == post.author %}
+                                        <li>
+                                            <button class="dropdown-item text-danger" onclick="deleteComment({{ reply.reply.id }})">
+                                                <i class="fas fa-trash-alt me-2"></i>Xóa
+                                            </button>
+                                        </li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="text-muted small">
+                                {{ reply.reply.created_at|timesince }} trước ·
+                                <button class="btn btn-link btn-sm p-0 text-muted like-comment-button"
+                                        data-comment-id="{{ reply.reply.id }}">
+                                    {% if reply.is_liked %}
+                                    <span class="text-primary">Đã thích</span>
+                                    {% else %}
+                                    <span>Thích</span>
+                                    {% endif %}
+                                </button>
+                                <span>·</span>
+                                <button class="btn btn-link btn-sm p-0 text-muted reply-button"
+                                        data-username="{{ reply.reply.author.username }}"
+                                        data-post-id="{{ post.id }}">
+                                    Trả lời
+                                </button>
+                                {% if reply.reply.likes_count > 0 %}
+                                <span class="ms-2">
+                                    <i class="fas fa-heart text-danger small"></i>
+                                    <span class="comment-likes-count" data-comment-id="{{ reply.reply.id }}">{{ reply.reply.likes_count }}</span>
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endwith %}
+            {% empty %}
+            {% if not post.disable_comments %}
+            <p class="text-muted text-center mb-0">Chưa có bình luận nào. Hãy là người đầu tiên!</p>
+            {% endif %}
+            {% endfor %}
+        </div>
+
+        {% if not post.disable_comments %}
+        <form class="add-comment-form post-detail-comment-form" data-post-id="{{ post.id }}" data-no-auto="true" onsubmit="return false;">
+            <div class="input-group">
+                <input type="text"
+                       class="form-control"
+                       placeholder="Viết bình luận..."
+                       name="text"
+                       id="comment-input">
+                <button class="btn btn-primary comment-btn" type="button">
+                    <span class="btn-text">Gửi</span>
+                    <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                </button>
+            </div>
+            <div class="reply-info d-none mt-2">
+                <small class="text-muted">
+                    Đang trả lời: <span class="reply-to-username fw-bold"></span>
+                    <button type="button" class="btn btn-link btn-sm p-0 text-danger cancel-reply">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </small>
+            </div>
+        </form>
+        {% endif %}
+    </section>
+</article>

@@ -30,9 +30,8 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom fixed-top site-navbar">
         <div class="container">
-            <a class="navbar-brand brand-logo" href="{% url 'home' %}">
-                <img src="{% static 'images/logo-mark.svg' %}" alt="" class="brand-logo__mark" aria-hidden="true">
-                <span class="brand-logo__text">Hoshi</span>
+            <a class="navbar-brand brand-logo" href="{% url 'home' %}" aria-label="Trang chủ">
+                <img src="{% static 'images/logo-mark.svg' %}" alt="M" class="brand-logo__mark">
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Menu">
@@ -173,9 +172,8 @@
         <button type="button" class="mobile-feed-icon-btn" data-bs-toggle="offcanvas" data-bs-target="#mobileFeedMenu" aria-label="Menu">
             <i class="fas fa-bars"></i>
         </button>
-        <a href="{% url 'home' %}" class="mobile-feed-logo brand-logo" aria-label="Hoshi">
-            <img src="{% static 'images/logo-mark.svg' %}" alt="" class="brand-logo__mark" aria-hidden="true">
-            <span class="brand-logo__text">Hoshi</span>
+        <a href="{% url 'home' %}" class="mobile-feed-logo brand-logo" aria-label="Trang chủ">
+            <img src="{% static 'images/logo-mark.svg' %}" alt="M" class="brand-logo__mark">
         </a>
         <a href="{% url 'posts:search' %}" class="mobile-feed-icon-btn" aria-label="Tìm kiếm">
             <i class="fas fa-search"></i>

@@ -66,11 +66,17 @@
                  data-sender-name="{{ message.sender.username|escapejs }}"
                  data-reply-preview="{{ message.get_reply_preview|escapejs }}"
                  {% if message.image %}data-attachment-type="image" data-attachment-url="{{ message.image.url }}"{% elif message.video %}data-attachment-type="video" data-attachment-url="{{ message.video.url }}"{% elif message.document %}data-attachment-type="document" data-attachment-url="{{ message.document.url }}"{% endif %}
-                 {% if message.file_name %}data-file-name="{{ message.file_name|escapejs }}"{% endif %}>
+                 {% if message.file_name %}data-file-name="{{ message.file_name|escapejs }}"{% endif %}
+                 {% if message.shared_post %}data-shared-post="1"{% endif %}>
               <div class="message-content">
                 {% if message.reply_to %}
                   {% include 'chat/includes/message_quote.html' with parent=message.reply_to viewer=request.user %}
                 {% endif %}
+
+                {% if message.shared_post %}
+                  {% include 'chat/includes/message_shared_post.html' with post=message.shared_post %}
+                {% endif %}
+
                 {% if message.image %}
                   <div class="message-media">
                     <img src="{{ message.image.url }}" alt="Ảnh" loading="lazy" onclick="openImageModal('{{ message.image.url }}')">
@@ -485,7 +491,33 @@
         attachment_url: serverMessage.attachment_url,
         file_name: serverMessage.file_name,
         file_size: serverMessage.file_size,
+        shared_post: serverMessage.shared_post || null,
       };
+    }
+
+    function buildSharedPostCard(sharedPost) {
+      if (!sharedPost) return null;
+      const link = document.createElement('a');
+      link.href = sharedPost.url || `/posts/${sharedPost.id}/`;
+      link.className = 'message-shared-post';
+
+      const mediaHtml = sharedPost.media ? `
+        <div class="message-shared-post__media">
+          ${sharedPost.media.media_type === 'image'
+            ? `<img src="${sharedPost.media.url}" alt="" loading="lazy">`
+            : `<video src="${sharedPost.media.url}" muted preload="metadata"></video>
+               <span class="message-shared-post__play"><i class="fas fa-play"></i></span>`}
+        </div>` : '';
+
+      link.innerHTML = `
+        <div class="message-shared-post__header">
+          <img src="${sharedPost.author_avatar || ''}" alt="" class="message-shared-post__avatar" loading="lazy">
+          <span class="message-shared-post__author">${sharedPost.author_username || ''}</span>
+        </div>
+        ${mediaHtml}
+        ${sharedPost.caption ? `<p class="message-shared-post__caption">${sharedPost.caption}</p>` : ''}
+        <span class="message-shared-post__link">Xem bài viết <i class="fas fa-external-link-alt ms-1"></i></span>`;
+      return link;
     }
 
     async function uploadPendingAttachments(messageText, submitButton) {
@@ -612,7 +644,7 @@
       messageElement.dataset.messageId = message.id;
       if (message.sender_id) messageElement.dataset.senderId = message.sender_id;
       if (message.sender_username) messageElement.dataset.senderName = message.sender_username;
-      messageElement.dataset.replyPreview = message.content || message.reply_to?.preview || '';
+      messageElement.dataset.replyPreview = message.content || message.shared_post?.caption || message.reply_to?.preview || '';
       if (message.has_attachment) {
         messageElement.dataset.attachmentType = message.attachment_type || '';
         messageElement.dataset.attachmentUrl = message.attachment_url || '';
@@ -624,6 +656,11 @@
 
       if (message.reply_to) {
         messageContent.appendChild(buildMessageQuote(message.reply_to));
+      }
+
+      if (message.shared_post) {
+        const sharedCard = buildSharedPostCard(message.shared_post);
+        if (sharedCard) messageContent.appendChild(sharedCard);
       }
 
       if (message.has_attachment) {

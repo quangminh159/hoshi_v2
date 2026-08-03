@@ -1,0 +1,22 @@
+<a href="{{ post.get_absolute_url }}" class="message-shared-post">
+  <div class="message-shared-post__header">
+    <img src="{{ post.author.get_avatar_url }}" alt="" class="message-shared-post__avatar" loading="lazy">
+    <span class="message-shared-post__author">{{ post.author.username }}</span>
+  </div>
+  {% with first_media=post.media.first %}
+  {% if first_media %}
+  <div class="message-shared-post__media">
+    {% if first_media.media_type == 'image' %}
+    <img src="{{ first_media.file.url }}" alt="" loading="lazy">
+    {% else %}
+    <video src="{{ first_media.file.url }}" muted preload="metadata"></video>
+    <span class="message-shared-post__play"><i class="fas fa-play"></i></span>
+    {% endif %}
+  </div>
+  {% endif %}
+  {% endwith %}
+  {% if post.caption %}
+  <p class="message-shared-post__caption">{{ post.caption|truncatechars:120 }}</p>
+  {% endif %}
+  <span class="message-shared-post__link">Xem bài viết <i class="fas fa-external-link-alt ms-1"></i></span>
+</a>

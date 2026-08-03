@@ -1218,10 +1218,13 @@ def prepare_posts_json(posts, user, include_comments=False):
             'caption': post.caption,
             'location': post.location,
             'created_at': post.created_at.isoformat(),
+            'updated_at': post.updated_at.isoformat(),
             'likes_count': post.likes_count,
             'comments_count': post.comments_count,
             'is_liked': post.id in liked_ids,
             'is_saved': post.id in saved_ids,
+            'disable_comments': post.disable_comments,
+            'hide_likes': post.hide_likes,
             'media': media_files,
             'shared_from': (
                 {
@@ -1234,6 +1237,7 @@ def prepare_posts_json(posts, user, include_comments=False):
                     'caption': post.shared_from.caption,
                     'location': post.shared_from.location,
                     'created_at': post.shared_from.created_at.isoformat(),
+                    'updated_at': post.shared_from.updated_at.isoformat(),
                     'likes_count': post.shared_from.likes_count,
                     'comments_count': post.shared_from.comments_count,
                     'media': [{

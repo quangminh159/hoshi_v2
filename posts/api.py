@@ -20,8 +20,41 @@ from django.contrib.contenttypes.models import ContentType
 from notifications.models import Notification
 from notifications.signals import send_notification_to_websocket
 from .comment_utils import resolve_reply_parent
+from .views import _media_type_for_file
 
 User = get_user_model()
+
+
+def _parse_deleted_media_ids(raw_value):
+    """Chuẩn hóa danh sách ID media cần xóa từ FormData/JSON."""
+    if raw_value is None:
+        return []
+    if isinstance(raw_value, (list, tuple)):
+        raw_value = raw_value[0] if raw_value else '[]'
+    if not raw_value:
+        return []
+    try:
+        ids = json.loads(raw_value) if isinstance(raw_value, str) else raw_value
+    except (json.JSONDecodeError, TypeError):
+        return []
+    if not isinstance(ids, list):
+        ids = [ids]
+    result = []
+    for item in ids:
+        try:
+            result.append(int(item))
+        except (TypeError, ValueError):
+            continue
+    return result
+
+
+def _serialize_post_media(post):
+    return [{
+        'id': media.id,
+        'file_url': media.file.url,
+        'media_type': media.media_type,
+        'order': media.order,
+    } for media in post.media.all()]
 
 class PostViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializer
@@ -524,6 +557,15 @@ def like_comment(request, pk):
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+def _parse_bool(value):
+    """Chuẩn hóa giá trị checkbox/FormData/JSON thành bool."""
+    if isinstance(value, bool):
+        return value
+    if value is None:
+        return False
+    return str(value).strip().lower() in ('1', 'true', 'on', 'yes')
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def edit_post(request, post_id):
@@ -547,51 +589,50 @@ def edit_post(request, post_id):
             post.location = request.data['location']
         
         if 'disable_comments' in request.data:
-            post.disable_comments = request.data['disable_comments'] == 'true'
+            post.disable_comments = _parse_bool(request.data['disable_comments'])
         
         if 'hide_likes' in request.data:
-            post.hide_likes = request.data['hide_likes'] == 'true'
-        
-        # Lưu thay đổi
-        post.save()
-        
-        # Xử lý xóa phương tiện
+            post.hide_likes = _parse_bool(request.data['hide_likes'])
+
+        # Xóa phương tiện trước khi thêm mới
         if 'deleted_media' in request.data:
-            deleted_media_ids = json.loads(request.data['deleted_media'])
+            deleted_media_ids = _parse_deleted_media_ids(request.data['deleted_media'])
             if deleted_media_ids:
                 PostMedia.objects.filter(id__in=deleted_media_ids, post=post).delete()
-        
-        # Xử lý thêm phương tiện mới
-        if 'new_media' in request.FILES:
-            new_media_files = request.FILES.getlist('new_media')
+
+        # Thêm phương tiện mới
+        new_media_files = request.FILES.getlist('new_media')
+        if new_media_files:
+            last_order = PostMedia.objects.filter(post=post).count()
+            max_upload_size = getattr(settings, 'MAX_UPLOAD_SIZE', 10 * 1024 * 1024)
+
             for index, file in enumerate(new_media_files):
-                # Kiểm tra kích thước file
-                if file.size > settings.MAX_UPLOAD_SIZE:
+                if file.size > max_upload_size:
                     return Response({
                         'status': 'error',
-                        'message': f'Kích thước file không được vượt quá {settings.MAX_UPLOAD_SIZE/1024/1024:.2f}MB'
+                        'message': f'Kích thước file không được vượt quá {max_upload_size/1024/1024:.2f}MB'
                     }, status=status.HTTP_400_BAD_REQUEST)
-                
-                # Xác định loại media
-                media_type = 'video' if file.content_type.startswith('video') else 'image'
-                
-                # Tính order là index cuối cùng hiện tại + index mới
-                last_order = PostMedia.objects.filter(post=post).count()
-                
-                # Tạo media object mới
+
+                media_type = _media_type_for_file(file)
+                if not media_type:
+                    return Response({
+                        'status': 'error',
+                        'message': f'File {file.name} không hợp lệ. Chỉ chấp nhận ảnh hoặc video.'
+                    }, status=status.HTTP_400_BAD_REQUEST)
+
                 PostMedia.objects.create(
                     post=post,
                     file=file,
                     media_type=media_type,
                     order=last_order + index
                 )
+
+        # Lưu thay đổi (cập nhật updated_at sau khi xử lý media)
+        post.save()
         
         # Xử lý hashtags
         if 'caption' in request.data:
-            # Xóa tất cả hashtag cũ
             post.hashtags.clear()
-            
-            # Tìm và thêm hashtags mới
             hashtags = [word[1:] for word in post.caption.split() if word.startswith('#')]
             for tag_name in hashtags:
                 hashtag, _ = Hashtag.objects.get_or_create(name=tag_name)
@@ -605,7 +646,9 @@ def edit_post(request, post_id):
                 'caption': post.caption,
                 'location': post.location,
                 'disable_comments': post.disable_comments,
-                'hide_likes': post.hide_likes
+                'hide_likes': post.hide_likes,
+                'updated_at': post.updated_at.isoformat(),
+                'media': _serialize_post_media(post),
             }
         })
     
@@ -1097,4 +1140,145 @@ def share_post(request):
         return JsonResponse({
             'status': 'error',
             'message': f'Có lỗi xảy ra khi chia sẻ bài viết: {str(e)}'
-        }, status=500) 
+        }, status=500)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def share_message_recipients(request):
+    """Danh sách người nhận khi chia sẻ bài viết qua tin nhắn."""
+    from chat.models import Conversation
+
+    user = request.user
+    blocked_ids = set(user.get_blocked_user_ids())
+    recipients = []
+    seen_ids = set()
+
+    conversations = (
+        Conversation.objects.filter(participants=user)
+        .order_by('-last_message_time')[:25]
+    )
+    for conversation in conversations:
+        other = conversation.get_other_participant(user)
+        if not other or other.id in blocked_ids or other.id in seen_ids:
+            continue
+        seen_ids.add(other.id)
+        recipients.append({
+            'id': other.id,
+            'username': other.username,
+            'avatar': other.get_avatar_url(),
+            'conversation_id': conversation.id,
+            'source': 'recent',
+        })
+
+    following_ids = user.get_following_user_ids()
+    following_users = User.objects.filter(id__in=following_ids).exclude(
+        id__in=seen_ids
+    ).exclude(id__in=blocked_ids).order_by('username')[:40]
+
+    for other in following_users:
+        seen_ids.add(other.id)
+        recipients.append({
+            'id': other.id,
+            'username': other.username,
+            'avatar': other.get_avatar_url(),
+            'conversation_id': None,
+            'source': 'following',
+        })
+
+    return JsonResponse({'status': 'success', 'recipients': recipients})
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def share_post_via_message(request):
+    """Gửi bài viết tới một hoặc nhiều người dùng qua tin nhắn."""
+    from chat.conversation_utils import (
+        get_or_create_direct_conversation,
+        send_conversation_message,
+        users_are_blocked,
+    )
+
+    data = request.data
+    post_id = data.get('post_id')
+    recipient_ids = data.get('recipient_ids') or []
+    message_text = (data.get('message') or '').strip()
+
+    if not post_id:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Thiếu ID bài viết',
+        }, status=400)
+
+    if not recipient_ids:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Vui lòng chọn ít nhất một người nhận',
+        }, status=400)
+
+    try:
+        post = Post.objects.select_related('author').prefetch_related('media').get(pk=post_id)
+    except Post.DoesNotExist:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Bài viết không tồn tại',
+        }, status=404)
+
+    if isinstance(recipient_ids, (str, int)):
+        recipient_ids = [recipient_ids]
+
+    unique_ids = []
+    for raw_id in recipient_ids:
+        try:
+            uid = int(raw_id)
+        except (TypeError, ValueError):
+            continue
+        if uid != request.user.id and uid not in unique_ids:
+            unique_ids.append(uid)
+
+    if not unique_ids:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Danh sách người nhận không hợp lệ',
+        }, status=400)
+
+    sent = []
+    skipped = 0
+    for recipient_id in unique_ids:
+        try:
+            recipient = User.objects.get(pk=recipient_id)
+        except User.DoesNotExist:
+            skipped += 1
+            continue
+
+        if users_are_blocked(request.user, recipient):
+            skipped += 1
+            continue
+
+        conversation = get_or_create_direct_conversation(request.user, recipient)
+        _, payload = send_conversation_message(
+            request.user,
+            conversation,
+            content=message_text,
+            shared_post=post,
+        )
+        sent.append({
+            'recipient_id': recipient.id,
+            'recipient_username': recipient.username,
+            'conversation_id': conversation.id,
+            'message': payload,
+        })
+
+    if not sent:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Không thể gửi tin nhắn tới người nhận đã chọn',
+        }, status=400)
+
+    return JsonResponse({
+        'status': 'success',
+        'message': f'Đã gửi tới {len(sent)} người',
+        'sent_count': len(sent),
+        'skipped_count': skipped,
+        'sent': sent,
+    })

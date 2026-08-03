@@ -251,7 +251,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # Lấy 50 tin nhắn gần đây nhất
         messages = ConversationMessage.objects.filter(
             conversation_id=self.conversation_id
-        ).select_related('sender', 'reply_to', 'reply_to__sender').order_by('-created_at')[:50]
+        ).select_related(
+            'sender', 'reply_to', 'reply_to__sender',
+            'shared_post', 'shared_post__author',
+        ).prefetch_related('shared_post__media').order_by('-created_at')[:50]
         
         messages = list(messages)
         messages.reverse()
@@ -281,8 +284,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         )
 
         message = ConversationMessage.objects.select_related(
-            'sender', 'reply_to', 'reply_to__sender'
-        ).get(pk=message.pk)
+            'sender', 'reply_to', 'reply_to__sender',
+            'shared_post', 'shared_post__author',
+        ).prefetch_related('shared_post__media').get(pk=message.pk)
 
         conversation.last_message_time = timezone.now()
         conversation.save()
