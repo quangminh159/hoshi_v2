@@ -34,114 +34,11 @@ logger = logging.getLogger(__name__)
 
 @login_required
 def home(request):
-    # Nếu người dùng chưa đăng nhập, chuyển hướng đến trang đăng nhập
+    """Trang chủ dùng feed shell nhẹ; bài viết load qua /posts/?format=json."""
     if not request.user.is_authenticated:
         return redirect('account_login')
-        
-    logger.info(f"Bắt đầu xử lý trang chủ")
-    logger.info(f"Người dùng: {request.user}")
-    logger.info(f"Người dùng đã xác thực: {request.user.is_authenticated}")
-    
-    # Lấy tất cả bài viết, sắp xếp ngẫu nhiên mỗi lần tải lại trang
-    posts = Post.objects.all().order_by('?')
-    logger.info(f"Tổng số bài viết ban đầu: {posts.count()}")
-    
-    # Lấy danh sách người đã chặn người dùng hiện tại
-    blocked_by_users = UserBlock.objects.filter(blocked=request.user).values_list('blocker_id', flat=True)
-    
-    # Loại bỏ bài viết từ những người đã chặn người dùng hiện tại
-    posts = posts.exclude(author_id__in=blocked_by_users)
-    
-    # Nếu người dùng đã xác thực
-    if request.user.is_authenticated:
-        # Lấy danh sách những người dùng mà người dùng hiện tại đang theo dõi
-        following_users = request.user.get_following_user_ids()
-        logger.info(f"Những người dùng đang được theo dõi: {list(following_users)}")
-        
-        # Nếu có người theo dõi, ưu tiên bài viết của những người đang theo dõi
-        if following_users:
-            following_posts = posts.filter(
-                Q(author__id__in=following_users) | Q(author=request.user)
-            )
-            logger.info(f"Số bài viết của những người đang theo dõi: {following_posts.count()}")
-            
-            # Nếu có bài viết của những người đang theo dõi, sử dụng các bài viết này
-            if following_posts.exists():
-                posts = following_posts
-    
-    logger.info(f"Tổng số bài viết sau khi lọc: {posts.count()}")
-    
-    # Kiểm tra và xử lý avatar
-    for post in posts:
-        if not hasattr(post.author, 'avatar_url'):
-            post.author.avatar_url = post.author.get_avatar_url()
-    
-    # Phân trang
-    paginator = Paginator(posts, settings.POSTS_PER_PAGE if hasattr(settings, 'POSTS_PER_PAGE') else 10)
-    page_number = request.GET.get('page', 1)
-    page_obj = paginator.get_page(page_number)
-    
-    # Prefetch bình luận và trả lời
-    posts_with_comments = []
-    for post in page_obj:
-        # Lấy tối đa 3 bình luận gốc cho mỗi bài viết
-        root_comments = Comment.objects.filter(post=post, parent=None).order_by('-created_at')[:3]
-        
-        comments_with_replies = []
-        for comment in root_comments:
-            # Lấy replies cho mỗi comment
-            replies = Comment.objects.filter(parent=comment).order_by('created_at')
-            replies_with_like = []
-            for reply in replies:
-                replies_with_like.append({
-                    'reply': reply,
-                    'is_liked': CommentLike.objects.filter(user=request.user, comment=reply).exists()
-                })
-            comments_with_replies.append({
-                'comment': comment,
-                'is_liked': CommentLike.objects.filter(user=request.user, comment=comment).exists(),
-                'replies': replies_with_like,
-                'replies_count': replies.count()
-            })
-        
-        # Thêm trường is_liked cho post
-        post.is_liked = Like.objects.filter(user=request.user, post=post).exists()
-        
-        posts_with_comments.append({
-            'post': post,
-            'comments_data': comments_with_replies,
-            'total_comments': Comment.objects.filter(post=post).count()
-        })
-    
-    logger.info("Debug - Post Authors:")
-    for post_data in posts_with_comments:
-        post = post_data['post']
-        logger.info(f"Post ID: {post.id}, Author Username: {post.author.username}")
-    
-    # Log thông tin về việc lọc bài viết
-    logger.info(f"Total posts before filtering: {posts.count()}")
-    if request.user.is_authenticated:
-        logger.info(f"Following users: {list(following_users) if 'following_users' in locals() else 'None'}")
-    logger.info(f"Total posts after filtering: {posts.count()}")
-    
-    # Thêm debug để kiểm tra media
-    for post in page_obj:
-        logger.info(f"Post ID: {post.id} has {post.media.count()} media files")
-        for media in post.media.all():
-            logger.info(f"   - Media: {media.id}, Type: {media.media_type}, File: {media.file}")
-    
-    # Debug posts_with_data
-    logger.info("Debug - Post data structure:")
-    for post_data in posts_with_comments:
-        post = post_data['post']
-        logger.info(f"Post data - ID: {post.id}, Media count: {post.media.count()}")
-    
-    # Kiểm tra điều kiện lọc bài viết
-    context = {
-        'posts_with_data': posts_with_comments,
-        'page_obj': page_obj,
-    }
-    return render(request, 'posts/feed.html', context)
+    return index(request)
+
 
 @login_required
 def feed(request):
@@ -170,7 +67,7 @@ def feed(request):
                 posts = following_posts
     
     # Nếu không có bài viết của người theo dõi, sử dụng tất cả bài viết
-    logger.info(f"Total posts: {posts.count()}")
+    logger.debug("Feed posts queryset ready")
     
     # Prefetch related data để tối ưu truy vấn
     posts = posts.select_related('author').prefetch_related(
@@ -291,7 +188,7 @@ def feed(request):
             'total_comments': Comment.objects.filter(post=post).count()
         })
     
-    logger.info(f"Total posts after filtering: {posts.count()}")
+    logger.debug("Feed filtering complete")
     
     # Kiểm tra điều kiện lọc bài viết
     context = {
@@ -1212,6 +1109,7 @@ def prepare_posts_json(posts, user, include_comments=False):
     saved_ids = set(
         SavedPost.objects.filter(user=user, post_id__in=post_ids).values_list('post_id', flat=True)
     )
+    following_ids = set(user.get_following_user_ids()) if user.is_authenticated else set()
 
     posts_data = []
     for post in post_list:
@@ -1275,7 +1173,7 @@ def prepare_posts_json(posts, user, include_comments=False):
             'comments_data': comments_data,
             'root_comments_count': root_comments_count,
             'has_more_comments': has_more_comments,
-            'post_type': determine_post_type(user, post),
+            'post_type': determine_post_type(user, post, following_ids=following_ids),
             'total_comments': post.comments_count,
         })
 
@@ -1312,28 +1210,12 @@ def index(request):
         'has_next': has_more_posts,
     })
 
-def determine_post_type(user, post):
-    """Xác định loại bài viết để hiển thị nhãn"""
-    if user.is_following_user(post.author):
+def determine_post_type(user, post, following_ids=None):
+    """Nhãn feed nhẹ: flowed nếu đang theo dõi, còn lại discover."""
+    if following_ids is None:
+        following_ids = set(user.get_following_user_ids()) if user.is_authenticated else set()
+    if post.author_id and post.author_id in following_ids:
         return 'flowed'
-    
-    # Kiểm tra hashtag phổ biến mà người dùng thích
-    user_liked_posts = Post.objects.filter(post_likes__user=user)
-    user_hashtags = set()
-    for liked_post in user_liked_posts:
-        user_hashtags.update(liked_post.hashtags.all())
-    
-    if any(hashtag in post.hashtags.all() for hashtag in user_hashtags):
-        return 'recommended'
-    
-    # Kiểm tra nếu là bài viết có lượt tương tác cao gần đây
-    time_threshold = timezone.now() - timezone.timedelta(hours=48)
-    recent_likes = post.post_likes.filter(created_at__gte=time_threshold).count()
-    recent_comments = post.comments.filter(created_at__gte=time_threshold).count()
-    
-    if recent_likes >= 10 or recent_comments >= 5:
-        return 'trending'
-    
     return 'discover'
 
 def track_feed_impression(user, posts):
