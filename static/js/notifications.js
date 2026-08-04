@@ -92,6 +92,10 @@ function connectChatInboxSocket() {
         } catch (_) {
             return;
         }
+        if (data.signal || (data.type && String(data.type).startsWith('call_'))) {
+            window.HoshiCall?.handleSignal(data);
+            return;
+        }
         if (data.type !== 'inbox_message' || !data.conversation_id || !data.message) return;
         handleChatInboxMessage(data);
     });

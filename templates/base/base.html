@@ -33,6 +33,7 @@
     <link href="{% static 'css/theme.css' %}?v=1" rel="stylesheet">
     <link href="{% static 'css/notification_dropdown.css' %}" rel="stylesheet">
     <link href="{% static 'css/media_lightbox.css' %}?v=5" rel="stylesheet">
+    <link href="{% static 'css/webrtc_call.css' %}?v=3" rel="stylesheet">
     
     {% if user.is_authenticated %}
     <meta name="user-id" content="{{ user.id }}">
@@ -306,7 +307,8 @@
     <script src="{% static 'js/main.js' %}"></script>
     <script src="{% static 'js/debug_feed.js' %}"></script>
     <script src="{% static 'js/disable_multiple_submissions.js' %}"></script>
-    <script src="{% static 'js/notifications.js' %}?v=group-system-1"></script>
+    <script src="{% static 'js/webrtc_call.js' %}?v=4"></script>
+    <script src="{% static 'js/notifications.js' %}?v=webrtc-call-1"></script>
     <script src="{% static 'js/follow_requests.js' %}?v=1"></script>
     <script src="{% static 'js/media_lightbox.js' %}?v=7"></script>
     

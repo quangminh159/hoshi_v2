@@ -38,7 +38,10 @@ import mimetypes
 User = get_user_model()
 
 def profile(request, username):
-    user = get_object_or_404(User, username=username)
+    user = get_object_or_404(User, username__iexact=username)
+    # Chuẩn hóa URL nếu khác hoa/thường so với username thật
+    if user.username != username:
+        return redirect('accounts:profile', username=user.username)
     is_own_profile = request.user == user
     tab = request.GET.get('tab', '')
     is_saved_posts = tab == 'saved'
@@ -596,7 +599,7 @@ def api_load_profile_posts(request, username):
         page_number = 1
     
     # Lấy thông tin người dùng
-    user = get_object_or_404(User, username=username)
+    user = get_object_or_404(User, username__iexact=username)
     
     # Kiểm tra quan hệ chặn theo cả hai chiều
     block_relationship_exists = (

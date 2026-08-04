@@ -1370,8 +1370,16 @@ def process_mentions(post):
     """
     Tạo Mention từ @username trong caption.
     Chỉ tạo mới khi chưa có (để gửi thông báo), xóa mention không còn trong caption.
+    Chuẩn hóa @token → @username thật (vd: @jack → @jack97) khi resolve được.
     """
-    User = get_user_model()
+    from .mention_utils import normalize_caption_mentions, resolve_mentioned_user
+
+    if post.caption:
+        normalized = normalize_caption_mentions(post.caption)
+        if normalized != post.caption:
+            post.caption = normalized
+            post.save(update_fields=['caption'])
+
     usernames = set()
     if post.caption:
         usernames = {name.lower() for name in re.findall(r'@(\w+)', post.caption)}
@@ -1383,11 +1391,11 @@ def process_mentions(post):
     keep_user_ids = set()
 
     for username in usernames:
-        user = User.objects.filter(username__iexact=username).first()
+        user = resolve_mentioned_user(username)
         if not user or user.id == post.author_id:
             continue
         keep_user_ids.add(user.id)
-        if username not in existing_by_username:
+        if user.username.lower() not in existing_by_username:
             Mention.objects.create(user=user, post=post)
 
     Mention.objects.filter(post=post, comment__isnull=True).exclude(

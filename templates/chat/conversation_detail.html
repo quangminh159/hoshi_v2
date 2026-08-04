@@ -8,7 +8,7 @@
 {% block body_class %} chat-layout chat-detail-layout{% endblock %}
 
 {% block extra_css %}
-<link href="{% static 'css/chat.css' %}?v=group-system-1" rel="stylesheet">
+<link href="{% static 'css/chat.css' %}?v=chat-search-3" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -58,15 +58,52 @@
           {% endwith %}
         {% endif %}
         <div class="chat-actions">
+          {% if not is_group and conversation.other_user %}
+            <button type="button" class="btn-back" id="startVoiceCallBtn" title="{% trans 'Gọi thoại' %}">
+              <i class="fas fa-phone"></i>
+            </button>
+            <button type="button" class="btn-back" id="startVideoCallBtn" title="{% trans 'Gọi video' %}">
+              <i class="fas fa-video"></i>
+            </button>
+          {% endif %}
           {% if is_group %}
             <button type="button" class="btn-back" data-bs-toggle="modal" data-bs-target="#groupMembersModal" title="{% trans 'Thành viên' %}">
               <i class="fas fa-user-friends"></i>
             </button>
           {% endif %}
+          <div class="chat-more-menu" id="chatMoreMenu">
+            <button type="button" class="btn-back" id="chatMoreBtn" title="{% trans 'Thêm' %}" aria-expanded="false" aria-haspopup="true">
+              <i class="fas fa-ellipsis-v"></i>
+            </button>
+            <div class="chat-more-dropdown" id="chatMoreDropdown" hidden role="menu">
+              <button type="button" class="chat-more-item" id="chatSearchToggleBtn" role="menuitem">
+                <i class="fas fa-search"></i>
+                <span>{% trans "Tìm kiếm tin nhắn" %}</span>
+              </button>
+              {# Thêm mục menu khác tại đây note @@@@@@@@@@ #}
+            </div>
+          </div>
           <a href="{% url 'chat:conversation_list' %}" class="btn-back" title="{% trans 'Quay lại' %}">
             <i class="fas fa-arrow-left"></i>
             <span class="d-none d-sm-inline">{% trans "Quay lại" %}</span>
           </a>
+        </div>
+      </div>
+
+      <div class="chat-search-panel" id="chatSearchPanel" hidden>
+        <div class="chat-search-bar">
+          <i class="fas fa-search"></i>
+          <input type="search" id="chatSearchInput" placeholder="{% trans 'Tìm tin nhắn...' %}" autocomplete="off">
+          <button type="button" class="chat-search-nav" id="chatSearchPrev" title="{% trans 'Kết quả trước' %}" disabled>
+            <i class="fas fa-chevron-up"></i>
+          </button>
+          <button type="button" class="chat-search-nav" id="chatSearchNext" title="{% trans 'Kết quả sau' %}" disabled>
+            <i class="fas fa-chevron-down"></i>
+          </button>
+          <span class="chat-search-count" id="chatSearchCount"></span>
+          <button type="button" class="chat-search-close" id="chatSearchClose" title="{% trans 'Đóng' %}">
+            <i class="fas fa-times"></i>
+          </button>
         </div>
       </div>
 
@@ -572,6 +609,9 @@
     chatSocket = new WebSocket(
       wsProtocol + window.location.host + '/ws/chat/' + conversationId + '/'
     );
+    if (window.HoshiCall) {
+      window.HoshiCall.bindChatSocket(chatSocket, conversationId);
+    }
     
     // Lấy tham chiếu đến các phần tử DOM
     const chatMessages = document.getElementById('chat-messages');
@@ -581,6 +621,20 @@
     const typingUsername = document.getElementById('typingUsername');
 
     hydrateLinkPreviews(chatMessages);
+
+    {% if not is_group and conversation.other_user %}
+    const callRemoteUser = {
+      id: {{ conversation.other_user.id }},
+      username: '{{ conversation.other_user.username|escapejs }}',
+      avatar_url: '{{ conversation.other_user.get_avatar_url|escapejs }}',
+    };
+    document.getElementById('startVoiceCallBtn')?.addEventListener('click', () => {
+      window.HoshiCall?.startVoice(conversationId, callRemoteUser);
+    });
+    document.getElementById('startVideoCallBtn')?.addEventListener('click', () => {
+      window.HoshiCall?.startVideo(conversationId, callRemoteUser);
+    });
+    {% endif %}
     
     // Biến để theo dõi trạng thái đang nhập
     let typingTimeout = null;
@@ -605,6 +659,11 @@
     // Xử lý khi nhận tin nhắn từ WebSocket
     chatSocket.onmessage = function(e) {
       const data = JSON.parse(e.data);
+
+      if (data.signal || (data.type && String(data.type).startsWith('call_'))) {
+        window.HoshiCall?.handleSignal(data);
+        return;
+      }
       
       // Xử lý các loại tin nhắn khác nhau
       if (data.type === 'message') {
@@ -1688,5 +1747,198 @@
       }
     }
   }
+
+  // ---- Menu ... và tìm kiếm tin nhắn ----
+  (function initChatMessageSearch() {
+    const conversationId = {{ conversation.id }};
+    const moreBtn = document.getElementById('chatMoreBtn');
+    const moreDropdown = document.getElementById('chatMoreDropdown');
+    const searchToggle = document.getElementById('chatSearchToggleBtn');
+    const searchPanel = document.getElementById('chatSearchPanel');
+    const searchInput = document.getElementById('chatSearchInput');
+    const searchClose = document.getElementById('chatSearchClose');
+    const searchPrev = document.getElementById('chatSearchPrev');
+    const searchNext = document.getElementById('chatSearchNext');
+    const searchCount = document.getElementById('chatSearchCount');
+    const chatMessagesEl = document.getElementById('chat-messages');
+    if (!moreBtn || !searchPanel || !searchInput) return;
+
+    let matchIds = [];
+    let matchIndex = -1;
+    let searchTimer = null;
+    let originalTextHtml = new Map();
+
+    function closeMoreMenu() {
+      if (!moreDropdown) return;
+      moreDropdown.hidden = true;
+      moreBtn.setAttribute('aria-expanded', 'false');
+    }
+
+    function openSearchPanel() {
+      closeMoreMenu();
+      searchPanel.hidden = false;
+      searchInput.focus();
+      searchInput.select();
+    }
+
+    function clearHighlights() {
+      document.querySelectorAll('.message.search-hit, .message.search-hit-active').forEach((el) => {
+        el.classList.remove('search-hit', 'search-hit-active');
+      });
+      originalTextHtml.forEach((html, el) => {
+        if (el.isConnected) el.innerHTML = html;
+      });
+      originalTextHtml.clear();
+    }
+
+    function closeSearchPanel() {
+      searchPanel.hidden = true;
+      searchInput.value = '';
+      matchIds = [];
+      matchIndex = -1;
+      clearHighlights();
+      if (searchCount) searchCount.textContent = '';
+      if (searchPrev) searchPrev.disabled = true;
+      if (searchNext) searchNext.disabled = true;
+    }
+
+    function escapeRegExp(s) {
+      return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    function highlightInMessage(msgEl, q) {
+      const textEl = msgEl.querySelector('.message-text');
+      if (!textEl || !q) return;
+      if (!originalTextHtml.has(textEl)) {
+        originalTextHtml.set(textEl, textEl.innerHTML);
+      }
+      const raw = originalTextHtml.get(textEl);
+      const tmp = document.createElement('div');
+      tmp.innerHTML = raw;
+      const plain = tmp.textContent || '';
+      if (!plain.toLowerCase().includes(q.toLowerCase())) {
+        textEl.innerHTML = raw;
+        return;
+      }
+      textEl.textContent = plain;
+      const html = plain.replace(new RegExp(escapeRegExp(q), 'ig'), (m) => `<mark class="chat-search-mark">${m}</mark>`);
+      textEl.innerHTML = html;
+    }
+
+    function collectDomMatches(q) {
+      const needle = q.toLowerCase();
+      const ids = [];
+      chatMessagesEl?.querySelectorAll('.message[data-message-id]:not([data-system])').forEach((el) => {
+        const text = (el.querySelector('.message-text')?.textContent
+          || el.dataset.replyPreview
+          || el.dataset.fileName
+          || '').toLowerCase();
+        if (text.includes(needle)) {
+          ids.push(String(el.dataset.messageId));
+        }
+      });
+      return ids;
+    }
+
+    function goToMatch(index) {
+      if (!matchIds.length) return;
+      matchIndex = ((index % matchIds.length) + matchIds.length) % matchIds.length;
+      const id = matchIds[matchIndex];
+      document.querySelectorAll('.message.search-hit-active').forEach((el) => el.classList.remove('search-hit-active'));
+      const el = document.querySelector(`.message[data-message-id="${id}"]`);
+      if (el) {
+        el.classList.add('search-hit', 'search-hit-active');
+        highlightInMessage(el, searchInput.value.trim());
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      if (searchCount) searchCount.textContent = `${matchIndex + 1}/${matchIds.length}`;
+      if (searchPrev) searchPrev.disabled = matchIds.length < 2;
+      if (searchNext) searchNext.disabled = matchIds.length < 2;
+    }
+
+    async function runSearch(q) {
+      clearHighlights();
+      matchIds = [];
+      matchIndex = -1;
+
+      if (!q) {
+        if (searchCount) searchCount.textContent = '';
+        if (searchPrev) searchPrev.disabled = true;
+        if (searchNext) searchNext.disabled = true;
+        return;
+      }
+
+      const domIds = collectDomMatches(q);
+      const seen = new Set(domIds);
+      matchIds = domIds.slice();
+
+      try {
+        const resp = await fetch(
+          `/chat/api/conversations/${conversationId}/search/?q=${encodeURIComponent(q)}&limit=50`,
+          { credentials: 'same-origin', headers: { 'X-Requested-With': 'XMLHttpRequest' } }
+        );
+        if (resp.ok) {
+          const data = await resp.json();
+          (data.results || []).forEach((row) => {
+            const id = String(row.id);
+            if (!seen.has(id) && document.querySelector(`.message[data-message-id="${id}"]`)) {
+              seen.add(id);
+              matchIds.push(id);
+            }
+          });
+        }
+      } catch (_) {}
+
+      matchIds.forEach((id) => {
+        const el = document.querySelector(`.message[data-message-id="${id}"]`);
+        if (el) {
+          el.classList.add('search-hit');
+          highlightInMessage(el, q);
+        }
+      });
+
+      if (!matchIds.length) {
+        if (searchCount) searchCount.textContent = '0';
+        if (searchPrev) searchPrev.disabled = true;
+        if (searchNext) searchNext.disabled = true;
+        return;
+      }
+
+      goToMatch(0);
+    }
+
+    moreBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const willOpen = moreDropdown.hidden;
+      moreDropdown.hidden = !willOpen;
+      moreBtn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+    });
+
+    searchToggle?.addEventListener('click', () => openSearchPanel());
+    searchClose?.addEventListener('click', () => closeSearchPanel());
+    searchPrev?.addEventListener('click', () => goToMatch(matchIndex - 1));
+    searchNext?.addEventListener('click', () => goToMatch(matchIndex + 1));
+
+    searchInput.addEventListener('input', () => {
+      const q = searchInput.value.trim();
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => runSearch(q), 250);
+    });
+
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeSearchPanel();
+      else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (e.shiftKey) goToMatch(matchIndex - 1);
+        else goToMatch(matchIndex + 1);
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!moreDropdown || moreDropdown.hidden) return;
+      if (!e.target.closest('#chatMoreMenu')) closeMoreMenu();
+    });
+  })();
+
 </script>
 {% endblock %}

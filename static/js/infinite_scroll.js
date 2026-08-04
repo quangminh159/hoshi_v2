@@ -252,6 +252,7 @@
                                onclick="event.stopPropagation();">${post.author.username}</a>
                             <span class="text-muted small feed-post-time">${timeAgo(new Date(post.created_at))}</span>
                             ${post.shared_from ? `<span class="text-muted small"><i class="fas fa-retweet me-1"></i>đã chia sẻ</span>` : ''}
+                            ${post.location ? `<div class="text-muted small feed-post-location"><i class="fas fa-map-marker-alt me-1"></i>${escapeHtml(post.location)}</div>` : ''}
                         </div>
                     </div>
                     ${post.caption ? `

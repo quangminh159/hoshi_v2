@@ -32,4 +32,6 @@ urlpatterns = [
     path('api/unread/', views.api_unread, name='api_unread'),
     path('api/unread-total/', views.api_unread_total, name='api_unread_total'),
     path('api/link-preview/', views.api_link_preview, name='api_link_preview'),
+    path('api/ice-servers/', views.api_ice_servers, name='api_ice_servers'),
+    path('api/conversations/<int:conversation_id>/search/', views.api_search_messages, name='api_search_messages'),
 ]

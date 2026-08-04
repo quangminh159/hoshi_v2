@@ -158,6 +158,126 @@ class ChatConsumer(AsyncWebsocketConsumer):
                             'deleted_by': self.user.id
                         }
                     )
+        elif message_type in (
+            'call_invite',
+            'call_accept',
+            'call_reject',
+            'call_end',
+            'call_busy',
+            'call_offer',
+            'call_answer',
+            'call_ice',
+            'call_mode',
+        ):
+            await self.handle_call_signal(message_type, data)
+    
+    async def handle_call_signal(self, signal_type, data):
+        """Relay WebRTC call signaling for DM 1-1 only."""
+        meta = await self.get_dm_call_meta()
+        if not meta:
+            await self.send(text_data=json.dumps({
+                'type': 'call_error',
+                'message': 'Chỉ hỗ trợ gọi trong chat 1-1.',
+            }))
+            return
+
+        other_id = meta['other_user_id']
+        from_user = {
+            'id': self.user.id,
+            'username': self.user.username,
+            'avatar_url': meta['self_avatar'],
+        }
+        payload = {
+            'type': 'call_event',
+            'signal': signal_type,
+            'conversation_id': int(self.conversation_id),
+            'call_id': data.get('call_id'),
+            'call_mode': data.get('call_mode') or 'voice',
+            'from_user': from_user,
+            'sdp': data.get('sdp'),
+            'candidate': data.get('candidate'),
+            'reason': data.get('reason'),
+            'duration': data.get('duration'),
+        }
+
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                'type': 'call_event',
+                'payload': payload,
+                'exclude_user_id': self.user.id,
+            },
+        )
+
+        # Reo chuông / trạng thái cuộc gọi qua inbox khi đang ngoài trang chat
+        if signal_type in ('call_invite', 'call_accept', 'call_reject', 'call_end', 'call_busy'):
+            await self.channel_layer.group_send(
+                f'chat_inbox_{other_id}',
+                {
+                    'type': 'inbox_call',
+                    'payload': payload,
+                },
+            )
+
+        if signal_type == 'call_end' and data.get('write_system'):
+            await self.write_call_system_message(data)
+
+    async def call_event(self, event):
+        if event.get('exclude_user_id') == getattr(self.user, 'id', None):
+            return
+        await self.send(text_data=json.dumps(event.get('payload') or {}))
+
+    @database_sync_to_async
+    def get_dm_call_meta(self):
+        try:
+            conversation = (
+                Conversation.objects.prefetch_related('participants')
+                .get(id=self.conversation_id)
+            )
+        except Conversation.DoesNotExist:
+            return None
+        if conversation.is_group:
+            return None
+        if not conversation.participants.filter(id=self.user.id).exists():
+            return None
+        other = conversation.get_other_participant(self.user)
+        if not other:
+            return None
+        avatar = '/static/img/default-avatar.png'
+        if hasattr(self.user, 'get_avatar_url'):
+            avatar = self.user.get_avatar_url()
+        return {
+            'other_user_id': other.id,
+            'other_username': other.username,
+            'self_avatar': avatar,
+        }
+
+    @database_sync_to_async
+    def write_call_system_message(self, data):
+        from chat.conversation_utils import create_system_message
+
+        try:
+            conversation = Conversation.objects.get(id=self.conversation_id)
+        except Conversation.DoesNotExist:
+            return None
+        if conversation.is_group:
+            return None
+
+        mode = data.get('call_mode') or 'voice'
+        reason = data.get('reason') or 'ended'
+        duration = int(data.get('duration') or 0)
+        label = 'Cuộc gọi video' if mode == 'video' else 'Cuộc gọi thoại'
+
+        if reason in ('reject', 'timeout', 'missed', 'cancel', 'busy'):
+            text = f'{label} nhỡ'
+        elif duration > 0:
+            mins = duration // 60
+            secs = duration % 60
+            text = f'{label} · {mins}:{secs:02d}'
+        else:
+            text = f'{label} đã kết thúc'
+
+        return create_system_message(conversation, self.user, text)
     
     # Nhận tin nhắn từ room group và gửi đến WebSocket
     async def chat_message(self, event):
@@ -619,3 +739,7 @@ class ChatInboxConsumer(AsyncWebsocketConsumer):
             'other_user': event.get('other_user'),
             'conversation': event.get('conversation'),
         }))
+
+    async def inbox_call(self, event):
+        payload = event.get('payload') or {}
+        await self.send(text_data=json.dumps(payload))

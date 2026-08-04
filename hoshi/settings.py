@@ -494,3 +494,20 @@ CONTENT_TYPES = [
 POSTS_PER_PAGE = 20
 NOTIFICATIONS_PER_PAGE = 15
 MESSAGES_PER_PAGE = 20
+
+# WebRTC ICE / TURN (gọi thoại-video trên server thật)
+# Cách 1 — user/password cố định (Metered, Twilio, coturn long-term):
+#   TURN_URLS=turn:turn.example.com:3478,turns:turn.example.com:443
+#   TURN_USERNAME=...
+#   TURN_CREDENTIAL=...
+# Cách 2 — coturn use-auth-secret (credential tạm thời):
+#   TURN_URLS=turn:turn.example.com:3478
+#   TURN_SECRET=your-static-auth-secret
+# Cách 3 — JSON đầy đủ ghi đè:
+#   ICE_SERVERS_JSON=[{"urls":"stun:..."},{"urls":"turn:...","username":"...","credential":"..."}]
+TURN_URLS = config('TURN_URLS', default='').strip()
+TURN_USERNAME = config('TURN_USERNAME', default='').strip()
+TURN_CREDENTIAL = config('TURN_CREDENTIAL', default='').strip()
+TURN_SECRET = config('TURN_SECRET', default='').strip()
+TURN_CREDENTIAL_TTL = int(config('TURN_CREDENTIAL_TTL', default='3600') or 3600)
+ICE_SERVERS_JSON = config('ICE_SERVERS_JSON', default='').strip()

@@ -4,6 +4,8 @@ from django.utils.safestring import mark_safe
 from django.urls import reverse
 import re
 
+from posts.mention_utils import resolve_mentioned_user
+
 register = template.Library()
 
 URL_RE = re.compile(r'(https?://[^\s<]+|www\.[^\s<]+)', re.IGNORECASE)
@@ -50,11 +52,15 @@ def format_caption(caption):
     text = _linkify_urls(text)
 
     def mention_repl(match):
-        username = match.group(1)
-        url = reverse('accounts:profile', kwargs={'username': username})
+        token = match.group(1)
+        user = resolve_mentioned_user(token)
+        if not user:
+            # Không tạo link chết → tránh 404 khi @sai / chưa chọn gợi ý
+            return f'@{token}'
+        url = reverse('accounts:profile', kwargs={'username': user.username})
         return (
             f'<a href="{url}" class="mention-link" '
-            f'onclick="event.stopPropagation()">@{username}</a>'
+            f'onclick="event.stopPropagation()">@{user.username}</a>'
         )
 
     def hashtag_repl(match):

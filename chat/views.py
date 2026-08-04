@@ -793,6 +793,61 @@ def api_link_preview(request):
 
 
 @login_required
+def api_ice_servers(request):
+    """ICE/STUN/TURN config cho WebRTC (có TURN nếu đã cấu hình env)."""
+    from .ice_servers import ice_servers_payload
+
+    payload = ice_servers_payload()
+    return JsonResponse({'ok': True, **payload})
+
+
+@login_required
+def api_search_messages(request, conversation_id):
+    """Tìm tin nhắn theo ký tự trong một cuộc trò chuyện."""
+    from django.db.models import Q
+
+    conversation = get_object_or_404(Conversation, id=conversation_id)
+    if not conversation.participants.filter(id=request.user.id).exists():
+        return JsonResponse({'ok': False, 'error': 'forbidden'}, status=403)
+
+    q = (request.GET.get('q') or '').strip()
+    if len(q) < 1:
+        return JsonResponse({'ok': True, 'results': [], 'count': 0})
+
+    try:
+        limit = min(int(request.GET.get('limit') or 50), 100)
+    except (TypeError, ValueError):
+        limit = 50
+
+    qs = (
+        ConversationMessage.objects.filter(conversation=conversation)
+        .filter(is_system=False)
+        .filter(
+            Q(content__icontains=q)
+            | Q(text__icontains=q)
+            | Q(file_name__icontains=q)
+        )
+        .select_related('sender')
+        .order_by('-created_at')[:limit]
+    )
+
+    results = []
+    for msg in qs:
+        preview = (msg.content or msg.text or msg.file_name or '').strip()
+        if len(preview) > 120:
+            preview = preview[:117] + '…'
+        results.append({
+            'id': msg.id,
+            'content': preview,
+            'sender_username': msg.sender.username if msg.sender_id else '',
+            'created_at': msg.created_at.isoformat(),
+            'is_mine': bool(msg.sender_id and msg.sender_id == request.user.id),
+        })
+
+    return JsonResponse({'ok': True, 'results': results, 'count': len(results), 'q': q})
+
+
+@login_required
 def index(request, id=0):
     user = User.objects.get(username=request.user)
     Usettings = UserSetting.objects.get(user=user)   
