@@ -128,6 +128,7 @@ function handleChatInboxMessage(data) {
             conversation_id: conversationId,
             message,
             other_user: data.other_user || null,
+            conversation: data.conversation || null,
         },
     }));
 
@@ -138,16 +139,35 @@ function handleChatInboxMessage(data) {
     // Đang trong khung chat / list tin nhắn → không toast
     if (isOnChatPage()) return;
 
+    // Tin hệ thống nhóm: toast nội dung nguyên văn
+    if (message.is_system) {
+        const groupTitle = data.conversation?.is_group ? data.conversation.title : null;
+        showToast({
+            notification_type: 'message',
+            sender_username: groupTitle || 'Nhóm chat',
+            sender_avatar: data.conversation?.avatar_url || '/static/img/default-avatar.png',
+            text: message.content || 'Cập nhật nhóm',
+            conversation_id: conversationId,
+            link: `/chat/conversations/${conversationId}/`,
+        });
+        return;
+    }
+
+    const groupTitle = data.conversation?.is_group ? data.conversation.title : null;
     const username = message.sender_username || data.other_user?.username || 'Ai đó';
     const preview = buildMessageToastPreview(message);
-    const bodyText = preview === 'đã gửi tin nhắn cho bạn'
-        ? `${username} đã gửi tin nhắn cho bạn`
-        : `${username}: ${preview}`;
+    const bodyText = groupTitle
+        ? (preview === 'đã gửi tin nhắn cho bạn'
+            ? `${username} đã gửi tin trong ${groupTitle}`
+            : `${groupTitle} · ${username}: ${preview}`)
+        : (preview === 'đã gửi tin nhắn cho bạn'
+            ? `${username} đã gửi tin nhắn cho bạn`
+            : `${username}: ${preview}`);
 
     showToast({
         notification_type: 'message',
-        sender_username: username,
-        sender_avatar: message.sender_avatar || data.other_user?.avatar_url || '/static/img/default-avatar.png',
+        sender_username: groupTitle || username,
+        sender_avatar: data.conversation?.avatar_url || message.sender_avatar || data.other_user?.avatar_url || '/static/img/default-avatar.png',
         text: bodyText,
         conversation_id: conversationId,
         link: `/chat/conversations/${conversationId}/`,

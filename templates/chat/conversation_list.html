@@ -7,7 +7,7 @@
 {% block body_class %} chat-layout{% endblock %}
 
 {% block extra_css %}
-<link href="{% static 'css/chat.css' %}?v=chat-nav-1" rel="stylesheet">
+<link href="{% static 'css/chat.css' %}?v=group-chat-1" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -40,18 +40,25 @@
       {% if conversations %}
         {% for conversation in conversations %}
           {% with other_user=conversation.other_user %}
-          <div class="conversation-wrapper{% if conversation.unread_count %} has-unread{% endif %}" id="conversation-{{ conversation.id }}" data-username="{% if other_user %}{{ other_user.username|lower }}{% endif %}" data-unread="{{ conversation.unread_count|default:0 }}">
+          <div class="conversation-wrapper{% if conversation.unread_count %} has-unread{% endif %}{% if conversation.is_group %} is-group{% endif %}"
+               id="conversation-{{ conversation.id }}"
+               data-username="{{ conversation.display_title|lower }}"
+               data-is-group="{% if conversation.is_group %}1{% else %}0{% endif %}"
+               data-unread="{{ conversation.unread_count|default:0 }}">
             <a href="{% url 'chat:conversation_detail' conversation.id %}" class="conversation-item">
-              <div class="conversation-avatar">
-                <img src="{% if other_user %}{{ other_user.get_avatar_url }}{% else %}/static/img/default-avatar.png{% endif %}"
-                     alt="{% if other_user %}{{ other_user.username }}{% else %}Chat{% endif %}">
+              <div class="conversation-avatar{% if conversation.is_group %} conversation-avatar--group{% endif %}">
+                <img src="{{ conversation.display_avatar }}"
+                     alt="{{ conversation.display_title }}">
+                {% if conversation.is_group %}
+                <span class="conversation-group-badge" aria-hidden="true"><i class="fas fa-users"></i></span>
+                {% endif %}
                 {% if conversation.unread_count %}
                 <span class="conversation-unread-dot" aria-hidden="true"></span>
                 {% endif %}
               </div>
               <div class="conversation-info">
                 <div class="conversation-name">
-                  <span class="{% if conversation.unread_count %}fw-bold{% endif %}">{% if other_user %}{{ other_user.username }}{% else %}{% trans "Cuộc trò chuyện" %}{% endif %}</span>
+                  <span class="{% if conversation.unread_count %}fw-bold{% endif %}">{{ conversation.display_title }}</span>
                   <span class="conversation-time">
                     {% if conversation.last_message_time %}
                       {{ conversation.last_message_time|date:"H:i" }}
@@ -66,8 +73,13 @@
                   {% else %}
                     {% with last_message=conversation.get_last_message %}
                       {% if last_message %}
+                        {% if last_message.is_system %}
+                          <em>{{ last_message.content|truncatechars:50 }}</em>
+                        {% else %}
                         {% if last_message.sender == request.user %}
                           <span class="you-prefix">{% trans "Bạn:" %} </span>
+                        {% elif conversation.is_group %}
+                          <span class="you-prefix">{{ last_message.sender.username }}: </span>
                         {% endif %}
                         {% if last_message.content %}
                           {{ last_message.content|truncatechars:45 }}
@@ -80,8 +92,9 @@
                         {% elif last_message.document %}
                           <i class="far fa-file-alt"></i> {% trans "Tài liệu" %}
                         {% endif %}
+                        {% endif %}
                       {% else %}
-                        <em>{% trans "Bắt đầu cuộc trò chuyện..." %}</em>
+                        <em>{% if conversation.is_group %}{% trans "Nhóm mới — gửi tin nhắn đầu tiên" %}{% else %}{% trans "Bắt đầu cuộc trò chuyện..." %}{% endif %}</em>
                       {% endif %}
                     {% endwith %}
                   {% endif %}
@@ -95,7 +108,7 @@
             </a>
             <button class="delete-conversation"
                     onclick="deleteConversation({{ conversation.id }}, event)"
-                    title="{% trans 'Xóa cuộc trò chuyện' %}">
+                    title="{% if conversation.is_group %}{% trans 'Rời nhóm' %}{% else %}{% trans 'Xóa cuộc trò chuyện' %}{% endif %}">
               <i class="fas fa-trash-alt"></i>
             </button>
           </div>
@@ -137,7 +150,7 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/chat_list.js' %}?v=inbox-event-1"></script>
+<script src="{% static 'js/chat_list.js' %}?v=group-chat-1"></script>
 <script>
   document.querySelector('.mobile-bottom-nav__item[data-nav="messages"]')?.classList.add('is-active');
 

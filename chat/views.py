@@ -107,7 +107,10 @@ def conversation_list(request):
     
     # Lấy tất cả cuộc trò chuyện của người dùng
     all_conversations = list(
-        Conversation.objects.filter(participants=user).order_by('-last_message_time')
+        Conversation.objects.filter(participants=user)
+        .select_related('created_by')
+        .prefetch_related('participants')
+        .order_by('-last_message_time')
     )
     unread_map = get_conversation_unread_counts(user, [c.id for c in all_conversations])
     
@@ -115,7 +118,14 @@ def conversation_list(request):
     for conversation in all_conversations:
         other_participant = conversation.get_other_participant(user)
         conversation.other_user = other_participant
-        conversation.is_blocked = other_participant.id in blocked_user_ids if other_participant else False
+        conversation.display_title = conversation.get_display_title(user)
+        conversation.display_avatar = conversation.get_display_avatar_url(user)
+        if conversation.is_group:
+            conversation.is_blocked = False
+        else:
+            conversation.is_blocked = (
+                other_participant.id in blocked_user_ids if other_participant else False
+            )
         conversation.unread_count = unread_map.get(conversation.id, 0)
     
     context = {
@@ -127,23 +137,41 @@ def conversation_list(request):
 def conversation_detail(request, conversation_id):
     """Hiển thị chi tiết cuộc trò chuyện và tin nhắn"""
     user = request.user
-    conversation = get_object_or_404(Conversation, id=conversation_id)
+    conversation = get_object_or_404(
+        Conversation.objects.select_related('created_by').prefetch_related('participants'),
+        id=conversation_id,
+    )
     
     # Kiểm tra quyền truy cập
     if not conversation.participants.filter(id=user.id).exists():
         raise Http404("Không tìm thấy cuộc trò chuyện")
     
-    # Lấy người dùng khác trong cuộc trò chuyện
-    other_user = conversation.get_other_participant(user)
+    # Lấy người dùng khác trong cuộc trò chuyện (DM)
+    other_user = None if conversation.is_group else conversation.get_other_participant(user)
     conversation.other_user = other_user
+    conversation.display_title = conversation.get_display_title(user)
+    conversation.display_avatar = conversation.get_display_avatar_url(user)
+    member_rows = []
+    members = []
+    if conversation.is_group:
+        member_rows = list(
+            conversation.conversation_participants.select_related('user').order_by(
+                '-is_admin', 'joined_at'
+            )
+        )
+        members = [row.user for row in member_rows]
+    else:
+        members = list(conversation.participants.all())
     
-    # Kiểm tra quan hệ chặn giữa hai người dùng
+    # Kiểm tra quan hệ chặn giữa hai người dùng (chỉ DM)
     from accounts.models import UserBlock
     
-    block_relationship_exists = (
-        UserBlock.objects.filter(blocker=other_user, blocked=user).exists() or 
-        UserBlock.objects.filter(blocker=user, blocked=other_user).exists()
-    )
+    block_relationship_exists = False
+    if other_user and not conversation.is_group:
+        block_relationship_exists = (
+            UserBlock.objects.filter(blocker=other_user, blocked=user).exists() or
+            UserBlock.objects.filter(blocker=user, blocked=other_user).exists()
+        )
     
     # Đánh dấu cuộc trò chuyện bị chặn nhưng vẫn hiển thị
     conversation.is_blocked = block_relationship_exists
@@ -158,13 +186,36 @@ def conversation_detail(request, conversation_id):
 
     from .unread import mark_conversation_messages_read
     mark_conversation_messages_read(conversation, user)
+
+    followable_users = []
+    is_group_admin = False
+    if conversation.is_group:
+        is_group_admin = conversation.user_is_admin(user)
+        from accounts.models import UserFollowing
+        following_ids = UserFollowing.objects.filter(user=user).values_list(
+            'following_user_id', flat=True
+        )
+        member_ids = {m.id for m in members}
+        followable_users = list(
+            User.objects.filter(id__in=following_ids).exclude(id__in=member_ids)
+        )
     
     context = {
         'conversation': conversation,
         'chat_messages': chat_messages,
         'is_blocked': block_relationship_exists,
         'today': timezone.localdate(),
-        'other_presence': get_user_presence(other_user),
+        'other_presence': get_user_presence(other_user) if other_user else {},
+        'members': members,
+        'member_rows': member_rows,
+        'is_group': conversation.is_group,
+        'is_group_admin': is_group_admin,
+        'is_group_owner': bool(
+            conversation.is_group
+            and conversation.created_by_id
+            and conversation.created_by_id == user.id
+        ),
+        'followable_users': followable_users,
     }
     
     return render(request, 'chat/conversation_detail.html', context)
@@ -180,29 +231,32 @@ def send_message(request, conversation_id):
         if not conversation.participants.filter(id=user.id).exists():
             raise Http404("Không tìm thấy cuộc trò chuyện")
         
-        # Lấy người nhận tin nhắn (người khác trong cuộc trò chuyện)
-        other_participant = conversation.get_other_participant(user)
-        
-        # Kiểm tra quan hệ chặn giữa hai người dùng
-        from accounts.models import UserBlock
-        
-        block_relationship_exists = (
-            UserBlock.objects.filter(blocker=other_participant, blocked=user).exists() or 
-            UserBlock.objects.filter(blocker=user, blocked=other_participant).exists()
-        )
-        
-        if block_relationship_exists:
-            from django.contrib import messages
-            messages.error(request, f'Không thể gửi tin nhắn vì một trong hai người đã chặn người còn lại.')
-            return redirect('chat:conversation_detail', conversation_id=conversation_id)
-
-        if other_participant and not other_participant.can_receive_message_from(user):
-            from django.contrib import messages
-            messages.error(
-                request,
-                f'{other_participant.username} chỉ nhận tin nhắn từ người họ đang theo dõi.'
+        if not conversation.is_group:
+            # Lấy người nhận tin nhắn (người khác trong cuộc trò chuyện)
+            other_participant = conversation.get_other_participant(user)
+            
+            # Kiểm tra quan hệ chặn giữa hai người dùng
+            from accounts.models import UserBlock
+            
+            block_relationship_exists = (
+                other_participant and (
+                    UserBlock.objects.filter(blocker=other_participant, blocked=user).exists() or
+                    UserBlock.objects.filter(blocker=user, blocked=other_participant).exists()
+                )
             )
-            return redirect('chat:conversation_detail', conversation_id=conversation_id)
+            
+            if block_relationship_exists:
+                from django.contrib import messages
+                messages.error(request, f'Không thể gửi tin nhắn vì một trong hai người đã chặn người còn lại.')
+                return redirect('chat:conversation_detail', conversation_id=conversation_id)
+
+            if other_participant and not other_participant.can_receive_message_from(user):
+                from django.contrib import messages
+                messages.error(
+                    request,
+                    f'{other_participant.username} chỉ nhận tin nhắn từ người họ đang theo dõi.'
+                )
+                return redirect('chat:conversation_detail', conversation_id=conversation_id)
         
         message_content = request.POST.get('message', '').strip()
         has_attachment = any(key in request.FILES for key in ('image', 'video', 'document', 'audio'))
@@ -231,6 +285,8 @@ def send_message(request, conversation_id):
 @login_required
 def direct_chat(request, username):
     """Bắt đầu hoặc tiếp tục cuộc trò chuyện với người dùng qua username"""
+    from .conversation_utils import get_or_create_direct_conversation, users_are_blocked
+
     user = request.user
     recipient = get_object_or_404(User, username=username)
     
@@ -238,25 +294,13 @@ def direct_chat(request, username):
     if user == recipient:
         return redirect('chat:conversation_list')
     
-    # Kiểm tra quan hệ chặn giữa hai người dùng
-    from accounts.models import UserBlock
-    
-    block_relationship_exists = (
-        UserBlock.objects.filter(blocker=recipient, blocked=user).exists() or 
-        UserBlock.objects.filter(blocker=user, blocked=recipient).exists()
-    )
-    
-    if block_relationship_exists:
+    if users_are_blocked(user, recipient):
         from django.contrib import messages
         messages.error(request, f'Không thể tạo cuộc trò chuyện với {username} do một trong hai người đã chặn người còn lại.')
         return redirect('chat:conversation_list')
     
-    # Tìm cuộc trò chuyện hiện có hoặc tạo mới
-    conversation = Conversation.objects.filter(
-        participants=user
-    ).filter(
-        participants=recipient
-    ).first()
+    from .conversation_utils import find_direct_conversation
+    conversation = find_direct_conversation(user, recipient)
     
     if not conversation:
         if not recipient.can_receive_message_from(user):
@@ -266,16 +310,15 @@ def direct_chat(request, username):
                 f'{username} chỉ nhận tin nhắn từ người họ đang theo dõi.'
             )
             return redirect('chat:conversation_list')
-        # Tạo cuộc trò chuyện mới
-        conversation = Conversation.objects.create()
-        ConversationParticipant.objects.create(conversation=conversation, user=user)
-        ConversationParticipant.objects.create(conversation=conversation, user=recipient)
+        conversation = get_or_create_direct_conversation(user, recipient)
     
     return redirect('chat:conversation_detail', conversation_id=conversation.id)
 
 @login_required
 def start_conversation(request):
     """Bắt đầu cuộc trò chuyện mới với người dùng được chọn"""
+    from .conversation_utils import find_direct_conversation, get_or_create_direct_conversation
+
     if request.method == 'POST':
         user_id = request.POST.get('user_id')
         recipient = get_object_or_404(User, id=user_id)
@@ -293,12 +336,7 @@ def start_conversation(request):
             messages.error(request, f'Không thể tạo cuộc trò chuyện với {recipient.username} do một trong hai người đã chặn người còn lại.')
             return redirect('chat:conversation_list')
         
-        # Tìm cuộc trò chuyện hiện có hoặc tạo mới
-        conversation = Conversation.objects.filter(
-            participants=request.user
-        ).filter(
-            participants=recipient
-        ).first()
+        conversation = find_direct_conversation(request.user, recipient)
         
         if not conversation:
             if not recipient.can_receive_message_from(request.user):
@@ -308,10 +346,7 @@ def start_conversation(request):
                     f'{recipient.username} chỉ nhận tin nhắn từ người họ đang theo dõi.'
                 )
                 return redirect('chat:conversation_list')
-            # Tạo cuộc trò chuyện mới
-            conversation = Conversation.objects.create()
-            ConversationParticipant.objects.create(conversation=conversation, user=request.user)
-            ConversationParticipant.objects.create(conversation=conversation, user=recipient)
+            conversation = get_or_create_direct_conversation(request.user, recipient)
         
         return redirect('chat:conversation_detail', conversation_id=conversation.id)
     
@@ -330,6 +365,324 @@ def start_conversation(request):
         'users': users
     }
     return render(request, 'chat/start_conversation.html', context)
+
+
+@login_required
+@require_POST
+@csrf_protect
+def create_group(request):
+    """Tạo nhóm chat mới từ danh sách thành viên đang follow."""
+    from django.contrib import messages
+    from .conversation_utils import create_group_conversation
+
+    name = (request.POST.get('name') or '').strip()
+    member_ids = request.POST.getlist('member_ids')
+    if not member_ids:
+        raw = request.POST.get('member_ids_csv', '')
+        member_ids = [x.strip() for x in raw.split(',') if x.strip()]
+
+    try:
+        member_ids = [int(x) for x in member_ids]
+    except (TypeError, ValueError):
+        messages.error(request, 'Danh sách thành viên không hợp lệ.')
+        return redirect('chat:start_conversation')
+
+    members = list(User.objects.filter(id__in=member_ids).exclude(id=request.user.id))
+    if not members:
+        messages.error(request, 'Chọn ít nhất một thành viên để tạo nhóm.')
+        return redirect('chat:start_conversation')
+
+    try:
+        conversation = create_group_conversation(request.user, members, name=name)
+    except ValueError as exc:
+        messages.error(request, str(exc))
+        return redirect('chat:start_conversation')
+
+    from .conversation_utils import create_system_message
+    create_system_message(
+        conversation,
+        request.user,
+        f'{request.user.username} đã tạo nhóm "{conversation.name}"',
+    )
+    return redirect('chat:conversation_detail', conversation_id=conversation.id)
+
+
+@login_required
+@require_POST
+@csrf_protect
+def leave_group(request, conversation_id):
+    """Rời nhóm chat (hoặc xóa nhóm nếu không còn thành viên)."""
+    from .conversation_utils import create_system_message, ensure_group_has_admin
+
+    conversation = get_object_or_404(Conversation, id=conversation_id, is_group=True)
+    if not conversation.participants.filter(id=request.user.id).exists():
+        raise Http404("Không tìm thấy cuộc trò chuyện")
+
+    leaver_name = request.user.username
+    create_system_message(conversation, request.user, f'{leaver_name} đã rời nhóm')
+
+    ConversationParticipant.objects.filter(
+        conversation=conversation, user=request.user
+    ).delete()
+
+    remaining = conversation.participants.count()
+    if remaining == 0:
+        ConversationMessage.objects.filter(conversation=conversation).delete()
+        if conversation.avatar:
+            conversation.avatar.delete(save=False)
+        conversation.delete()
+    else:
+        if conversation.created_by_id == request.user.id:
+            next_admin = (
+                conversation.conversation_participants.filter(is_admin=True)
+                .select_related('user')
+                .first()
+            )
+            if not next_admin:
+                next_admin = conversation.conversation_participants.select_related('user').first()
+            if next_admin:
+                conversation.created_by = next_admin.user
+                conversation.save(update_fields=['created_by'])
+                if not next_admin.is_admin:
+                    next_admin.is_admin = True
+                    next_admin.save(update_fields=['is_admin'])
+                    create_system_message(
+                        conversation,
+                        next_admin.user,
+                        f'{next_admin.user.username} đã trở thành admin nhóm',
+                    )
+        ensure_group_has_admin(conversation)
+
+    return redirect('chat:conversation_list')
+
+
+@login_required
+@require_POST
+@csrf_protect
+def rename_group(request, conversation_id):
+    """Đổi tên nhóm (chỉ admin)."""
+    from django.contrib import messages
+    from .conversation_utils import create_system_message
+
+    conversation = get_object_or_404(Conversation, id=conversation_id, is_group=True)
+    if not conversation.participants.filter(id=request.user.id).exists():
+        raise Http404("Không tìm thấy cuộc trò chuyện")
+    if not conversation.user_is_admin(request.user):
+        messages.error(request, 'Chỉ admin nhóm mới được đổi tên.')
+        return redirect('chat:conversation_detail', conversation_id=conversation.id)
+
+    name = (request.POST.get('name') or '').strip()[:120]
+    if not name:
+        messages.error(request, 'Tên nhóm không được để trống.')
+        return redirect('chat:conversation_detail', conversation_id=conversation.id)
+
+    conversation.name = name
+    conversation.save(update_fields=['name'])
+    create_system_message(
+        conversation,
+        request.user,
+        f'{request.user.username} đã đổi tên nhóm thành "{name}"',
+    )
+    return redirect('chat:conversation_detail', conversation_id=conversation.id)
+
+
+@login_required
+@require_POST
+@csrf_protect
+def update_group_avatar(request, conversation_id):
+    """Đổi ảnh đại diện nhóm (chỉ admin)."""
+    from django.contrib import messages
+    from .conversation_utils import create_system_message
+
+    conversation = get_object_or_404(Conversation, id=conversation_id, is_group=True)
+    if not conversation.participants.filter(id=request.user.id).exists():
+        raise Http404("Không tìm thấy cuộc trò chuyện")
+    if not conversation.user_is_admin(request.user):
+        messages.error(request, 'Chỉ admin nhóm mới được đổi ảnh đại diện.')
+        return redirect('chat:conversation_detail', conversation_id=conversation.id)
+
+    avatar = request.FILES.get('avatar')
+    if not avatar:
+        messages.error(request, 'Vui lòng chọn ảnh.')
+        return redirect('chat:conversation_detail', conversation_id=conversation.id)
+
+    content_type = (getattr(avatar, 'content_type', '') or '').lower()
+    if content_type and not content_type.startswith('image/'):
+        messages.error(request, 'File phải là ảnh.')
+        return redirect('chat:conversation_detail', conversation_id=conversation.id)
+    if avatar.size > 5 * 1024 * 1024:
+        messages.error(request, 'Ảnh đại diện tối đa 5MB.')
+        return redirect('chat:conversation_detail', conversation_id=conversation.id)
+
+    if conversation.avatar:
+        conversation.avatar.delete(save=False)
+    conversation.avatar = avatar
+    conversation.save(update_fields=['avatar'])
+    create_system_message(
+        conversation,
+        request.user,
+        f'{request.user.username} đã đổi ảnh đại diện nhóm',
+    )
+    return redirect('chat:conversation_detail', conversation_id=conversation.id)
+
+
+@login_required
+@require_POST
+@csrf_protect
+def add_group_members(request, conversation_id):
+    """Thêm thành viên vào nhóm (chỉ admin, từ người đang follow)."""
+    from django.contrib import messages
+    from accounts.models import UserFollowing
+    from .conversation_utils import create_system_message, users_are_blocked
+
+    conversation = get_object_or_404(Conversation, id=conversation_id, is_group=True)
+    if not conversation.participants.filter(id=request.user.id).exists():
+        raise Http404("Không tìm thấy cuộc trò chuyện")
+    if not conversation.user_is_admin(request.user):
+        messages.error(request, 'Chỉ admin nhóm mới được thêm thành viên.')
+        return redirect('chat:conversation_detail', conversation_id=conversation.id)
+
+    member_ids = request.POST.getlist('member_ids')
+    try:
+        member_ids = [int(x) for x in member_ids]
+    except (TypeError, ValueError):
+        messages.error(request, 'Danh sách thành viên không hợp lệ.')
+        return redirect('chat:conversation_detail', conversation_id=conversation.id)
+
+    following_ids = set(
+        UserFollowing.objects.filter(user=request.user).values_list(
+            'following_user_id', flat=True
+        )
+    )
+    existing_ids = set(conversation.participants.values_list('id', flat=True))
+    added_names = []
+    for uid in member_ids:
+        if uid in existing_ids or uid not in following_ids:
+            continue
+        try:
+            member = User.objects.get(id=uid)
+        except User.DoesNotExist:
+            continue
+        if users_are_blocked(request.user, member):
+            continue
+        ConversationParticipant.objects.create(
+            conversation=conversation, user=member, is_admin=False
+        )
+        existing_ids.add(uid)
+        added_names.append(member.username)
+
+    if added_names:
+        if len(added_names) == 1:
+            text = f'{request.user.username} đã thêm {added_names[0]} vào nhóm'
+        else:
+            text = f'{request.user.username} đã thêm {", ".join(added_names)} vào nhóm'
+        create_system_message(conversation, request.user, text)
+    return redirect('chat:conversation_detail', conversation_id=conversation.id)
+
+
+@login_required
+@require_POST
+@csrf_protect
+def set_group_admin(request, conversation_id):
+    """Phân quyền / gỡ admin thành viên (chỉ admin)."""
+    from django.contrib import messages
+    from .conversation_utils import create_system_message, ensure_group_has_admin
+
+    conversation = get_object_or_404(Conversation, id=conversation_id, is_group=True)
+    if not conversation.user_is_admin(request.user):
+        messages.error(request, 'Chỉ admin nhóm mới được phân quyền.')
+        return redirect('chat:conversation_detail', conversation_id=conversation.id)
+
+    try:
+        user_id = int(request.POST.get('user_id', 0))
+    except (TypeError, ValueError):
+        messages.error(request, 'Thành viên không hợp lệ.')
+        return redirect('chat:conversation_detail', conversation_id=conversation.id)
+
+    make_admin = request.POST.get('make_admin') in ('1', 'true', 'on', 'yes')
+    target = ConversationParticipant.objects.filter(
+        conversation=conversation, user_id=user_id
+    ).select_related('user').first()
+    if not target:
+        messages.error(request, 'Người này không còn trong nhóm.')
+        return redirect('chat:conversation_detail', conversation_id=conversation.id)
+
+    # Không thay đổi quyền người tạo nhóm
+    if conversation.created_by_id == target.user_id:
+        messages.error(request, 'Không thể thay đổi quyền của người tạo nhóm.')
+        return redirect('chat:conversation_detail', conversation_id=conversation.id)
+
+    if target.user_id == request.user.id and not make_admin:
+        messages.error(request, 'Bạn không thể tự gỡ quyền admin của mình tại đây. Hãy phân quyền cho người khác rồi rời nhóm.')
+        return redirect('chat:conversation_detail', conversation_id=conversation.id)
+
+    target.is_admin = bool(make_admin)
+    target.save(update_fields=['is_admin'])
+    ensure_group_has_admin(conversation)
+
+    if make_admin:
+        create_system_message(
+            conversation,
+            request.user,
+            f'{request.user.username} đã phong admin cho {target.user.username}',
+        )
+    else:
+        create_system_message(
+            conversation,
+            request.user,
+            f'{request.user.username} đã gỡ quyền admin của {target.user.username}',
+        )
+    return redirect('chat:conversation_detail', conversation_id=conversation.id)
+
+
+@login_required
+@require_POST
+@csrf_protect
+def kick_group_member(request, conversation_id):
+    """Kick thành viên khỏi nhóm (chỉ admin)."""
+    from django.contrib import messages
+    from .conversation_utils import create_system_message, ensure_group_has_admin
+
+    conversation = get_object_or_404(Conversation, id=conversation_id, is_group=True)
+    if not conversation.user_is_admin(request.user):
+        messages.error(request, 'Chỉ admin nhóm mới được kick thành viên.')
+        return redirect('chat:conversation_detail', conversation_id=conversation.id)
+
+    try:
+        user_id = int(request.POST.get('user_id', 0))
+    except (TypeError, ValueError):
+        messages.error(request, 'Thành viên không hợp lệ.')
+        return redirect('chat:conversation_detail', conversation_id=conversation.id)
+
+    if user_id == request.user.id:
+        messages.error(request, 'Không thể tự kick chính mình. Hãy dùng Rời nhóm.')
+        return redirect('chat:conversation_detail', conversation_id=conversation.id)
+
+    if conversation.created_by_id == user_id:
+        messages.error(request, 'Không thể kick người tạo nhóm.')
+        return redirect('chat:conversation_detail', conversation_id=conversation.id)
+
+    target = ConversationParticipant.objects.filter(
+        conversation=conversation, user_id=user_id
+    ).select_related('user').first()
+    if not target:
+        messages.error(request, 'Người này không còn trong nhóm.')
+        return redirect('chat:conversation_detail', conversation_id=conversation.id)
+
+    # Admin thường không kick được admin khác; người tạo thì được
+    if target.is_admin and conversation.created_by_id != request.user.id:
+        messages.error(request, 'Chỉ người tạo nhóm mới được kick admin khác.')
+        return redirect('chat:conversation_detail', conversation_id=conversation.id)
+
+    username = target.user.username
+    target.delete()
+    ensure_group_has_admin(conversation)
+    create_system_message(
+        conversation,
+        request.user,
+        f'{request.user.username} đã kick {username} khỏi nhóm',
+    )
+    return redirect('chat:conversation_detail', conversation_id=conversation.id)
 
 # Giữ lại các hàm API hiện có
 @login_required
@@ -549,7 +902,7 @@ def new_chat(request, conversation_id=None):
 @require_POST
 @csrf_protect
 def delete_conversation(request, conversation_id):
-    """Xóa cuộc trò chuyện"""
+    """Xóa cuộc trò chuyện (DM) hoặc rời nhóm."""
     user = request.user
     conversation = get_object_or_404(Conversation, id=conversation_id)
     
@@ -558,13 +911,23 @@ def delete_conversation(request, conversation_id):
         return JsonResponse({"error": "Không có quyền xóa cuộc trò chuyện này"}, status=403)
     
     try:
-        # Xóa tất cả tin nhắn trong cuộc trò chuyện
+        if conversation.is_group:
+            # Rời nhóm thay vì xóa toàn bộ
+            ConversationParticipant.objects.filter(
+                conversation=conversation, user=user
+            ).delete()
+            remaining = conversation.participants.count()
+            if remaining == 0:
+                ConversationMessage.objects.filter(conversation=conversation).delete()
+                conversation.delete()
+            elif conversation.created_by_id == user.id:
+                conversation.created_by = conversation.participants.first()
+                conversation.save(update_fields=['created_by'])
+            return JsonResponse({"success": True, "left_group": True}, status=200)
+
+        # DM: xóa toàn bộ
         ConversationMessage.objects.filter(conversation=conversation).delete()
-        
-        # Xóa tất cả người tham gia 
         ConversationParticipant.objects.filter(conversation=conversation).delete()
-        
-        # Cuối cùng xóa cuộc trò chuyện
         conversation.delete()
         
         return JsonResponse({"success": True}, status=200)
@@ -584,14 +947,15 @@ def upload_attachment(request, conversation_id):
     if not conversation.participants.filter(id=user.id).exists():
         return JsonResponse({'status': 'error', 'message': 'Không có quyền truy cập'}, status=403)
 
-    other_participant = conversation.get_other_participant(user)
-    from accounts.models import UserBlock
+    if not conversation.is_group:
+        other_participant = conversation.get_other_participant(user)
+        from accounts.models import UserBlock
 
-    if (
-        UserBlock.objects.filter(blocker=other_participant, blocked=user).exists()
-        or UserBlock.objects.filter(blocker=user, blocked=other_participant).exists()
-    ):
-        return JsonResponse({'status': 'error', 'message': 'Không thể gửi tin nhắn do bị chặn'}, status=403)
+        if other_participant and (
+            UserBlock.objects.filter(blocker=other_participant, blocked=user).exists()
+            or UserBlock.objects.filter(blocker=user, blocked=other_participant).exists()
+        ):
+            return JsonResponse({'status': 'error', 'message': 'Không thể gửi tin nhắn do bị chặn'}, status=403)
 
     if not any(key in request.FILES for key in ('image', 'video', 'document', 'audio')):
         return JsonResponse({'status': 'error', 'message': 'Không có tệp đính kèm'}, status=400)

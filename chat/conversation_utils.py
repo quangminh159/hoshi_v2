@@ -1,12 +1,15 @@
-"""Tiện ích cuộc trò chuyện — tạo DM, gửi tin, broadcast."""
+"""Tiện ích cuộc trò chuyện — tạo DM/nhóm, gửi tin, broadcast."""
 
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
+from django.contrib.auth import get_user_model
 from django.utils import timezone
 
 from accounts.models import UserBlock
 from chat.message_utils import serialize_chat_message
 from chat.models import Conversation, ConversationMessage, ConversationParticipant
+
+User = get_user_model()
 
 
 def users_are_blocked(user_a, user_b):
@@ -19,21 +22,121 @@ def users_are_blocked(user_a, user_b):
     ).exists()
 
 
+def find_direct_conversation(user, recipient):
+    """Tìm DM 1-1 (không phải nhóm) giữa hai người."""
+    from django.db.models import Count
+
+    return (
+        Conversation.objects.filter(is_group=False, participants=user)
+        .filter(participants=recipient)
+        .annotate(member_count=Count('participants'))
+        .filter(member_count=2)
+        .first()
+    )
+
+
 def get_or_create_direct_conversation(user, recipient):
     """Tìm hoặc tạo cuộc trò chuyện 1-1 giữa hai người dùng."""
-    conversation = Conversation.objects.filter(
-        participants=user
-    ).filter(
-        participants=recipient
-    ).first()
-
+    conversation = find_direct_conversation(user, recipient)
     if conversation:
         return conversation
 
-    conversation = Conversation.objects.create()
+    conversation = Conversation.objects.create(is_group=False, created_by=user)
     ConversationParticipant.objects.create(conversation=conversation, user=user)
     ConversationParticipant.objects.create(conversation=conversation, user=recipient)
     return conversation
+
+
+def create_group_conversation(creator, member_users, name=''):
+    """Tạo nhóm chat với creator + danh sách thành viên."""
+    members = []
+    seen = {creator.id}
+    members.append(creator)
+    for u in member_users:
+        if not u or u.id in seen:
+            continue
+        if users_are_blocked(creator, u):
+            continue
+        seen.add(u.id)
+        members.append(u)
+
+    if len(members) < 2:
+        raise ValueError('Nhóm cần ít nhất 2 người (bạn và một người khác).')
+
+    title = (name or '').strip()
+    if not title:
+        title = 'Nhóm của ' + ', '.join(m.username for m in members[:3])
+        if len(members) > 3:
+            title += f' +{len(members) - 3}'
+
+    conversation = Conversation.objects.create(
+        is_group=True,
+        name=title[:120],
+        created_by=creator,
+    )
+    for member in members:
+        ConversationParticipant.objects.create(
+            conversation=conversation,
+            user=member,
+            is_admin=(member.id == creator.id),
+        )
+    return conversation
+
+
+def create_system_message(conversation, actor, content):
+    """Tạo tin hệ thống trong nhóm và broadcast realtime."""
+    text = (content or '').strip()
+    if not conversation or not text:
+        return None
+
+    message = ConversationMessage.objects.create(
+        conversation=conversation,
+        sender=actor,
+        content=text,
+        text=text,
+        is_system=True,
+        is_read=False,
+        isread=False,
+    )
+    conversation.last_message_time = timezone.now()
+    conversation.save(update_fields=['last_message_time'])
+
+    payload = serialize_chat_message(message)
+    broadcast_chat_message(conversation.id, payload)
+    return message
+
+
+def ensure_group_has_admin(conversation):
+    """Nếu không còn admin, phong admin cho thành viên còn lại (ưu tiên created_by)."""
+    if not conversation or not conversation.is_group:
+        return
+    if conversation.conversation_participants.filter(is_admin=True).exists():
+        return
+    remaining = conversation.conversation_participants.select_related('user')
+    if not remaining.exists():
+        return
+    pick = None
+    if conversation.created_by_id:
+        pick = remaining.filter(user_id=conversation.created_by_id).first()
+    if not pick:
+        pick = remaining.first()
+    if pick:
+        pick.is_admin = True
+        pick.save(update_fields=['is_admin'])
+        if conversation.created_by_id != pick.user_id:
+            conversation.created_by = pick.user
+            conversation.save(update_fields=['created_by'])
+
+
+def conversation_inbox_payload(conversation, viewer):
+    """Metadata hiển thị trên danh sách inbox cho một viewer."""
+    return {
+        'id': conversation.id,
+        'is_group': bool(conversation.is_group),
+        'title': conversation.get_display_title(viewer),
+        'avatar_url': conversation.get_display_avatar_url(viewer),
+        'member_count': conversation.get_member_count() if conversation.is_group else 2,
+    }
 
 
 def send_conversation_message(user, conversation, content='', shared_post=None):
@@ -73,6 +176,7 @@ def broadcast_chat_message(conversation_id, message_data):
         conversation = (
             Conversation.objects.filter(id=conversation_id)
             .prefetch_related('participants')
+            .select_related('created_by')
             .first()
         )
         if not conversation:
@@ -82,7 +186,7 @@ def broadcast_chat_message(conversation_id, message_data):
         for participant in participants:
             other = next((u for u in participants if u.id != participant.id), None)
             other_payload = None
-            if other:
+            if other and not conversation.is_group:
                 other_payload = {
                     'id': other.id,
                     'username': other.username,
@@ -95,6 +199,7 @@ def broadcast_chat_message(conversation_id, message_data):
                     'conversation_id': int(conversation_id),
                     'message': message_data,
                     'other_user': other_payload,
+                    'conversation': conversation_inbox_payload(conversation, participant),
                 },
             )
     except Exception:

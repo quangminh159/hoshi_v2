@@ -8,7 +8,7 @@
 {% block body_class %} chat-layout chat-detail-layout{% endblock %}
 
 {% block extra_css %}
-<link href="{% static 'css/chat.css' %}?v=link-preview-1" rel="stylesheet">
+<link href="{% static 'css/chat.css' %}?v=group-system-1" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -16,33 +16,53 @@
   <div class="chat-shell chat-shell--detail">
     <div class="chat-container">
       <div class="chat-header">
-        {% with other_user=conversation.other_user %}
-          <a href="{% url 'accounts:profile' other_user.username %}" class="chat-user-info text-decoration-none">
-            <div class="user-avatar" id="otherUserAvatar">
-              <img src="{{ other_user.get_avatar_url }}" alt="{{ other_user.username }}">
-              <span class="online-indicator" id="otherUserOnlineDot"{% if other_user.hide_activity or not other_presence.is_online %} style="display:none"{% endif %}></span>
+        {% if is_group %}
+          <button type="button" class="chat-user-info text-start border-0 bg-transparent p-0" data-bs-toggle="modal" data-bs-target="#groupMembersModal" title="{% trans 'Thành viên nhóm' %}">
+            <div class="user-avatar conversation-avatar--group">
+              <img src="{{ conversation.display_avatar }}" alt="{{ conversation.display_title }}">
+              <span class="conversation-group-badge" aria-hidden="true"><i class="fas fa-users"></i></span>
             </div>
             <div class="user-details">
-              <h5 class="user-name">{{ other_user.username }}</h5>
-              <div class="user-status{% if other_presence.is_online and not other_user.hide_activity %} user-status--online{% endif %}"
-                   id="otherUserStatus"
-                   data-user-id="{{ other_user.id }}"
-                   data-hide-activity="{{ other_user.hide_activity|yesno:'true,false' }}"
-                   {% if other_presence.last_seen %}data-last-seen="{{ other_presence.last_seen|date:'c' }}"{% endif %}>
-                {% if other_user.hide_activity %}
-                  {% trans "Nhắn tin trực tiếp" %}
-                {% elif other_presence.is_online %}
-                  <span class="status-dot status-dot--online"></span>{% trans "Đang hoạt động" %}
-                {% elif other_presence.last_seen %}
-                  {% blocktrans with time=other_presence.last_seen|timesince %}Hoạt động {{ time }} trước{% endblocktrans %}
-                {% else %}
-                  {% trans "Offline" %}
-                {% endif %}
+              <h5 class="user-name">{{ conversation.display_title }}</h5>
+              <div class="user-status" id="otherUserStatus">
+                {{ members|length }} {% trans "thành viên" %}
               </div>
             </div>
-          </a>
-        {% endwith %}
+          </button>
+        {% else %}
+          {% with other_user=conversation.other_user %}
+            <a href="{% url 'accounts:profile' other_user.username %}" class="chat-user-info text-decoration-none">
+              <div class="user-avatar" id="otherUserAvatar">
+                <img src="{{ other_user.get_avatar_url }}" alt="{{ other_user.username }}">
+                <span class="online-indicator" id="otherUserOnlineDot"{% if other_user.hide_activity or not other_presence.is_online %} style="display:none"{% endif %}></span>
+              </div>
+              <div class="user-details">
+                <h5 class="user-name">{{ other_user.username }}</h5>
+                <div class="user-status{% if other_presence.is_online and not other_user.hide_activity %} user-status--online{% endif %}"
+                     id="otherUserStatus"
+                     data-user-id="{{ other_user.id }}"
+                     data-hide-activity="{{ other_user.hide_activity|yesno:'true,false' }}"
+                     {% if other_presence.last_seen %}data-last-seen="{{ other_presence.last_seen|date:'c' }}"{% endif %}>
+                  {% if other_user.hide_activity %}
+                    {% trans "Nhắn tin trực tiếp" %}
+                  {% elif other_presence.is_online %}
+                    <span class="status-dot status-dot--online"></span>{% trans "Đang hoạt động" %}
+                  {% elif other_presence.last_seen %}
+                    {% blocktrans with time=other_presence.last_seen|timesince %}Hoạt động {{ time }} trước{% endblocktrans %}
+                  {% else %}
+                    {% trans "Offline" %}
+                  {% endif %}
+                </div>
+              </div>
+            </a>
+          {% endwith %}
+        {% endif %}
         <div class="chat-actions">
+          {% if is_group %}
+            <button type="button" class="btn-back" data-bs-toggle="modal" data-bs-target="#groupMembersModal" title="{% trans 'Thành viên' %}">
+              <i class="fas fa-user-friends"></i>
+            </button>
+          {% endif %}
           <a href="{% url 'chat:conversation_list' %}" class="btn-back" title="{% trans 'Quay lại' %}">
             <i class="fas fa-arrow-left"></i>
             <span class="d-none d-sm-inline">{% trans "Quay lại" %}</span>
@@ -64,6 +84,11 @@
                 </span>
               </div>
             {% endifchanged %}
+            {% if message.is_system %}
+            <div class="message message-system" data-message-id="{{ message.id }}" data-system="1">
+              <span>{{ message.content }}</span>
+            </div>
+            {% else %}
             <div class="message {% if message.sender == request.user %}sent{% else %}received{% endif %}"
                  data-message-id="{{ message.id }}"
                  data-sender-id="{{ message.sender.id }}"
@@ -73,6 +98,9 @@
                  {% if message.file_name %}data-file-name="{{ message.file_name|escapejs }}"{% endif %}
                  {% if message.shared_post %}data-shared-post="1"{% endif %}>
               <div class="message-content">
+                {% if is_group and message.sender != request.user %}
+                  <div class="message-sender-name">{{ message.sender.username }}</div>
+                {% endif %}
                 {% if message.reply_to %}
                   {% include 'chat/includes/message_quote.html' with parent=message.reply_to viewer=request.user %}
                 {% endif %}
@@ -157,6 +185,7 @@
                 {% endif %}
               </div>
             </div>
+            {% endif %}
           {% endfor %}
         {% else %}
           <div class="no-messages">
@@ -270,6 +299,126 @@
     </div>
   </div>
 </div>
+
+{% if is_group %}
+<div class="modal fade" id="groupMembersModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header border-0">
+        <h5 class="modal-title fw-bold">{% trans "Thông tin nhóm" %}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Đóng' %}"></button>
+      </div>
+      <div class="modal-body pt-0">
+        <div class="group-avatar-block text-center mb-3">
+          <div class="group-avatar-preview">
+            <img src="{{ conversation.display_avatar }}" alt="{{ conversation.display_title }}" id="groupAvatarPreview">
+          </div>
+          {% if is_group_admin %}
+          <form method="post" action="{% url 'chat:update_group_avatar' conversation.id %}" enctype="multipart/form-data" class="mt-2">
+            {% csrf_token %}
+            <label class="btn btn-outline-primary btn-sm rounded-pill mb-0">
+              <i class="fas fa-camera me-1"></i> {% trans "Đổi ảnh nhóm" %}
+              <input type="file" name="avatar" accept="image/*" class="d-none" onchange="this.form.submit()">
+            </label>
+          </form>
+          {% endif %}
+        </div>
+
+        {% if is_group_admin %}
+        <form method="post" action="{% url 'chat:rename_group' conversation.id %}" class="group-rename-form mb-3">
+          {% csrf_token %}
+          <label class="form-label small text-muted mb-1">{% trans "Tên nhóm" %}</label>
+          <div class="d-flex gap-2">
+            <input type="text" name="name" class="form-control" value="{{ conversation.name }}" maxlength="120" required>
+            <button type="submit" class="btn btn-primary rounded-pill">{% trans "Lưu" %}</button>
+          </div>
+        </form>
+        {% else %}
+        <div class="mb-3">
+          <div class="form-label small text-muted mb-1">{% trans "Tên nhóm" %}</div>
+          <div class="fw-semibold">{{ conversation.display_title }}</div>
+        </div>
+        {% endif %}
+
+        <h6 class="fw-semibold mb-2">{% trans "Thành viên" %} ({{ member_rows|length }})</h6>
+        <ul class="group-member-list list-unstyled mb-3">
+          {% for row in member_rows %}
+            <li class="group-member-item">
+              <img src="{{ row.user.get_avatar_url }}" alt="{{ row.user.username }}">
+              <div class="group-member-meta">
+                <a href="{% url 'accounts:profile' row.user.username %}" class="text-decoration-none fw-semibold">{{ row.user.username }}</a>
+                {% if conversation.created_by_id == row.user.id %}
+                  <span class="group-owner-badge">{% trans "Người tạo" %}</span>
+                {% elif row.is_admin %}
+                  <span class="group-owner-badge">{% trans "Admin" %}</span>
+                {% endif %}
+              </div>
+              {% if is_group_admin and row.user.id != request.user.id %}
+              <div class="group-member-actions">
+                {% if conversation.created_by_id != row.user.id %}
+                  {% if not row.is_admin %}
+                  <form method="post" action="{% url 'chat:set_group_admin' conversation.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="user_id" value="{{ row.user.id }}">
+                    <input type="hidden" name="make_admin" value="1">
+                    <button type="submit" class="btn btn-sm btn-outline-primary rounded-pill" title="{% trans 'Phong admin' %}">
+                      <i class="fas fa-user-shield"></i>
+                    </button>
+                  </form>
+                  {% else %}
+                  <form method="post" action="{% url 'chat:set_group_admin' conversation.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="user_id" value="{{ row.user.id }}">
+                    <input type="hidden" name="make_admin" value="0">
+                    <button type="submit" class="btn btn-sm btn-outline-secondary rounded-pill" title="{% trans 'Gỡ admin' %}">
+                      <i class="fas fa-user-minus"></i>
+                    </button>
+                  </form>
+                  {% endif %}
+                  {% if not row.is_admin or is_group_owner %}
+                  <form method="post" action="{% url 'chat:kick_group_member' conversation.id %}" onsubmit="return confirm('{% blocktrans with name=row.user.username %}Kick {{ name }} khỏi nhóm?{% endblocktrans %}');">
+                    {% csrf_token %}
+                    <input type="hidden" name="user_id" value="{{ row.user.id }}">
+                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill" title="{% trans 'Kick' %}">
+                      <i class="fas fa-user-times"></i>
+                    </button>
+                  </form>
+                  {% endif %}
+                {% endif %}
+              </div>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+
+        {% if is_group_admin and followable_users %}
+        <form method="post" action="{% url 'chat:add_group_members' conversation.id %}" class="mb-3">
+          {% csrf_token %}
+          <h6 class="fw-semibold mb-2">{% trans "Thêm thành viên" %}</h6>
+          <div class="group-add-list mb-2">
+            {% for u in followable_users %}
+              <label class="group-add-item">
+                <input type="checkbox" name="member_ids" value="{{ u.id }}">
+                <img src="{{ u.get_avatar_url }}" alt="">
+                <span>{{ u.username }}</span>
+              </label>
+            {% endfor %}
+          </div>
+          <button type="submit" class="btn btn-outline-primary btn-sm rounded-pill">{% trans "Thêm vào nhóm" %}</button>
+        </form>
+        {% endif %}
+
+        <form method="post" action="{% url 'chat:leave_group' conversation.id %}" onsubmit="return confirm('{% trans "Bạn chắc muốn rời nhóm này?" %}');">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-outline-danger w-100 rounded-pill">
+            <i class="fas fa-sign-out-alt me-1"></i> {% trans "Rời nhóm" %}
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
 
 <script>
   let messageInput;
@@ -418,6 +567,7 @@
     // Khởi tạo kết nối WebSocket
     const conversationId = {{ conversation.id }};
     const currentUserId = {{ request.user.id }};
+    const isGroupChat = {% if is_group %}true{% else %}false{% endif %};
     const wsProtocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
     chatSocket = new WebSocket(
       wsProtocol + window.location.host + '/ws/chat/' + conversationId + '/'
@@ -465,7 +615,7 @@
         chatMessages.scrollTop = chatMessages.scrollHeight;
         
         // Nếu tin nhắn không phải của người dùng hiện tại, đánh dấu là đã đọc
-        if (data.message.sender_id !== currentUserId) {
+        if (data.message.sender_id !== currentUserId && !data.message.is_system) {
           markMessageAsRead(data.message.id);
         }
         
@@ -587,7 +737,7 @@
         if (replyToId) {
           messageData.reply_to = {
             id: replyToId,
-            sender_id: parseInt(document.getElementById('replyToSenderId').value || '0', 10) || {{ conversation.other_user.id }},
+            sender_id: parseInt(document.getElementById('replyToSenderId').value || '0', 10) || {% if conversation.other_user %}{{ conversation.other_user.id }}{% else %}0{% endif %},
             sender_username: document.getElementById('replyToUsername').value,
             content: document.getElementById('replyToContent').value,
           };
@@ -830,6 +980,19 @@
       if (message.id && document.querySelector(`.message[data-message-id="${message.id}"]`)) {
         return;
       }
+
+      if (message.is_system) {
+        const systemEl = document.createElement('div');
+        systemEl.className = 'message message-system';
+        systemEl.dataset.messageId = message.id;
+        systemEl.dataset.system = '1';
+        const span = document.createElement('span');
+        span.textContent = message.content || '';
+        systemEl.appendChild(span);
+        chatMessages.appendChild(systemEl);
+        return;
+      }
+
       const messageElement = document.createElement('div');
       messageElement.className = `message ${message.sender_id == currentUserId ? 'sent' : 'received'}`;
       messageElement.dataset.messageId = message.id;
@@ -848,6 +1011,13 @@
 
       const messageContent = document.createElement('div');
       messageContent.className = 'message-content';
+
+      if (isGroupChat && message.sender_id != currentUserId && message.sender_username) {
+        const senderLabel = document.createElement('div');
+        senderLabel.className = 'message-sender-name';
+        senderLabel.textContent = message.sender_username;
+        messageContent.appendChild(senderLabel);
+      }
 
       if (message.reply_to) {
         messageContent.appendChild(buildMessageQuote(message.reply_to));
@@ -978,7 +1148,7 @@
       return `${(bytes / 1048576).toFixed(1)} MB`;
     }
     
-    const otherUserId = {{ conversation.other_user.id }};
+    const otherUserId = {% if conversation.other_user %}{{ conversation.other_user.id }}{% else %}null{% endif %};
     let lastSeenRefreshTimer = null;
 
     function formatLastSeen(isoString) {
@@ -1033,7 +1203,7 @@
 
     // Hàm cập nhật trạng thái online/offline của người dùng
     function updateUserStatus(userId, status, lastSeen) {
-      if (parseInt(userId, 10) !== otherUserId) return;
+      if (otherUserId == null || parseInt(userId, 10) !== otherUserId) return;
 
       const statusEl = document.getElementById('otherUserStatus');
       if (!statusEl || statusEl.dataset.hideActivity === 'true') return;

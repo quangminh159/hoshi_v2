@@ -20,6 +20,14 @@ def message_file_path(instance, filename):
     filename = f"{uuid.uuid4()}.{ext}"
     return os.path.join('chat_attachments', filename)
 
+
+def group_avatar_path(instance, filename):
+    """Đường dẫn ảnh đại diện nhóm chat."""
+    ext = filename.split('.')[-1].lower()
+    if ext not in ('jpg', 'jpeg', 'png', 'gif', 'webp'):
+        ext = 'jpg'
+    return os.path.join('group_avatars', f"{uuid.uuid4()}.{ext}")
+
 class UserSetting(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE)
     username = models.CharField(max_length=32, default="")
@@ -72,26 +80,93 @@ class Message(TrackingModel):
 
 # Mô hình trò chuyện mới
 class Conversation(models.Model):
-    participants = models.ManyToManyField(settings.AUTH_USER_MODEL, through='ConversationParticipant', related_name='conversations')
+    participants = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        through='ConversationParticipant',
+        related_name='conversations',
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     last_message_time = models.DateTimeField(default=timezone.now)
-    
+    is_group = models.BooleanField(default=False)
+    name = models.CharField(max_length=120, blank=True, default='')
+    avatar = models.ImageField(upload_to=group_avatar_path, blank=True, null=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='created_conversations',
+    )
+
     def __str__(self):
-        participants_str = ", ".join([user.username for user in self.participants.all()])
+        if self.is_group and self.name:
+            return f"Group: {self.name}"
+        participants_str = ", ".join([user.username for user in self.participants.all()[:5]])
         return f"Conversation between {participants_str}"
-    
+
     def get_other_participant(self, user=None):
-        """Lấy người tham gia còn lại (không phải `user`)."""
+        """Lấy người tham gia còn lại (chỉ hợp lệ cho chat 1-1)."""
         qs = self.participants.all()
         if user is not None:
             return qs.exclude(id=user.id).first()
-        # Fallback không an toàn nếu không có user — ưu tiên caller luôn truyền user
         first_user = qs.first()
         if not first_user:
             return None
         return qs.exclude(id=first_user.id).first()
-    
+
+    def get_display_title(self, viewer=None):
+        if self.is_group:
+            if self.name:
+                return self.name
+            names = list(
+                self.participants.exclude(id=getattr(viewer, 'id', None)).values_list(
+                    'username', flat=True
+                )[:3]
+            )
+            if not names:
+                names = list(self.participants.values_list('username', flat=True)[:3])
+            title = ', '.join(names)
+            extra = self.participants.count() - len(names)
+            if extra > 0:
+                title = f'{title} +{extra}'
+            return title or 'Nhóm chat'
+        other = self.get_other_participant(viewer)
+        return other.username if other else 'Cuộc trò chuyện'
+
+    def get_display_avatar_url(self, viewer=None):
+        if self.is_group:
+            if self.avatar:
+                try:
+                    return self.avatar.url
+                except Exception:
+                    pass
+            # Fallback: avatar người tạo hoặc thành viên đầu tiên
+            owner = self.created_by
+            if owner and self.participants.filter(id=owner.id).exists():
+                return owner.get_avatar_url()
+            first = self.participants.first()
+            return first.get_avatar_url() if first else '/static/img/default-avatar.png'
+        other = self.get_other_participant(viewer)
+        return other.get_avatar_url() if other else '/static/img/default-avatar.png'
+
+    def get_member_count(self):
+        return self.participants.count()
+
+    def get_participant_row(self, user):
+        if not user:
+            return None
+        return self.conversation_participants.filter(user=user).first()
+
+    def user_is_admin(self, user):
+        """Kiểm tra user có phải admin nhóm (hoặc người tạo)."""
+        if not user or not self.is_group:
+            return False
+        if self.created_by_id and self.created_by_id == user.id:
+            return True
+        row = self.get_participant_row(user)
+        return bool(row and row.is_admin)
+
     def get_last_message(self):
         """Lấy tin nhắn cuối cùng của cuộc trò chuyện"""
         return self.messages.order_by('-created_at').first()
@@ -101,12 +176,14 @@ class ConversationParticipant(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='conversation_participations')
     joined_at = models.DateTimeField(auto_now_add=True)
     left_at = models.DateTimeField(null=True, blank=True)
+    is_admin = models.BooleanField(default=False)
     
     class Meta:
         unique_together = ('conversation', 'user')
         
     def __str__(self):
-        return f"{self.user.username} in {self.conversation}"
+        role = 'admin' if self.is_admin else 'member'
+        return f"{self.user.username} ({role}) in {self.conversation}"
 
 class ConversationMessage(models.Model):
     conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name='messages', null=True)
@@ -117,6 +194,7 @@ class ConversationMessage(models.Model):
     updated_at = models.DateTimeField(auto_now=True, null=True)
     is_read = models.BooleanField(default=False)
     isread = models.BooleanField(default=False)
+    is_system = models.BooleanField(default=False)
     
     # Trường đính kèm
     image = models.ImageField(upload_to=message_file_path, blank=True, null=True)

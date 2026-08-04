@@ -12,10 +12,18 @@
             .replace(/"/g, '&quot;');
     }
 
-    function formatPreview(message, currentUserId) {
+    function formatPreview(message, currentUserId, isGroup) {
+        if (message.is_system) {
+            return `<em>${escapeHtml(String(message.content || '').slice(0, 50))}</em>`;
+        }
         const senderId = message.sender_id;
         const isMine = Number(senderId) === Number(currentUserId);
-        const prefix = isMine ? '<span class="you-prefix">Bạn: </span>' : '';
+        let prefix = '';
+        if (isMine) {
+            prefix = '<span class="you-prefix">Bạn: </span>';
+        } else if (isGroup && message.sender_username) {
+            prefix = `<span class="you-prefix">${escapeHtml(message.sender_username)}: </span>`;
+        }
 
         if (message.content) {
             const text = escapeHtml(String(message.content).slice(0, 45));
@@ -111,46 +119,51 @@
         });
     }
 
-    function createConversationWrapper(conversationId, message, otherUser, currentUserId) {
-        const username = otherUser?.username || message.sender_username || 'user';
-        const avatar = otherUser?.avatar_url || '/static/img/default-avatar.png';
-        const isMine = Number(message.sender_id) === Number(currentUserId);
-        // other_user là người kia trong chat; nếu thiếu payload thì lấy từ sender khi tin đến
-        const displayName = otherUser?.username
-            || (isMine ? 'Cuộc trò chuyện' : (message.sender_username || 'user'));
-        const displayAvatar = otherUser?.avatar_url
-            || (!isMine && message.sender_avatar ? message.sender_avatar : avatar);
+    function createConversationWrapper(conversationId, message, otherUser, currentUserId, conversationMeta) {
+        const isGroup = !!(conversationMeta && conversationMeta.is_group);
+        const displayName = (conversationMeta && conversationMeta.title)
+            || otherUser?.username
+            || (Number(message.sender_id) === Number(currentUserId) ? 'Cuộc trò chuyện' : (message.sender_username || 'user'));
+        const displayAvatar = (conversationMeta && conversationMeta.avatar_url)
+            || otherUser?.avatar_url
+            || message.sender_avatar
+            || '/static/img/default-avatar.png';
 
         const wrapper = document.createElement('div');
-        wrapper.className = 'conversation-wrapper';
+        wrapper.className = 'conversation-wrapper' + (isGroup ? ' is-group' : '');
         wrapper.id = `conversation-${conversationId}`;
         wrapper.dataset.username = String(displayName).toLowerCase();
+        wrapper.dataset.isGroup = isGroup ? '1' : '0';
         wrapper.dataset.unread = '0';
         wrapper.innerHTML = `
             <a href="/chat/conversations/${conversationId}/" class="conversation-item">
-              <div class="conversation-avatar">
+              <div class="conversation-avatar${isGroup ? ' conversation-avatar--group' : ''}">
                 <img src="${escapeHtml(displayAvatar)}" alt="${escapeHtml(displayName)}">
+                ${isGroup ? '<span class="conversation-group-badge" aria-hidden="true"><i class="fas fa-users"></i></span>' : ''}
               </div>
               <div class="conversation-info">
                 <div class="conversation-name">
                   <span>${escapeHtml(displayName)}</span>
                   <span class="conversation-time">${formatTime(message.created_at)}</span>
                 </div>
-                <div class="conversation-last-message">${formatPreview(message, currentUserId)}</div>
+                <div class="conversation-last-message">${formatPreview(message, currentUserId, isGroup)}</div>
               </div>
             </a>
             <button class="delete-conversation"
                     onclick="deleteConversation(${conversationId}, event)"
-                    title="Xóa cuộc trò chuyện">
+                    title="${isGroup ? 'Rời nhóm' : 'Xóa cuộc trò chuyện'}">
               <i class="fas fa-trash-alt"></i>
             </button>
         `;
         return wrapper;
     }
 
-    function updateConversationList(conversationId, message, currentUserId, otherUser) {
+    function updateConversationList(conversationId, message, currentUserId, otherUser, conversationMeta) {
         const list = document.getElementById('conversationList');
         if (!list) return;
+
+        const isGroup = !!(conversationMeta && conversationMeta.is_group)
+            || document.getElementById(`conversation-${conversationId}`)?.dataset.isGroup === '1';
 
         let wrapper = document.getElementById(`conversation-${conversationId}`)
             || list.querySelector(`.conversation-wrapper a[href*="/conversations/${conversationId}/"]`)?.closest('.conversation-wrapper');
@@ -158,7 +171,7 @@
         if (!wrapper) {
             list.querySelector('.no-conversations')?.remove();
             ensureSearchBox();
-            wrapper = createConversationWrapper(conversationId, message, otherUser, currentUserId);
+            wrapper = createConversationWrapper(conversationId, message, otherUser, currentUserId, conversationMeta);
             list.insertBefore(wrapper, list.firstChild);
             updateSubtitleCount();
 
@@ -169,9 +182,15 @@
             return;
         }
 
+        if (conversationMeta && conversationMeta.title) {
+            const nameEl = wrapper.querySelector('.conversation-name > span:first-child');
+            if (nameEl) nameEl.textContent = conversationMeta.title;
+            wrapper.dataset.username = String(conversationMeta.title).toLowerCase();
+        }
+
         const previewEl = wrapper.querySelector('.conversation-last-message');
         if (previewEl && !previewEl.querySelector('.text-danger')) {
-            previewEl.innerHTML = formatPreview(message, currentUserId);
+            previewEl.innerHTML = formatPreview(message, currentUserId, isGroup);
         }
 
         const timeEl = wrapper.querySelector('.conversation-time');
@@ -216,13 +235,14 @@
                     detail.conversation_id,
                     detail.message,
                     currentUserId,
-                    detail.other_user || null
+                    detail.other_user || null,
+                    detail.conversation || null
                 );
             });
         }
 
-        window.updateConversationList = function (conversationId, message, otherUser) {
-            updateConversationList(conversationId, message, currentUserId, otherUser || null);
+        window.updateConversationList = function (conversationId, message, otherUser, conversationMeta) {
+            updateConversationList(conversationId, message, currentUserId, otherUser || null, conversationMeta || null);
         };
     });
 })();

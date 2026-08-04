@@ -55,22 +55,26 @@ def serialize_reply_to(message):
 
 
 def serialize_chat_message(message, user=None):
-    sender = user or message.sender
+    sender = message.sender or user
     has_attachment, attachment_type, attachment_url = _attachment_info(message)
     shared_post = getattr(message, 'shared_post', None)
+    is_system = bool(getattr(message, 'is_system', False))
 
     return {
         'id': message.id,
         'content': message.content or '',
-        'sender_id': sender.id,
-        'sender_username': sender.username,
-        'sender_avatar': sender.get_avatar_url() if hasattr(sender, 'get_avatar_url') else None,
+        'sender_id': sender.id if sender else None,
+        'sender_username': sender.username if sender else 'Hệ thống',
+        'sender_avatar': (
+            sender.get_avatar_url() if sender and hasattr(sender, 'get_avatar_url') else None
+        ),
         'created_at': message.created_at.isoformat(),
         'has_attachment': has_attachment,
         'attachment_type': attachment_type,
         'attachment_url': attachment_url,
         'file_name': message.file_name,
         'file_size': message.file_size,
-        'reply_to': serialize_reply_to(message),
-        'shared_post': serialize_shared_post(shared_post),
+        'reply_to': None if is_system else serialize_reply_to(message),
+        'shared_post': None if is_system else serialize_shared_post(shared_post),
+        'is_system': is_system,
     }

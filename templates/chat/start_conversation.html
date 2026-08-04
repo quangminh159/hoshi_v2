@@ -6,7 +6,7 @@
 {% block body_class %} chat-layout{% endblock %}
 
 {% block extra_css %}
-<link href="{% static 'css/chat.css' %}?v=voice-mobile-3" rel="stylesheet">
+<link href="{% static 'css/chat.css' %}?v=group-chat-1" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -19,28 +19,63 @@
       </a>
     </div>
 
+    <div class="start-chat-tabs" role="tablist">
+      <button type="button" class="start-chat-tab is-active" data-tab="dm" role="tab">Tin nhắn</button>
+      <button type="button" class="start-chat-tab" data-tab="group" role="tab">Tạo nhóm</button>
+    </div>
+
     {% if users %}
       <div class="chat-search-box start-chat-search">
         <i class="fas fa-search"></i>
         <input type="search" id="userSearch" placeholder="Tìm người dùng..." autocomplete="off">
       </div>
 
-      <div class="user-list" id="userList">
-        {% for user in users %}
-          <div class="user-card" data-username="{{ user.username|lower }}">
-            <div class="user-avatar">
-              <img src="{{ user.get_avatar_url }}" alt="{{ user.username }}">
+      <div id="tab-dm" class="start-chat-panel">
+        <div class="user-list" id="userList">
+          {% for user in users %}
+            <div class="user-card" data-username="{{ user.username|lower }}">
+              <div class="user-avatar">
+                <img src="{{ user.get_avatar_url }}" alt="{{ user.username }}">
+              </div>
+              <div class="user-name">{{ user.username }}</div>
+              <form method="post" action="{% url 'chat:start_conversation' %}">
+                {% csrf_token %}
+                <input type="hidden" name="user_id" value="{{ user.id }}">
+                <button type="submit" class="btn btn-primary btn-start-chat">
+                  <i class="fas fa-comment-dots me-1"></i> Nhắn tin
+                </button>
+              </form>
             </div>
-            <div class="user-name">{{ user.username }}</div>
-            <form method="post" action="{% url 'chat:start_conversation' %}">
-              {% csrf_token %}
-              <input type="hidden" name="user_id" value="{{ user.id }}">
-              <button type="submit" class="btn btn-primary btn-start-chat">
-                <i class="fas fa-comment-dots me-1"></i> Nhắn tin
-              </button>
-            </form>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div id="tab-group" class="start-chat-panel" hidden>
+        <form method="post" action="{% url 'chat:create_group' %}" id="createGroupForm" class="create-group-form">
+          {% csrf_token %}
+          <div class="group-name-field">
+            <label for="groupName">Tên nhóm</label>
+            <input type="text" id="groupName" name="name" maxlength="120" placeholder="Ví dụ: Nhóm bạn thân" autocomplete="off">
           </div>
-        {% endfor %}
+          <p class="group-pick-hint">Chọn ít nhất 1 người đang theo dõi</p>
+          <div class="user-list group-pick-list" id="groupUserList">
+            {% for user in users %}
+              <label class="user-card user-card--selectable" data-username="{{ user.username|lower }}">
+                <div class="user-avatar">
+                  <img src="{{ user.get_avatar_url }}" alt="{{ user.username }}">
+                </div>
+                <div class="user-name">{{ user.username }}</div>
+                <input type="checkbox" name="member_ids" value="{{ user.id }}" class="group-member-check">
+              </label>
+            {% endfor %}
+          </div>
+          <div class="create-group-footer">
+            <span id="groupSelectedCount">Đã chọn 0</span>
+            <button type="submit" class="btn btn-primary rounded-pill" id="createGroupBtn" disabled>
+              <i class="fas fa-users me-1"></i> Tạo nhóm
+            </button>
+          </div>
+        </form>
       </div>
     {% else %}
       <div class="no-users">
@@ -60,12 +95,39 @@
 <script>
   document.querySelector('.mobile-bottom-nav__item[data-nav="messages"]')?.classList.add('is-active');
 
-  document.getElementById('userSearch')?.addEventListener('input', function () {
-    const q = this.value.trim().toLowerCase();
-    document.querySelectorAll('.user-card').forEach((card) => {
+  document.querySelectorAll('.start-chat-tab').forEach((tab) => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.start-chat-tab').forEach((t) => t.classList.remove('is-active'));
+      tab.classList.add('is-active');
+      const key = tab.dataset.tab;
+      document.getElementById('tab-dm').hidden = key !== 'dm';
+      document.getElementById('tab-group').hidden = key !== 'group';
+    });
+  });
+
+  function filterCards(listId, q) {
+    document.querySelectorAll(`#${listId} .user-card`).forEach((card) => {
       const name = card.dataset.username || '';
       card.style.display = !q || name.includes(q) ? '' : 'none';
     });
+  }
+
+  document.getElementById('userSearch')?.addEventListener('input', function () {
+    const q = this.value.trim().toLowerCase();
+    filterCards('userList', q);
+    filterCards('groupUserList', q);
+  });
+
+  function updateGroupSelection() {
+    const checked = document.querySelectorAll('#groupUserList .group-member-check:checked').length;
+    const countEl = document.getElementById('groupSelectedCount');
+    const btn = document.getElementById('createGroupBtn');
+    if (countEl) countEl.textContent = `Đã chọn ${checked}`;
+    if (btn) btn.disabled = checked < 1;
+  }
+
+  document.querySelectorAll('#groupUserList .group-member-check').forEach((cb) => {
+    cb.addEventListener('change', updateGroupSelection);
   });
 </script>
 {% endblock %}

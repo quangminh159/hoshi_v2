@@ -220,14 +220,19 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     'conversation_id': int(self.conversation_id),
                     'message': payload,
                     'other_user': row.get('other_user'),
+                    'conversation': row.get('conversation'),
                 },
             )
 
     @database_sync_to_async
     def get_inbox_targets(self):
+        from chat.conversation_utils import conversation_inbox_payload
+
         try:
-            conversation = Conversation.objects.prefetch_related('participants').get(
-                id=self.conversation_id
+            conversation = (
+                Conversation.objects.prefetch_related('participants')
+                .select_related('created_by')
+                .get(id=self.conversation_id)
             )
         except Conversation.DoesNotExist:
             return []
@@ -236,13 +241,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
         for participant in participants:
             other = next((u for u in participants if u.id != participant.id), None)
             other_payload = None
-            if other:
+            if other and not conversation.is_group:
                 other_payload = {
                     'id': other.id,
                     'username': other.username,
                     'avatar_url': other.get_avatar_url(),
                 }
-            rows.append({'user_id': participant.id, 'other_user': other_payload})
+            rows.append({
+                'user_id': participant.id,
+                'other_user': other_payload,
+                'conversation': conversation_inbox_payload(conversation, participant),
+            })
         return rows
 
     @database_sync_to_async
@@ -284,6 +293,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
         from chat.presence import get_user_presence
 
         conversation = Conversation.objects.get(id=self.conversation_id)
+        if conversation.is_group:
+            return {
+                'user_id': None,
+                'is_online': False,
+                'last_seen': None,
+                'is_group': True,
+                'member_count': conversation.participants.count(),
+            }
         other = conversation.participants.exclude(id=self.user.id).first()
         if not other:
             return None
@@ -313,9 +330,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
     def save_message(self, content, reply_to=None):
         conversation = Conversation.objects.get(id=self.conversation_id)
 
-        other = conversation.get_other_participant(self.user)
-        if other and not other.can_receive_message_from(self.user):
-            return None
+        if not conversation.is_group:
+            other = conversation.get_other_participant(self.user)
+            if other and not other.can_receive_message_from(self.user):
+                return None
 
         reply_parent = None
         if reply_to and reply_to.get('id'):
@@ -489,21 +507,8 @@ class WebConsumer(AsyncConsumer):
         
     @database_sync_to_async
     def get_or_create_conversation(self, user1, user2):
-        # Tìm cuộc trò chuyện hiện có
-        conversations = Conversation.objects.filter(
-            participants=user1
-        ).filter(
-            participants=user2
-        )
-        
-        if conversations.exists():
-            return conversations.first()
-        
-        # Tạo cuộc trò chuyện mới
-        conversation = Conversation.objects.create()
-        ConversationParticipant.objects.create(conversation=conversation, user=user1)
-        ConversationParticipant.objects.create(conversation=conversation, user=user2)
-        return conversation
+        from chat.conversation_utils import get_or_create_direct_conversation
+        return get_or_create_direct_conversation(user1, user2)
         
     @database_sync_to_async
     def store_message_conversation(self, conversation, content):
@@ -612,4 +617,5 @@ class ChatInboxConsumer(AsyncWebsocketConsumer):
             'conversation_id': event.get('conversation_id'),
             'message': event.get('message'),
             'other_user': event.get('other_user'),
+            'conversation': event.get('conversation'),
         }))
