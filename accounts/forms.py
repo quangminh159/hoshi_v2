@@ -402,12 +402,19 @@ class PrivacySettingsForm(forms.ModelForm):
         self.fields['private_account'].label = 'Tài khoản riêng tư'
         self.fields['hide_activity'].label = 'Ẩn trạng thái hoạt động'
         self.fields['block_messages'].label = 'Chặn tin nhắn'
+        self.fields['private_account'].help_text = (
+            'Người khác phải gửi yêu cầu và được bạn xác nhận mới theo dõi được.'
+        )
 
     def save(self, commit=True):
+        was_private = bool(self.instance.pk and self.instance.is_account_private())
         user = super().save(commit=False)
         user.is_private = user.private_account
         if commit:
             user.save()
+            if was_private and not user.is_account_private():
+                from .follow_requests import accept_all_pending_for
+                accept_all_pending_for(user)
         return user
 
 class LanguageSettingsForm(forms.ModelForm):

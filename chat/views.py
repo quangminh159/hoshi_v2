@@ -114,6 +114,7 @@ def conversation_list(request):
     # Đánh dấu các cuộc trò chuyện với người dùng bị chặn
     for conversation in all_conversations:
         other_participant = conversation.get_other_participant(user)
+        conversation.other_user = other_participant
         conversation.is_blocked = other_participant.id in blocked_user_ids if other_participant else False
         conversation.unread_count = unread_map.get(conversation.id, 0)
     

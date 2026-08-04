@@ -29,7 +29,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <!-- Custom CSS -->
-    <link href="{% static 'css/style.css' %}?v=chat-unread-1" rel="stylesheet">
+    <link href="{% static 'css/style.css' %}?v=chat-bottom-nav-1" rel="stylesheet">
     <link href="{% static 'css/theme.css' %}?v=1" rel="stylesheet">
     <link href="{% static 'css/notification_dropdown.css' %}" rel="stylesheet">
     <link href="{% static 'css/media_lightbox.css' %}?v=5" rel="stylesheet">
@@ -112,6 +112,27 @@
                                 <div class="notification-list" style="max-height: 350px; overflow-y: auto;">
                                     {% if notifications %}
                                         {% for notification in notifications|slice:":5" %}
+                                            {% if notification.notification_type == 'follow_request' %}
+                                            <div class="notification-item p-3 border-bottom {% if not notification.is_read %}bg-light{% endif %}"
+                                                 data-id="{{ notification.id }}"
+                                                 data-type="follow_request"
+                                                 data-username="{{ notification.sender.username }}"
+                                                 data-link="{{ notification.link }}">
+                                                <div class="d-flex">
+                                                    <img src="{{ notification.sender.get_avatar_url }}" class="rounded-circle me-2" width="40" height="40" alt="{{ notification.sender.username }}">
+                                                    <div class="flex-grow-1">
+                                                        <p class="mb-1">{{ notification.text }}</p>
+                                                        <small class="text-muted">{% blocktrans with time=notification.created_at|timesince %}{{ time }} trước{% endblocktrans %}</small>
+                                                        <div class="d-flex gap-2 follow-request-actions mt-2">
+                                                            <button type="button" class="btn btn-sm btn-primary accept-follow-request"
+                                                                    data-username="{{ notification.sender.username }}">{% trans "Xác nhận" %}</button>
+                                                            <button type="button" class="btn btn-sm btn-outline-secondary reject-follow-request"
+                                                                    data-username="{{ notification.sender.username }}">{% trans "Từ chối" %}</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {% else %}
                                             <a href="{{ notification.link }}"
                                                class="notification-item p-3 border-bottom text-decoration-none text-body d-block {% if not notification.is_read %}bg-light{% endif %}"
                                                data-id="{{ notification.id }}"
@@ -124,6 +145,7 @@
                                                     </div>
                                                 </div>
                                             </a>
+                                            {% endif %}
                                         {% endfor %}
                                     {% else %}
                                         <div class="p-3 text-center text-muted">
@@ -284,7 +306,8 @@
     <script src="{% static 'js/main.js' %}"></script>
     <script src="{% static 'js/debug_feed.js' %}"></script>
     <script src="{% static 'js/disable_multiple_submissions.js' %}"></script>
-    <script src="{% static 'js/notifications.js' %}?v=chat-unread-1"></script>
+    <script src="{% static 'js/notifications.js' %}?v=chat-toast-1"></script>
+    <script src="{% static 'js/follow_requests.js' %}?v=1"></script>
     <script src="{% static 'js/media_lightbox.js' %}?v=7"></script>
     
     {% block extra_js %}{% endblock %}

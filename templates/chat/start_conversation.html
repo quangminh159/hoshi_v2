@@ -58,6 +58,8 @@
 
 {% block extra_js %}
 <script>
+  document.querySelector('.mobile-bottom-nav__item[data-nav="messages"]')?.classList.add('is-active');
+
   document.getElementById('userSearch')?.addEventListener('input', function () {
     const q = this.value.trim().toLowerCase();
     document.querySelectorAll('.user-card').forEach((card) => {

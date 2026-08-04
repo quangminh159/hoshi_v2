@@ -25,7 +25,7 @@ from .forms import (
     ContactOtpVerifyForm,
     LanguageSettingsForm,
 )
-from .models import Device, DataDownloadRequest, UserFollowing, UserBlock, UserReport
+from .models import Device, DataDownloadRequest, UserFollowing, UserBlock, UserReport, FollowRequest
 import pyotp
 import qrcode
 import base64
@@ -63,6 +63,12 @@ def profile(request, username):
             following_user=user
         ).exists()
 
+    follow_request_sent = False
+    if request.user.is_authenticated and not is_own_profile and not is_following:
+        follow_request_sent = FollowRequest.pending_exists(request.user, user)
+
+    can_view_posts = user.posts_visible_to(request.user)
+
     context = {
         'profile_user': user,
         'is_own_profile': is_own_profile,
@@ -72,6 +78,9 @@ def profile(request, username):
         'following_count': user.get_following_count(),
         'posts_count': Post.objects.filter(author=user).count(),
         'is_following': is_following,
+        'follow_request_sent': follow_request_sent,
+        'can_view_posts': can_view_posts,
+        'is_private_account': user.is_account_private(),
         'profile_tab': 'saved' if is_saved_posts else ('shared' if is_shared_posts else 'posts'),
     }
 
@@ -602,6 +611,15 @@ def api_load_profile_posts(request, username):
             'posts': [],
             'has_next': False
         })
+
+    if not user.posts_visible_to(request.user):
+        return JsonResponse({
+            'status': 'private',
+            'message': 'Tài khoản này ở chế độ riêng tư. Hãy theo dõi để xem bài viết.',
+            'posts': [],
+            'has_next': False,
+            'is_private': True,
+        })
     
     # Xác định loại bài viết cần lấy dựa vào tab
     if tab == 'saved' and request.user == user:
@@ -673,13 +691,15 @@ def block_user(request, user_id):
                 user=request.user,
                 following_user=user_to_block
             ).delete()
-            
+
             # Nếu người dùng này đang theo dõi mình, xóa theo dõi
             UserFollowing.objects.filter(
                 user=user_to_block,
                 following_user=request.user
             ).delete()
-            
+
+            FollowRequest.delete_between(request.user, user_to_block)
+
             # Xử lý phòng chat tùy theo lựa chọn của người dùng
             from chat.models import ChatRoom
             one_to_one_rooms = ChatRoom.objects.filter(

@@ -64,6 +64,7 @@ def serialize_chat_message(message, user=None):
         'content': message.content or '',
         'sender_id': sender.id,
         'sender_username': sender.username,
+        'sender_avatar': sender.get_avatar_url() if hasattr(sender, 'get_avatar_url') else None,
         'created_at': message.created_at.isoformat(),
         'has_attachment': has_attachment,
         'attachment_type': attachment_type,

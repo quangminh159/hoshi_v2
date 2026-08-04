@@ -197,6 +197,17 @@ def feed(request):
     }
     return render(request, 'posts/feed.html', context)
 
+def _deny_private_post_access(request, post, as_json=False):
+    """Chặn tương tác với bài của tài khoản riêng tư nếu chưa theo dõi."""
+    if post.author.posts_visible_to(request.user):
+        return None
+    message = 'Bài viết này thuộc tài khoản riêng tư. Hãy theo dõi để xem.'
+    if as_json:
+        return JsonResponse({'status': 'error', 'message': message}, status=403)
+    messages.error(request, message)
+    return redirect('posts:feed')
+
+
 @login_required
 def post_detail(request, post_id):
     """Hiển thị chi tiết bài viết"""
@@ -206,6 +217,10 @@ def post_detail(request, post_id):
     if UserBlock.objects.filter(blocker=post.author, blocked=request.user).exists():
         messages.error(request, 'Bạn không thể xem bài viết này vì tác giả đã chặn bạn.')
         return redirect('posts:feed')
+
+    denied = _deny_private_post_access(request, post)
+    if denied:
+        return denied
     
     # Lấy tất cả comments của bài viết và phân loại
     root_comments = Comment.objects.filter(post=post, parent=None).order_by('created_at')
@@ -519,6 +534,10 @@ def like_post(request, post_id):
                 'status': 'error',
                 'message': 'Bạn không thể thích bài viết này.'
             })
+
+        denied = _deny_private_post_access(request, post, as_json=True)
+        if denied:
+            return denied
             
         if post.likes.filter(id=request.user.id).exists():
             # Nếu người dùng đã thích, bỏ thích
@@ -560,6 +579,9 @@ def save_post(request, post_id):
         return JsonResponse({'error': 'Method not allowed'}, status=405)
     
     post = get_object_or_404(Post, id=post_id)
+    denied = _deny_private_post_access(request, post, as_json=True)
+    if denied:
+        return denied
     saved, created = SavedPost.objects.get_or_create(
         user=request.user,
         post=post
@@ -580,6 +602,12 @@ def add_comment(request, post_id):
     from .comment_media import validate_comment_image, validate_comment_video
 
     post = get_object_or_404(Post, id=post_id)
+
+    denied = _deny_private_post_access(
+        request, post, as_json=request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    )
+    if denied:
+        return denied
 
     text = (request.POST.get('text') or '').strip()
     parent_id = request.POST.get('parent_id')
@@ -948,6 +976,13 @@ def search(request):
     blocked_by_users = UserBlock.objects.filter(blocked=request.user).values_list('blocker_id', flat=True)
     posts = posts.exclude(author_id__in=blocked_by_users)
 
+    following_ids = request.user.get_following_user_ids()
+    posts = posts.exclude(
+        Q(author__private_account=True)
+        & ~Q(author_id__in=following_ids)
+        & ~Q(author=request.user)
+    )
+
     users = (
         User.objects.filter(username__icontains=query)
         | User.objects.filter(first_name__icontains=query)
@@ -1128,6 +1163,9 @@ def build_feed_comments_data(post, user, limit=FEED_COMMENTS_PREVIEW, offset=0):
 def feed_comments_json(request, post_id):
     """Load paginated root comments for feed (session auth, no API router conflict)."""
     post = get_object_or_404(Post, pk=post_id)
+    denied = _deny_private_post_access(request, post, as_json=True)
+    if denied:
+        return denied
     try:
         offset = max(0, int(request.GET.get('offset', 0)))
         limit = min(50, max(1, int(request.GET.get('limit', FEED_COMMENTS_PAGE_SIZE))))

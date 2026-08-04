@@ -1378,16 +1378,27 @@ body {
         margin-top: 0 !important;
     }
 
-    /* An thanh task duoi khi dang o phan tin nhan (sau rule chung de khong bi ghi de) */
-    body.user-authenticated.chat-layout .mobile-bottom-nav,
+    /* Chỉ ẩn bottom nav trong khung chat chi tiết (có ô nhập tin) */
     body.user-authenticated.chat-detail-layout .mobile-bottom-nav,
-    body.user-authenticated:has(.chat-page) .mobile-bottom-nav {
+    body.user-authenticated:has(.chat-shell--detail) .mobile-bottom-nav {
         display: none !important;
     }
 
-    body.user-authenticated.chat-layout .site-main,
     body.user-authenticated.chat-detail-layout .site-main,
-    body.user-authenticated:has(.chat-page) .site-main {
+    body.user-authenticated:has(.chat-shell--detail) .site-main {
         padding-bottom: 0 !important;
+    }
+
+    /* Danh sách tin nhắn: hiện thanh task như các trang khác */
+    body.user-authenticated.chat-layout:not(.chat-detail-layout):not(:has(.chat-shell--detail)) .mobile-bottom-nav {
+        display: flex !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+        height: 60px !important;
+        overflow: visible !important;
+    }
+
+    body.user-authenticated.chat-layout:not(.chat-detail-layout):not(:has(.chat-shell--detail)) .site-main {
+        padding-bottom: 72px !important;
     }
 } 

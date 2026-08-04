@@ -175,6 +175,27 @@ class User(AbstractUser):
             return False
         return True
 
+    def is_account_private(self):
+        """True when the account restricts posts to followers."""
+        return bool(self.private_account or self.is_private)
+
+    def posts_visible_to(self, viewer):
+        """
+        Whether viewer may see this user's posts and follow lists.
+        Public accounts: anyone. Private: owner or followers only.
+        """
+        if viewer is not None and getattr(viewer, 'is_authenticated', False) and viewer == self:
+            return True
+        if not self.is_account_private():
+            return True
+        if not viewer or not getattr(viewer, 'is_authenticated', False):
+            return False
+        return viewer.is_following_user(self)
+
+    def follow_lists_visible_to(self, viewer):
+        """Same visibility rules as posts for followers/following lists."""
+        return self.posts_visible_to(viewer)
+
     def save(self, *args, **kwargs):
         # Keep dual privacy flags in sync whenever either may have changed
         if self.is_private != self.private_account:
@@ -363,6 +384,58 @@ class UserFollowing(models.Model):
     
     def __str__(self):
         return f"{self.user} follows {self.following_user}"
+
+
+class FollowRequest(models.Model):
+    """Pending follow request for private accounts (must be accepted by target)."""
+    from_user = models.ForeignKey(
+        User,
+        related_name='sent_follow_requests',
+        on_delete=models.CASCADE,
+    )
+    to_user = models.ForeignKey(
+        User,
+        related_name='received_follow_requests',
+        on_delete=models.CASCADE,
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('from_user', 'to_user')
+        ordering = ['-created_at']
+        verbose_name = _('follow request')
+        verbose_name_plural = _('follow requests')
+
+    def __str__(self):
+        return f"{self.from_user} → {self.to_user}"
+
+    @classmethod
+    def pending_exists(cls, from_user, to_user):
+        if not from_user or not to_user:
+            return False
+        return cls.objects.filter(from_user=from_user, to_user=to_user).exists()
+
+    @classmethod
+    def delete_between(cls, user_a, user_b):
+        """Remove pending requests in either direction between two users."""
+        cls.objects.filter(
+            models.Q(from_user=user_a, to_user=user_b)
+            | models.Q(from_user=user_b, to_user=user_a)
+        ).delete()
+
+    def accept(self):
+        """Approve request: create follow edge and remove this request."""
+        from_user = self.from_user
+        to_user = self.to_user
+        follow, _ = UserFollowing.objects.get_or_create(
+            user=from_user,
+            following_user=to_user,
+        )
+        self.delete()
+        return follow
+
+    def reject(self):
+        self.delete()
 
 class UserBlock(models.Model):
     blocker = models.ForeignKey(User,

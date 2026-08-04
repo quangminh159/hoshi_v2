@@ -496,13 +496,24 @@
         }
       }
       else if (data.type === 'history') {
-        // Xóa tất cả tin nhắn hiện tại
-        chatMessages.innerHTML = '';
-        
-        // Hiển thị lịch sử tin nhắn
-        data.messages.forEach(message => {
-          displayMessage(message);
-        });
+        // Không xóa tin đã hiện (tránh race: gửi tin trước khi history về sẽ bị mất)
+        const existingIds = new Set(
+          Array.from(chatMessages.querySelectorAll('.message[data-message-id]'))
+            .map((el) => String(el.dataset.messageId))
+        );
+
+        if (existingIds.size === 0) {
+          chatMessages.innerHTML = '';
+          data.messages.forEach(message => {
+            displayMessage(message);
+          });
+        } else {
+          data.messages.forEach(message => {
+            if (message.id && !existingIds.has(String(message.id))) {
+              displayMessage(message);
+            }
+          });
+        }
         
         // Cuộn xuống tin nhắn mới nhất
         chatMessages.scrollTop = chatMessages.scrollHeight;

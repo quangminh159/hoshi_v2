@@ -7,7 +7,7 @@
 {% block body_class %} chat-layout{% endblock %}
 
 {% block extra_css %}
-<link href="{% static 'css/chat.css' %}?v=chat-unread-1" rel="stylesheet">
+<link href="{% static 'css/chat.css' %}?v=chat-nav-1" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -39,18 +39,19 @@
     <div class="conversation-list" id="conversationList">
       {% if conversations %}
         {% for conversation in conversations %}
-          {% with other_user=conversation.get_other_participant user=request.user %}
-          <div class="conversation-wrapper{% if conversation.unread_count %} has-unread{% endif %}" id="conversation-{{ conversation.id }}" data-username="{{ other_user.username|lower }}" data-unread="{{ conversation.unread_count|default:0 }}">
+          {% with other_user=conversation.other_user %}
+          <div class="conversation-wrapper{% if conversation.unread_count %} has-unread{% endif %}" id="conversation-{{ conversation.id }}" data-username="{% if other_user %}{{ other_user.username|lower }}{% endif %}" data-unread="{{ conversation.unread_count|default:0 }}">
             <a href="{% url 'chat:conversation_detail' conversation.id %}" class="conversation-item">
               <div class="conversation-avatar">
-                <img src="{{ other_user.get_avatar_url }}" alt="{{ other_user.username }}">
+                <img src="{% if other_user %}{{ other_user.get_avatar_url }}{% else %}/static/img/default-avatar.png{% endif %}"
+                     alt="{% if other_user %}{{ other_user.username }}{% else %}Chat{% endif %}">
                 {% if conversation.unread_count %}
                 <span class="conversation-unread-dot" aria-hidden="true"></span>
                 {% endif %}
               </div>
               <div class="conversation-info">
                 <div class="conversation-name">
-                  <span class="{% if conversation.unread_count %}fw-bold{% endif %}">{{ other_user.username }}</span>
+                  <span class="{% if conversation.unread_count %}fw-bold{% endif %}">{% if other_user %}{{ other_user.username }}{% else %}{% trans "Cuộc trò chuyện" %}{% endif %}</span>
                   <span class="conversation-time">
                     {% if conversation.last_message_time %}
                       {{ conversation.last_message_time|date:"H:i" }}
@@ -136,8 +137,10 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/chat_list.js' %}?v=inbox-1"></script>
+<script src="{% static 'js/chat_list.js' %}?v=inbox-event-1"></script>
 <script>
+  document.querySelector('.mobile-bottom-nav__item[data-nav="messages"]')?.classList.add('is-active');
+
   let conversationToDelete = null;
 
   function deleteConversation(conversationId, event) {

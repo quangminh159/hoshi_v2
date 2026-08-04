@@ -7,7 +7,7 @@ from django.urls import path
 from django.template.response import TemplateResponse
 from django.shortcuts import render
 from django import forms
-from .models import User, UserFollowing, UserBlock, Device, DataDownloadRequest, UserReport
+from .models import User, UserFollowing, UserBlock, Device, DataDownloadRequest, UserReport, FollowRequest
 
 # Register your models here.
 
@@ -497,6 +497,12 @@ class UserReportAdmin(admin.ModelAdmin):
 class UserFollowingAdmin(admin.ModelAdmin):
     list_display = ('user', 'following_user', 'created_at')
     search_fields = ('user__username', 'following_user__username')
+
+@admin.register(FollowRequest)
+class FollowRequestAdmin(admin.ModelAdmin):
+    list_display = ('from_user', 'to_user', 'created_at')
+    search_fields = ('from_user__username', 'to_user__username')
+    ordering = ('-created_at',)
 
 @admin.register(UserBlock)
 class UserBlockAdmin(admin.ModelAdmin):

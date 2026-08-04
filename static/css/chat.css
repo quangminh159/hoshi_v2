@@ -1636,11 +1636,11 @@ body:has(.chat-shell--detail) .chat-container {
    Responsive
    ============================================================ */
 
-/* Trong cuộc trò chuyện: ẩn bottom nav để không che ô nhập tin */
+/* Trong khung chat chi tiết: ẩn bottom nav để không che ô nhập tin.
+   Danh sách tin nhắn vẫn hiện thanh taskbar. */
 @media (max-width: 991.98px) {
-    body.chat-layout .mobile-bottom-nav,
     body.chat-detail-layout .mobile-bottom-nav,
-    body:has(.chat-page) .mobile-bottom-nav {
+    body:has(.chat-shell--detail) .mobile-bottom-nav {
         display: none !important;
         visibility: hidden !important;
         pointer-events: none !important;
@@ -1648,10 +1648,21 @@ body:has(.chat-shell--detail) .chat-container {
         overflow: hidden !important;
     }
 
-    body.chat-layout.user-authenticated .site-main,
     body.chat-detail-layout.user-authenticated .site-main,
-    body.user-authenticated:has(.chat-page) .site-main {
+    body.user-authenticated:has(.chat-shell--detail) .site-main {
         padding-bottom: 0 !important;
+    }
+
+    body.chat-layout:not(.chat-detail-layout):not(:has(.chat-shell--detail)) .mobile-bottom-nav {
+        display: flex !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+        height: 60px !important;
+        overflow: visible !important;
+    }
+
+    body.chat-layout.user-authenticated:not(.chat-detail-layout):not(:has(.chat-shell--detail)) .site-main {
+        padding-bottom: 72px !important;
     }
 
     body.chat-detail-layout:has(.chat-shell--detail),

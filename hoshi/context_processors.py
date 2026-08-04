@@ -1,17 +1,21 @@
 from notifications.models import Notification
 
+# Tin nhắn dùng badge Chat riêng — không lẫn vào feed Thông báo
+_EXCLUDE_FROM_ACTIVITY = ('message',)
+
 
 def common_variables(request):
     context = {}
 
     if request.user.is_authenticated:
-        notification_count = Notification.objects.filter(
-            recipient=request.user, is_read=False
-        ).count()
+        activity_qs = Notification.objects.filter(
+            recipient=request.user,
+        ).exclude(
+            notification_type__in=_EXCLUDE_FROM_ACTIVITY,
+        )
 
-        notifications = Notification.objects.filter(
-            recipient=request.user
-        ).order_by('-created_at')[:5]
+        notification_count = activity_qs.filter(is_read=False).count()
+        notifications = activity_qs.order_by('-created_at')[:5]
 
         from chat.unread import get_unread_message_count
         unread_message_count = get_unread_message_count(request.user)

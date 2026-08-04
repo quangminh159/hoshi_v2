@@ -58,25 +58,35 @@ class UserViewSet(viewsets.ModelViewSet):
     def follow(self, request, pk=None):
         user_to_follow = self.get_object()
         
-        # Không cho phép follow chính mình
         if user_to_follow == request.user:
             return Response(
                 {'error': 'Bạn không thể theo dõi chính mình'}, 
                 status=status.HTTP_400_BAD_REQUEST
             )
-            
-        # Kiểm tra xem đã follow chưa
-        follow_relationship, created = UserFollowing.objects.get_or_create(
+
+        existing = UserFollowing.objects.filter(
             user=request.user,
-            following_user=user_to_follow
-        )
-        
-        if not created:
-            # Đã follow trước đó, xóa mối quan hệ (unfollow)
-            follow_relationship.delete()
+            following_user=user_to_follow,
+        ).first()
+        if existing:
+            existing.delete()
             return Response({'status': 'unfollowed'})
-            
-        # Cập nhật số lượng follower
+
+        from .models import FollowRequest
+        from .follow_requests import create_follow_request, cancel_follow_request
+
+        if FollowRequest.pending_exists(request.user, user_to_follow):
+            cancel_follow_request(request.user, user_to_follow)
+            return Response({'status': 'request_cancelled'})
+
+        if user_to_follow.is_account_private():
+            create_follow_request(request.user, user_to_follow)
+            return Response({'status': 'requested'})
+
+        UserFollowing.objects.create(
+            user=request.user,
+            following_user=user_to_follow,
+        )
         return Response({'status': 'following'})
 
 @api_view(['POST'])
@@ -86,25 +96,35 @@ def follow_user(request, username, *args, **kwargs):
     try:
         user_to_follow = User.objects.get(username=username)
         
-        # Không cho phép follow chính mình
         if user_to_follow == request.user:
             return Response(
                 {'error': 'Bạn không thể theo dõi chính mình'}, 
                 status=status.HTTP_400_BAD_REQUEST
             )
-            
-        # Kiểm tra xem đã follow chưa
-        follow_relationship, created = UserFollowing.objects.get_or_create(
+
+        existing = UserFollowing.objects.filter(
             user=request.user,
-            following_user=user_to_follow
-        )
-        
-        if not created:
-            # Đã follow trước đó, xóa mối quan hệ (unfollow)
-            follow_relationship.delete()
+            following_user=user_to_follow,
+        ).first()
+        if existing:
+            existing.delete()
             return Response({'status': 'unfollowed'})
-            
-        # Đã follow thành công
+
+        from .models import FollowRequest
+        from .follow_requests import create_follow_request, cancel_follow_request
+
+        if FollowRequest.pending_exists(request.user, user_to_follow):
+            cancel_follow_request(request.user, user_to_follow)
+            return Response({'status': 'request_cancelled'})
+
+        if user_to_follow.is_account_private():
+            create_follow_request(request.user, user_to_follow)
+            return Response({'status': 'requested'})
+
+        UserFollowing.objects.create(
+            user=request.user,
+            following_user=user_to_follow,
+        )
         return Response({'status': 'following'})
         
     except User.DoesNotExist:

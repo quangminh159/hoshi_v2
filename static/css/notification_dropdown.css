@@ -30,6 +30,18 @@
     transform: translate(-50%, -50%) !important;
 }
 
+/* Toast nổi — nằm trên thanh task mobile */
+.hoshi-toast-container {
+    bottom: 0;
+    z-index: 1080;
+}
+
+@media (max-width: 991.98px) {
+    body.user-authenticated .hoshi-toast-container {
+        bottom: 68px;
+    }
+}
+
 .notification-list::-webkit-scrollbar {
     width: 6px;
 }
@@ -79,5 +91,20 @@
 
 .notification-item.new-notification {
     animation: notification-pulse 1s ease;
+}
+
+#notifications-list .list-group-item.new-notification {
+    animation: notification-slide-in 0.35s ease;
+}
+
+@keyframes notification-slide-in {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 

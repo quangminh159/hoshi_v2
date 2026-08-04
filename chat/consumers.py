@@ -211,16 +211,39 @@ class ChatConsumer(AsyncWebsocketConsumer):
     # Database helper methods
     async def notify_inboxes(self, payload):
         """Đẩy tin nhắn tới inbox realtime của từng người trong cuộc trò chuyện."""
-        participant_ids = await self.get_participant_ids()
-        for uid in participant_ids:
+        rows = await self.get_inbox_targets()
+        for row in rows:
             await self.channel_layer.group_send(
-                f'chat_inbox_{uid}',
+                f'chat_inbox_{row["user_id"]}',
                 {
                     'type': 'inbox_message',
                     'conversation_id': int(self.conversation_id),
                     'message': payload,
+                    'other_user': row.get('other_user'),
                 },
             )
+
+    @database_sync_to_async
+    def get_inbox_targets(self):
+        try:
+            conversation = Conversation.objects.prefetch_related('participants').get(
+                id=self.conversation_id
+            )
+        except Conversation.DoesNotExist:
+            return []
+        participants = list(conversation.participants.all())
+        rows = []
+        for participant in participants:
+            other = next((u for u in participants if u.id != participant.id), None)
+            other_payload = None
+            if other:
+                other_payload = {
+                    'id': other.id,
+                    'username': other.username,
+                    'avatar_url': other.get_avatar_url(),
+                }
+            rows.append({'user_id': participant.id, 'other_user': other_payload})
+        return rows
 
     @database_sync_to_async
     def get_participant_ids(self):
@@ -588,4 +611,5 @@ class ChatInboxConsumer(AsyncWebsocketConsumer):
             'type': 'inbox_message',
             'conversation_id': event.get('conversation_id'),
             'message': event.get('message'),
+            'other_user': event.get('other_user'),
         }))

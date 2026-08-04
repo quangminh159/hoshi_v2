@@ -10,7 +10,11 @@ class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
-        return Notification.objects.filter(recipient=self.request.user)
+        return Notification.objects.filter(
+            recipient=self.request.user,
+        ).exclude(
+            notification_type='message',
+        )
     
     @action(detail=False, methods=['post'])
     def mark_all_read(self, request):
@@ -26,4 +30,4 @@ class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
     @action(detail=False, methods=['get'])
     def unread_count(self, request):
         count = self.get_queryset().filter(is_read=False).count()
-        return Response({'count': count}) 
+        return Response({'count': count})

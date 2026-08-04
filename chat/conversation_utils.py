@@ -70,20 +70,31 @@ def broadcast_chat_message(conversation_id, message_data):
         pass
 
     try:
-        participant_ids = list(
-            Conversation.objects.filter(id=conversation_id).values_list(
-                'participants__id', flat=True
-            )
+        conversation = (
+            Conversation.objects.filter(id=conversation_id)
+            .prefetch_related('participants')
+            .first()
         )
-        for uid in participant_ids:
-            if not uid:
-                continue
+        if not conversation:
+            return
+
+        participants = list(conversation.participants.all())
+        for participant in participants:
+            other = next((u for u in participants if u.id != participant.id), None)
+            other_payload = None
+            if other:
+                other_payload = {
+                    'id': other.id,
+                    'username': other.username,
+                    'avatar_url': other.get_avatar_url(),
+                }
             async_to_sync(channel_layer.group_send)(
-                f'chat_inbox_{uid}',
+                f'chat_inbox_{participant.id}',
                 {
                     'type': 'inbox_message',
                     'conversation_id': int(conversation_id),
                     'message': message_data,
+                    'other_user': other_payload,
                 },
             )
     except Exception:

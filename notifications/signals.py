@@ -25,7 +25,9 @@ def send_notification_to_websocket(notification):
 
         unread_count = Notification.objects.filter(
             recipient=recipient,
-            is_read=False
+            is_read=False,
+        ).exclude(
+            notification_type='message',
         ).count()
 
         conversation_id = notification.conversation_id
@@ -122,21 +124,8 @@ def create_mention_notification(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=ConversationMessage)
 def create_conversation_message_notification(sender, instance, created, **kwargs):
-    if not created or not instance.conversation_id or not instance.sender_id:
-        return
-
-    for participant in instance.conversation.participants.exclude(id=instance.sender_id):
-        if not _pref_enabled(participant, 'message_notifications'):
-            continue
-
-        notification = Notification.objects.create(
-            recipient=participant,
-            sender=instance.sender,
-            notification_type='message',
-            conversation=instance.conversation,
-            text=f'{instance.sender.username} đã gửi tin nhắn cho bạn'
-        )
-        send_notification_to_websocket(notification)
+    # Tin nhắn chỉ hiện ở mục Chat (unread badge), không đẩy vào trang Thông báo.
+    return
 
 
 @receiver(post_save, sender=UserFollowing)

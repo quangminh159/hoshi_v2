@@ -5,8 +5,15 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 from . import api
-from .models import UserFollowing, UserBlock
+from .models import UserFollowing, UserBlock, FollowRequest
+from .follow_requests import (
+    create_follow_request,
+    cancel_follow_request,
+    accept_follow_request,
+    reject_follow_request,
+)
 
 router = DefaultRouter()
 router.register(r'users', api.UserViewSet)
@@ -16,22 +23,19 @@ router.register(r'data-requests', api.DataDownloadRequestViewSet, basename='data
 User = get_user_model()
 
 class FollowUserView(APIView):
-    """API để theo dõi một người dùng"""
+    """API theo dõi — tài khoản riêng tư thì gửi yêu cầu chờ duyệt."""
     permission_classes = [IsAuthenticated]
     
     def post(self, request, username):
         try:
             user_to_follow = User.objects.get(username=username)
             
-            # Không cho phép follow chính mình
             if user_to_follow == request.user:
                 return Response(
                     {'error': 'Bạn không thể theo dõi chính mình'}, 
                     status=status.HTTP_400_BAD_REQUEST
                 )
                 
-            # Không theo dõi khi còn chặn hoặc bị chặn
-            from django.db.models import Q
             if UserBlock.objects.filter(
                 Q(blocker=request.user, blocked=user_to_follow)
                 | Q(blocker=user_to_follow, blocked=request.user)
@@ -41,28 +45,41 @@ class FollowUserView(APIView):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
-            # Kiểm tra xem đã follow chưa
             existing_follow = UserFollowing.objects.filter(
                 user=request.user,
                 following_user=user_to_follow
             ).exists()
             
             if existing_follow:
-                # Đã follow trước đó, trả về thông báo lỗi
                 return Response({
                     'error': 'Bạn đã theo dõi người dùng này rồi',
                     'status': 'already_following',
                     'followers_count': user_to_follow.get_followers_count(),
                     'following_count': request.user.get_following_count()
                 }, status=status.HTTP_400_BAD_REQUEST)
+
+            if FollowRequest.pending_exists(request.user, user_to_follow):
+                return Response({
+                    'status': 'already_requested',
+                    'followers_count': user_to_follow.get_followers_count(),
+                    'following_count': request.user.get_following_count(),
+                })
+
+            if user_to_follow.is_account_private():
+                create_follow_request(request.user, user_to_follow)
+                return Response({
+                    'status': 'requested',
+                    'followers_count': user_to_follow.get_followers_count(),
+                    'following_count': request.user.get_following_count(),
+                    'user_id': user_to_follow.id,
+                    'follower_id': request.user.id,
+                })
                 
-            # Chưa follow, tạo mối quan hệ mới
             follow_relationship = UserFollowing.objects.create(
                 user=request.user,
                 following_user=user_to_follow
             )
                 
-            # Đã follow thành công
             return Response({
                 'status': 'following',
                 'followers_count': user_to_follow.get_followers_count(),
@@ -79,24 +96,20 @@ class FollowUserView(APIView):
             )
 
 class UnfollowUserView(APIView):
-    """API để hủy theo dõi một người dùng"""
+    """Hủy theo dõi hoặc hủy yêu cầu theo dõi đang chờ."""
     permission_classes = [IsAuthenticated]
     
     def post(self, request, username):
         try:
             user_to_unfollow = User.objects.get(username=username)
             
-            # Kiểm tra xem có đang follow không
             try:
                 follow_relationship = UserFollowing.objects.get(
                     user=request.user,
                     following_user=user_to_unfollow
                 )
-                
-                # Xóa mối quan hệ (unfollow)
                 follow_relationship.delete()
                 
-                # Trả về thông tin sau khi unfollow
                 return Response({
                     'status': 'unfollowed',
                     'followers_count': user_to_unfollow.get_followers_count(),
@@ -106,7 +119,14 @@ class UnfollowUserView(APIView):
                 })
                 
             except UserFollowing.DoesNotExist:
-                # Chưa follow, trả về lỗi
+                if cancel_follow_request(request.user, user_to_unfollow):
+                    return Response({
+                        'status': 'request_cancelled',
+                        'followers_count': user_to_unfollow.get_followers_count(),
+                        'following_count': request.user.get_following_count(),
+                        'user_id': user_to_unfollow.id,
+                        'follower_id': request.user.id,
+                    })
                 return Response({
                     'error': 'Bạn chưa theo dõi người dùng này',
                     'status': 'not_following',
@@ -118,12 +138,64 @@ class UnfollowUserView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
+
+class AcceptFollowRequestView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, username):
+        try:
+            from_user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response({'error': 'Không tìm thấy người dùng'}, status=status.HTTP_404_NOT_FOUND)
+
+        follow = accept_follow_request(request.user, from_user)
+        if not follow:
+            return Response(
+                {'error': 'Không có yêu cầu theo dõi từ người dùng này', 'status': 'not_found'},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        return Response({
+            'status': 'accepted',
+            'followers_count': request.user.get_followers_count(),
+            'username': from_user.username,
+        })
+
+
+class RejectFollowRequestView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, username):
+        try:
+            from_user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response({'error': 'Không tìm thấy người dùng'}, status=status.HTTP_404_NOT_FOUND)
+
+        if not reject_follow_request(request.user, from_user):
+            return Response(
+                {'error': 'Không có yêu cầu theo dõi từ người dùng này', 'status': 'not_found'},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        return Response({
+            'status': 'rejected',
+            'username': from_user.username,
+        })
+
 class UserFollowersView(APIView):
     """API để lấy danh sách người theo dõi của một người dùng"""
     
     def get(self, request, username):
         try:
             user = User.objects.get(username=username)
+
+            if not user.follow_lists_visible_to(request.user):
+                return Response(
+                    {
+                        'error': 'Tài khoản riêng tư. Hãy theo dõi để xem danh sách người theo dõi.',
+                        'is_private': True,
+                        'followers': [],
+                    },
+                    status=status.HTTP_403_FORBIDDEN,
+                )
             
             # Lấy danh sách người theo dõi (followers)
             # Đây là những người đang theo dõi user này
@@ -162,6 +234,16 @@ class UserFollowingView(APIView):
     def get(self, request, username):
         try:
             user = User.objects.get(username=username)
+
+            if not user.follow_lists_visible_to(request.user):
+                return Response(
+                    {
+                        'error': 'Tài khoản riêng tư. Hãy theo dõi để xem danh sách đang theo dõi.',
+                        'is_private': True,
+                        'following': [],
+                    },
+                    status=status.HTTP_403_FORBIDDEN,
+                )
             
             # Lấy danh sách đang theo dõi (following)
             # Đây là những người mà user đang theo dõi
@@ -200,6 +282,8 @@ urlpatterns = [
     path('', include(router.urls)),
     path('follow/<str:username>/', FollowUserView.as_view(), name='follow_user'),
     path('unfollow/<str:username>/', UnfollowUserView.as_view(), name='unfollow_user'),
+    path('follow-requests/<str:username>/accept/', AcceptFollowRequestView.as_view(), name='accept_follow_request'),
+    path('follow-requests/<str:username>/reject/', RejectFollowRequestView.as_view(), name='reject_follow_request'),
     path('users/<str:username>/followers/', UserFollowersView.as_view(), name='user_followers'),
     path('users/<str:username>/following/', UserFollowingView.as_view(), name='user_following'),
     path('user-suggestions/', api.user_suggestions, name='user_suggestions'),

@@ -82,15 +82,15 @@ class Conversation(models.Model):
         return f"Conversation between {participants_str}"
     
     def get_other_participant(self, user=None):
-        """Lấy người dùng khác trong cuộc trò chuyện"""
-        if user:
-            return self.participants.exclude(id=user.id).first()
-        else:
-            # Nếu không cung cấp người dùng, trả về người dùng khác so với người đầu tiên
-            first_user = self.participants.first()
-            if first_user:
-                return self.participants.exclude(id=first_user.id).first()
+        """Lấy người tham gia còn lại (không phải `user`)."""
+        qs = self.participants.all()
+        if user is not None:
+            return qs.exclude(id=user.id).first()
+        # Fallback không an toàn nếu không có user — ưu tiên caller luôn truyền user
+        first_user = qs.first()
+        if not first_user:
             return None
+        return qs.exclude(id=first_user.id).first()
     
     def get_last_message(self):
         """Lấy tin nhắn cuối cùng của cuộc trò chuyện"""

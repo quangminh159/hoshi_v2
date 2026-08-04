@@ -80,17 +80,91 @@
         }
     }
 
-    function updateConversationList(conversationId, message, currentUserId) {
+    function updateSubtitleCount() {
+        const subtitle = document.querySelector('.chat-list-subtitle');
+        if (!subtitle) return;
+        const count = document.querySelectorAll('#conversationList .conversation-wrapper').length;
+        subtitle.textContent = count
+            ? `${count} cuộc trò chuyện`
+            : 'Chưa có cuộc trò chuyện nào';
+    }
+
+    function ensureSearchBox() {
+        if (document.getElementById('conversationSearch')) return;
+        const shell = document.querySelector('.chat-shell');
+        const list = document.getElementById('conversationList');
+        if (!shell || !list) return;
+        const box = document.createElement('div');
+        box.className = 'chat-search-box';
+        box.innerHTML = `
+            <i class="fas fa-search"></i>
+            <input type="search" id="conversationSearch" placeholder="Tìm kiếm cuộc trò chuyện..." autocomplete="off">
+        `;
+        shell.insertBefore(box, list);
+        box.querySelector('input')?.addEventListener('input', function () {
+            const term = this.value.toLowerCase().trim();
+            document.querySelectorAll('#conversationList .conversation-wrapper').forEach((wrap) => {
+                const username = (wrap.dataset.username || '').toLowerCase();
+                const preview = (wrap.querySelector('.conversation-last-message')?.textContent || '').toLowerCase();
+                wrap.style.display = (!term || username.includes(term) || preview.includes(term)) ? '' : 'none';
+            });
+        });
+    }
+
+    function createConversationWrapper(conversationId, message, otherUser, currentUserId) {
+        const username = otherUser?.username || message.sender_username || 'user';
+        const avatar = otherUser?.avatar_url || '/static/img/default-avatar.png';
+        const isMine = Number(message.sender_id) === Number(currentUserId);
+        // other_user là người kia trong chat; nếu thiếu payload thì lấy từ sender khi tin đến
+        const displayName = otherUser?.username
+            || (isMine ? 'Cuộc trò chuyện' : (message.sender_username || 'user'));
+        const displayAvatar = otherUser?.avatar_url
+            || (!isMine && message.sender_avatar ? message.sender_avatar : avatar);
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'conversation-wrapper';
+        wrapper.id = `conversation-${conversationId}`;
+        wrapper.dataset.username = String(displayName).toLowerCase();
+        wrapper.dataset.unread = '0';
+        wrapper.innerHTML = `
+            <a href="/chat/conversations/${conversationId}/" class="conversation-item">
+              <div class="conversation-avatar">
+                <img src="${escapeHtml(displayAvatar)}" alt="${escapeHtml(displayName)}">
+              </div>
+              <div class="conversation-info">
+                <div class="conversation-name">
+                  <span>${escapeHtml(displayName)}</span>
+                  <span class="conversation-time">${formatTime(message.created_at)}</span>
+                </div>
+                <div class="conversation-last-message">${formatPreview(message, currentUserId)}</div>
+              </div>
+            </a>
+            <button class="delete-conversation"
+                    onclick="deleteConversation(${conversationId}, event)"
+                    title="Xóa cuộc trò chuyện">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+        `;
+        return wrapper;
+    }
+
+    function updateConversationList(conversationId, message, currentUserId, otherUser) {
         const list = document.getElementById('conversationList');
         if (!list) return;
 
-        const wrapper = document.getElementById(`conversation-${conversationId}`)
+        let wrapper = document.getElementById(`conversation-${conversationId}`)
             || list.querySelector(`.conversation-wrapper a[href*="/conversations/${conversationId}/"]`)?.closest('.conversation-wrapper');
 
         if (!wrapper) {
-            // Cuộc trò chuyện mới chưa có trong DOM — reload nhẹ phần list
-            if (typeof window.refreshChatUnreadCount === 'function') {
-                window.refreshChatUnreadCount();
+            list.querySelector('.no-conversations')?.remove();
+            ensureSearchBox();
+            wrapper = createConversationWrapper(conversationId, message, otherUser, currentUserId);
+            list.insertBefore(wrapper, list.firstChild);
+            updateSubtitleCount();
+
+            const isMine = Number(message.sender_id) === Number(currentUserId);
+            if (!isMine) {
+                setUnread(wrapper, 1);
             }
             return;
         }
@@ -105,41 +179,17 @@
             timeEl.textContent = formatTime(message.created_at);
         }
 
-        // Đưa lên đầu danh sách
         const first = list.querySelector('.conversation-wrapper');
         if (first !== wrapper) {
             list.insertBefore(wrapper, first);
         }
 
+        // Badge tổng do notifications.js refresh; ở đây chỉ cập nhật chấm từng hội thoại
         const isMine = Number(message.sender_id) === Number(currentUserId);
         if (!isMine) {
             const prev = parseInt(wrapper.dataset.unread || '0', 10) || 0;
             setUnread(wrapper, prev + 1);
         }
-
-        if (typeof window.refreshChatUnreadCount === 'function') {
-            window.refreshChatUnreadCount();
-        }
-    }
-
-    function connectInboxSocket(currentUserId) {
-        const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
-        const socket = new WebSocket(`${protocol}${window.location.host}/ws/chat/inbox/`);
-
-        socket.addEventListener('message', (event) => {
-            let data;
-            try {
-                data = JSON.parse(event.data);
-            } catch (_) {
-                return;
-            }
-            if (data.type !== 'inbox_message' || !data.conversation_id || !data.message) return;
-            updateConversationList(data.conversation_id, data.message, currentUserId);
-        });
-
-        socket.addEventListener('close', () => {
-            setTimeout(() => connectInboxSocket(currentUserId), 4000);
-        });
     }
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -158,11 +208,21 @@
 
         const currentUserId = document.body.dataset.userId;
         if (currentUserId && document.getElementById('conversationList')) {
-            connectInboxSocket(currentUserId);
+            // Dùng inbox WS toàn cục từ notifications.js
+            window.addEventListener('hoshi:inbox-message', (event) => {
+                const detail = event.detail || {};
+                if (!detail.conversation_id || !detail.message) return;
+                updateConversationList(
+                    detail.conversation_id,
+                    detail.message,
+                    currentUserId,
+                    detail.other_user || null
+                );
+            });
         }
 
-        window.updateConversationList = function (conversationId, message) {
-            updateConversationList(conversationId, message, currentUserId);
+        window.updateConversationList = function (conversationId, message, otherUser) {
+            updateConversationList(conversationId, message, currentUserId, otherUser || null);
         };
     });
 })();
