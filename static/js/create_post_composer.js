@@ -67,11 +67,11 @@
             allowReorder: true,
             storeAsFile: true,
             allowVideoPreview: true,
-            labelIdle: '<i class="fas fa-cloud-upload-alt fa-2x mb-2 d-block" style="color:#c7c7c7"></i>Kéo thả hoặc <span class="filepond--label-action">chọn file</span>',
+            labelIdle: '<i class="fas fa-cloud-upload-alt mb-1 d-block" style="color:#c7c7c7;font-size:1.25rem"></i>Kéo thả hoặc <span class="filepond--label-action">chọn file</span>',
             labelFileTypeNotAllowed: 'Loại file không được hỗ trợ',
             stylePanelLayout: 'compact',
             styleItemPanelAspectRatio: 1,
-            imagePreviewHeight: 140,
+            imagePreviewHeight: 96,
             beforeAddFile: (item) => {
                 const file = item.file || item;
                 if (!isAllowedFile(file)) {

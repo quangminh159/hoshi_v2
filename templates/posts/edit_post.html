@@ -10,6 +10,7 @@
 <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
 <link href="https://unpkg.com/filepond-plugin-file-poster/dist/filepond-plugin-file-poster.css" rel="stylesheet">
 <link href="https://unpkg.com/filepond-plugin-media-preview/dist/filepond-plugin-media-preview.css" rel="stylesheet">
+<link href="{% static 'css/create_post_composer.css' %}" rel="stylesheet">
 <style>
     .filepond--root {
         max-height: none;
@@ -184,14 +185,26 @@
                         </div>
                         
                         <!-- Location -->
-                        <div class="mb-3">
+                        <div class="mb-3 location-field">
                             <label for="location" class="form-label">Địa điểm</label>
-                            <input type="text" 
-                                   id="location" 
-                                   name="location" 
-                                   class="form-control" 
-                                   value="{{ post.location }}"
-                                   placeholder="Thêm địa điểm">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                                <input type="text"
+                                       id="location"
+                                       name="location"
+                                       class="form-control"
+                                       value="{{ post.location }}"
+                                       autocomplete="off"
+                                       placeholder="Tìm hoặc chọn địa điểm (tùy chọn)">
+                                <button type="button"
+                                        class="btn btn-current-location"
+                                        id="btnCurrentLocation"
+                                        title="Dùng vị trí hiện tại">
+                                    <i class="fas fa-crosshairs"></i>
+                                </button>
+                            </div>
+                            <div id="locationSuggestionBox"></div>
+                            <div class="form-text">Gõ để tìm địa điểm, hoặc dùng nút định vị hiện tại.</div>
                         </div>
                         
                         <!-- Submit Button -->
@@ -255,6 +268,111 @@ document.addEventListener('DOMContentLoaded', function() {
         else if (activeMediaFilter === 'video') input.setAttribute('accept', 'video/*');
         else input.setAttribute('accept', 'image/*,video/*');
     }
+
+    // Location autocomplete + GPS
+    const locationInput = document.getElementById('location');
+    const locationSuggestionBox = document.getElementById('locationSuggestionBox');
+    const btnCurrentLocation = document.getElementById('btnCurrentLocation');
+    const locationSuggestionsUrl = '{% url "posts:location_suggestions" %}';
+    const reverseGeocodeUrl = '{% url "posts:reverse_geocode" %}';
+    let locationTimeout = null;
+
+    function clearLocationSuggestions() {
+        if (locationSuggestionBox) locationSuggestionBox.innerHTML = '';
+    }
+
+    function showLocationSuggestions(items) {
+        clearLocationSuggestions();
+        if (!items.length || !locationSuggestionBox || !locationInput) return;
+
+        const dropdown = document.createElement('div');
+        dropdown.className = 'suggestion-dropdown';
+        items.forEach((item) => {
+            const el = document.createElement('div');
+            el.className = 'suggestion-item location-suggestion-item';
+            const sourceLabel = item.source === 'recent' ? 'Đã dùng gần đây' : 'Địa điểm';
+            el.innerHTML = `
+                <div>
+                    <div>${item.name}</div>
+                    ${item.full_name && item.full_name !== item.name
+                        ? `<div class="location-meta">${item.full_name}</div>`
+                        : `<div class="location-meta">${sourceLabel}</div>`}
+                </div>
+            `;
+            el.addEventListener('click', () => {
+                locationInput.value = item.name;
+                clearLocationSuggestions();
+            });
+            dropdown.appendChild(el);
+        });
+        locationSuggestionBox.appendChild(dropdown);
+    }
+
+    if (locationInput) {
+        locationInput.addEventListener('input', function() {
+            clearTimeout(locationTimeout);
+            const query = this.value.trim();
+            if (query.length < 2) {
+                clearLocationSuggestions();
+                return;
+            }
+            locationTimeout = setTimeout(() => {
+                fetch(`${locationSuggestionsUrl}?q=${encodeURIComponent(query)}`)
+                    .then((r) => r.json())
+                    .then((items) => showLocationSuggestions(items))
+                    .catch(() => clearLocationSuggestions());
+            }, 300);
+        });
+    }
+
+    if (btnCurrentLocation) {
+        btnCurrentLocation.addEventListener('click', function() {
+            if (!navigator.geolocation) {
+                alert('Trình duyệt không hỗ trợ định vị GPS.');
+                return;
+            }
+            const icon = this.querySelector('i');
+            const originalClass = icon.className;
+            icon.className = 'fas fa-spinner fa-spin';
+            this.disabled = true;
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude } = position.coords;
+                    fetch(`${reverseGeocodeUrl}?lat=${latitude}&lon=${longitude}`)
+                        .then((r) => r.json())
+                        .then((data) => {
+                            if (data.error) throw new Error(data.error);
+                            locationInput.value = data.name;
+                            clearLocationSuggestions();
+                        })
+                        .catch((err) => alert(err.message || 'Không thể lấy vị trí hiện tại.'))
+                        .finally(() => {
+                            icon.className = originalClass;
+                            btnCurrentLocation.disabled = false;
+                        });
+                },
+                () => {
+                    alert('Không thể truy cập vị trí. Vui lòng cho phép quyền định vị.');
+                    icon.className = originalClass;
+                    btnCurrentLocation.disabled = false;
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        });
+    }
+
+    document.addEventListener('click', (e) => {
+        if (
+            locationSuggestionBox
+            && !locationSuggestionBox.contains(e.target)
+            && e.target !== locationInput
+            && e.target !== btnCurrentLocation
+            && !(btnCurrentLocation && btnCurrentLocation.contains(e.target))
+        ) {
+            clearLocationSuggestions();
+        }
+    });
 
     const pond = FilePond.create(document.querySelector('input.filepond'), {
         allowMultiple: true,

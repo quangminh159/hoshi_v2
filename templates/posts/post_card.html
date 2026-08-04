@@ -363,72 +363,89 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Xử lý xóa phương tiện
+    // Xử lý xóa phương tiện (toggle đánh dấu xóa)
     document.querySelectorAll('.delete-media-btn').forEach(button => {
+        if (button.dataset.deleteBound === '1') return;
+        button.dataset.deleteBound = '1';
         button.addEventListener('click', function(e) {
             e.preventDefault();
-            const mediaId = this.dataset.mediaId;
             const mediaItem = this.closest('.media-item');
-            
-            if (confirm('{% trans "Bạn có chắc chắn muốn xóa phương tiện này không?" %}')) {
-                mediaItem.classList.add('opacity-50');
+            if (!mediaItem) return;
+            const isDeleted = mediaItem.dataset.deleted === 'true';
+            if (isDeleted) {
+                mediaItem.removeAttribute('data-deleted');
+                mediaItem.classList.remove('opacity-50');
+            } else {
                 mediaItem.dataset.deleted = 'true';
             }
         });
     });
-    
-    // Preview phương tiện mới (ổn định thứ tự, không nhảy)
-    document.querySelectorAll('input[id^="edit-new-media-"]').forEach(input => {
-        input.addEventListener('change', function() {
-            const files = Array.from(this.files || []);
-            const previewContainer = this.parentNode.querySelector('.new-media-preview');
-            if (!previewContainer) return;
 
-            previewContainer.querySelectorAll('[data-object-url]').forEach((el) => {
-                URL.revokeObjectURL(el.dataset.objectUrl);
-            });
-            previewContainer.innerHTML = '';
+    // FilePond cho thêm ảnh/video khi sửa bài
+    const IMAGE_EXT = /\.(jpe?g|png|gif|webp|bmp|heic|heif)$/i;
+    const VIDEO_EXT = /\.(mp4|mov|mkv|webm|avi|m4v|wmv|3gp|3gpp|mpeg|mpg|flv|ts|mts)$/i;
+    window._editPonds = window._editPonds || {};
 
-            files.forEach((file) => {
-                const mediaPreview = document.createElement('div');
-                mediaPreview.className = 'edit-media-thumb position-relative';
-                mediaPreview.style.cssText = 'width:100px;height:100px;flex-shrink:0;overflow:hidden;border-radius:8px;background:#f3f3f3;';
-                const objectUrl = URL.createObjectURL(file);
-                mediaPreview.dataset.objectUrl = objectUrl;
-                mediaPreview.file = file;
+    function isAllowedEditFile(file) {
+        const type = (file.type || '').toLowerCase();
+        const name = (file.name || '').toLowerCase();
+        return type.startsWith('image/') || type.startsWith('video/')
+            || IMAGE_EXT.test(name) || VIDEO_EXT.test(name);
+    }
 
-                if (file.type.startsWith('image/') || /\.(jpe?g|png|gif|webp|bmp)$/i.test(file.name)) {
-                    const img = document.createElement('img');
-                    img.src = objectUrl;
-                    img.alt = file.name;
-                    img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
-                    mediaPreview.appendChild(img);
-                } else {
-                    const video = document.createElement('video');
-                    video.src = objectUrl;
-                    video.muted = true;
-                    video.playsInline = true;
-                    video.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
-                    mediaPreview.appendChild(video);
+    function initEditFilePond(input) {
+        if (!input || typeof FilePond === 'undefined' || input.dataset.pondReady === '1') {
+            return window._editPonds[input && input.dataset.postId];
+        }
+        input.dataset.pondReady = '1';
+        FilePond.registerPlugin(
+            FilePondPluginImageExifOrientation,
+            FilePondPluginImagePreview,
+            FilePondPluginFilePoster,
+            FilePondPluginMediaPreview
+        );
+        const pond = FilePond.create(input, {
+            allowMultiple: true,
+            allowReorder: true,
+            storeAsFile: true,
+            allowVideoPreview: true,
+            labelIdle: '<i class="fas fa-cloud-upload-alt mb-1 d-block" style="color:#c7c7c7;font-size:1.25rem"></i>Kéo thả hoặc <span class="filepond--label-action">chọn ảnh/video</span>',
+            labelFileTypeNotAllowed: '{% trans "Loại file không được hỗ trợ" %}',
+            stylePanelLayout: 'compact',
+            styleItemPanelAspectRatio: 1,
+            imagePreviewHeight: 96,
+            beforeAddFile: (item) => {
+                const file = item.file || item;
+                if (!isAllowedEditFile(file)) {
+                    alert('{% trans "File không được hỗ trợ. Vui lòng chọn ảnh hoặc video." %}');
+                    return false;
                 }
-
-                const removeButton = document.createElement('button');
-                removeButton.type = 'button';
-                removeButton.className = 'btn btn-sm btn-danger position-absolute top-0 end-0';
-                removeButton.innerHTML = '<i class="fas fa-times"></i>';
-                removeButton.addEventListener('click', function() {
-                    URL.revokeObjectURL(objectUrl);
-                    mediaPreview.remove();
-                    mediaPreview.dataset.removed = 'true';
-                });
-                mediaPreview.appendChild(removeButton);
-                previewContainer.appendChild(mediaPreview);
-            });
+                return true;
+            },
         });
+        window._editPonds[input.dataset.postId] = pond;
+        return pond;
+    }
+
+    document.querySelectorAll('.edit-filepond').forEach((input) => {
+        const modal = input.closest('.modal');
+        if (modal) {
+            modal.addEventListener('shown.bs.modal', () => initEditFilePond(input));
+            modal.addEventListener('hidden.bs.modal', () => {
+                const pond = window._editPonds[input.dataset.postId];
+                if (pond) pond.removeFiles();
+                modal.querySelectorAll('.media-item').forEach((item) => {
+                    item.removeAttribute('data-deleted');
+                    item.classList.remove('opacity-50');
+                });
+            });
+        }
     });
     
     // Edit post functionality - Save changes button
     document.querySelectorAll('.save-post-changes').forEach(button => {
+        if (button.dataset.saveBound === '1') return;
+        button.dataset.saveBound = '1';
         button.addEventListener('click', function() {
             const postId = this.dataset.postId;
             
@@ -458,21 +475,12 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             formData.append('deleted_media', JSON.stringify(deletedMedia));
             
-            // Chỉ lấy file từ preview (tránh upload trùng với input)
-            const previewFiles = document.querySelectorAll(`#editPostModal-${postId} .new-media-preview > div`);
-            if (previewFiles.length > 0) {
-                previewFiles.forEach((previewDiv) => {
-                    if (previewDiv.file && previewDiv.dataset.removed !== 'true') {
-                        formData.append('new_media', previewDiv.file);
-                    }
+            // Lấy file từ FilePond
+            const pond = window._editPonds[postId];
+            if (pond) {
+                pond.getFiles().forEach((item) => {
+                    if (item.file) formData.append('new_media', item.file);
                 });
-            } else {
-                const fileInput = document.getElementById(`edit-new-media-${postId}`);
-                if (fileInput && fileInput.files.length > 0) {
-                    for (let i = 0; i < fileInput.files.length; i++) {
-                        formData.append('new_media', fileInput.files[i]);
-                    }
-                }
             }
             
             // Send data to server
@@ -529,6 +537,116 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 alert(error.message || '{% trans "Có lỗi xảy ra khi cập nhật bài viết." %}');
             });
+        });
+    });
+
+    // Gợi ý địa điểm + GPS khi chỉnh sửa bài viết
+    document.querySelectorAll('.edit-location-input').forEach((locationInput) => {
+        if (locationInput.dataset.locationBound === '1') return;
+        locationInput.dataset.locationBound = '1';
+
+        const field = locationInput.closest('.location-field');
+        if (!field) return;
+
+        const suggestionBox = field.querySelector('.edit-location-suggestions');
+        const btnCurrent = field.querySelector('.edit-btn-current-location');
+        const suggestionsUrl = locationInput.dataset.suggestionsUrl;
+        const reverseUrl = locationInput.dataset.reverseUrl;
+        let locationTimeout = null;
+
+        function clearSuggestions() {
+            if (suggestionBox) suggestionBox.innerHTML = '';
+        }
+
+        function showSuggestions(items) {
+            clearSuggestions();
+            if (!items.length || !suggestionBox) return;
+
+            const dropdown = document.createElement('div');
+            dropdown.className = 'suggestion-dropdown';
+            items.forEach((item) => {
+                const el = document.createElement('div');
+                el.className = 'suggestion-item location-suggestion-item';
+                const sourceLabel = item.source === 'recent' ? 'Đã dùng gần đây' : 'Địa điểm';
+                el.innerHTML = `
+                    <div>
+                        <div>${item.name}</div>
+                        ${item.full_name && item.full_name !== item.name
+                            ? `<div class="location-meta">${item.full_name}</div>`
+                            : `<div class="location-meta">${sourceLabel}</div>`}
+                    </div>
+                `;
+                el.addEventListener('click', () => {
+                    locationInput.value = item.name;
+                    clearSuggestions();
+                });
+                dropdown.appendChild(el);
+            });
+            suggestionBox.appendChild(dropdown);
+        }
+
+        locationInput.addEventListener('input', function() {
+            clearTimeout(locationTimeout);
+            const query = this.value.trim();
+            if (query.length < 2) {
+                clearSuggestions();
+                return;
+            }
+            locationTimeout = setTimeout(() => {
+                fetch(`${suggestionsUrl}?q=${encodeURIComponent(query)}`)
+                    .then((r) => r.json())
+                    .then((items) => showSuggestions(items))
+                    .catch(() => clearSuggestions());
+            }, 300);
+        });
+
+        if (btnCurrent) {
+            btnCurrent.addEventListener('click', function() {
+                if (!navigator.geolocation) {
+                    alert('{% trans "Trình duyệt không hỗ trợ định vị GPS." %}');
+                    return;
+                }
+                const icon = this.querySelector('i');
+                const originalClass = icon.className;
+                icon.className = 'fas fa-spinner fa-spin';
+                this.disabled = true;
+
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const { latitude, longitude } = position.coords;
+                        fetch(`${reverseUrl}?lat=${latitude}&lon=${longitude}`)
+                            .then((r) => r.json())
+                            .then((data) => {
+                                if (data.error) throw new Error(data.error);
+                                locationInput.value = data.name;
+                                clearSuggestions();
+                            })
+                            .catch((err) => alert(err.message || '{% trans "Không thể lấy vị trí hiện tại." %}'))
+                            .finally(() => {
+                                icon.className = originalClass;
+                                btnCurrent.disabled = false;
+                            });
+                    },
+                    () => {
+                        alert('{% trans "Không thể truy cập vị trí. Vui lòng cho phép quyền định vị." %}');
+                        icon.className = originalClass;
+                        btnCurrent.disabled = false;
+                    },
+                    { enableHighAccuracy: true, timeout: 10000 }
+                );
+            });
+        }
+
+        document.addEventListener('click', (e) => {
+            if (
+                suggestionBox
+                && !suggestionBox.contains(e.target)
+                && e.target !== locationInput
+                && e.target !== btnCurrent
+                && !(btnCurrent && btnCurrent.contains(e.target))
+            ) {
+                clearSuggestions();
+            }
         });
     });
 
@@ -628,40 +746,60 @@ function getCookie(name) {
                         <label for="edit-caption-{{ post.id }}" class="form-label">{% trans "Nội dung" %}</label>
                         <textarea class="form-control" id="edit-caption-{{ post.id }}" rows="5">{{ post.caption }}</textarea>
                     </div>
-                    <div class="mb-3">
+                    <div class="mb-3 location-field">
                         <label for="edit-location-{{ post.id }}" class="form-label">{% trans "Địa điểm" %}</label>
-                        <input type="text" class="form-control" id="edit-location-{{ post.id }}" value="{{ post.location }}">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                            <input type="text"
+                                   class="form-control edit-location-input"
+                                   id="edit-location-{{ post.id }}"
+                                   value="{{ post.location }}"
+                                   autocomplete="off"
+                                   placeholder="{% trans 'Tìm hoặc chọn địa điểm (tùy chọn)' %}"
+                                   data-suggestions-url="{% url 'posts:location_suggestions' %}"
+                                   data-reverse-url="{% url 'posts:reverse_geocode' %}">
+                            <button type="button"
+                                    class="btn btn-current-location edit-btn-current-location"
+                                    title="{% trans 'Dùng vị trí hiện tại' %}">
+                                <i class="fas fa-crosshairs"></i>
+                            </button>
+                        </div>
+                        <div class="edit-location-suggestions"></div>
                     </div>
                     
-                    <!-- Hiển thị media hiện tại -->
+                    <!-- Media hiện tại + thêm mới -->
                     <div class="mb-3">
-                        <label class="form-label">{% trans "Phương tiện hiện tại" %}</label>
-                        <div class="current-media-container d-flex flex-wrap gap-2">
+                        <label class="form-label">{% trans "Ảnh / video" %}</label>
+                        {% if post.media.exists %}
+                        <div class="edit-current-media current-media-container">
                             {% for media in post.media.all %}
-                            <div class="media-item position-relative" data-media-id="{{ media.id }}">
+                            <div class="media-item edit-media-item" data-media-id="{{ media.id }}">
                                 {% if media.media_type == 'image' %}
-                                <img src="{{ media.file.url }}" alt="Post media" style="width: 100px; height: 100px; object-fit: cover;">
+                                <img src="{{ media.file.url }}" alt="Post media">
                                 {% else %}
-                                <video style="width: 100px; height: 100px; object-fit: cover;">
-                                    <source src="{{ media.file.url }}" type="video/mp4">
-                                </video>
+                                <video src="{{ media.file.url }}" muted playsinline></video>
                                 {% endif %}
-                                <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 delete-media-btn" data-media-id="{{ media.id }}">
+                                <button type="button" class="edit-media-remove delete-media-btn" data-media-id="{{ media.id }}" title="{% trans 'Xóa' %}" aria-label="{% trans 'Xóa' %}">
                                     <i class="fas fa-times"></i>
                                 </button>
+                                <span class="edit-media-badge">{% if media.media_type == 'image' %}{% trans "Ảnh" %}{% else %}{% trans "Video" %}{% endif %}</span>
                             </div>
                             {% endfor %}
                         </div>
-                    </div>
-                    
-                    <!-- Thêm media mới -->
-                    <div class="mb-3">
-                        <label for="edit-new-media-{{ post.id }}" class="form-label">{% trans "Thêm ảnh/video mới" %}</label>
-                        <input type="file" class="form-control" id="edit-new-media-{{ post.id }}" multiple accept="image/*,video/*">
-                        <div class="form-text">{% trans "Bạn có thể chọn nhiều ảnh hoặc video cùng lúc." %}</div>
-                        
-                        <!-- Preview media mới -->
-                        <div class="new-media-preview d-flex flex-wrap gap-2 mt-2"></div>
+                        <p class="form-text mb-2">{% trans "Nhấn × để đánh dấu xóa ảnh/video hiện có." %}</p>
+                        {% endif %}
+
+                        <div class="upload-zone edit-upload-zone">
+                            <input type="file"
+                                   id="edit-new-media-{{ post.id }}"
+                                   name="new_media"
+                                   class="filepond edit-filepond"
+                                   accept="image/*,video/*"
+                                   multiple
+                                   data-allow-reorder="true"
+                                   data-post-id="{{ post.id }}">
+                        </div>
+                        <p class="upload-hint mb-0">{% trans "Kéo thả hoặc chọn ảnh/video mới · tối đa 1GB/file" %}</p>
                     </div>
                     
                     <div class="mb-3">
