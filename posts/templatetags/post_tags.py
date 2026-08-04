@@ -1,32 +1,39 @@
 from django import template
-from django.utils.html import mark_safe
+from django.utils.html import escape
+from django.utils.safestring import mark_safe
 from django.urls import reverse
 import re
 
 register = template.Library()
 
+
 @register.filter
 def format_caption(caption):
     """
     Format caption với các đề cập (@username) và hashtags (#hashtag)
-    - @username: hiển thị màu xanh và liên kết đến trang profile
-    - #hashtag: hiển thị màu xanh và liên kết đến trang tìm kiếm
+    - @username: hiển thị nổi bật và liên kết đến trang profile
+    - #hashtag: hiển thị màu nổi bật và liên kết đến trang tìm kiếm
     """
-    # Xử lý mentions (@username)
-    caption = re.sub(
-        r'@(\w+)',
-        lambda match: f'<a href="{reverse("accounts:profile", kwargs={"username": match.group(1)})}" class="text-primary fw-bold">@{match.group(1)}</a>',
-        caption
-    )
-    
-    # Xử lý hashtags (#hashtag)
-    caption = re.sub(
-        r'#(\w+)',
-        lambda match: f'<a href="{reverse("posts:search")}?q={match.group(1)}" class="text-primary">#{match.group(1)}</a>',
-        caption
-    )
-    
-    # Thêm xuống dòng
-    caption = caption.replace('\n', '<br>')
-    
-    return mark_safe(caption)
+    if not caption:
+        return ''
+
+    text = escape(caption)
+
+    def mention_repl(match):
+        username = match.group(1)
+        url = reverse('accounts:profile', kwargs={'username': username})
+        return (
+            f'<a href="{url}" class="mention-link" '
+            f'onclick="event.stopPropagation()">@{username}</a>'
+        )
+
+    def hashtag_repl(match):
+        tag = match.group(1)
+        url = f'{reverse("posts:search")}?q={tag}'
+        return f'<a href="{url}" class="hashtag-link" onclick="event.stopPropagation()">#{tag}</a>'
+
+    text = re.sub(r'@(\w+)', mention_repl, text)
+    text = re.sub(r'#(\w+)', hashtag_repl, text)
+    text = text.replace('\n', '<br>')
+
+    return mark_safe(text)

@@ -1,10 +1,18 @@
-.create-post-card,
-.create-post-modal-content {
+.create-post-card {
     background: #fff;
     border: 1px solid #efefef;
     border-radius: 16px;
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
     overflow: hidden;
+}
+
+.create-post-modal-content {
+    background: #fff;
+    border: 1px solid #efefef;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    /* Cho dropdown gợi ý # / @ hiện ra ngoài vùng nội dung */
+    overflow: visible;
 }
 
 .create-post-modal-dialog {
@@ -81,6 +89,25 @@
 .composer-input-wrap {
     flex: 1;
     min-width: 0;
+    position: relative;
+    z-index: 30;
+    overflow: visible;
+}
+
+#suggestionBox {
+    position: relative;
+    z-index: 40;
+}
+
+#createPostModal .modal-dialog,
+#createPostModal .modal-content {
+    overflow: visible;
+}
+
+#createPostModal .create-post-body {
+    overflow: visible;
+    position: relative;
+    z-index: 5;
 }
 
 .composer-textarea {
@@ -274,12 +301,12 @@
     top: calc(100% + 4px);
     left: 0;
     right: 0;
-    z-index: 1060;
+    z-index: 1080;
     background: #fff;
     border: 1px solid #efefef;
     border-radius: 10px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-    max-height: 180px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    max-height: 200px;
     overflow-y: auto;
 }
 
@@ -384,8 +411,16 @@
     z-index: 1;
 }
 
-.edit-upload-zone {
-    margin-top: 0.25rem;
+.edit-caption-suggestion-box {
+    position: relative;
+    z-index: 1060;
+}
+
+.edit-caption-suggestion-box .suggestion-dropdown {
+    position: absolute;
+    top: 4px;
+    left: 0;
+    right: 0;
 }
 
 .edit-upload-zone .filepond--drop-label {

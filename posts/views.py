@@ -338,6 +338,7 @@ def create(request):
 
             if post.caption:
                 process_hashtags(post)
+                process_mentions(post)
 
             messages.success(request, 'Bài viết đã được đăng thành công!')
             if _is_ajax_request(request):
@@ -404,10 +405,11 @@ def edit_post(request, post_id):
                 except json.JSONDecodeError:
                     pass
             
-            # Cập nhật hashtags nếu caption thay đổi
+            # Cập nhật hashtags/mentions nếu caption thay đổi
             if post.caption != old_caption:
                 post.hashtags.clear()
                 process_hashtags(post)
+                process_mentions(post)
             
             # Lưu các thay đổi
             post.save()
@@ -1256,7 +1258,7 @@ def process_hashtags(post):
         return
     
     # Tìm tất cả các hashtag trong caption
-    hashtags = [word[1:] for word in post.caption.split() if word.startswith('#')]
+    hashtags = re.findall(r'#(\w+)', post.caption)
     
     # Tạo hoặc lấy hashtag objects và liên kết với bài viết
     for tag_name in hashtags:
@@ -1266,3 +1268,32 @@ def process_hashtags(post):
                 hashtag.posts.add(post)
             except Exception as e:
                 print(f"Error processing hashtag {tag_name}: {str(e)}")
+
+
+def process_mentions(post):
+    """
+    Tạo Mention từ @username trong caption.
+    Chỉ tạo mới khi chưa có (để gửi thông báo), xóa mention không còn trong caption.
+    """
+    User = get_user_model()
+    usernames = set()
+    if post.caption:
+        usernames = {name.lower() for name in re.findall(r'@(\w+)', post.caption)}
+
+    existing = list(
+        Mention.objects.filter(post=post, comment__isnull=True).select_related('user')
+    )
+    existing_by_username = {m.user.username.lower(): m for m in existing}
+    keep_user_ids = set()
+
+    for username in usernames:
+        user = User.objects.filter(username__iexact=username).first()
+        if not user or user.id == post.author_id:
+            continue
+        keep_user_ids.add(user.id)
+        if username not in existing_by_username:
+            Mention.objects.create(user=user, post=post)
+
+    Mention.objects.filter(post=post, comment__isnull=True).exclude(
+        user_id__in=keep_user_ids
+    ).delete()

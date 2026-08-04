@@ -303,6 +303,31 @@
     max-width: 560px;
 }
 
+.post-detail-page .post-detail-caption .mention-link,
+.post-detail-caption .mention-link,
+.mention-link {
+    color: #405de6 !important;
+    font-weight: 700;
+    text-decoration: none !important;
+}
+
+.post-detail-page .post-detail-caption .mention-link:hover,
+.post-detail-caption .mention-link:hover,
+.mention-link:hover {
+    color: #2d46c9 !important;
+    text-decoration: underline !important;
+}
+
+.hashtag-link {
+    color: #405de6 !important;
+    font-weight: 600;
+    text-decoration: none !important;
+}
+
+.hashtag-link:hover {
+    text-decoration: underline !important;
+}
+
 .post-detail-menu .btn-link {
     color: #737373;
     line-height: 1;

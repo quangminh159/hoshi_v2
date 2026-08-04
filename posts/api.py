@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.db.models import Count
 from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
-from .models import Post, Comment, Like, SavedPost, Hashtag, CommentLike, PostMedia, Notification, UserInteraction
+from .models import Post, Comment, Like, SavedPost, Hashtag, CommentLike, PostMedia, Notification, UserInteraction, Mention
 from .serializers import PostSerializer, CommentSerializer, HashtagSerializer
 from django.conf import settings
 import json
@@ -20,7 +20,7 @@ from django.contrib.contenttypes.models import ContentType
 from notifications.models import Notification
 from notifications.signals import send_notification_to_websocket
 from .comment_utils import resolve_reply_parent, serialize_comment
-from .views import _media_type_for_file
+from .views import _media_type_for_file, process_hashtags, process_mentions
 
 User = get_user_model()
 
@@ -603,13 +603,11 @@ def edit_post(request, post_id):
         # Lưu thay đổi (cập nhật updated_at sau khi xử lý media)
         post.save()
         
-        # Xử lý hashtags
+        # Xử lý hashtags và mentions
         if 'caption' in request.data:
             post.hashtags.clear()
-            hashtags = [word[1:] for word in post.caption.split() if word.startswith('#')]
-            for tag_name in hashtags:
-                hashtag, _ = Hashtag.objects.get_or_create(name=tag_name)
-                hashtag.posts.add(post)
+            process_hashtags(post)
+            process_mentions(post)
         
         return Response({
             'status': 'success',
@@ -691,7 +689,7 @@ def delete_post(request, post_id):
 @permission_classes([IsAuthenticated])
 def hashtag_suggestions(request):
     """API endpoint để gợi ý hashtag khi người dùng nhập caption"""
-    query = request.GET.get('q', '')
+    query = (request.GET.get('q') or '').strip().lstrip('#').lower()
     
     if not query:
         return JsonResponse([], safe=False)
@@ -700,10 +698,29 @@ def hashtag_suggestions(request):
     suggestions = Hashtag.objects.filter(name__icontains=query)
     
     # Sắp xếp theo số lượng bài viết sử dụng hashtag này
-    suggestions = suggestions.annotate(posts_count_total=Count('posts')).order_by('-posts_count_total')[:10]
+    suggestions = suggestions.annotate(
+        posts_count_total=Count('posts')
+    ).order_by('-posts_count_total', 'name')[:10]
     
-    # Chỉ trả về tên hashtag
-    result = [tag.name for tag in suggestions]
+    result = []
+    seen = set()
+    for tag in suggestions:
+        name = tag.name.lstrip('#').lower()
+        if not name or name in seen:
+            continue
+        seen.add(name)
+        result.append({
+            'name': name,
+            'posts_count': tag.posts_count_total,
+        })
+
+    # Luôn thêm hashtag đang gõ nếu chưa có trong DB
+    if query not in seen:
+        result.insert(0, {
+            'name': query,
+            'posts_count': 0,
+            'is_new': True,
+        })
     
     return JsonResponse(result, safe=False)
 
@@ -711,8 +728,9 @@ def hashtag_suggestions(request):
 @permission_classes([IsAuthenticated])
 def user_suggestions(request):
     """API endpoint để gợi ý người dùng khi người dùng nhập @mention"""
-    query = request.GET.get('q', '')
-    following_only = request.GET.get('following_only', 'false').lower() == 'true'
+    query = request.GET.get('q', '').strip()
+    # Mặc định chỉ gợi ý người đang follow (dùng cho @mention khi đăng bài)
+    following_only = request.GET.get('following_only', 'true').lower() != 'false'
     
     if not query:
         return JsonResponse([], safe=False)
@@ -722,21 +740,21 @@ def user_suggestions(request):
         Q(username__icontains=query) | 
         Q(first_name__icontains=query) | 
         Q(last_name__icontains=query)
-    ).distinct()
+    ).exclude(id=request.user.id).distinct()
     
     # Lọc theo người đang follow nếu có yêu cầu
     if following_only:
         following_ids = request.user.get_following_user_ids()
         suggestions = suggestions.filter(id__in=following_ids)
     
-    # Giới hạn số lượng gợi ý
-    suggestions = suggestions[:10]
-    
     # Lấy danh sách những người đã chặn người dùng hiện tại
     blocked_by_users = UserBlock.objects.filter(blocked=request.user).values_list('blocker_id', flat=True)
     
     # Loại bỏ người dùng đã chặn người dùng hiện tại
     suggestions = suggestions.exclude(id__in=blocked_by_users)
+    
+    # Giới hạn số lượng gợi ý
+    suggestions = suggestions[:10]
     
     # Chuyển đổi thành JSON response
     result = []

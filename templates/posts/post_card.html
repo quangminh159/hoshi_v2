@@ -1,5 +1,6 @@
 {% load static %}
 {% load i18n %}
+{% load post_tags %}
 <div class="card mb-4" data-post-id="{{ post.id }}">
     <!-- Post Header -->
     <div class="card-header bg-white border-0 py-3">
@@ -62,7 +63,7 @@
     {% if post.caption %}
     <div class="card-body py-2">
         <p class="card-text mb-0">
-            {{ post.caption|urlize|linebreaksbr }}
+            {{ post.caption|format_caption }}
         </p>
     </div>
     {% endif %}
@@ -79,7 +80,7 @@
             <!-- Caption của người chia sẻ -->
             {% if post.caption %}
             <p class="card-text mb-3">
-                {{ post.caption|urlize|linebreaksbr }}
+                {{ post.caption|format_caption }}
             </p>
             {% endif %}
 
@@ -113,7 +114,7 @@
                 <!-- Caption của bài viết gốc -->
                 {% if post.shared_from.caption %}
                 <p class="card-text mb-3">
-                    {{ post.shared_from.caption|urlize|linebreaksbr }}
+                    {{ post.shared_from.caption|format_caption }}
                 </p>
                 {% endif %}
                 
@@ -540,6 +541,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Gợi ý #hashtag và @mention khi chỉnh sửa caption
+    document.querySelectorAll('.edit-caption-input').forEach((textarea) => {
+        if (typeof initEditCaptionSuggestions !== 'function') return;
+        const wrap = textarea.closest('.position-relative') || textarea.parentElement;
+        initEditCaptionSuggestions(textarea, {
+            hashtagUrl: textarea.dataset.hashtagUrl,
+            userUrl: textarea.dataset.userUrl,
+            box: wrap ? wrap.querySelector('.edit-caption-suggestion-box') : null,
+        });
+    });
+
     // Gợi ý địa điểm + GPS khi chỉnh sửa bài viết
     document.querySelectorAll('.edit-location-input').forEach((locationInput) => {
         if (locationInput.dataset.locationBound === '1') return;
@@ -742,9 +754,16 @@ function getCookie(name) {
             </div>
             <div class="modal-body">
                 <form id="editPostForm-{{ post.id }}" enctype="multipart/form-data">
-                    <div class="mb-3">
+                    <div class="mb-3 position-relative">
                         <label for="edit-caption-{{ post.id }}" class="form-label">{% trans "Nội dung" %}</label>
-                        <textarea class="form-control" id="edit-caption-{{ post.id }}" rows="5">{{ post.caption }}</textarea>
+                        <textarea class="form-control edit-caption-input"
+                                  id="edit-caption-{{ post.id }}"
+                                  rows="5"
+                                  placeholder="{% trans 'Dùng #hashtag hoặc @tag người đang follow...' %}"
+                                  data-hashtag-url="{% url 'posts:hashtag_suggestions' %}"
+                                  data-user-url="{% url 'posts:user_suggestions' %}">{{ post.caption }}</textarea>
+                        <div class="edit-caption-suggestion-box"></div>
+                        <div class="form-text">{% trans "Sử dụng # hashtag và @ gắn thẻ người đang follow" %}</div>
                     </div>
                     <div class="mb-3 location-field">
                         <label for="edit-location-{{ post.id }}" class="form-label">{% trans "Địa điểm" %}</label>

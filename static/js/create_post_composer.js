@@ -99,25 +99,48 @@
             if (locationSuggestionBox) locationSuggestionBox.innerHTML = '';
         }
 
+        function getWordAtCaret(text, caretPos) {
+            const before = text.substring(0, caretPos);
+            const parts = before.split(/\s+/);
+            return parts[parts.length - 1] || '';
+        }
+
+        function replaceWordAtCaret(textarea, replacement) {
+            const text = textarea.value;
+            const caretPos = textarea.selectionStart;
+            const before = text.substring(0, caretPos);
+            const after = text.substring(caretPos);
+            const word = getWordAtCaret(text, caretPos);
+            const start = before.lastIndexOf(word);
+            const newText = before.substring(0, start) + replacement + after;
+            textarea.value = newText;
+            const newPos = start + replacement.length;
+            textarea.setSelectionRange(newPos, newPos);
+        }
+
         function showSuggestions(items, onSelect) {
             clearSuggestions();
             if (!items.length || !suggestionBox) return;
 
             const dropdown = document.createElement('div');
-            dropdown.className = 'suggestion-dropdown';
+            dropdown.className = 'suggestion-dropdown suggestion-dropdown--caption';
 
             items.forEach(item => {
                 const el = document.createElement('div');
                 el.className = 'suggestion-item';
                 el.innerHTML = item.html;
-                el.addEventListener('click', () => {
+                el.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
                     onSelect(item);
                     clearSuggestions();
+                    if (captionInput) captionInput.focus();
                 });
                 dropdown.appendChild(el);
             });
 
             suggestionBox.appendChild(dropdown);
+            // Đảm bảo dropdown không bị cắt / ẩn
+            suggestionBox.style.display = 'block';
         }
 
         function showLocationSuggestions(items) {
@@ -152,8 +175,9 @@
         if (captionInput) {
             captionInput.addEventListener('input', function () {
                 clearTimeout(suggestionTimeout);
+                const caretPos = this.selectionStart;
                 const text = this.value;
-                const lastWord = text.split(/\s/).pop();
+                const lastWord = getWordAtCaret(text, caretPos);
 
                 if (!lastWord.startsWith('#') && !lastWord.startsWith('@')) {
                     clearSuggestions();
@@ -171,28 +195,45 @@
                         fetch(`${config.hashtagUrl}?q=${encodeURIComponent(query)}`)
                             .then(r => r.json())
                             .then(tags => {
-                                showSuggestions(tags.map(tag => ({
-                                    html: `<span>#${tag}</span>`,
-                                    value: '#' + tag,
-                                })), (item) => {
-                                    const words = text.split(/\s/);
-                                    words[words.length - 1] = item.value;
-                                    captionInput.value = words.join(' ') + ' ';
+                                const list = Array.isArray(tags) ? tags : [];
+                                const items = list.map((tag) => {
+                                    // Hỗ trợ cả API cũ (string) và mới (object)
+                                    const name = typeof tag === 'string' ? tag : (tag.name || '');
+                                    const count = typeof tag === 'object' ? (tag.posts_count || 0) : 0;
+                                    const isNew = typeof tag === 'object' && tag.is_new;
+                                    const meta = isNew
+                                        ? 'Hashtag mới'
+                                        : (count > 0 ? `${count} bài viết` : 'Hashtag');
+                                    return {
+                                        html: `<div>
+                                                 <div class="fw-semibold hashtag-link">#${name}</div>
+                                                 <div class="location-meta">${meta}</div>
+                                               </div>`,
+                                        value: '#' + name + ' ',
+                                    };
+                                }).filter((item) => item.value.length > 2);
+
+                                showSuggestions(items, (item) => {
+                                    replaceWordAtCaret(captionInput, item.value);
                                 });
-                            });
+                            })
+                            .catch(() => clearSuggestions());
                     } else {
-                        fetch(`${config.userUrl}?q=${encodeURIComponent(query)}`)
+                        fetch(`${config.userUrl}?q=${encodeURIComponent(query)}&following_only=true`)
                             .then(r => r.json())
                             .then(users => {
-                                showSuggestions(users.map(user => ({
-                                    html: `<img src="${user.avatar_url || '/static/images/default-avatar.png'}" alt=""><span>${user.username}</span>`,
-                                    value: '@' + user.username,
+                                showSuggestions((users || []).map(user => ({
+                                    html: `<img src="${user.avatar_url || '/static/images/default-avatar.png'}" alt="">
+                                           <div>
+                                             <div class="fw-semibold">@${user.username}</div>
+                                             ${user.full_name ? `<div class="location-meta">${user.full_name}</div>` : ''}
+                                           </div>`,
+                                    value: '@' + user.username + ' ',
                                 })), (item) => {
-                                    const words = text.split(/\s/);
-                                    words[words.length - 1] = item.value;
-                                    captionInput.value = words.join(' ') + ' ';
+                                    replaceWordAtCaret(captionInput, item.value);
                                 });
-                            });
+                            })
+                            .catch(() => clearSuggestions());
                     }
                 }, 250);
             });

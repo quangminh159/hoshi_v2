@@ -172,15 +172,16 @@
                         </div>
                         
                         <!-- Caption -->
-                        <div class="mb-3">
+                        <div class="mb-3 position-relative">
                             <label for="caption" class="form-label">Nội dung</label>
                             <textarea id="caption" 
                                       name="caption" 
                                       class="form-control" 
                                       rows="3" 
-                                      placeholder="Viết gì đó...">{{ post.caption }}</textarea>
+                                      placeholder="Viết gì đó... Dùng #hashtag hoặc @tag">{{ post.caption }}</textarea>
+                            <div id="editCaptionSuggestionBox" class="edit-caption-suggestion-box"></div>
                             <div class="form-text">
-                                Sử dụng # để thêm hashtag và @ để gắn thẻ người dùng khác
+                                Sử dụng # để thêm hashtag và @ để gắn thẻ người đang follow
                             </div>
                         </div>
                         
@@ -229,6 +230,7 @@
 <script src="https://unpkg.com/filepond-plugin-file-poster/dist/filepond-plugin-file-poster.js"></script>
 <script src="https://unpkg.com/filepond-plugin-media-preview/dist/filepond-plugin-media-preview.js"></script>
 <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
+<script src="{% static 'js/edit_caption_suggestions.js' %}"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -538,16 +540,13 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Handle hashtags and mentions in caption
     const captionInput = document.getElementById('caption');
-    captionInput.addEventListener('input', function() {
-        const text = this.value;
-        const lastWord = text.split(' ').pop();
-        
-        if (lastWord.startsWith('#')) {
-            // TODO: Show hashtag suggestions
-        } else if (lastWord.startsWith('@')) {
-            // TODO: Show user suggestions
-        }
-    });
+    if (captionInput && typeof initEditCaptionSuggestions === 'function') {
+        initEditCaptionSuggestions(captionInput, {
+            hashtagUrl: '{% url "posts:hashtag_suggestions" %}',
+            userUrl: '{% url "posts:user_suggestions" %}',
+            box: document.getElementById('editCaptionSuggestionBox'),
+        });
+    }
     
     // Form submission handler
     document.getElementById('postForm').addEventListener('submit', function(e) {

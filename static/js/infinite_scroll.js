@@ -62,8 +62,9 @@
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;')
-            .replace(/#(\w+)/g, '<a href="/posts/search/?q=$1" class="text-primary">#$1</a>')
-            .replace(/@(\w+)/g, (_, u) => `<a href="${profileUrl(u)}" class="text-primary">@${u}</a>`);
+            .replace(/#(\w+)/g, '<a href="/posts/search/?q=$1" class="hashtag-link" onclick="event.stopPropagation()">#$1</a>')
+            .replace(/@(\w+)/g, (_, u) => `<a href="${profileUrl(u)}" class="mention-link" onclick="event.stopPropagation()">@${u}</a>`)
+            .replace(/\n/g, '<br>');
     }
 
     function createPostElement(post) {

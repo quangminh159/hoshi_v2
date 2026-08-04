@@ -438,6 +438,27 @@
     margin-bottom: 0.5rem;
 }
 
+.mention-link {
+    color: #405de6 !important;
+    font-weight: 700;
+    text-decoration: none !important;
+}
+
+.mention-link:hover {
+    color: #2d46c9 !important;
+    text-decoration: underline !important;
+}
+
+.hashtag-link {
+    color: #405de6 !important;
+    font-weight: 600;
+    text-decoration: none !important;
+}
+
+.hashtag-link:hover {
+    text-decoration: underline !important;
+}
+
 .feed-post-actions {
     padding-left: 0 !important;
     padding-right: 0 !important;

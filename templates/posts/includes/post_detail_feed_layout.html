@@ -1,3 +1,4 @@
+{% load post_tags %}
 <article class="card feed-post-card post-detail-card mb-0" data-post-id="{{ post.id }}">
     <div class="feed-post-body">
         <div class="feed-post-avatar-col">
@@ -72,7 +73,7 @@
 
             {% if post.caption %}
             <div class="feed-post-caption">
-                <p class="card-text mb-0 post-detail-caption">{{ post.caption|urlize|linebreaksbr }}</p>
+                <p class="card-text mb-0 post-detail-caption">{{ post.caption|format_caption }}</p>
             </div>
             {% endif %}
 
@@ -95,7 +96,7 @@
                         </div>
                     </div>
                     {% if post.shared_from.caption %}
-                    <p class="card-text mb-0 small">{{ post.shared_from.caption|urlize|linebreaksbr }}</p>
+                    <p class="card-text mb-0 small">{{ post.shared_from.caption|format_caption }}</p>
                     {% endif %}
                 </a>
                 <div class="shared-post-media">
