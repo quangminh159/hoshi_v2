@@ -948,6 +948,29 @@ def search(request):
         'users': users_result,
     })
 
+def _parse_feed_seen_ids(raw_value, limit=80):
+    """Parse seen=1,2,3 thành list id (giới hạn độ dài URL)."""
+    if not raw_value:
+        return []
+    ids = []
+    seen = set()
+    for part in str(raw_value).split(','):
+        part = part.strip()
+        if not part:
+            continue
+        try:
+            pid = int(part)
+        except ValueError:
+            continue
+        if pid in seen:
+            continue
+        seen.add(pid)
+        ids.append(pid)
+        if len(ids) >= limit:
+            break
+    return ids
+
+
 @login_required
 def api_load_posts(request):
     """API endpoint để tải thêm bài viết cho cuộn vô hạn"""
@@ -962,7 +985,13 @@ def api_load_posts(request):
     if feed_type == 'flowed':
         posts = get_followed_feed(request.user, page_size=12, page=page_number)
     else:
-        posts = get_diverse_feed(request.user, page_size=12, page=page_number)
+        posts = get_diverse_feed(
+            request.user,
+            page_size=12,
+            page=page_number,
+            seed=request.GET.get('seed'),
+            seen_ids=_parse_feed_seen_ids(request.GET.get('seen')),
+        )
 
     posts_data = prepare_posts_json(posts, request.user)
     has_next = len(posts) >= 12
@@ -1203,7 +1232,13 @@ def index(request):
     if feed_type == 'flowed':
         posts = get_followed_feed(user, page_size=posts_per_page, page=page)
     else:
-        posts = get_diverse_feed(user, page_size=posts_per_page, page=page)
+        posts = get_diverse_feed(
+            user,
+            page_size=posts_per_page,
+            page=page,
+            seed=request.GET.get('seed'),
+            seen_ids=_parse_feed_seen_ids(request.GET.get('seen')),
+        )
 
     has_more_posts = len(posts) >= posts_per_page
 

@@ -166,6 +166,11 @@ EMAIL_HOST_USER = 'quangminh159159@gmail.com'  # Điền email của bạn
 EMAIL_HOST_PASSWORD = 'vjmioramcpgxfesp'  # Cần tạo app password trong tài khoản Google
 DEFAULT_FROM_EMAIL = 'Hoshi <noreply@hoshi.vn>'  # Tên hiển thị và email gửi
 
+# Twilio SMS (OTP)
+TWILIO_ACCOUNT_SID = env('TWILIO_ACCOUNT_SID', default='')
+TWILIO_AUTH_TOKEN = env('TWILIO_AUTH_TOKEN', default='')
+TWILIO_FROM_NUMBER = env('TWILIO_FROM_NUMBER', default='')
+
 # Crispy Forms
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"

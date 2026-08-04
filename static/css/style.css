@@ -61,12 +61,18 @@ a:hover {
 /* Navbar */
 .navbar {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    margin-bottom: 2rem;
+    margin-bottom: 0;
+}
+
+.site-navbar.navbar {
+    min-height: 56px;
+    padding-top: 0.35rem;
+    padding-bottom: 0.35rem;
 }
 
 .navbar-brand.brand-logo {
-    padding-top: 0.15rem;
-    padding-bottom: 0.15rem;
+    padding-top: 0;
+    padding-bottom: 0;
     margin-right: 0.75rem;
 }
 
@@ -86,8 +92,8 @@ a:hover {
 }
 
 .brand-logo__mark {
-    width: 110px;
-    height: 110px;
+    width: 36px;
+    height: 36px;
     display: block;
     flex-shrink: 0;
     border-radius: 0;
@@ -97,17 +103,23 @@ a:hover {
 }
 
 .brand-logo:hover .brand-logo__mark {
-    transform: scale(1.08);
+    transform: scale(1.06);
 }
 
 .brand-logo__text {
     display: none;
 }
 
-.nav-link {
+.site-navbar .nav-link {
     color: var(--text-color) !important;
-    font-size: 1.1rem;
-    padding: 0.5rem 1rem !important;
+    font-size: 1.05rem;
+    padding: 0.4rem 0.7rem !important;
+}
+
+.site-main {
+    margin-top: 4.25rem;
+    padding-top: 1rem;
+    padding-bottom: 1.5rem;
 }
 
 .nav-link:hover {
@@ -1193,7 +1205,7 @@ body {
     top: 0;
     left: 0;
     right: 0;
-    height: 72px;
+    height: 52px;
     z-index: 1040;
     background: #fff;
     border-bottom: 1px solid #efefef;
@@ -1233,8 +1245,8 @@ body {
 }
 
 .mobile-feed-logo .brand-logo__mark {
-    width: 60px;
-    height: 60px;
+    width: 32px;
+    height: 32px;
     border-radius: 0;
 }
 
@@ -1336,7 +1348,7 @@ body {
     }
 
     body.user-authenticated .site-main {
-        padding-top: 72px !important;
+        padding-top: 52px !important;
         padding-bottom: 72px !important;
         margin-top: 0 !important;
     }

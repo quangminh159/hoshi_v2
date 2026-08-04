@@ -13,12 +13,19 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 import os
 
+# Load .env (nếu có) trước khi đọc config
+try:
+    from dotenv import load_dotenv
+    load_dotenv(Path(__file__).resolve().parent.parent / '.env')
+except ImportError:
+    pass
+
 # Không sử dụng decouple, truy cập trực tiếp vào os.environ
 def config(key, default=None, cast=None):
     value = os.environ.get(key, default)
-    if cast and value != default:
+    if cast and value is not None and value != default:
         if cast == bool:
-            return value.lower() in ('true', 'yes', '1')
+            return str(value).lower() in ('true', 'yes', '1')
         return cast(value)
     return value
 
@@ -252,14 +259,14 @@ EMAIL_HOST_USER = 'quangminh159159@gmail.com'
 EMAIL_HOST_PASSWORD = 'vjmioramcpgxfesp'
 DEFAULT_FROM_EMAIL = 'Hoshi <noreply@hoshi.vn>'
 
-# Phone numbers: lưu E.164, hỗ trợ mọi quốc gia qua prefix widget
+# Phone numbers
 PHONENUMBER_DB_FORMAT = 'E164'
 PHONENUMBER_DEFAULT_REGION = None
 
-# Optional Twilio SMS for phone OTP (leave empty to fall back to email)
-TWILIO_ACCOUNT_SID = ''
-TWILIO_AUTH_TOKEN = ''
-TWILIO_FROM_NUMBER = ''
+# Twilio SMS for phone OTP 
+TWILIO_ACCOUNT_SID = config('TWILIO_ACCOUNT_SID', default='')
+TWILIO_AUTH_TOKEN = config('TWILIO_AUTH_TOKEN', default='')
+TWILIO_FROM_NUMBER = config('TWILIO_FROM_NUMBER', default='')
 
 # Crispy Forms
 CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
@@ -279,7 +286,6 @@ REST_FRAMEWORK = {
 }
 
 # Channels
-# Channels + Cache (Redis nếu có REDIS_URL, không thì InMemory/LocMem)
 REDIS_URL = config('REDIS_URL', default='')
 
 if REDIS_URL:

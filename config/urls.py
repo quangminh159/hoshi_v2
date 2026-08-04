@@ -5,6 +5,7 @@ from django.conf.urls.static import static
 from django.shortcuts import redirect, render
 from posts.views import home
 from django.views.generic.base import RedirectView
+from accounts.views import CustomPasswordResetView, password_reset_otp
 
 
 def redirect_legacy_profile(request, username):
@@ -30,6 +31,9 @@ urlpatterns = [
     path('users/', include('accounts.urls')),
     path('accounts/profile/<str:username>/', redirect_legacy_profile),
     path('notifications/', include('notifications.urls')),
+    # Override allauth password reset để hỗ trợ SĐT + OTP
+    path('accounts/password/reset/', CustomPasswordResetView.as_view()),
+    path('accounts/password/reset/otp/', password_reset_otp, name='account_reset_password_otp'),
     path('accounts/', include('allauth.urls')),
     path('chat/', include('chat.urls')),
     

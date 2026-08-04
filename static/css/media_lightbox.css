@@ -1,0 +1,310 @@
+/* Fullscreen media lightbox */
+.hoshi-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.92);
+    color: #fff;
+    touch-action: none;
+}
+
+.hoshi-lightbox.is-open {
+    display: flex;
+}
+
+.hoshi-lightbox__stage {
+    position: relative;
+    width: min(96vw, 1100px);
+    height: min(86vh, 900px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.hoshi-lightbox__media-wrap {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    cursor: grab;
+}
+
+.hoshi-lightbox__media-wrap.is-dragging {
+    cursor: grabbing;
+}
+
+.hoshi-lightbox__media-wrap img,
+.hoshi-lightbox__media-wrap video {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 4px;
+    transform-origin: center center;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+.hoshi-lightbox__media-wrap video {
+    background: #000;
+}
+
+.hoshi-lightbox__media-wrap video.hoshi-lightbox__video--canvas-mode {
+    /* Ẩn hình gốc phía trên, vẫn hiện thanh điều khiển phía dưới */
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, transparent calc(100% - 56px), #000 calc(100% - 56px), #000 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, transparent calc(100% - 56px), #000 calc(100% - 56px), #000 100%);
+}
+
+.hoshi-lightbox__res-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 56px;
+    width: 100%;
+    height: auto;
+    pointer-events: none;
+    z-index: 1;
+    border-radius: 4px 4px 0 0;
+}
+
+.hoshi-lightbox__toolbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.55), transparent);
+    z-index: 2;
+}
+
+.hoshi-lightbox__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.hoshi-lightbox__btn {
+    width: 42px;
+    height: 42px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.15s;
+}
+
+.hoshi-lightbox__btn:hover {
+    background: rgba(255, 255, 255, 0.28);
+    transform: scale(1.05);
+}
+
+.hoshi-lightbox__btn.is-active {
+    background: rgba(255, 255, 255, 0.32);
+}
+
+.hoshi-lightbox__settings {
+    position: absolute;
+    top: 4.25rem;
+    right: 1rem;
+    z-index: 3;
+    width: min(92vw, 300px);
+    padding: 0.9rem 1rem 1rem;
+    border-radius: 14px;
+    background: rgba(28, 28, 30, 0.96);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(10px);
+}
+
+.hoshi-lightbox__settings-title {
+    font-size: 0.92rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+}
+
+.hoshi-lightbox__settings-meta {
+    margin: -0.25rem 0 0.75rem;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.55);
+}
+
+.hoshi-lightbox__settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.7rem;
+    font-size: 0.86rem;
+    color: rgba(255, 255, 255, 0.92);
+}
+
+.hoshi-lightbox__settings-row select,
+.hoshi-lightbox__settings-row input[type="range"] {
+    flex: 0 0 54%;
+    max-width: 54%;
+}
+
+.hoshi-lightbox__settings-row select {
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    padding: 0.35rem 0.45rem;
+    font-size: 0.82rem;
+}
+
+.hoshi-lightbox__settings-row select option {
+    color: #111;
+}
+
+.hoshi-lightbox__settings-row input[type="range"] {
+    accent-color: #7dd3fc;
+}
+
+.hoshi-lightbox__settings-row--toggle input[type="checkbox"] {
+    width: 1.05rem;
+    height: 1.05rem;
+    accent-color: #7dd3fc;
+}
+
+.hoshi-lightbox__settings-pip {
+    width: 100%;
+    margin-top: 0.25rem;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    padding: 0.55rem 0.75rem;
+    font-size: 0.84rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+}
+
+.hoshi-lightbox__settings-pip:hover {
+    background: rgba(255, 255, 255, 0.16);
+}
+
+.hoshi-media-slide {
+    position: relative;
+}
+
+.hoshi-video-settings-btn {
+    position: absolute;
+    top: 0.65rem;
+    right: 0.65rem;
+    z-index: 5;
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0.85;
+    transition: background 0.15s, opacity 0.15s, transform 0.15s;
+}
+
+.hoshi-video-settings-btn:hover {
+    background: rgba(0, 0, 0, 0.75);
+    opacity: 1;
+    transform: scale(1.05);
+}
+
+.carousel-item:hover .hoshi-video-settings-btn,
+.hoshi-video-settings-btn:focus {
+    opacity: 1;
+}
+
+.hoshi-lightbox__counter {
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    opacity: 0.9;
+}
+
+.hoshi-lightbox__nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    width: 48px;
+    height: 48px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.16);
+    color: #fff;
+    cursor: pointer;
+}
+
+.hoshi-lightbox__nav:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.hoshi-lightbox__nav--prev {
+    left: 0.75rem;
+}
+
+.hoshi-lightbox__nav--next {
+    right: 0.75rem;
+}
+
+.hoshi-lightbox__hint {
+    position: absolute;
+    bottom: 0.85rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.8rem;
+    opacity: 0.7;
+    z-index: 2;
+    pointer-events: none;
+}
+
+body.hoshi-lightbox-open {
+    overflow: hidden;
+}
+
+.carousel-item img.d-block,
+.carousel-item video.feed-video,
+.carousel-item video {
+    cursor: zoom-in;
+}
+
+@media (max-width: 768px) {
+    .hoshi-lightbox__stage {
+        width: 100vw;
+        height: 100vh;
+    }
+
+    .hoshi-lightbox__hint {
+        display: none;
+    }
+
+    .hoshi-lightbox__nav {
+        width: 40px;
+        height: 40px;
+    }
+}

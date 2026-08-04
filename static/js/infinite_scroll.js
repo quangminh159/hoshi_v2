@@ -13,6 +13,59 @@
     const feedType = document.querySelector('meta[name="feed-type"]')?.content || 'diverse';
     const loadedPostIds = new Set();
 
+    // Mỗi lần reload trang HTML → seed mới (thứ tự feed đổi).
+    // Trong cùng phiên cuộn infinite scroll → giữ seed để pagination ổn định.
+    const FEED_SEED_KEY = 'hoshiFeedSeed';
+    const FEED_SEEN_KEY = 'hoshiFeedSeen';
+    const FEED_SEEN_MAX = 120;
+    const FEED_SEEN_TTL_MS = 3 * 24 * 60 * 60 * 1000; // 3 ngày
+
+    function createFeedSeed() {
+        const seed = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+        sessionStorage.setItem(FEED_SEED_KEY, seed);
+        return seed;
+    }
+    function getFeedSeed() {
+        if (feedType !== 'diverse') return '';
+        const freshPage = postsContainer.children.length === 0 && currentPage === 0;
+        if (freshPage) return createFeedSeed();
+        return sessionStorage.getItem(FEED_SEED_KEY) || createFeedSeed();
+    }
+    let feedSeed = getFeedSeed();
+
+    function readSeenPosts() {
+        try {
+            const raw = JSON.parse(localStorage.getItem(FEED_SEEN_KEY) || '[]');
+            if (!Array.isArray(raw)) return [];
+            const now = Date.now();
+            return raw
+                .filter((item) => item && item.id != null && now - (item.t || 0) < FEED_SEEN_TTL_MS)
+                .slice(-FEED_SEEN_MAX);
+        } catch (_) {
+            return [];
+        }
+    }
+
+    function markPostsSeen(postIds) {
+        if (!postIds || !postIds.length) return;
+        const now = Date.now();
+        const map = new Map(readSeenPosts().map((item) => [String(item.id), item.t || now]));
+        postIds.forEach((id) => map.set(String(id), now));
+        const next = Array.from(map.entries())
+            .map(([id, t]) => ({ id, t }))
+            .sort((a, b) => a.t - b.t)
+            .slice(-FEED_SEEN_MAX);
+        try {
+            localStorage.setItem(FEED_SEEN_KEY, JSON.stringify(next));
+        } catch (_) { /* ignore quota */ }
+    }
+
+    function seenQueryParam() {
+        if (feedType !== 'diverse') return '';
+        const ids = readSeenPosts().map((item) => item.id).slice(-80);
+        return ids.length ? ids.join(',') : '';
+    }
+
     const loadingIndicator = document.getElementById('loading-indicator');
     const endMessage = document.getElementById('end-message');
     const emptyMessage = document.getElementById('empty-message');
@@ -35,7 +88,15 @@
         if (path.includes('/liked')) {
             return `${path}?page=${page}&format=json`;
         }
-        return `/posts/?page=${page}&feed=${feedType}&format=json`;
+        let url = `/posts/?page=${page}&feed=${feedType}&format=json`;
+        if (feedType === 'diverse' && feedSeed) {
+            url += `&seed=${encodeURIComponent(feedSeed)}`;
+        }
+        const seen = seenQueryParam();
+        if (seen) {
+            url += `&seen=${encodeURIComponent(seen)}`;
+        }
+        return url;
     }
 
     function timeAgo(date) {
@@ -83,8 +144,8 @@
             const slides = mediaList.map((media, index) => `
                 <div class="carousel-item ${index === 0 ? 'active' : ''}">
                     ${media.media_type === 'image'
-                        ? `<img src="${mediaUrlWithCache(media, cacheVersion)}" class="d-block w-100" alt="Post image" loading="lazy" decoding="async">`
-                        : `<video class="d-block w-100 feed-video" muted loop playsinline preload="metadata" controls src="${mediaUrlWithCache(media, cacheVersion)}" onclick="event.stopPropagation()"></video>`
+                        ? `<img src="${mediaUrlWithCache(media, cacheVersion)}" class="d-block w-100" alt="Post image" loading="lazy" decoding="async" style="cursor:zoom-in">`
+                        : `<video class="d-block w-100 feed-video" muted loop playsinline preload="metadata" controls src="${mediaUrlWithCache(media, cacheVersion)}" onclick="event.stopPropagation()" style="cursor:zoom-in"></video>`
                     }
                 </div>
             `).join('');
@@ -106,8 +167,7 @@
                 </button>` : '';
 
             return `
-                <div id="${carouselId}" class="carousel slide post-content" data-bs-ride="false"
-                     onclick="window.location='${clickUrl}'" style="cursor:pointer;">
+                <div id="${carouselId}" class="carousel slide post-content" data-bs-ride="false">
                     ${indicators}
                     <div class="carousel-inner">${slides}</div>
                     ${controls}
@@ -1104,6 +1164,7 @@
                 postsContainer.appendChild(el);
                 initPostInteractions(el);
             });
+            markPostsSeen(newPosts.map((p) => p.id));
 
             currentPage = nextPage;
 
@@ -1136,6 +1197,9 @@
         postsContainer.innerHTML = '';
         endMessage?.classList.add('d-none');
         emptyMessage?.classList.add('d-none');
+        if (feedType === 'diverse') {
+            feedSeed = createFeedSeed();
+        }
 
         if (!document.getElementById('scroll-sentinel')) {
             const newSentinel = document.createElement('div');

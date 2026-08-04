@@ -142,9 +142,10 @@
                                 {% if media.media_type == 'image' %}
                                 <img src="{{ media.file.url }}" 
                                      class="d-block w-100" 
-                                     alt="Shared post image">
+                                     alt="Shared post image"
+                                     style="cursor:zoom-in">
                                 {% else %}
-                                <video class="d-block w-100" controls>
+                                <video class="d-block w-100 feed-video" controls playsinline muted style="cursor:zoom-in">
                                     <source src="{{ media.file.url }}" type="video/mp4">
                                     Your browser does not support the video tag.
                                 </video>
@@ -215,9 +216,10 @@
                 {% if media.media_type == 'image' %}
                 <img src="{{ media.file.url }}" 
                      class="d-block w-100" 
-                     alt="Post image">
+                     alt="Post image"
+                     style="cursor:zoom-in">
                 {% else %}
-                <video class="d-block w-100" controls>
+                <video class="d-block w-100 feed-video" controls playsinline muted style="cursor:zoom-in">
                     <source src="{{ media.file.url }}" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>

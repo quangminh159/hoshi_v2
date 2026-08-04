@@ -853,16 +853,150 @@ def report_user(request):
 
 # Custom views cho việc đặt lại mật khẩu
 class CustomPasswordResetView(PasswordResetView):
-    template_name = 'accounts/password_reset.html'
-    success_url = reverse_lazy('accounts:account_reset_password_done')
+    template_name = 'account/password_reset.html'
+    success_url = reverse_lazy('account_reset_password_done')
     form_class = CustomResetPasswordForm
 
+    def form_valid(self, form):
+        from allauth.core import ratelimit
+
+        rate_key = str(form.cleaned_data.get('email') or '').lower()
+        r429 = ratelimit.consume_or_429(
+            self.request,
+            action='reset_password_email',
+            key=rate_key,
+        )
+        if r429:
+            return r429
+
+        form.save(self.request)
+        if getattr(form, 'reset_via_phone', False):
+            return redirect('account_reset_password_otp')
+        return super(PasswordResetView, self).form_valid(form)
+
+
 class CustomPasswordResetDoneView(PasswordResetDoneView):
-    template_name = 'accounts/password_reset_done.html'
+    template_name = 'account/password_reset_done.html'
+
 
 # Đăng ký các view mới
 password_reset = CustomPasswordResetView.as_view()
 password_reset_done = CustomPasswordResetDoneView.as_view()
+
+
+@require_http_methods(['GET', 'POST'])
+def password_reset_otp(request):
+    """Xác thực OTP khi đặt lại mật khẩu bằng số điện thoại."""
+    from allauth.account.forms import default_token_generator
+    from allauth.account.utils import user_pk_to_url_str
+    from django.urls import reverse
+    from .otp_utils import (
+        verify_otp,
+        generate_otp,
+        store_otp,
+        deliver_password_reset_otp,
+        is_in_cooldown,
+        is_otp_locked,
+        consume_ip_rate,
+        client_ip,
+        register_otp_failure,
+        PASSWORD_RESET_NEUTRAL_MESSAGE,
+        OTP_IP_VERIFY_LIMIT,
+        OTP_IP_VERIFY_WINDOW,
+        OTP_IP_RESEND_LIMIT,
+        OTP_IP_RESEND_WINDOW,
+    )
+
+    uid = request.session.get('pwd_reset_uid')
+    hint = request.session.get('pwd_reset_hint') or '****'
+    info_message = request.session.get('pwd_reset_message') or PASSWORD_RESET_NEUTRAL_MESSAGE
+
+    if request.session.get('pwd_reset_channel') != 'phone' and not uid and not hint:
+        messages.error(request, 'Vui lòng nhập số điện thoại để nhận mã xác thực.')
+        return redirect('account_reset_password')
+
+    # Luôn ghi đè message session về bản trung tính (tránh message cũ lộ PII)
+    request.session['pwd_reset_message'] = PASSWORD_RESET_NEUTRAL_MESSAGE
+    info_message = PASSWORD_RESET_NEUTRAL_MESSAGE
+
+    form = ContactOtpVerifyForm(request.POST or None)
+    ip = client_ip(request)
+
+    if request.method == 'POST':
+        if 'resend' in request.POST:
+            allowed, hint_msg = consume_ip_rate(
+                ip, 'pwd_reset_resend', OTP_IP_RESEND_LIMIT, OTP_IP_RESEND_WINDOW
+            )
+            if not allowed:
+                messages.error(request, hint_msg)
+                return redirect('account_reset_password_otp')
+
+            messages.success(request, PASSWORD_RESET_NEUTRAL_MESSAGE)
+
+            if uid:
+                user = User.objects.filter(pk=uid, is_active=True).first()
+                if (
+                    user
+                    and not is_in_cooldown(user.id, 'password_reset')
+                    and not is_otp_locked(user.id, 'password_reset')
+                ):
+                    code = generate_otp(8)
+                    store_otp(user.id, 'password_reset', code, {})
+                    deliver_password_reset_otp(user, code)
+            return redirect('account_reset_password_otp')
+
+        if form.is_valid():
+            allowed, hint_msg = consume_ip_rate(
+                ip, 'pwd_reset_verify', OTP_IP_VERIFY_LIMIT, OTP_IP_VERIFY_WINDOW
+            )
+            if not allowed:
+                form.add_error('code', hint_msg)
+            elif not uid:
+                # Không tiết lộ account không tồn tại; đếm fail theo session giả
+                fake_id = f'session:{request.session.session_key or ip}'
+                locked, _attempts = register_otp_failure(fake_id, 'password_reset')
+                if locked:
+                    form.add_error(
+                        'code',
+                        'Quá nhiều lần thử sai. Vui lòng thử lại sau khoảng 15 phút.',
+                    )
+                else:
+                    form.add_error('code', 'Mã xác thực không chính xác.')
+            else:
+                ok, _payload, error = verify_otp(
+                    uid, 'password_reset', form.cleaned_data['code']
+                )
+                if not ok:
+                    form.add_error('code', error)
+                else:
+                    user = User.objects.filter(pk=uid, is_active=True).first()
+                    if not user:
+                        form.add_error('code', 'Yêu cầu không hợp lệ. Vui lòng thử lại.')
+                    else:
+                        for key in (
+                            'pwd_reset_uid',
+                            'pwd_reset_hint',
+                            'pwd_reset_message',
+                            'pwd_reset_channel',
+                        ):
+                            request.session.pop(key, None)
+
+                        temp_key = default_token_generator.make_token(user)
+                        path = reverse(
+                            'account_reset_password_from_key',
+                            kwargs={
+                                'uidb36': user_pk_to_url_str(user),
+                                'key': temp_key,
+                            },
+                        )
+                        return redirect(path)
+
+    return render(request, 'account/password_reset_otp.html', {
+        'form': form,
+        'phone_hint': hint,
+        'info_message': info_message,
+    })
+
 
 def suspension_notice(request):
     """Hiển thị thông báo khi tài khoản bị đình chỉ"""

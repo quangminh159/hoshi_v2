@@ -1,5 +1,5 @@
 .post-detail-shell {
-    max-width: 560px;
+    max-width: 640px;
     margin: 0 auto;
 }
 
@@ -53,40 +53,95 @@
     padding: 0.875rem 1rem 0.25rem;
 }
 
+.post-detail-page .feed-post-body .fw-bold {
+    font-size: 0.95rem;
+}
+
+.post-detail-page .post-detail-caption,
+.post-detail-page .feed-post-body .card-text {
+    font-size: 1rem;
+    line-height: 1.55;
+}
+
 .post-detail-page .feed-post-actions {
-    padding: 0.25rem 1rem 0.75rem !important;
-    margin-left: calc(40px + 0.75rem);
+    padding: 0.35rem 0 0.5rem !important;
+    margin-left: 0;
+    width: 100%;
 }
 
 .post-detail-page .likes-count-display {
-    padding: 0 1rem 0.5rem;
-    margin-left: calc(40px + 0.75rem);
+    padding: 0 0 0.65rem;
+    margin-left: 0;
     font-size: 0.875rem;
 }
 
+/* Media: to + gần vuông, nhưng không cao hơn viewport (tránh cắt mất nửa video) */
+.post-detail-page .post-detail-media.carousel.slide,
 .post-detail-page .post-detail-media {
-    margin: 0.5rem 0 0.25rem;
-    border-radius: 12px;
+    width: min(100%, 68vh, 620px);
+    max-width: 100%;
+    aspect-ratio: 1 / 1;
+    max-height: min(68vh, 620px);
+    margin: 0.5rem auto 0.35rem;
+    border-radius: 14px;
     overflow: hidden;
     background: #000;
 }
 
+.post-detail-page .post-detail-media .carousel-inner,
 .post-detail-page .post-detail-media .carousel-item {
-    max-height: min(70vh, 520px);
+    height: 100%;
+    max-height: none;
     background: #000;
 }
 
-.post-detail-page .post-detail-media .carousel-item img,
-.post-detail-page .post-detail-media .carousel-item video {
+.post-detail-page .post-detail-media .carousel-item img {
     width: 100%;
-    max-height: min(70vh, 520px);
-    object-fit: contain;
+    height: 100%;
+    max-height: none;
+    object-fit: cover;
+    object-position: center;
     display: block;
-    margin: 0 auto;
+}
+
+.post-detail-page .post-detail-media .carousel-item video,
+.post-detail-page .post-detail-media .feed-video {
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    object-fit: contain;
+    object-position: center;
+    display: block;
+    background: #000;
 }
 
 .post-detail-page .shared-post-container {
     margin-top: 0.5rem;
+}
+
+.post-detail-page .shared-post-media .carousel.slide,
+.post-detail-page .shared-post-media .post-detail-media {
+    width: min(100%, 68vh, 620px);
+    aspect-ratio: 1 / 1;
+    max-height: min(68vh, 620px);
+    margin-inline: auto;
+}
+
+.post-detail-page .shared-post-media .carousel-item,
+.post-detail-page .shared-post-media .carousel-inner {
+    height: 100%;
+}
+
+.post-detail-page .shared-post-media .carousel-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.post-detail-page .shared-post-media .carousel-item video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 
 .post-detail-comments-section {
@@ -300,7 +355,7 @@
 }
 
 #editPostModal .modal-dialog {
-    max-width: 560px;
+    max-width: 680px;
 }
 
 .post-detail-page .post-detail-caption .mention-link,
@@ -360,11 +415,19 @@
     .post-detail-page .feed-post-actions,
     .post-detail-page .likes-count-display {
         margin-left: 0;
-        padding-left: 1rem;
-        padding-right: 1rem;
+        padding-left: 0;
+        padding-right: 0;
     }
 
     .post-detail-page .feed-post-body {
         padding: 0.85rem 1rem 0.35rem;
+    }
+
+    .post-detail-page .post-detail-media.carousel.slide,
+    .post-detail-page .post-detail-media {
+        width: min(100%, 72vw);
+        max-height: min(72vw, 70vh);
+        border-radius: 12px;
+        aspect-ratio: 1 / 1;
     }
 }

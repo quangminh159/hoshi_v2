@@ -1,0 +1,57 @@
+{% extends 'base/auth_base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Đăng xuất" %} - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="{% static 'css/logout.css' %}?v=1" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="logout-page">
+    <div class="logout-atmosphere" aria-hidden="true">
+        <span class="logout-orb logout-orb--a"></span>
+        <span class="logout-orb logout-orb--b"></span>
+        <span class="logout-grain"></span>
+    </div>
+
+    <main class="logout-shell">
+        <a href="{% url 'home' %}" class="logout-brand" aria-label="{% trans 'Trang chủ Hoshi' %}">
+            <img src="{% static 'images/logo-mark.svg' %}" alt="M" class="logout-brand__mark">
+            <span class="logout-brand__name">Hoshi</span>
+        </a>
+
+        <section class="logout-panel">
+            <p class="logout-kicker">{% trans "Tạm biệt một chút" %}</p>
+            <h1 class="logout-title">{% trans "Đăng xuất?" %}</h1>
+            <p class="logout-copy">
+                {% if user.is_authenticated %}
+                    {% blocktrans with name=user.username %}Bạn đang đăng nhập với <strong>@{{ name }}</strong>. Bạn có chắc muốn rời khỏi Hoshi trên thiết bị này?{% endblocktrans %}
+                {% else %}
+                    {% trans "Bạn có chắc muốn đăng xuất khỏi tài khoản trên thiết bị này?" %}
+                {% endif %}
+            </p>
+
+            <form method="post" action="{% url 'account_logout' %}" class="logout-actions">
+                {% csrf_token %}
+                {% if redirect_field_value %}
+                <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
+                {% endif %}
+                <button type="submit" class="logout-btn logout-btn--primary">
+                    <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+                    <span>{% trans "Đăng xuất" %}</span>
+                </button>
+                <a href="{% url 'home' %}" class="logout-btn logout-btn--ghost">
+                    {% trans "Ở lại Hoshi" %}
+                </a>
+            </form>
+        </section>
+
+        <p class="logout-footnote">{% trans "Bạn luôn có thể đăng nhập lại bất cứ lúc nào." %}</p>
+    </main>
+</div>
+{% endblock %}

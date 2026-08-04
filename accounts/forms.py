@@ -327,11 +327,11 @@ class ContactOtpVerifyForm(forms.Form):
     code = forms.CharField(
         label='Mã xác thực',
         min_length=6,
-        max_length=6,
+        max_length=8,
         widget=forms.TextInput(attrs={
             'class': 'form-control form-control-lg text-center',
             'placeholder': '000000',
-            'pattern': '[0-9]{6}',
+            'pattern': '[0-9]{6,8}',
             'autocomplete': 'one-time-code',
             'autofocus': True,
         })
@@ -511,13 +511,169 @@ class DeleteAccountForm(forms.Form):
         return password 
 
 class CustomResetPasswordForm(AllAuthResetPasswordForm):
+    """Cho phép đặt lại mật khẩu bằng email hoặc SĐT quốc tế (mọi quốc gia)."""
+
+    METHOD_EMAIL = 'email'
+    METHOD_PHONE = 'phone'
+    METHOD_CHOICES = (
+        (METHOD_EMAIL, 'Email'),
+        (METHOD_PHONE, 'Số điện thoại'),
+    )
+
+    email = forms.EmailField(
+        label='Email',
+        required=False,
+        widget=forms.EmailInput(
+            attrs={
+                'placeholder': 'you@email.com',
+                'autocomplete': 'email',
+                'class': 'form-control',
+            }
+        ),
+    )
+    phone_number = PhoneNumberField(
+        label='Số điện thoại',
+        required=False,
+        region=None,
+        widget=international_phone_widget('VN'),
+    )
+    method = forms.ChoiceField(
+        choices=METHOD_CHOICES,
+        required=False,
+        initial=METHOD_EMAIL,
+        widget=forms.RadioSelect,
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['email'].widget.attrs.update({
-            'placeholder': 'Địa chỉ email của bạn',
-            'class': 'form-control'
-        })
+        self.reset_via_phone = False
+        self.reset_channel = self.METHOD_EMAIL
+        self.users = []
+        self.fields['email'].required = False
         self.fields['email'].label = 'Email'
+        self.fields['phone_number'].label = 'Số điện thoại'
+        # Prefix widget classes for auth-flow styling
+        phone_widget = self.fields['phone_number'].widget
+        if hasattr(phone_widget, 'widgets') and len(phone_widget.widgets) >= 2:
+            country_w, number_w = phone_widget.widgets[0], phone_widget.widgets[1]
+            country_w.attrs.update({
+                'class': 'form-select phone-country-select auth-flow__phone-country',
+                'aria-label': 'Mã quốc gia',
+            })
+            number_w.attrs.update({
+                'class': 'form-control auth-flow__phone-national',
+                'placeholder': 'Số điện thoại',
+                'type': 'tel',
+                'inputmode': 'tel',
+                'autocomplete': 'tel-national',
+            })
+
+    @staticmethod
+    def mask_phone(e164):
+        digits = ''.join(ch for ch in str(e164) if ch.isdigit())
+        if len(digits) < 4:
+            return '****'
+        return f'****{digits[-4:]}'
+
+    def clean(self):
+        from allauth.account.adapter import get_adapter
+        from allauth.account.utils import filter_users_by_email
+        from allauth.account import app_settings as allauth_app_settings
+
+        cleaned = super().clean()
+        method = (cleaned.get('method') or self.METHOD_EMAIL).strip()
+        if method not in (self.METHOD_EMAIL, self.METHOD_PHONE):
+            method = self.METHOD_EMAIL
+
+        email = (cleaned.get('email') or '').strip()
+        phone = cleaned.get('phone_number')
+
+        # Cho phép suy luận method nếu JS không gửi
+        if method == self.METHOD_EMAIL and not email and phone:
+            method = self.METHOD_PHONE
+        if method == self.METHOD_PHONE and not phone and email:
+            method = self.METHOD_EMAIL
+
+        self.reset_channel = method
+        cleaned['method'] = method
+
+        if method == self.METHOD_PHONE:
+            if not phone:
+                self.add_error(
+                    'phone_number',
+                    'Vui lòng chọn mã quốc gia và nhập số điện thoại hợp lệ.',
+                )
+                return cleaned
+
+            phone_e164 = str(phone)
+            self.users = list(
+                User.objects.filter(phone_number=phone, is_active=True)[:1]
+            )
+            # Giữ key email để allauth rate-limit / tương thích
+            cleaned['email'] = phone_e164
+            return cleaned
+
+        if not email:
+            self.add_error('email', 'Vui lòng nhập email của bạn.')
+            return cleaned
+
+        email = get_adapter().clean_email(email)
+        cleaned['email'] = email
+        self.users = filter_users_by_email(email, is_active=True, prefer_verified=True)
+        if not self.users and not allauth_app_settings.PREVENT_ENUMERATION:
+            self.add_error('email', get_adapter().error_messages['unknown_email'])
+        return cleaned
+
+    def clean_email(self):
+        # Bỏ validation bắt buộc của allauth; xử lý trong clean()
+        return (self.cleaned_data.get('email') or '').strip()
+
+    def save(self, request, **kwargs):
+        if self.reset_channel == self.METHOD_PHONE:
+            return self._save_phone_reset(request)
+        return super().save(request, **kwargs)
+
+    def _save_phone_reset(self, request):
+        from .otp_utils import (
+            generate_otp,
+            store_otp,
+            is_in_cooldown,
+            is_otp_locked,
+            deliver_password_reset_otp,
+            PASSWORD_RESET_NEUTRAL_MESSAGE,
+        )
+
+        self.reset_via_phone = True
+        phone = str(self.cleaned_data.get('phone_number') or self.cleaned_data.get('email'))
+        request.session['pwd_reset_hint'] = self.mask_phone(phone)
+        request.session['pwd_reset_channel'] = 'phone'
+        request.session.pop('pwd_reset_uid', None)
+        request.session['pwd_reset_message'] = PASSWORD_RESET_NEUTRAL_MESSAGE
+
+        if not self.users:
+            return phone
+
+        user = self.users[0]
+
+        if is_otp_locked(user.id, 'password_reset'):
+            # Không tiết lộ trạng thái khóa khác message trung tính
+            return phone
+
+        if is_in_cooldown(user.id, 'password_reset'):
+            # Giữ uid để nhập mã đã gửi trước đó, message vẫn trung tính
+            request.session['pwd_reset_uid'] = user.id
+            return phone
+
+        code = generate_otp(8)
+        store_otp(user.id, 'password_reset', code, {})
+        result = deliver_password_reset_otp(user, code)
+        if result.get('ok'):
+            request.session['pwd_reset_uid'] = user.id
+        else:
+            from .otp_utils import clear_otp
+            clear_otp(user.id, 'password_reset')
+        return phone
+
 
 class CustomResetPasswordKeyForm(AllAuthResetPasswordKeyForm):
     def __init__(self, *args, **kwargs):

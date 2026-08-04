@@ -20,9 +20,20 @@
         {% for media in carousel_post.media.all %}
         <div class="carousel-item {% if forloop.first %}active{% endif %}">
             {% if media.media_type == 'image' %}
-            <img src="{{ media.file.url }}?v={{ carousel_post.updated_at|date:'U' }}-{{ media.id }}" class="d-block w-100" alt="Post image" loading="lazy">
+            <img src="{{ media.file.url }}?v={{ carousel_post.updated_at|date:'U' }}-{{ media.id }}"
+                 class="d-block w-100"
+                 alt="Post image"
+                 loading="lazy"
+                 style="cursor:zoom-in">
             {% else %}
-            <video class="d-block w-100 feed-video" controls preload="metadata" playsinline src="{{ media.file.url }}?v={{ carousel_post.updated_at|date:'U' }}-{{ media.id }}"></video>
+            <video class="d-block w-100 feed-video"
+                   controls
+                   preload="metadata"
+                   playsinline
+                   muted
+                   loop
+                   src="{{ media.file.url }}?v={{ carousel_post.updated_at|date:'U' }}-{{ media.id }}"
+                   style="cursor:zoom-in"></video>
             {% endif %}
         </div>
         {% endfor %}

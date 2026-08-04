@@ -19,6 +19,7 @@
     <!-- Custom CSS -->
     <link href="{% static 'css/style.css' %}?v=chat-hide-nav-1" rel="stylesheet">
     <link href="{% static 'css/notification_dropdown.css' %}" rel="stylesheet">
+    <link href="{% static 'css/media_lightbox.css' %}?v=5" rel="stylesheet">
     
     {% if user.is_authenticated %}
     <meta name="user-id" content="{{ user.id }}">
@@ -221,7 +222,7 @@
     {% endif %}
     
     <!-- Main Content -->
-    <main class="container py-5 mt-5 site-main">
+    <main class="container site-main">
         {% if messages %}
             {% for message in messages %}
                 {% if message.tags %}
@@ -247,6 +248,7 @@
     <script src="{% static 'js/debug_feed.js' %}"></script>
     <script src="{% static 'js/disable_multiple_submissions.js' %}"></script>
     <script src="{% static 'js/notifications.js' %}"></script>
+    <script src="{% static 'js/media_lightbox.js' %}?v=7"></script>
     
     {% block extra_js %}{% endblock %}
 

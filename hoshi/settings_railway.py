@@ -63,6 +63,11 @@ if os.environ.get('AWS_ACCESS_KEY_ID'):
     }
     MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/'
 
+# Twilio SMS (Railway / production env)
+TWILIO_ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID', TWILIO_ACCOUNT_SID if 'TWILIO_ACCOUNT_SID' in globals() else '')
+TWILIO_AUTH_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN', TWILIO_AUTH_TOKEN if 'TWILIO_AUTH_TOKEN' in globals() else '')
+TWILIO_FROM_NUMBER = os.environ.get('TWILIO_FROM_NUMBER', TWILIO_FROM_NUMBER if 'TWILIO_FROM_NUMBER' in globals() else '')
+
 # Logging
 LOGGING = {
     'version': 1,
