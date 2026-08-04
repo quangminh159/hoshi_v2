@@ -23,5 +23,6 @@ urlpatterns = [
     path('api/online-users/<int:id>/', views.api_online_users, name='api_online_users_by_id'),
     path('api/chat-messages/<int:id>/', views.api_chat_messages, name='api_chat_messages'),
     path('api/unread/', views.api_unread, name='api_unread'),
+    path('api/unread-total/', views.api_unread_total, name='api_unread_total'),
     path('api/link-preview/', views.api_link_preview, name='api_link_preview'),
 ]

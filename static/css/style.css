@@ -1314,6 +1314,29 @@ body {
     background: #ed4956;
 }
 
+.mobile-bottom-nav__chat-dot {
+    position: absolute;
+    top: 6px;
+    right: calc(50% - 14px);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ed4956;
+    border: 1.5px solid #fff;
+    box-shadow: 0 0 0 1px rgba(237, 73, 86, 0.2);
+}
+
+.chat-unread-badge {
+    font-size: 0.65rem;
+    min-width: 1.1rem;
+    padding: 0.2em 0.35em;
+    line-height: 1;
+}
+
+.navbar .nav-link .chat-unread-badge {
+    transform: translate(-30%, -40%) !important;
+}
+
 .mobile-menu-link {
     display: flex;
     align-items: center;

@@ -249,7 +249,7 @@ body:has(.chat-shell--detail) .chat-container {
     font-size: 1.125rem;
     font-weight: 700;
     color: #5c6370;
-    overflow: hidden;
+    overflow: visible;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
@@ -257,6 +257,39 @@ body:has(.chat-shell--detail) .chat-container {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    border-radius: 50%;
+}
+
+.conversation-unread-dot {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #ed4956;
+    border: 2px solid var(--chat-surface, #fff);
+    z-index: 1;
+}
+
+.conversation-unread-badge {
+    flex-shrink: 0;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: #ed4956;
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 0.35rem;
+}
+
+.conversation-wrapper.has-unread .conversation-last-message {
+    color: var(--chat-text);
 }
 
 .conversation-info {

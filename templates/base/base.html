@@ -29,7 +29,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <!-- Custom CSS -->
-    <link href="{% static 'css/style.css' %}?v=chat-hide-nav-1" rel="stylesheet">
+    <link href="{% static 'css/style.css' %}?v=chat-unread-1" rel="stylesheet">
     <link href="{% static 'css/theme.css' %}?v=1" rel="stylesheet">
     <link href="{% static 'css/notification_dropdown.css' %}" rel="stylesheet">
     <link href="{% static 'css/media_lightbox.css' %}?v=5" rel="stylesheet">
@@ -75,9 +75,13 @@
                                 <i class="fas fa-home"></i>
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'chat:conversation_list' %}">
+                        <li class="nav-item position-relative">
+                            <a class="nav-link position-relative" href="{% url 'chat:conversation_list' %}" title="{% trans 'Tin nhắn' %}">
                                 <i class="fas fa-paper-plane"></i>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger chat-unread-badge" id="chat-unread-count" style="{% if not unread_message_count %}display: none;{% endif %}">
+                                    {% if unread_message_count > 99 %}99+{% else %}{{ unread_message_count|default:0 }}{% endif %}
+                                    <span class="visually-hidden">{% trans "tin nhắn chưa đọc" %}</span>
+                                </span>
                             </a>
                         </li>
                         <li class="nav-item">
@@ -233,8 +237,10 @@
         <a href="{% url 'home' %}" class="mobile-bottom-nav__item" data-nav="home">
             <i class="fas fa-home"></i>
         </a>
-        <a href="{% url 'chat:conversation_list' %}" class="mobile-bottom-nav__item" data-nav="messages" aria-label="{% trans 'Tin nhắn' %}">
+        <a href="{% url 'chat:conversation_list' %}" class="mobile-bottom-nav__item position-relative" data-nav="messages" aria-label="{% trans 'Tin nhắn' %}">
             <i class="far fa-paper-plane"></i>
+            <span class="mobile-bottom-nav__chat-dot{% if not unread_message_count %} d-none{% endif %}" id="chat-unread-dot" aria-hidden="true"></span>
+            <span class="visually-hidden" id="chat-unread-count-mobile">{% if unread_message_count %}{{ unread_message_count }}{% endif %}</span>
         </a>
         <button type="button" class="mobile-bottom-nav__item mobile-bottom-nav__create" data-nav="create" aria-label="{% trans 'Tạo bài viết' %}">
             <i class="fas fa-plus"></i>
@@ -278,7 +284,7 @@
     <script src="{% static 'js/main.js' %}"></script>
     <script src="{% static 'js/debug_feed.js' %}"></script>
     <script src="{% static 'js/disable_multiple_submissions.js' %}"></script>
-    <script src="{% static 'js/notifications.js' %}?v=2"></script>
+    <script src="{% static 'js/notifications.js' %}?v=chat-unread-1"></script>
     <script src="{% static 'js/media_lightbox.js' %}?v=7"></script>
     
     {% block extra_js %}{% endblock %}

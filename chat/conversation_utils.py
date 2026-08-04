@@ -57,6 +57,7 @@ def send_conversation_message(user, conversation, content='', shared_post=None):
 
 
 def broadcast_chat_message(conversation_id, message_data):
+    """Gửi tin nhắn realtime tới phòng chat + inbox của từng người tham gia."""
     channel_layer = get_channel_layer()
     if not channel_layer:
         return
@@ -65,5 +66,25 @@ def broadcast_chat_message(conversation_id, message_data):
             f'chat_{conversation_id}',
             {'type': 'chat_message', 'message': message_data},
         )
+    except Exception:
+        pass
+
+    try:
+        participant_ids = list(
+            Conversation.objects.filter(id=conversation_id).values_list(
+                'participants__id', flat=True
+            )
+        )
+        for uid in participant_ids:
+            if not uid:
+                continue
+            async_to_sync(channel_layer.group_send)(
+                f'chat_inbox_{uid}',
+                {
+                    'type': 'inbox_message',
+                    'conversation_id': int(conversation_id),
+                    'message': message_data,
+                },
+            )
     except Exception:
         pass

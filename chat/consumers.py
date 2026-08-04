@@ -112,6 +112,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                         'message': payload,
                     }
                 )
+                await self.notify_inboxes(payload)
         elif message_type == 'typing':
             # Xử lý trạng thái đang nhập
             is_typing = data.get('is_typing', False)
@@ -208,6 +209,27 @@ class ChatConsumer(AsyncWebsocketConsumer):
         }))
     
     # Database helper methods
+    async def notify_inboxes(self, payload):
+        """Đẩy tin nhắn tới inbox realtime của từng người trong cuộc trò chuyện."""
+        participant_ids = await self.get_participant_ids()
+        for uid in participant_ids:
+            await self.channel_layer.group_send(
+                f'chat_inbox_{uid}',
+                {
+                    'type': 'inbox_message',
+                    'conversation_id': int(self.conversation_id),
+                    'message': payload,
+                },
+            )
+
+    @database_sync_to_async
+    def get_participant_ids(self):
+        try:
+            conversation = Conversation.objects.get(id=self.conversation_id)
+            return list(conversation.participants.values_list('id', flat=True))
+        except Conversation.DoesNotExist:
+            return []
+
     @database_sync_to_async
     def get_conversation(self):
         try:
@@ -543,3 +565,27 @@ class WebConsumer(AsyncConsumer):
                 'text': text,
             },
         )
+
+class ChatInboxConsumer(AsyncWebsocketConsumer):
+    """Realtime inbox socket for conversation list page."""
+
+    async def connect(self):
+        self.user = self.scope.get('user')
+        if not self.user or not self.user.is_authenticated:
+            await self.close()
+            return
+
+        self.group_name = f'chat_inbox_{self.user.id}'
+        await self.channel_layer.group_add(self.group_name, self.channel_name)
+        await self.accept()
+
+    async def disconnect(self, close_code):
+        if hasattr(self, 'group_name'):
+            await self.channel_layer.group_discard(self.group_name, self.channel_name)
+
+    async def inbox_message(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'inbox_message',
+            'conversation_id': event.get('conversation_id'),
+            'message': event.get('message'),
+        }))

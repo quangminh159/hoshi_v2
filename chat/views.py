@@ -30,20 +30,9 @@ def _serialize_chat_message(message, user=None):
 
 
 def _broadcast_chat_message(conversation_id, message_data):
-    """Gửi tin nhắn realtime tới phòng chat."""
-    try:
-        from asgiref.sync import async_to_sync
-        from channels.layers import get_channel_layer
-
-        channel_layer = get_channel_layer()
-        if not channel_layer:
-            return
-        async_to_sync(channel_layer.group_send)(
-            f'chat_{conversation_id}',
-            {'type': 'chat_message', 'message': message_data},
-        )
-    except Exception as exc:
-        console.print(f'Broadcast chat message failed: {exc}')
+    """Gửi tin nhắn realtime tới phòng chat + inbox."""
+    from .conversation_utils import broadcast_chat_message
+    broadcast_chat_message(conversation_id, message_data)
 
 
 def _apply_attachment_to_message(message, request):
@@ -108,6 +97,8 @@ def conversation_list(request):
     
     # Lấy danh sách ID người dùng trong quan hệ chặn (cả hai chiều)
     from accounts.models import UserBlock
+    from .unread import get_conversation_unread_counts
+
     blocked_users = UserBlock.objects.filter(blocker=user).values_list('blocked_id', flat=True)
     blocking_users = UserBlock.objects.filter(blocked=user).values_list('blocker_id', flat=True)
     
@@ -115,12 +106,16 @@ def conversation_list(request):
     blocked_user_ids = list(blocked_users) + list(blocking_users)
     
     # Lấy tất cả cuộc trò chuyện của người dùng
-    all_conversations = Conversation.objects.filter(participants=user).order_by('-last_message_time')
+    all_conversations = list(
+        Conversation.objects.filter(participants=user).order_by('-last_message_time')
+    )
+    unread_map = get_conversation_unread_counts(user, [c.id for c in all_conversations])
     
     # Đánh dấu các cuộc trò chuyện với người dùng bị chặn
     for conversation in all_conversations:
         other_participant = conversation.get_other_participant(user)
-        conversation.is_blocked = other_participant.id in blocked_user_ids
+        conversation.is_blocked = other_participant.id in blocked_user_ids if other_participant else False
+        conversation.unread_count = unread_map.get(conversation.id, 0)
     
     context = {
         'conversations': all_conversations
@@ -159,6 +154,9 @@ def conversation_detail(request, conversation_id):
         'sender', 'reply_to', 'reply_to__sender',
         'shared_post', 'shared_post__author',
     ).prefetch_related('shared_post__media').order_by('created_at')
+
+    from .unread import mark_conversation_messages_read
+    mark_conversation_messages_read(conversation, user)
     
     context = {
         'conversation': conversation,
@@ -385,6 +383,14 @@ def api_chat_messages(request, id):
         json.dumps(messages_json),
         content_type = 'application/javascript; charset=utf8'
     )
+
+@login_required
+def api_unread_total(request):
+    """Tổng số tin nhắn chưa đọc cho badge icon chat."""
+    from .unread import get_unread_message_count
+    count = get_unread_message_count(request.user)
+    return JsonResponse({'ok': True, 'unread_count': count})
+
 
 @login_required
 def api_unread(request):

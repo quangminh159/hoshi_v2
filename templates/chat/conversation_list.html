@@ -7,7 +7,7 @@
 {% block body_class %} chat-layout{% endblock %}
 
 {% block extra_css %}
-<link href="{% static 'css/chat.css' %}?v=voice-mobile-3" rel="stylesheet">
+<link href="{% static 'css/chat.css' %}?v=chat-unread-1" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -40,21 +40,24 @@
       {% if conversations %}
         {% for conversation in conversations %}
           {% with other_user=conversation.get_other_participant user=request.user %}
-          <div class="conversation-wrapper" id="conversation-{{ conversation.id }}" data-username="{{ other_user.username|lower }}">
+          <div class="conversation-wrapper{% if conversation.unread_count %} has-unread{% endif %}" id="conversation-{{ conversation.id }}" data-username="{{ other_user.username|lower }}" data-unread="{{ conversation.unread_count|default:0 }}">
             <a href="{% url 'chat:conversation_detail' conversation.id %}" class="conversation-item">
               <div class="conversation-avatar">
                 <img src="{{ other_user.get_avatar_url }}" alt="{{ other_user.username }}">
+                {% if conversation.unread_count %}
+                <span class="conversation-unread-dot" aria-hidden="true"></span>
+                {% endif %}
               </div>
               <div class="conversation-info">
                 <div class="conversation-name">
-                  <span>{{ other_user.username }}</span>
+                  <span class="{% if conversation.unread_count %}fw-bold{% endif %}">{{ other_user.username }}</span>
                   <span class="conversation-time">
                     {% if conversation.last_message_time %}
                       {{ conversation.last_message_time|date:"H:i" }}
                     {% endif %}
                   </span>
                 </div>
-                <div class="conversation-last-message">
+                <div class="conversation-last-message {% if conversation.unread_count %}fw-semibold text-body{% endif %}">
                   {% if conversation.is_blocked %}
                     <span class="text-danger">
                       <i class="fas fa-ban"></i> {% trans "Không thể nhắn tin (đã chặn)" %}
@@ -83,6 +86,11 @@
                   {% endif %}
                 </div>
               </div>
+              {% if conversation.unread_count %}
+              <span class="conversation-unread-badge">
+                {% if conversation.unread_count > 99 %}99+{% else %}{{ conversation.unread_count }}{% endif %}
+              </span>
+              {% endif %}
             </a>
             <button class="delete-conversation"
                     onclick="deleteConversation({{ conversation.id }}, event)"
@@ -128,6 +136,7 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'js/chat_list.js' %}?v=inbox-1"></script>
 <script>
   let conversationToDelete = null;
 
@@ -168,16 +177,18 @@
   }
 
   function getCookie(name) {
-    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-    return match ? decodeURIComponent(match[2]) : '';
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
   }
-
-  document.getElementById('conversationSearch')?.addEventListener('input', function () {
-    const q = this.value.trim().toLowerCase();
-    document.querySelectorAll('.conversation-wrapper').forEach((el) => {
-      const name = el.dataset.username || '';
-      el.style.display = !q || name.includes(q) ? '' : 'none';
-    });
-  });
 </script>
 {% endblock %}

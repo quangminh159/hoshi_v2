@@ -9,6 +9,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     setupNotificationInteractions();
+
+    // Đồng bộ badge tin nhắn khi vào/thoát trang chat
+    if (document.body.classList.contains('user-authenticated')) {
+        refreshChatUnreadCount();
+        if (document.body.classList.contains('chat-detail-layout')
+            || document.body.classList.contains('chat-layout')) {
+            // Sau khi mở chat (đã mark read server-side), cập nhật lại badge
+            setTimeout(refreshChatUnreadCount, 400);
+        }
+    }
 });
 
 function connectWebSocket() {
@@ -65,8 +75,54 @@ function handleNotification(data) {
         if (!shouldSuppressToast(data.notification)) {
             showToast(data.notification);
         }
+        if (data.notification.notification_type === 'message') {
+            const activeId = getActiveConversationId();
+            const notifConv = data.notification.conversation_id != null
+                ? String(data.notification.conversation_id)
+                : null;
+            if (!(isOnChatPage() && activeId && notifConv && activeId === notifConv)) {
+                refreshChatUnreadCount();
+            }
+        }
     }
 }
+
+function updateChatUnreadCount(count) {
+    const n = Math.max(0, parseInt(count, 10) || 0);
+    const label = n > 99 ? '99+' : String(n);
+
+    const badge = document.getElementById('chat-unread-count');
+    if (badge) {
+        badge.innerHTML = `${label}<span class="visually-hidden">tin nhắn chưa đọc</span>`;
+        badge.style.display = n > 0 ? '' : 'none';
+    }
+
+    const dot = document.getElementById('chat-unread-dot');
+    if (dot) {
+        dot.classList.toggle('d-none', n <= 0);
+    }
+
+    const mobileLabel = document.getElementById('chat-unread-count-mobile');
+    if (mobileLabel) {
+        mobileLabel.textContent = n > 0 ? label : '';
+    }
+}
+
+function refreshChatUnreadCount() {
+    if (!document.body.classList.contains('user-authenticated')) return;
+    fetch('/chat/api/unread-total/', {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        credentials: 'same-origin',
+    })
+        .then((r) => r.json())
+        .then((data) => {
+            if (data && data.ok) updateChatUnreadCount(data.unread_count);
+        })
+        .catch(() => {});
+}
+
+window.refreshChatUnreadCount = refreshChatUnreadCount;
+window.updateChatUnreadCount = updateChatUnreadCount;
 
 function getActiveConversationId() {
     const fromPage = document.querySelector('.chat-page[data-conversation-id]');
