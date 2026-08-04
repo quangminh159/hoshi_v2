@@ -329,8 +329,8 @@
                 form.classList.remove('submitting');
             }
 
-            if (pond.getFiles().length === 0) {
-                alert('Vui lòng chọn ít nhất một ảnh hoặc video');
+            if (pond.getFiles().length === 0) && !(captionInput.value || '').trim()) {
+                alert('Vui lòng nhập nội dung hoặc chọn ít nhất một ảnh/video');
                 resetSubmitButton();
                 return;
             }

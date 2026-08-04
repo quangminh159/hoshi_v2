@@ -496,6 +496,26 @@ function getCookie(name) {
     return cookieValue;
 }
 
+function linkifyPlainText(text) {
+    if (!text) return '';
+    return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/(https?:\/\/[^\s<]+|www\.[^\s<]+)/gi, (raw) => {
+            let url = raw;
+            let trailing = '';
+            while (/[.,;:!?)]+$/.test(url)) {
+                trailing = url.slice(-1) + trailing;
+                url = url.slice(0, -1);
+            }
+            if (!url) return raw;
+            const href = /^https?:\/\//i.test(url) ? url : `https://${url}`;
+            return `<a href="${href}" target="_blank" rel="noopener noreferrer" class="caption-link" onclick="event.stopPropagation()">${url}</a>${trailing}`;
+        })
+        .replace(/\n/g, '<br>');
+}
+
 function urlBase64ToUint8Array(base64String) {
     const padding = '='.repeat((4 - base64String.length % 4) % 4);
     const base64 = (base64String + padding)
@@ -538,7 +558,7 @@ function createCommentElement(comment) {
                     <a href="/users/${comment.parent.author_username}/" class="fw-bold text-dark text-decoration-none">
                         ${comment.parent.author_username}
                     </a>` : ''}
-                    <span class="text-muted ms-2">${comment.text}</span>
+                    <span class="text-muted ms-2 comment-text">${linkifyPlainText(comment.text || '')}</span>
                 </div>
                 <div class="mt-1">
                     <small class="text-muted">${comment.created_at}</small>

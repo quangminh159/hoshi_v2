@@ -62,8 +62,44 @@ function handleNotification(data) {
 
     if (data.notification && Object.keys(data.notification).length > 0) {
         addNotificationToList(data.notification);
-        showToast(data.notification);
+        if (!shouldSuppressToast(data.notification)) {
+            showToast(data.notification);
+        }
     }
+}
+
+function getActiveConversationId() {
+    const fromPage = document.querySelector('.chat-page[data-conversation-id]');
+    if (fromPage && fromPage.dataset.conversationId) {
+        return String(fromPage.dataset.conversationId);
+    }
+
+    const fromBody = document.body.dataset.conversationId;
+    if (fromBody) return String(fromBody);
+
+    const match = window.location.pathname.match(/\/chat\/conversations\/(\d+)\/?/);
+    return match ? match[1] : null;
+}
+
+function isOnChatPage() {
+    return document.body.classList.contains('chat-layout')
+        || document.body.classList.contains('chat-detail-layout')
+        || window.location.pathname.startsWith('/chat/');
+}
+
+/** Không hiện toast tin nhắn khi đang ở trang chat (đã xem realtime). */
+function shouldSuppressToast(notification) {
+    if (!notification || notification.notification_type !== 'message') {
+        return false;
+    }
+    if (isOnChatPage()) {
+        return true;
+    }
+    const activeId = getActiveConversationId();
+    const notifId = notification.conversation_id != null
+        ? String(notification.conversation_id)
+        : null;
+    return Boolean(activeId && notifId && activeId === notifId);
 }
 
 function updateNotificationCount(count) {

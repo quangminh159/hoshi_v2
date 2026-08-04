@@ -6,18 +6,48 @@ import re
 
 register = template.Library()
 
+URL_RE = re.compile(r'(https?://[^\s<]+|www\.[^\s<]+)', re.IGNORECASE)
+
+
+def _apply_outside_tags(html, pattern, repl):
+    """Chỉ thay thế trên text, không đụng vào thuộc tính trong thẻ HTML."""
+    parts = re.split(r'(<[^>]+>)', html)
+    for i, part in enumerate(parts):
+        if part and not part.startswith('<'):
+            parts[i] = pattern.sub(repl, part)
+    return ''.join(parts)
+
+
+def _linkify_urls(escaped_text):
+    def url_repl(match):
+        raw = match.group(0)
+        url = raw
+        trailing = ''
+        while url and url[-1] in '.,;:!?)]':
+            trailing = url[-1] + trailing
+            url = url[:-1]
+        if not url:
+            return raw
+        href = url if re.match(r'^https?://', url, re.I) else f'https://{url}'
+        return (
+            f'<a href="{href}" class="caption-link" target="_blank" '
+            f'rel="noopener noreferrer" onclick="event.stopPropagation()">{url}</a>'
+            f'{trailing}'
+        )
+
+    return URL_RE.sub(url_repl, escaped_text)
+
 
 @register.filter
 def format_caption(caption):
     """
-    Format caption với các đề cập (@username) và hashtags (#hashtag)
-    - @username: hiển thị nổi bật và liên kết đến trang profile
-    - #hashtag: hiển thị màu nổi bật và liên kết đến trang tìm kiếm
+    Format caption: URL clickable, @mention, #hashtag.
     """
     if not caption:
         return ''
 
     text = escape(caption)
+    text = _linkify_urls(text)
 
     def mention_repl(match):
         username = match.group(1)
@@ -32,8 +62,14 @@ def format_caption(caption):
         url = f'{reverse("posts:search")}?q={tag}'
         return f'<a href="{url}" class="hashtag-link" onclick="event.stopPropagation()">#{tag}</a>'
 
-    text = re.sub(r'@(\w+)', mention_repl, text)
-    text = re.sub(r'#(\w+)', hashtag_repl, text)
+    text = _apply_outside_tags(text, re.compile(r'@(\w+)'), mention_repl)
+    text = _apply_outside_tags(text, re.compile(r'#(\w+)'), hashtag_repl)
     text = text.replace('\n', '<br>')
 
     return mark_safe(text)
+
+
+@register.filter
+def format_comment(text):
+    """URL + xuống dòng cho bình luận (không bắt buộc mention/hashtag, nhưng hỗ trợ luôn)."""
+    return format_caption(text)

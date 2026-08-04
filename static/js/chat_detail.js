@@ -90,6 +90,34 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Thêm tin nhắn mới vào giao diện
+    function escapeHtml(text) {
+        return String(text)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function linkifyMessageText(text) {
+        if (!text) return '';
+        const escaped = escapeHtml(text);
+        return escaped.replace(
+            /((?:https?:\/\/|www\.)[^\s<]+)/gi,
+            (raw) => {
+                let url = raw;
+                let trailing = '';
+                while (/[.,;:!?)]+$/.test(url)) {
+                    trailing = url.slice(-1) + trailing;
+                    url = url.slice(0, -1);
+                }
+                if (!url) return raw;
+                const href = /^https?:\/\//i.test(url) ? url : `https://${url}`;
+                return `<a href="${href}" target="_blank" rel="noopener noreferrer" class="message-link">${url}</a>${trailing}`;
+            }
+        );
+    }
+
     function appendMessage(message) {
         const messageContainer = document.createElement('div');
         messageContainer.className = `message mb-3 ${message.sender_id === currentUserId ? 'sent' : 'received'}`;
@@ -107,7 +135,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 ` : ''}
                 <div class="message-bubble ${message.sender_id === currentUserId ? 'sent-bubble' : 'received-bubble'}" style="max-width: 75%;">
-                    ${message.content}
+                    ${linkifyMessageText(message.content || '')}
                     <div class="message-time" style="font-size: 11px; color: #8e8e8e; margin-top: 4px; text-align: right;">
                         ${new Date(message.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                         ${message.sender_id === currentUserId ? `

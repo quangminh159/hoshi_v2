@@ -287,8 +287,10 @@ def create(request):
         form = PostForm(request.POST)
         if form.is_valid():
             media_files = _get_uploaded_media_files(request)
-            if not media_files:
-                error_message = 'Vui lòng chọn ít nhất một ảnh hoặc video.'
+            caption = (form.cleaned_data.get('caption') or '').strip()
+
+            if not media_files and not caption:
+                error_message = 'Vui lòng nhập nội dung hoặc chọn ít nhất một ảnh/video.'
                 if _is_ajax_request(request):
                     return JsonResponse({'error': error_message}, status=400)
                 messages.error(request, error_message)
@@ -296,6 +298,7 @@ def create(request):
 
             post = form.save(commit=False)
             post.author = request.user
+            post.caption = caption
             post.save()
 
             saved_media_count = 0
@@ -324,15 +327,18 @@ def create(request):
                 )
                 saved_media_count += 1
 
-            if saved_media_count == 0:
-                post.delete()
-                error_message = ' '.join(upload_errors) if upload_errors else 'Không thể tải lên media.'
-                if _is_ajax_request(request):
-                    return JsonResponse({'error': error_message}, status=400)
-                messages.error(request, error_message)
-                return render(request, 'posts/create_post.html', {'form': form})
-
-            if upload_errors:
+            # Có chọn file nhưng không lưu được cái nào → lỗi (trừ khi đã có caption)
+            if media_files and saved_media_count == 0:
+                if not caption:
+                    post.delete()
+                    error_message = ' '.join(upload_errors) if upload_errors else 'Không thể tải lên media.'
+                    if _is_ajax_request(request):
+                        return JsonResponse({'error': error_message}, status=400)
+                    messages.error(request, error_message)
+                    return render(request, 'posts/create_post.html', {'form': form})
+                for error_message in upload_errors:
+                    messages.warning(request, error_message)
+            elif upload_errors:
                 for error_message in upload_errors:
                     messages.warning(request, error_message)
 
@@ -570,35 +576,46 @@ def save_post(request, post_id):
 @login_required
 @require_POST
 def add_comment(request, post_id):
-    """Thêm bình luận vào bài viết (text và/hoặc ảnh)."""
+    """Thêm bình luận vào bài viết (text và/hoặc ảnh/video ngắn)."""
+    from .comment_media import validate_comment_image, validate_comment_video
+
     post = get_object_or_404(Post, id=post_id)
 
     text = (request.POST.get('text') or '').strip()
     parent_id = request.POST.get('parent_id')
     image = request.FILES.get('image')
+    video = request.FILES.get('video')
 
-    if not text and not image:
+    if not text and not image and not video:
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({
                 'success': False,
-                'message': 'Vui lòng nhập nội dung hoặc chọn ảnh bình luận'
+                'message': 'Vui lòng nhập nội dung, chọn ảnh hoặc video ngắn'
             })
-        messages.error(request, 'Vui lòng nhập nội dung hoặc chọn ảnh bình luận')
+        messages.error(request, 'Vui lòng nhập nội dung, chọn ảnh hoặc video ngắn')
+        return redirect('posts:post_detail', post_id=post_id)
+
+    if image and video:
+        msg = 'Chỉ chọn một trong ảnh hoặc video cho mỗi bình luận'
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'message': msg})
+        messages.error(request, msg)
         return redirect('posts:post_detail', post_id=post_id)
 
     if image:
-        content_type = getattr(image, 'content_type', '') or ''
-        if not content_type.startswith('image/'):
-            msg = 'File phải là ảnh'
+        err = validate_comment_image(image)
+        if err:
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({'success': False, 'message': msg})
-            messages.error(request, msg)
+                return JsonResponse({'success': False, 'message': err})
+            messages.error(request, err)
             return redirect('posts:post_detail', post_id=post_id)
-        if image.size > 5 * 1024 * 1024:
-            msg = 'Ảnh bình luận tối đa 5MB'
+
+    if video:
+        err = validate_comment_video(video)
+        if err:
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({'success': False, 'message': msg})
-            messages.error(request, msg)
+                return JsonResponse({'success': False, 'message': err})
+            messages.error(request, err)
             return redirect('posts:post_detail', post_id=post_id)
 
     # Kiểm tra xem bài viết có tắt bình luận không
@@ -636,6 +653,8 @@ def add_comment(request, post_id):
     )
     if image:
         comment.image = image
+    if video:
+        comment.video = video
     comment.save()
 
     # Tăng comment_count
@@ -677,6 +696,8 @@ def add_comment(request, post_id):
             'text': comment.text or '',
             'image': comment.image_url,
             'image_url': comment.image_url,
+            'video': comment.video_url,
+            'video_url': comment.video_url,
             'created_at': comment.created_at.isoformat(),
             'author': {
                 'id': request.user.id,
@@ -1013,6 +1034,8 @@ def _comment_payload(comment_obj, liked_comment_ids, parent_id=None):
         'text': comment_obj.text or '',
         'image': comment_obj.image_url,
         'image_url': comment_obj.image_url,
+        'video': comment_obj.video_url,
+        'video_url': comment_obj.video_url,
         'created_at': comment_obj.created_at.isoformat(),
         'author_username': comment_obj.author.username,
         'likes_count': comment_obj.likes_count,

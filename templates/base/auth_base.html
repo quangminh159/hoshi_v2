@@ -5,6 +5,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+    (function () {
+        try {
+            var mode = localStorage.getItem('hoshi-theme') || 'system';
+            var dark = mode === 'dark' || (mode !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            var theme = dark ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-bs-theme', theme);
+            document.documentElement.setAttribute('data-theme-mode', mode);
+            document.documentElement.style.colorScheme = theme;
+        } catch (e) {}
+    })();
+    </script>
     <title>{% block title %}Hoshi - Mạng xã hội chia sẻ khoảnh khắc{% endblock %}</title>
     
     <!-- Favicon -->
@@ -18,10 +30,15 @@
     
     <!-- Custom CSS -->
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
+    <link href="{% static 'css/theme.css' %}?v=1" rel="stylesheet">
     
     {% block extra_css %}{% endblock %}
 </head>
 <body>
+    <button type="button" class="theme-toggle-btn position-fixed top-0 end-0 m-3" style="z-index: 1050;" data-theme-toggle aria-label="{% trans 'Đổi giao diện sáng/tối' %}">
+        <i class="fas fa-sun theme-icon-sun" aria-hidden="true"></i>
+        <i class="fas fa-moon theme-icon-moon" aria-hidden="true"></i>
+    </button>
     {% block content %}{% endblock %}
     
     <!-- Toast Container -->
@@ -46,6 +63,7 @@
     
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{% static 'js/theme.js' %}?v=1"></script>
     
     {% block extra_js %}{% endblock %}
 </body>

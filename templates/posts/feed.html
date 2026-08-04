@@ -7,7 +7,7 @@
 {% block body_class %} feed-layout{% endblock %}
 
 {% block extra_css %}
-<link href="{% static 'css/feed.css' %}?v=feed-carousel-nav-2" rel="stylesheet">
+<link href="{% static 'css/feed.css' %}?v=feed-linkify-1" rel="stylesheet">
 <link href="{% static 'css/share_post_modal.css' %}" rel="stylesheet">
 {% include 'posts/includes/create_post_composer_assets.html' %}
 <style>
@@ -100,7 +100,7 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/infinite_scroll.js' %}?v=media-lightbox-1"></script>
+<script src="{% static 'js/infinite_scroll.js' %}?v=comment-video-1"></script>
 <script src="{% static 'js/share_post_modal.js' %}?v=share-icon-1"></script>
 <script>
 window.currentUserId = '{{ request.user.id }}';

@@ -287,7 +287,9 @@ def comment_replies(request, pk):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def add_comment(request):
-    """API thêm bình luận (text và/hoặc ảnh)."""
+    """API thêm bình luận (text và/hoặc ảnh/video ngắn)."""
+    from .comment_media import validate_comment_image, validate_comment_video
+
     try:
         data = request.data
         post_id = data.get('post_id')
@@ -295,21 +297,28 @@ def add_comment(request):
         parent_id = data.get('parent_id') or None
         request_id = data.get('request_id', '') or ''
         image = request.FILES.get('image')
+        video = request.FILES.get('video')
 
         if parent_id in ('', 'null', 'undefined'):
             parent_id = None
 
         print(
             f"Processing comment request: post_id={post_id}, text={text[:20] if text else '[empty]'}..., "
-            f"parent_id={parent_id}, request_id={request_id}, has_image={bool(image)}"
+            f"parent_id={parent_id}, request_id={request_id}, has_image={bool(image)}, has_video={bool(video)}"
         )
 
         if not post_id:
             return Response({'error': 'Missing required fields'}, status=status.HTTP_400_BAD_REQUEST)
 
-        if not text and not image:
+        if not text and not image and not video:
             return Response(
-                {'error': 'Vui lòng nhập nội dung hoặc chọn ảnh bình luận'},
+                {'error': 'Vui lòng nhập nội dung, chọn ảnh hoặc video ngắn'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if image and video:
+            return Response(
+                {'error': 'Chỉ chọn một trong ảnh hoặc video cho mỗi bình luận'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -320,11 +329,14 @@ def add_comment(request):
             )
 
         if image:
-            content_type = getattr(image, 'content_type', '') or ''
-            if not content_type.startswith('image/'):
-                return Response({'error': 'File phải là ảnh'}, status=status.HTTP_400_BAD_REQUEST)
-            if image.size > 5 * 1024 * 1024:
-                return Response({'error': 'Ảnh bình luận tối đa 5MB'}, status=status.HTTP_400_BAD_REQUEST)
+            err = validate_comment_image(image)
+            if err:
+                return Response({'error': err}, status=status.HTTP_400_BAD_REQUEST)
+
+        if video:
+            err = validate_comment_video(video)
+            if err:
+                return Response({'error': err}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             post = Post.objects.get(id=post_id)
@@ -376,8 +388,8 @@ def add_comment(request):
                     })
             cache.set(request_cache_key, True, 300)
 
-        # Chống duplicate text-only gần đây (ảnh thường khác nhau mỗi lần)
-        if text and not image:
+        # Chống duplicate text-only gần đây
+        if text and not image and not video:
             comment_content_hash = hashlib.md5(
                 f"{request.user.id}:{post_id}:{text}:{parent_id or ''}".encode()
             ).hexdigest()
@@ -412,7 +424,7 @@ def add_comment(request):
             except Comment.DoesNotExist:
                 return Response({'error': 'Parent comment not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        if text and not image:
+        if text and not image and not video:
             recent_comments = Comment.objects.filter(
                 post=post,
                 author=request.user,
@@ -440,6 +452,8 @@ def add_comment(request):
         )
         if image:
             comment.image = image
+        if video:
+            comment.video = video
         comment.save()
 
         post.comments_count = post.comments.count()

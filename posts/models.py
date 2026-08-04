@@ -110,6 +110,12 @@ class Comment(models.Model):
         blank=True,
         null=True,
     )
+    video = models.FileField(
+        upload_to='comments/videos/%Y/%m/',
+        blank=True,
+        null=True,
+        verbose_name=_('video'),
+    )
     parent = models.ForeignKey('self',
                              on_delete=models.CASCADE,
                              null=True,
@@ -133,6 +139,15 @@ class Comment(models.Model):
         if self.image:
             try:
                 return self.image.url
+            except Exception:
+                return None
+        return None
+
+    @property
+    def video_url(self):
+        if self.video:
+            try:
+                return self.video.url
             except Exception:
                 return None
         return None

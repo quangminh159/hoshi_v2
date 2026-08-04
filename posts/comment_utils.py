@@ -16,6 +16,8 @@ def serialize_comment(comment, post_id=None, is_duplicate=False, parent_data=Non
         'text': comment.text or '',
         'image': comment.image_url,
         'image_url': comment.image_url,
+        'video': comment.video_url,
+        'video_url': comment.video_url,
         'author_id': comment.author_id,
         'author_username': comment.author.username,
         'author_avatar': comment.author.get_avatar_url() if hasattr(comment.author, 'get_avatar_url') else (

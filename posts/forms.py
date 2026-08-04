@@ -41,17 +41,19 @@ class CommentForm(forms.ModelForm):
         required=False,
     )
     image = forms.ImageField(required=False)
+    video = forms.FileField(required=False)
     
     class Meta:
         model = Comment
-        fields = ['text', 'image']
+        fields = ['text', 'image', 'video']
 
     def clean(self):
         cleaned = super().clean()
         text = (cleaned.get('text') or '').strip()
         image = cleaned.get('image')
-        if not text and not image:
-            raise forms.ValidationError('Vui lòng nhập nội dung hoặc chọn ảnh bình luận.')
+        video = cleaned.get('video')
+        if not text and not image and not video:
+            raise forms.ValidationError('Vui lòng nhập nội dung, chọn ảnh hoặc video ngắn.')
         cleaned['text'] = text
         return cleaned
 

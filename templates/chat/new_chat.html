@@ -1,5 +1,6 @@
 {% extends 'base/base.html' %}
 {% load static %}
+{% load chat_tags %}
 
 {% block title %}Chat - Trò chuyện mới{% endblock %}
 
@@ -529,7 +530,7 @@
           {% endif %}
           <div class="message-content">
             <div class="message-bubble">
-              {{ message.content }}
+              {{ message.content|linkify }}
             </div>
             <div class="message-time">
               {{ message.created_at|time:"H:i" }}
@@ -775,6 +776,34 @@
     initWebSocket();
     
     // Hàm tạo phần tử tin nhắn mới
+    function escapeHtml(text) {
+      return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function linkifyMessageText(text) {
+      if (!text) return '';
+      const escaped = escapeHtml(text);
+      return escaped.replace(
+        /((?:https?:\/\/|www\.)[^\s<]+)/gi,
+        (raw) => {
+          let url = raw;
+          let trailing = '';
+          while (/[.,;:!?)]+$/.test(url)) {
+            trailing = url.slice(-1) + trailing;
+            url = url.slice(0, -1);
+          }
+          if (!url) return raw;
+          const href = /^https?:\/\//i.test(url) ? url : `https://${url}`;
+          return `<a href="${href}" target="_blank" rel="noopener noreferrer" class="message-link">${url}</a>${trailing}`;
+        }
+      );
+    }
+
     function createMessageElement(message) {
       const messageDiv = document.createElement('div');
       messageDiv.className = `message ${message.sender_id === {{ request.user.id }} ? 'sent' : 'received'}`;
@@ -793,7 +822,7 @@
       const contentDiv = document.createElement('div');
       contentDiv.className = 'message-content';
       contentDiv.innerHTML = `
-        <div class="message-bubble">${message.content}</div>
+        <div class="message-bubble">${linkifyMessageText(message.content || '')}</div>
         <div class="message-time">
           ${new Date(message.timestamp).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'})}
           ${message.sender_id === {{ request.user.id }} ? 

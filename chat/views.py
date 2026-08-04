@@ -410,6 +410,28 @@ def api_unread(request):
         content_type = 'application/javascript; charset=utf8'
     )
 
+
+@login_required
+def api_link_preview(request):
+    """Trả về Open Graph / oEmbed preview cho URL chia sẻ trong chat."""
+    from .link_preview import get_link_preview, extract_first_url, is_safe_public_url
+
+    raw = (request.GET.get('url') or '').strip()
+    if not raw:
+        return JsonResponse({'ok': False, 'error': 'missing_url'}, status=400)
+
+    # Cho phép gửi cả đoạn text chứa URL
+    url = extract_first_url(raw) or raw
+    if not is_safe_public_url(url):
+        return JsonResponse({'ok': False, 'error': 'invalid_url'}, status=400)
+
+    preview = get_link_preview(url)
+    if not preview:
+        return JsonResponse({'ok': False, 'error': 'unavailable'}, status=404)
+
+    return JsonResponse({'ok': True, 'preview': preview})
+
+
 @login_required
 def index(request, id=0):
     user = User.objects.get(username=request.user)

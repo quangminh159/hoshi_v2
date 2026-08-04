@@ -1,4 +1,4 @@
-/* General */
+/* General — theme tokens also live in theme.css (data-bs-theme) */
 :root {
     --primary-color: #405de6;
     --secondary-color: #5851db;
@@ -6,6 +6,8 @@
     --light-text-color: #8e8e8e;
     --border-color: #dbdbdb;
     --background-color: #fafafa;
+    --surface-color: #ffffff;
+    --card-bg: #ffffff;
 }
 
 body {

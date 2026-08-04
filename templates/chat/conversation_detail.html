@@ -1,17 +1,18 @@
 {% extends 'base/base.html' %}
 {% load i18n %}
 {% load static %}
+{% load chat_tags %}
 
 {% block title %}{% trans "Chi tiết cuộc trò chuyện" %}{% endblock %}
 
 {% block body_class %} chat-layout chat-detail-layout{% endblock %}
 
 {% block extra_css %}
-<link href="{% static 'css/chat.css' %}?v=voice-mobile-3" rel="stylesheet">
+<link href="{% static 'css/chat.css' %}?v=link-preview-1" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
-<div class="chat-page">
+<div class="chat-page" data-conversation-id="{{ conversation.id }}">
   <div class="chat-shell chat-shell--detail">
     <div class="chat-container">
       <div class="chat-header">
@@ -132,7 +133,12 @@
                 {% endif %}
 
                 {% if message.content %}
-                  <div class="message-text">{{ message.content }}</div>
+                  <div class="message-text">{{ message.content|linkify }}</div>
+                  {% with preview_url=message.content|first_url %}
+                    {% if preview_url %}
+                      <div class="message-link-preview" data-preview-url="{{ preview_url }}" hidden></div>
+                    {% endif %}
+                  {% endwith %}
                 {% endif %}
 
                 <div class="message-meta">
@@ -269,6 +275,145 @@
   let messageInput;
   let chatSocket;
 
+  function escapeHtml(text) {
+    return String(text)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  /** Chuyển URL trong text thành thẻ a (đã escape HTML). */
+  function linkifyMessageText(text) {
+    if (!text) return '';
+    const escaped = escapeHtml(text);
+    // http(s)://... hoặc www.... — bỏ dấu câu cuối phổ biến
+    return escaped.replace(
+      /((?:https?:\/\/|www\.)[^\s<]+)/gi,
+      (raw) => {
+        let url = raw;
+        let trailing = '';
+        while (/[.,;:!?)]+$/.test(url)) {
+          trailing = url.slice(-1) + trailing;
+          url = url.slice(0, -1);
+        }
+        if (!url) return raw;
+        const href = /^https?:\/\//i.test(url) ? url : `https://${url}`;
+        return `<a href="${href}" target="_blank" rel="noopener noreferrer" class="message-link">${url}</a>${trailing}`;
+      }
+    );
+  }
+
+  function extractFirstUrl(text) {
+    if (!text) return null;
+    const match = String(text).match(/https?:\/\/[^\s<>'"\])}>]+/i);
+    if (!match) return null;
+    return match[0].replace(/[.,;:!?)]+$/, '');
+  }
+
+  const linkPreviewCache = new Map();
+
+  function buildLinkPreviewCard(preview) {
+    const card = document.createElement('a');
+    card.className = 'link-preview-card';
+    card.href = preview.url;
+    card.target = '_blank';
+    card.rel = 'noopener noreferrer';
+
+    if (preview.image) {
+      const thumb = document.createElement('div');
+      thumb.className = 'link-preview-thumb';
+      const img = document.createElement('img');
+      img.src = preview.image;
+      img.alt = preview.title || '';
+      img.loading = 'lazy';
+      img.referrerPolicy = 'no-referrer';
+      img.onerror = () => thumb.remove();
+      thumb.appendChild(img);
+      card.appendChild(thumb);
+    }
+
+    const body = document.createElement('div');
+    body.className = 'link-preview-body';
+
+    const title = document.createElement('div');
+    title.className = 'link-preview-title';
+    title.textContent = preview.title || preview.url;
+    body.appendChild(title);
+
+    if (preview.description) {
+      const desc = document.createElement('div');
+      desc.className = 'link-preview-desc';
+      desc.textContent = preview.description;
+      body.appendChild(desc);
+    }
+
+    if (preview.site_name) {
+      const site = document.createElement('div');
+      site.className = 'link-preview-site';
+      site.textContent = preview.site_name;
+      body.appendChild(site);
+    }
+
+    card.appendChild(body);
+    return card;
+  }
+
+  async function loadLinkPreview(hostEl) {
+    if (!hostEl || hostEl.dataset.previewLoaded === '1') return;
+    const url = hostEl.dataset.previewUrl;
+    if (!url) return;
+
+    hostEl.dataset.previewLoaded = '1';
+    hostEl.hidden = false;
+    hostEl.innerHTML = '<div class="link-preview-loading" aria-hidden="true"></div>';
+
+    try {
+      let preview = linkPreviewCache.get(url);
+      if (!preview) {
+        const resp = await fetch(`/chat/api/link-preview/?url=${encodeURIComponent(url)}`, {
+          headers: { 'X-Requested-With': 'XMLHttpRequest' },
+          credentials: 'same-origin',
+        });
+        if (!resp.ok) {
+          hostEl.remove();
+          return;
+        }
+        const data = await resp.json();
+        if (!data.ok || !data.preview) {
+          hostEl.remove();
+          return;
+        }
+        preview = data.preview;
+        linkPreviewCache.set(url, preview);
+      }
+      hostEl.innerHTML = '';
+      hostEl.appendChild(buildLinkPreviewCard(preview));
+    } catch (err) {
+      hostEl.remove();
+    }
+  }
+
+  function hydrateLinkPreviews(root) {
+    const scope = root || document;
+    scope.querySelectorAll('.message-link-preview[data-preview-url]').forEach((el) => {
+      loadLinkPreview(el);
+    });
+  }
+
+  function appendLinkPreviewSlot(messageContent, text) {
+    const url = extractFirstUrl(text);
+    if (!url || !messageContent) return null;
+    const slot = document.createElement('div');
+    slot.className = 'message-link-preview';
+    slot.dataset.previewUrl = url;
+    slot.hidden = true;
+    messageContent.appendChild(slot);
+    loadLinkPreview(slot);
+    return slot;
+  }
+
   document.addEventListener('DOMContentLoaded', function() {
     // Khởi tạo kết nối WebSocket
     const conversationId = {{ conversation.id }};
@@ -284,6 +429,8 @@
     messageInput = document.getElementById('messageInput');
     const typingIndicator = document.getElementById('typingIndicator');
     const typingUsername = document.getElementById('typingUsername');
+
+    hydrateLinkPreviews(chatMessages);
     
     // Biến để theo dõi trạng thái đang nhập
     let typingTimeout = null;
@@ -762,8 +909,9 @@
       if (message.content) {
         const messageText = document.createElement('div');
         messageText.className = 'message-text';
-        messageText.textContent = message.content;
+        messageText.innerHTML = linkifyMessageText(message.content);
         messageContent.appendChild(messageText);
+        appendLinkPreviewSlot(messageContent, message.content);
       }
 
       const messageMeta = document.createElement('div');

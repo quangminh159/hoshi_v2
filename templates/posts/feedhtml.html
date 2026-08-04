@@ -1,3 +1,4 @@
+{% load post_tags %}
 {% for post_data in posts_with_data %}
 {% with post=post_data.post %}
 <div class="card mb-4" id="post-{{ post.id }}">
@@ -53,7 +54,7 @@
     {% if post.caption %}
     <div class="card-body py-2">
         <p class="card-text mb-0">
-            {{ post.caption|urlize|linebreaksbr }}
+            {{ post.caption|format_caption }}
         </p>
     </div>
     {% endif %}
@@ -159,7 +160,7 @@
                            class="text-dark text-decoration-none fw-bold">
                             {{ comment.author.username }}
                         </a>
-                        {{ comment.text }}
+                        {{ comment.text|format_comment }}
                         
                         <div class="text-muted small d-flex align-items-center mt-1">
                             <span>{{ comment.created_at|timesince }} trước</span>

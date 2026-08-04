@@ -542,6 +542,26 @@
     text-decoration: underline !important;
 }
 
+.caption-link,
+.comment-text a.caption-link,
+.comment-text a {
+    color: #405de6 !important;
+    font-weight: 600;
+    text-decoration: underline !important;
+    text-underline-offset: 2px;
+    word-break: break-all;
+}
+
+.caption-link:hover,
+.comment-text a:hover {
+    color: #2d46c9 !important;
+}
+
+[data-bs-theme="dark"] .caption-link,
+[data-bs-theme="dark"] .comment-text a {
+    color: #7c9cff !important;
+}
+
 .feed-post-actions {
     padding-left: 0 !important;
     padding-right: 0 !important;

@@ -285,10 +285,32 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10,
 }
 
-# Channels
-REDIS_URL = config('REDIS_URL', default='')
+# Channels / cache — dùng Redis nếu có và đang chạy; không thì InMemory (dev local)
+REDIS_URL = config('REDIS_URL', default='').strip()
 
-if REDIS_URL:
+def _redis_reachable(url: str) -> bool:
+    if not url:
+        return False
+    try:
+        import redis
+        client = redis.Redis.from_url(url, socket_connect_timeout=1, socket_timeout=1)
+        client.ping()
+        client.close()
+        return True
+    except Exception:
+        return False
+
+
+USE_REDIS = bool(REDIS_URL) and _redis_reachable(REDIS_URL)
+
+if REDIS_URL and not USE_REDIS:
+    import logging
+    logging.getLogger(__name__).warning(
+        'REDIS_URL=%s nhưng không kết nối được — dùng InMemoryChannelLayer / LocMemCache.',
+        REDIS_URL,
+    )
+
+if USE_REDIS:
     CHANNEL_LAYERS = {
         'default': {
             'BACKEND': 'channels_redis.core.RedisChannelLayer',

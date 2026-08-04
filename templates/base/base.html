@@ -5,6 +5,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+    (function () {
+        try {
+            var mode = localStorage.getItem('hoshi-theme') || 'system';
+            var dark = mode === 'dark' || (mode !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            var theme = dark ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-bs-theme', theme);
+            document.documentElement.setAttribute('data-theme-mode', mode);
+            document.documentElement.style.colorScheme = theme;
+        } catch (e) {}
+    })();
+    </script>
     <title>{% block title %}{% trans "Hoshi - Mạng xã hội chia sẻ khoảnh khắc" %}{% endblock %}</title>
     
     <!-- Favicon -->
@@ -18,6 +30,7 @@
     
     <!-- Custom CSS -->
     <link href="{% static 'css/style.css' %}?v=chat-hide-nav-1" rel="stylesheet">
+    <link href="{% static 'css/theme.css' %}?v=1" rel="stylesheet">
     <link href="{% static 'css/notification_dropdown.css' %}" rel="stylesheet">
     <link href="{% static 'css/media_lightbox.css' %}?v=5" rel="stylesheet">
     
@@ -49,7 +62,13 @@
                     </div>
                 </form>
                 
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto align-items-lg-center">
+                    <li class="nav-item me-lg-2 mb-2 mb-lg-0">
+                        <button type="button" class="theme-toggle-btn" data-theme-toggle aria-label="{% trans 'Đổi giao diện sáng/tối' %}">
+                            <i class="fas fa-sun theme-icon-sun" aria-hidden="true"></i>
+                            <i class="fas fa-moon theme-icon-moon" aria-hidden="true"></i>
+                        </button>
+                    </li>
                     {% if user.is_authenticated %}
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'home' %}">
@@ -176,9 +195,15 @@
         <a href="{% url 'home' %}" class="mobile-feed-logo brand-logo" aria-label="Trang chủ">
             <img src="{% static 'images/logo-mark.svg' %}" alt="M" class="brand-logo__mark">
         </a>
-        <a href="{% url 'posts:search' %}" class="mobile-feed-icon-btn" aria-label="Tìm kiếm">
-            <i class="fas fa-search"></i>
-        </a>
+        <div class="d-flex align-items-center gap-1">
+            <button type="button" class="mobile-feed-icon-btn" data-theme-toggle aria-label="{% trans 'Đổi giao diện sáng/tối' %}">
+                <i class="fas fa-sun theme-icon-sun" aria-hidden="true"></i>
+                <i class="fas fa-moon theme-icon-moon" aria-hidden="true"></i>
+            </button>
+            <a href="{% url 'posts:search' %}" class="mobile-feed-icon-btn" aria-label="Tìm kiếm">
+                <i class="fas fa-search"></i>
+            </a>
+        </div>
     </header>
 
     <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileFeedMenu" aria-labelledby="mobileFeedMenuLabel">
@@ -194,6 +219,11 @@
             <a class="mobile-menu-link" href="{% url 'posts:liked_posts' %}"><i class="fas fa-heart"></i><span>{% trans "Đã thích" %}</span></a>
             <a class="mobile-menu-link" href="{% url 'posts:saved' %}"><i class="fas fa-bookmark"></i><span>{% trans "Đã lưu" %}</span></a>
             <a class="mobile-menu-link" href="{% url 'accounts:settings' %}"><i class="fas fa-cog"></i><span>{% trans "Cài đặt" %}</span></a>
+            <button type="button" class="mobile-menu-link w-100 border-0 bg-transparent text-start" data-theme-toggle>
+                <i class="fas fa-moon theme-icon-moon"></i>
+                <i class="fas fa-sun theme-icon-sun"></i>
+                <span>{% trans "Giao diện sáng / tối" %}</span>
+            </button>
             <a class="mobile-menu-link text-danger" href="{% url 'account_logout' %}"><i class="fas fa-sign-out-alt"></i><span>{% trans "Đăng xuất" %}</span></a>
         </div>
     </div>
@@ -244,10 +274,11 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     
     <!-- Custom JS -->
+    <script src="{% static 'js/theme.js' %}?v=1"></script>
     <script src="{% static 'js/main.js' %}"></script>
     <script src="{% static 'js/debug_feed.js' %}"></script>
     <script src="{% static 'js/disable_multiple_submissions.js' %}"></script>
-    <script src="{% static 'js/notifications.js' %}"></script>
+    <script src="{% static 'js/notifications.js' %}?v=2"></script>
     <script src="{% static 'js/media_lightbox.js' %}?v=7"></script>
     
     {% block extra_js %}{% endblock %}
