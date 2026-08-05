@@ -145,8 +145,8 @@
     </div>
 
     <section class="post-detail-comments-section" aria-label="Bình luận">
-        <div class="post-detail-comments-header">
-            <h2>Bình luận <span class="text-muted fw-normal">({{ total_comments }})</span></h2>
+                        <div class="post-detail-comments-header">
+            <h2>Bình luận <span class="text-muted fw-normal">(<span id="post-comment-count">{{ total_comments }}</span>)</span></h2>
         </div>
 
         <div id="post-detail-comments-list" class="post-detail-comments-list">
@@ -188,10 +188,11 @@
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li>
-                                    <button class="dropdown-item reply-button"
-                                            data-username="{{ comment.author.username }}"
-                                            data-post-id="{{ post.id }}">
-                                        <i class="fas fa-reply me-2"></i>Trả lời
+                                    <button class="dropdown-item share-comment-button"
+                                            data-post-id="{{ post.id }}"
+                                            data-comment-id="{{ comment.id }}"
+                                            onclick="openShareCommentModal({{ post.id }}, {{ comment.id }})">
+                                        <i class="fas fa-paper-plane me-2"></i>Chia sẻ qua chat
                                     </button>
                                 </li>
                                 {% if request.user == comment.author or request.user == post.author %}
@@ -260,10 +261,11 @@
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-end">
                                         <li>
-                                            <button class="dropdown-item reply-button"
-                                                    data-username="{{ reply.reply.author.username }}"
-                                                    data-post-id="{{ post.id }}">
-                                                <i class="fas fa-reply me-2"></i>Trả lời
+                                            <button class="dropdown-item share-comment-button"
+                                                    data-post-id="{{ post.id }}"
+                                                    data-comment-id="{{ reply.reply.id }}"
+                                                    onclick="openShareCommentModal({{ post.id }}, {{ reply.reply.id }})">
+                                                <i class="fas fa-paper-plane me-2"></i>Chia sẻ qua chat
                                             </button>
                                         </li>
                                         {% if request.user == reply.reply.author or request.user == post.author %}

@@ -178,15 +178,31 @@
                             </button>
                         </div>
                     </div>
-                    <!-- Delete button for comment author -->
-                    {% if comment.author == request.user %}
-                    <div>
-                        <button class="btn btn-link text-danger p-0 delete-comment-button"
-                                data-comment-id="{{ comment.id }}">
-                            <i class="fas fa-trash-alt"></i>
+                    <div class="dropdown flex-shrink-0">
+                        <button class="btn btn-link btn-sm p-0 text-muted" type="button"
+                                data-bs-toggle="dropdown" aria-expanded="false" aria-label="Tùy chọn bình luận">
+                            <i class="fas fa-ellipsis-h"></i>
                         </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <button class="dropdown-item share-comment-button"
+                                        data-post-id="{{ post.id }}"
+                                        data-comment-id="{{ comment.id }}"
+                                        onclick="openShareCommentModal({{ post.id }}, {{ comment.id }})">
+                                    <i class="fas fa-paper-plane me-2"></i>Chia sẻ qua chat
+                                </button>
+                            </li>
+                            {% if comment.author == request.user or post.author == request.user %}
+                            <li>
+                                <button class="dropdown-item text-danger delete-comment-button"
+                                        data-comment-id="{{ comment.id }}"
+                                        onclick="deleteComment({{ comment.id }})">
+                                    <i class="fas fa-trash-alt me-2"></i>Xóa
+                                </button>
+                            </li>
+                            {% endif %}
+                        </ul>
                     </div>
-                    {% endif %}
                 </div>
                 
                 <!-- Hiển thị replies -->
@@ -206,15 +222,31 @@
                                     <span>{{ reply.created_at|timesince }} trước</span>
                                 </div>
                             </div>
-                            <!-- Delete button for reply author -->
-                            {% if reply.author == request.user %}
-                            <div>
-                                <button class="btn btn-link text-danger p-0 delete-comment-button"
-                                        data-comment-id="{{ reply.id }}">
-                                    <i class="fas fa-trash-alt"></i>
+                            <div class="dropdown flex-shrink-0">
+                                <button class="btn btn-link btn-sm p-0 text-muted" type="button"
+                                        data-bs-toggle="dropdown" aria-expanded="false" aria-label="Tùy chọn bình luận">
+                                    <i class="fas fa-ellipsis-h"></i>
                                 </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <button class="dropdown-item share-comment-button"
+                                                data-post-id="{{ post.id }}"
+                                                data-comment-id="{{ reply.id }}"
+                                                onclick="openShareCommentModal({{ post.id }}, {{ reply.id }})">
+                                            <i class="fas fa-paper-plane me-2"></i>Chia sẻ qua chat
+                                        </button>
+                                    </li>
+                                    {% if reply.author == request.user or post.author == request.user %}
+                                    <li>
+                                        <button class="dropdown-item text-danger delete-comment-button"
+                                                data-comment-id="{{ reply.id }}"
+                                                onclick="deleteComment({{ reply.id }})">
+                                            <i class="fas fa-trash-alt me-2"></i>Xóa
+                                        </button>
+                                    </li>
+                                    {% endif %}
+                                </ul>
                             </div>
-                            {% endif %}
                         </div>
                     </div>
                     {% endfor %}

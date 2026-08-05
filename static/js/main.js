@@ -543,6 +543,10 @@ function createCommentElement(comment) {
     // Kiểm tra xem người dùng hiện tại có phải là tác giả của comment không
     const currentUserId = getCurrentUserId(); // Bạn cần triển khai hàm này
     const isAuthor = currentUserId && currentUserId == comment.author_id;
+    // Chủ bài viết cũng được xóa (data-author-id trên card nếu có)
+    const postCard = document.getElementById(`post-${comment.post_id}`);
+    const postAuthorId = postCard?.getAttribute('data-author-id');
+    const canDelete = isAuthor || (currentUserId && postAuthorId && currentUserId == postAuthorId);
     
     div.innerHTML = `
         <div class="d-flex">
@@ -568,7 +572,7 @@ function createCommentElement(comment) {
                             data-comment-id="${comment.id}">
                         <i class="fas fa-reply"></i> Trả lời
                     </button>
-                    ${isAuthor ? `
+                    ${canDelete || comment.can_delete ? `
                     <button class="btn btn-link btn-sm p-0 text-danger delete-comment-button ms-2" 
                             onclick="deleteComment(${comment.id})">
                         <i class="fas fa-trash"></i> Xóa
@@ -1083,11 +1087,11 @@ function addCommentToDOM(comment, postId, isReply, parentId) {
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li>
-                            <button class="dropdown-item reply-button" 
-                                    data-username="${normalizedComment.author.username}"
+                            <button class="dropdown-item share-comment-button" 
                                     data-post-id="${postId}"
-                                    data-comment-id="${normalizedComment.id}">
-                                <i class="fas fa-reply me-2"></i>Trả lời
+                                    data-comment-id="${normalizedComment.id}"
+                                    onclick="openShareCommentModal(${postId}, ${normalizedComment.id})">
+                                <i class="fas fa-paper-plane me-2"></i>Chia sẻ qua chat
                             </button>
                         </li>
                         <li>

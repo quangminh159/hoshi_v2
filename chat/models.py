@@ -242,9 +242,18 @@ class ConversationMessage(models.Model):
         return None
 
     def get_reply_preview(self):
-        """Nội dung rút gọn để hiển thị khi được trả lời."""
-        if self.shared_post_id and self.shared_post:
-            return f'[Bài viết của @{self.shared_post.author.username}]'
+        """Nội dung rút gọn để hiển thị khi được trả lời / preview inbox."""
+        if self.shared_post_id:
+            from chat.message_utils import extract_shared_comment_id
+            if extract_shared_comment_id(self.content):
+                return 'Đã chia sẻ một bình luận'
+            author = ''
+            try:
+                if self.shared_post_id and self.shared_post:
+                    author = self.shared_post.author.username
+            except Exception:
+                author = ''
+            return f'Đã chia sẻ một bài viết' + (f' của @{author}' if author else '')
         if self.content:
             return self.content
         if self.image:

@@ -143,7 +143,7 @@
                 {% endif %}
 
                 {% if message.shared_post %}
-                  {% include 'chat/includes/message_shared_post.html' with post=message.shared_post %}
+                  {% include 'chat/includes/message_shared_post.html' with post=message.shared_post message=message %}
                 {% endif %}
 
                 {% if message.image %}
@@ -486,7 +486,11 @@
         }
         if (!url) return raw;
         const href = /^https?:\/\//i.test(url) ? url : `https://${url}`;
-        return `<a href="${href}" target="_blank" rel="noopener noreferrer" class="message-link">${url}</a>${trailing}`;
+        const isCommentDeepLink = /#comment-\d+/i.test(href);
+        const targetAttrs = isCommentDeepLink
+          ? 'class="message-link message-link--comment"'
+          : 'target="_blank" rel="noopener noreferrer" class="message-link"';
+        return `<a href="${href}" ${targetAttrs}>${url}</a>${trailing}`;
       }
     );
   }
@@ -893,8 +897,11 @@
     function buildSharedPostCard(sharedPost) {
       if (!sharedPost) return null;
       const link = document.createElement('a');
-      link.href = sharedPost.url || `/posts/${sharedPost.id}/`;
-      link.className = 'message-shared-post';
+      const commentId = sharedPost.comment_id;
+      const href = sharedPost.url
+        || (commentId ? `/posts/${sharedPost.id}/#comment-${commentId}` : `/posts/${sharedPost.id}/`);
+      link.href = href;
+      link.className = 'message-shared-post' + (commentId ? ' message-shared-post--comment' : '');
 
       const mediaHtml = sharedPost.media ? `
         <div class="message-shared-post__media">
@@ -904,6 +911,7 @@
                <span class="message-shared-post__play"><i class="fas fa-play"></i></span>`}
         </div>` : '';
 
+      const ctaLabel = commentId ? 'Xem bình luận' : 'Xem bài viết';
       link.innerHTML = `
         <div class="message-shared-post__header">
           <img src="${sharedPost.author_avatar || ''}" alt="" class="message-shared-post__avatar" loading="lazy">
@@ -911,7 +919,7 @@
         </div>
         ${mediaHtml}
         ${sharedPost.caption ? `<p class="message-shared-post__caption">${sharedPost.caption}</p>` : ''}
-        <span class="message-shared-post__link">Xem bài viết <i class="fas fa-external-link-alt ms-1"></i></span>`;
+        <span class="message-shared-post__link">${ctaLabel} <i class="fas fa-external-link-alt ms-1"></i></span>`;
       return link;
     }
 

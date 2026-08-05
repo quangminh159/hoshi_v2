@@ -25,6 +25,16 @@
             prefix = `<span class="you-prefix">${escapeHtml(message.sender_username)}: </span>`;
         }
 
+        if (message.shared_post) {
+            if (message.shared_post.is_shared_comment || message.shared_post.comment_id) {
+                return `${prefix}<i class="fas fa-comment"></i> Đã chia sẻ một bình luận`;
+            }
+            // Nội dung kiểu chia sẻ bình luận (có #comment-) nhưng payload cũ
+            if (/#comment-\d+/i.test(String(message.content || ''))) {
+                return `${prefix}<i class="fas fa-comment"></i> Đã chia sẻ một bình luận`;
+            }
+            return `${prefix}<i class="fas fa-share"></i> Đã chia sẻ một bài viết`;
+        }
         if (message.content) {
             const text = escapeHtml(String(message.content).slice(0, 45));
             return prefix + text;
@@ -40,9 +50,6 @@
         }
         if (message.attachment_type === 'document' || message.document) {
             return `${prefix}<i class="far fa-file-alt"></i> Tài liệu`;
-        }
-        if (message.shared_post) {
-            return `${prefix}<i class="fas fa-share"></i> Bài viết`;
         }
         return `${prefix}<em>Tin nhắn mới</em>`;
     }

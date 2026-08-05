@@ -1,4 +1,5 @@
 from .models import Comment
+from django.db.models import Count
 
 
 def get_root_comment(comment):
@@ -9,7 +10,20 @@ def get_root_comment(comment):
     return root
 
 
-def serialize_comment(comment, post_id=None, is_duplicate=False, parent_data=None):
+def get_root_comments_qs(post):
+    """
+    Root comments ordered by engagement then newest:
+    likes_count ↓ → replies_count ↓ → created_at ↓
+    """
+    return (
+        Comment.objects.filter(post=post, parent=None)
+        .select_related('author')
+        .annotate(replies_total=Count('replies', distinct=True))
+        .order_by('-likes_count', '-replies_total', '-created_at')
+    )
+
+
+def serialize_comment(comment, post_id=None, is_duplicate=False, parent_data=None, can_delete=True):
     """JSON payload for comment create/list responses."""
     return {
         'id': comment.id,
@@ -29,6 +43,7 @@ def serialize_comment(comment, post_id=None, is_duplicate=False, parent_data=Non
         'parent_id': comment.parent_id,
         'post_id': post_id or comment.post_id,
         'is_duplicate': is_duplicate,
+        'can_delete': can_delete,
     }
 
 

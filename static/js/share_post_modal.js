@@ -1,5 +1,6 @@
 /**
- * Modal chia sẻ bài viết — tab Đăng bài + Gửi tin nhắn.
+ * Modal chia sẻ bài viết 
+ * chia sẻ bình luận qua chat 
  */
 (function () {
     function getCsrfToken(modal) {
@@ -15,6 +16,36 @@
         button.disabled = loading;
         if (text) text.classList.toggle('d-none', loading);
         if (spinner) spinner.classList.toggle('d-none', !loading);
+    }
+
+    function isCommentMode(modal) {
+        return Boolean(modal.querySelector('.share-comment-id')?.value);
+    }
+
+    function setCommentMode(modal, enabled) {
+        const title = modal.querySelector('.modal-title');
+        const tabs = modal.querySelector('.share-post-tabs');
+        const feedPane = modal.querySelector('.share-tab-pane--feed');
+        const dmPlaceholder = modal.querySelector('.share-dm-message');
+
+        modal.classList.toggle('share-comment-mode', enabled);
+
+        if (title) {
+            title.textContent = enabled ? 'Chia sẻ bình luận' : 'Chia sẻ bài viết';
+        }
+        if (tabs) tabs.classList.toggle('d-none', enabled);
+        if (feedPane) feedPane.classList.toggle('d-none', enabled);
+        if (dmPlaceholder) {
+            dmPlaceholder.placeholder = enabled
+                ? 'Viết tin nhắn kèm theo bình luận...'
+                : 'Viết tin nhắn kèm theo...';
+        }
+    }
+
+    function resetCommentMode(modal) {
+        const commentInput = modal.querySelector('.share-comment-id');
+        if (commentInput) commentInput.value = '';
+        setCommentMode(modal, false);
     }
 
     function switchShareTab(modal, tabName) {
@@ -56,7 +87,8 @@
 
         listEl.innerHTML = filtered.map((r) => `
             <label class="share-recipient-item">
-                <input type="checkbox" class="form-check-input share-recipient-check" value="${r.id}">
+                <input type="checkbox" class="form-check-input share-recipient-check" value="${r.id}"
+                       data-conversation-id="${r.conversation_id || ''}">
                 <img src="${r.avatar}" alt="" class="share-recipient-avatar" loading="lazy">
                 <span class="share-recipient-name">${r.username}</span>
                 ${r.source === 'recent' ? '<span class="share-recipient-badge">Gần đây</span>' : ''}
@@ -88,6 +120,11 @@
     }
 
     function shareToFeed(modal) {
+        if (isCommentMode(modal)) {
+            alert('Bình luận chỉ có thể chia sẻ qua tin nhắn.');
+            return;
+        }
+
         const postId = modal.querySelector('.share-post-id')?.value;
         const caption = modal.querySelector('.share-caption')?.value || '';
         const asNewPost = modal.querySelector('.share-as-new-post')?.checked ?? true;
@@ -136,13 +173,20 @@
 
     function shareViaMessage(modal) {
         const postId = modal.querySelector('.share-post-id')?.value;
+        const commentId = modal.querySelector('.share-comment-id')?.value || '';
         const message = modal.querySelector('.share-dm-message')?.value || '';
         const submitBtn = modal.querySelector('.share-dm-submit');
         const url = modal.dataset.dmUrl || '/posts/share/via-message/';
-        const selected = [...modal.querySelectorAll('.share-recipient-check:checked')].map((el) => el.value);
+        const selectedChecks = [...modal.querySelectorAll('.share-recipient-check:checked')];
+        const selected = selectedChecks.map((el) => el.value);
+        const conversationIds = {};
+        selectedChecks.forEach((el) => {
+            const cid = el.getAttribute('data-conversation-id');
+            if (cid) conversationIds[el.value] = cid;
+        });
 
         if (!postId) {
-            alert('Không tìm thấy bài viết để chia sẻ.');
+            alert(commentId ? 'Không tìm thấy bài viết của bình luận.' : 'Không tìm thấy bài viết để chia sẻ.');
             return;
         }
         if (!selected.length) {
@@ -152,6 +196,14 @@
 
         setButtonLoading(submitBtn, true);
 
+        const payload = {
+            post_id: postId,
+            recipient_ids: selected,
+            conversation_ids: conversationIds,
+            message,
+        };
+        if (commentId) payload.comment_id = commentId;
+
         fetch(url, {
             method: 'POST',
             headers: {
@@ -160,11 +212,7 @@
                 'X-Requested-With': 'XMLHttpRequest',
                 Accept: 'application/json',
             },
-            body: JSON.stringify({
-                post_id: postId,
-                recipient_ids: selected,
-                message,
-            }),
+            body: JSON.stringify(payload),
         })
             .then((res) => res.json().then((data) => ({ ok: res.ok, data })))
             .then(({ ok, data }) => {
@@ -204,6 +252,7 @@
         });
 
         modal.addEventListener('hidden.bs.modal', () => {
+            resetCommentMode(modal);
             switchShareTab(modal, `feed${suffix}`);
             const listEl = modal.querySelector('.share-recipients-list');
             if (listEl) {
@@ -218,8 +267,41 @@
         });
     }
 
-    function bindShareButtons() {
-        document.querySelectorAll('.share-button:not([data-share-bound])').forEach((button) => {
+    function prepareSharePost(modal, postId) {
+        if (!modal) return;
+        resetCommentMode(modal);
+        const input = modal.querySelector('.share-post-id');
+        if (input && postId) input.value = postId;
+    }
+
+    function openShareCommentModal(postId, commentId) {
+        const modal = document.getElementById('sharePostModal');
+        if (!modal) {
+            alert('Không tìm thấy hộp thoại chia sẻ.');
+            return;
+        }
+        if (!postId || !commentId) {
+            alert('Thiếu thông tin bình luận để chia sẻ.');
+            return;
+        }
+
+        initShareModal(modal);
+
+        const postInput = modal.querySelector('.share-post-id');
+        const commentInput = modal.querySelector('.share-comment-id');
+        if (postInput) postInput.value = postId;
+        if (commentInput) commentInput.value = commentId;
+
+        setCommentMode(modal, true);
+        const suffix = modal.dataset.modalSuffix || '';
+        switchShareTab(modal, `message${suffix}`);
+
+        const instance = bootstrap.Modal.getOrCreateInstance(modal);
+        instance.show();
+    }
+
+    function bindShareButtons(scope) {
+        (scope || document).querySelectorAll('.share-button:not([data-share-bound])').forEach((button) => {
             button.dataset.shareBound = 'true';
             button.addEventListener('click', () => {
                 const postId = button.getAttribute('data-post-id');
@@ -227,11 +309,7 @@
                 const modal = targetSelector
                     ? document.querySelector(targetSelector)
                     : document.getElementById('sharePostModal');
-
-                if (modal && postId) {
-                    const input = modal.querySelector('.share-post-id');
-                    if (input) input.value = postId;
-                }
+                prepareSharePost(modal, postId);
             });
         });
     }
@@ -243,19 +321,8 @@
 
     window.initSharePostModals = function (scope) {
         (scope || document).querySelectorAll('.share-post-modal').forEach(initShareModal);
-        (scope || document).querySelectorAll('.share-button:not([data-share-bound])').forEach((button) => {
-            button.dataset.shareBound = 'true';
-            button.addEventListener('click', () => {
-                const postId = button.getAttribute('data-post-id');
-                const targetSelector = button.getAttribute('data-bs-target');
-                const modal = targetSelector
-                    ? document.querySelector(targetSelector)
-                    : document.getElementById('sharePostModal');
-                if (modal && postId) {
-                    const input = modal.querySelector('.share-post-id');
-                    if (input) input.value = postId;
-                }
-            });
-        });
+        bindShareButtons(scope);
     };
+
+    window.openShareCommentModal = openShareCommentModal;
 })();

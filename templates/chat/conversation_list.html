@@ -1,6 +1,7 @@
 {% extends 'base/base.html' %}
 {% load i18n %}
 {% load static %}
+{% load chat_tags %}
 
 {% block title %}{% trans "Tin nhắn" %}{% endblock %}
 
@@ -81,7 +82,13 @@
                         {% elif conversation.is_group %}
                           <span class="you-prefix">{{ last_message.sender.username }}: </span>
                         {% endif %}
-                        {% if last_message.content %}
+                        {% if last_message.shared_post_id %}
+                          {% if last_message.content|shared_comment_id %}
+                            <i class="fas fa-comment"></i> {% trans "Đã chia sẻ một bình luận" %}
+                          {% else %}
+                            <i class="fas fa-share"></i> {% trans "Đã chia sẻ một bài viết" %}
+                          {% endif %}
+                        {% elif last_message.content %}
                           {{ last_message.content|truncatechars:45 }}
                         {% elif last_message.image %}
                           <i class="far fa-image"></i> {% trans "Hình ảnh" %}
@@ -91,6 +98,8 @@
                           <i class="fas fa-microphone"></i> {% trans "Tin nhắn thoại" %}
                         {% elif last_message.document %}
                           <i class="far fa-file-alt"></i> {% trans "Tài liệu" %}
+                        {% else %}
+                          <em>{% trans "Tin nhắn mới" %}</em>
                         {% endif %}
                         {% endif %}
                       {% else %}
@@ -150,7 +159,7 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/chat_list.js' %}?v=group-chat-1"></script>
+<script src="{% static 'js/chat_list.js' %}?v=share-preview-1"></script>
 <script>
   document.querySelector('.mobile-bottom-nav__item[data-nav="messages"]')?.classList.add('is-active');
 

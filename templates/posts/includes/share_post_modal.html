@@ -20,6 +20,7 @@
             </div>
             <div class="modal-body pt-2">
                 <input type="hidden" class="share-post-id" id="share-post-id{% if share_modal_id %}-{{ share_modal_id }}{% endif %}" value="{% if share_post %}{{ share_post.id }}{% endif %}">
+                <input type="hidden" class="share-comment-id" id="share-comment-id{% if share_modal_id %}-{{ share_modal_id }}{% endif %}" value="">
 
                 {% if share_post %}
                 <div class="original-post mb-3 border p-2 rounded">

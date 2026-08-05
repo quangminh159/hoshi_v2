@@ -1,4 +1,6 @@
-<a href="{{ post.get_absolute_url }}" class="message-shared-post">
+{% load chat_tags %}
+{% with share_href=message|shared_post_href comment_id=message.content|shared_comment_id %}
+<a href="{{ share_href }}" class="message-shared-post{% if comment_id %} message-shared-post--comment{% endif %}">
   <div class="message-shared-post__header">
     <img src="{{ post.author.get_avatar_url }}" alt="" class="message-shared-post__avatar" loading="lazy">
     <span class="message-shared-post__author">{{ post.author.username }}</span>
@@ -18,5 +20,10 @@
   {% if post.caption %}
   <p class="message-shared-post__caption">{{ post.caption|truncatechars:120 }}</p>
   {% endif %}
+  {% if comment_id %}
+  <span class="message-shared-post__link">Xem bình luận <i class="fas fa-external-link-alt ms-1"></i></span>
+  {% else %}
   <span class="message-shared-post__link">Xem bài viết <i class="fas fa-external-link-alt ms-1"></i></span>
+  {% endif %}
 </a>
+{% endwith %}

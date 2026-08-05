@@ -23,16 +23,49 @@ def users_are_blocked(user_a, user_b):
 
 
 def find_direct_conversation(user, recipient):
-    """Tìm DM 1-1 (không phải nhóm) giữa hai người."""
+    """Tìm DM 1-1 (không phải nhóm) giữa hai người — tái sử dụng hội thoại cũ."""
     from django.db.models import Count
 
+    if not user or not recipient or user.id == recipient.id:
+        return None
+
+    # Dùng distinct=True để tránh Count bị nhân do JOIN M2M (filter 2 participants).
     return (
-        Conversation.objects.filter(is_group=False, participants=user)
+        Conversation.objects.filter(is_group=False)
+        .filter(participants=user)
         .filter(participants=recipient)
-        .annotate(member_count=Count('participants'))
+        .annotate(member_count=Count('participants', distinct=True))
         .filter(member_count=2)
+        .order_by('-last_message_time', '-id')
         .first()
     )
+
+
+def get_direct_conversation_for_share(user, recipient, conversation_id=None):
+    """
+    Lấy hội thoại 1-1 để gửi tin chia sẻ.
+    Ưu tiên conversation_id hợp lệ (đã có sẵn), không thì tìm DM cũ,
+    chỉ tạo mới khi chưa từng chat với người đó.
+    """
+    from django.db.models import Count
+
+    if conversation_id:
+        try:
+            cid = int(conversation_id)
+        except (TypeError, ValueError):
+            cid = None
+        if cid:
+            conversation = (
+                Conversation.objects.filter(pk=cid, is_group=False)
+                .annotate(member_count=Count('participants', distinct=True))
+                .filter(member_count=2, participants=user)
+                .filter(participants=recipient)
+                .first()
+            )
+            if conversation:
+                return conversation
+
+    return get_or_create_direct_conversation(user, recipient)
 
 
 def get_or_create_direct_conversation(user, recipient):

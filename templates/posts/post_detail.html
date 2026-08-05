@@ -211,7 +211,7 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/share_post_modal.js' %}"></script>
+<script src="{% static 'js/share_post_modal.js' %}?v=share-comment-1"></script>
 <script src="{% static 'js/edit_caption_suggestions.js' %}"></script>
 <script src="https://unpkg.com/filepond-plugin-image-exif-orientation/dist/filepond-plugin-image-exif-orientation.js"></script>
 <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
@@ -498,12 +498,16 @@ function deleteComment(commentId) {
                         commentElement.remove();
                     }
                     
-                    // Giảm số lượng bình luận hiển thị
+                    // Cập nhật số lượng bình luận hiển thị
                     const commentCountElement = document.getElementById('post-comment-count');
                     if (commentCountElement) {
-                        let count = parseInt(commentCountElement.textContent) || 0;
-                        if (count > 0) {
-                            commentCountElement.textContent = count - 1;
+                        if (typeof data.comments_count === 'number') {
+                            commentCountElement.textContent = data.comments_count;
+                        } else {
+                            let count = parseInt(commentCountElement.textContent) || 0;
+                            if (count > 0) {
+                                commentCountElement.textContent = count - 1;
+                            }
                         }
                     }
                 }
@@ -976,10 +980,11 @@ function addCommentToDOM(comment, postId, parentId) {
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li>
-                                <button class="dropdown-item reply-button" 
-                                        data-username="${comment.author_username || comment.author.username}"
-                                        data-post-id="${postId}">
-                                    <i class="fas fa-reply me-2"></i>Trả lời
+                                <button class="dropdown-item share-comment-button" 
+                                        data-post-id="${postId}"
+                                        data-comment-id="${comment.id}"
+                                        onclick="openShareCommentModal(${postId}, ${comment.id})">
+                                    <i class="fas fa-paper-plane me-2"></i>Chia sẻ qua chat
                                 </button>
                             </li>
                             <li>
@@ -1036,10 +1041,11 @@ function addCommentToDOM(comment, postId, parentId) {
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li>
-                                <button class="dropdown-item reply-button" 
-                                        data-username="${comment.author_username || comment.author.username}"
-                                        data-post-id="${postId}">
-                                    <i class="fas fa-reply me-2"></i>Trả lời
+                                <button class="dropdown-item share-comment-button" 
+                                        data-post-id="${postId}"
+                                        data-comment-id="${comment.id}"
+                                        onclick="openShareCommentModal(${postId}, ${comment.id})">
+                                    <i class="fas fa-paper-plane me-2"></i>Chia sẻ qua chat
                                 </button>
                             </li>
                             <li>
@@ -1506,7 +1512,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Gợi ý #hashtag và @mention (người đang follow) khi chỉnh sửa
+// Gợi ý #hashtag và @mention ở trong trang chỉnh sửa bài viết
 (function () {
     const caption = document.getElementById('edit-caption');
     if (!caption || typeof initEditCaptionSuggestions !== 'function') return;
@@ -1515,6 +1521,41 @@ document.addEventListener('DOMContentLoaded', function() {
         userUrl: '{% url "posts:user_suggestions" %}',
         box: document.getElementById('edit-caption-suggestions'),
     });
+})();
+
+// hàm cuộn tới bình luận khi mở link #comment
+(function () {
+    function highlightComment(el) {
+        if (!el) return false;
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.classList.add('comment-highlight');
+        setTimeout(() => el.classList.remove('comment-highlight'), 2500);
+        return true;
+    }
+
+    function scrollToCommentFromHash() {
+        const hash = window.location.hash || '';
+        const match = hash.match(/^#comment-(\d+)$/);
+        if (!match) return;
+        const el = document.getElementById(`comment-${match[1]}`);
+        if (highlightComment(el)) return;
+
+        let tries = 0;
+        const timer = setInterval(() => {
+            tries += 1;
+            const target = document.getElementById(`comment-${match[1]}`);
+            if (highlightComment(target) || tries >= 20) {
+                clearInterval(timer);
+            }
+        }, 150);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', scrollToCommentFromHash);
+    } else {
+        setTimeout(scrollToCommentFromHash, 50);
+    }
+    window.addEventListener('hashchange', scrollToCommentFromHash);
 })();
 </script>
 {% endblock %} 

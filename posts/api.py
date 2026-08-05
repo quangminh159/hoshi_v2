@@ -19,7 +19,7 @@ from accounts.models import UserBlock
 from django.contrib.contenttypes.models import ContentType
 from notifications.models import Notification
 from notifications.signals import send_notification_to_websocket
-from .comment_utils import resolve_reply_parent, serialize_comment
+from .comment_utils import resolve_reply_parent, serialize_comment, get_root_comments_qs
 from .views import _media_type_for_file, process_hashtags, process_mentions
 
 User = get_user_model()
@@ -260,7 +260,7 @@ def comment_list(request, pk):
         from .views import build_feed_comments_data
         return Response(build_feed_comments_data(post, request.user, limit=limit, offset=offset))
 
-    comments = Comment.objects.filter(post=post, parent=None).order_by('-likes_count', '-created_at')
+    comments = get_root_comments_qs(post)
     serializer = CommentSerializer(comments, many=True, context={'request': request})
     return Response(serializer.data)
 
@@ -504,9 +504,13 @@ def delete_comment(request, pk):
         # Cập nhật số lượng comment của bài viết
         post = Post.objects.get(id=post_id)
         post.comments_count = post.comments.count()
-        post.save()
+        post.save(update_fields=['comments_count'])
         
-        return Response({'success': True, 'message': 'Đã xóa bình luận'})
+        return Response({
+            'success': True,
+            'message': 'Đã xóa bình luận',
+            'comments_count': post.comments_count,
+        })
         
     except Comment.DoesNotExist:
         return Response({'error': 'Không tìm thấy bình luận'}, status=status.HTTP_404_NOT_FOUND)
@@ -1160,7 +1164,7 @@ def share_message_recipients(request):
     seen_ids = set()
 
     conversations = (
-        Conversation.objects.filter(participants=user)
+        Conversation.objects.filter(participants=user, is_group=False)
         .order_by('-last_message_time')[:25]
     )
     for conversation in conversations:
@@ -1197,16 +1201,20 @@ def share_message_recipients(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def share_post_via_message(request):
-    """Gửi bài viết tới một hoặc nhiều người dùng qua tin nhắn."""
+    """Gửi bài viết (hoặc bình luận trong bài) tới một hoặc nhiều người qua tin nhắn."""
+    from django.urls import reverse
     from chat.conversation_utils import (
-        get_or_create_direct_conversation,
+        get_direct_conversation_for_share,
         send_conversation_message,
         users_are_blocked,
     )
 
     data = request.data
     post_id = data.get('post_id')
+    comment_id = data.get('comment_id')
     recipient_ids = data.get('recipient_ids') or []
+    # Map optional: { "user_id": conversation_id } từ danh sách "Gần đây"
+    conversation_ids = data.get('conversation_ids') or {}
     message_text = (data.get('message') or '').strip()
 
     if not post_id:
@@ -1229,6 +1237,16 @@ def share_post_via_message(request):
             'message': 'Bài viết không tồn tại',
         }, status=404)
 
+    comment = None
+    if comment_id:
+        try:
+            comment = Comment.objects.select_related('author').get(pk=comment_id, post_id=post.id)
+        except Comment.DoesNotExist:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Bình luận không tồn tại',
+            }, status=404)
+
     if isinstance(recipient_ids, (str, int)):
         recipient_ids = [recipient_ids]
 
@@ -1247,6 +1265,23 @@ def share_post_via_message(request):
             'message': 'Danh sách người nhận không hợp lệ',
         }, status=400)
 
+    content_parts = []
+    if message_text:
+        content_parts.append(message_text)
+
+    if comment:
+        preview = (comment.text or '').strip()
+        if len(preview) > 120:
+            preview = preview[:117] + '...'
+        if preview:
+            content_parts.append(f'💬 {comment.author.username}: {preview}')
+        else:
+            content_parts.append(f'💬 Bình luận của {comment.author.username}')
+        comment_path = reverse('posts:post_detail', args=[post.id]) + f'#comment-{comment.id}'
+        content_parts.append(request.build_absolute_uri(comment_path))
+
+    content = '\n'.join(content_parts)
+
     sent = []
     skipped = 0
     for recipient_id in unique_ids:
@@ -1260,11 +1295,22 @@ def share_post_via_message(request):
             skipped += 1
             continue
 
-        conversation = get_or_create_direct_conversation(request.user, recipient)
+        conversation_id = None
+        if isinstance(conversation_ids, dict):
+            conversation_id = (
+                conversation_ids.get(str(recipient.id))
+                or conversation_ids.get(recipient.id)
+            )
+
+        conversation = get_direct_conversation_for_share(
+            request.user,
+            recipient,
+            conversation_id=conversation_id,
+        )
         _, payload = send_conversation_message(
             request.user,
             conversation,
-            content=message_text,
+            content=content,
             shared_post=post,
         )
         sent.append({

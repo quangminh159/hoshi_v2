@@ -24,6 +24,7 @@ from .feed_algorithms import get_diverse_feed, get_followed_feed
 from django.db import IntegrityError
 from .comment_utils import (
     get_root_comment,
+    get_root_comments_qs,
     get_thread_replies_qs,
     get_thread_reply_ids,
     resolve_reply_parent,
@@ -89,7 +90,7 @@ def feed(request):
         posts_data = []
         for post in page_obj.object_list:
             # Lấy tối đa 3 bình luận gốc cho mỗi bài viết
-            root_comments = Comment.objects.filter(post=post, parent=None).order_by('-created_at')[:2]
+            root_comments = get_root_comments_qs(post)[:2]
             
             comments_with_replies = []
             for comment in root_comments:
@@ -163,7 +164,7 @@ def feed(request):
     posts_with_comments = []
     for post in page_obj:
         # Lấy tối đa 3 bình luận gốc cho mỗi bài viết
-        root_comments = Comment.objects.filter(post=post, parent=None).order_by('-created_at')[:3]
+        root_comments = get_root_comments_qs(post)[:3]
         
         comments_with_replies = []
         for comment in root_comments:
@@ -222,13 +223,12 @@ def post_detail(request, post_id):
     if denied:
         return denied
     
-    # Lấy tất cả comments của bài viết và phân loại
-    root_comments = Comment.objects.filter(post=post, parent=None).order_by('created_at')
-    
+    # Bình luận: nhiều tim + trả lời lên trước, sau đó mới nhất
+    root_comments = get_root_comments_qs(post)
+
     comments_with_replies = []
     for comment in root_comments:
-        # Lấy replies cho mỗi comment
-        replies = Comment.objects.filter(parent=comment).order_by('created_at')
+        replies = Comment.objects.filter(parent=comment).order_by('-likes_count', '-created_at')
         replies_with_like = []
         for reply in replies:
             replies_with_like.append({
@@ -239,7 +239,7 @@ def post_detail(request, post_id):
             'comment': comment,
             'is_liked': CommentLike.objects.filter(user=request.user, comment=comment).exists(),
             'replies': replies_with_like,
-            'replies_count': replies.count()
+            'replies_count': getattr(comment, 'replies_total', None) or replies.count()
         })
     
     context = {
@@ -744,20 +744,19 @@ def add_comment(request, post_id):
 def delete_comment(request, post_id, comment_id):
     if request.method != 'POST':
         return JsonResponse({'error': 'Method not allowed'}, status=405)
-    
-    comment = get_object_or_404(
-        Comment,
-        id=comment_id,
-        post_id=post_id,
-        author=request.user
-    )
+
+    comment = get_object_or_404(Comment, id=comment_id, post_id=post_id)
+    post = comment.post
+
+    # Người viết comment hoặc chủ bài viết mới được xóa
+    if comment.author_id != request.user.id and post.author_id != request.user.id:
+        return JsonResponse({'error': 'Bạn không có quyền xóa bình luận này'}, status=403)
+
     comment.delete()
-    
-    # Cập nhật số lượng comment
-    post = Post.objects.get(id=post_id)
+
     post.comments_count = post.comments.count()
-    post.save()
-    
+    post.save(update_fields=['comments_count'])
+
     return JsonResponse({'status': 'success'})
 
 @login_required
@@ -1063,7 +1062,13 @@ FEED_REPLIES_PREVIEW = 2
 FEED_REPLIES_PAGE_SIZE = 7
 
 
-def _comment_payload(comment_obj, liked_comment_ids, parent_id=None):
+def _comment_payload(comment_obj, liked_comment_ids, parent_id=None, user=None, post_author_id=None):
+    can_delete = False
+    if user is not None and getattr(user, 'is_authenticated', False):
+        can_delete = (
+            comment_obj.author_id == user.id
+            or (post_author_id is not None and post_author_id == user.id)
+        )
     data = {
         'id': comment_obj.id,
         'text': comment_obj.text or '',
@@ -1072,9 +1077,11 @@ def _comment_payload(comment_obj, liked_comment_ids, parent_id=None):
         'video': comment_obj.video_url,
         'video_url': comment_obj.video_url,
         'created_at': comment_obj.created_at.isoformat(),
+        'author_id': comment_obj.author_id,
         'author_username': comment_obj.author.username,
         'likes_count': comment_obj.likes_count,
         'is_liked': comment_obj.id in liked_comment_ids,
+        'can_delete': can_delete,
     }
     if parent_id is not None:
         data['parent_id'] = parent_id
@@ -1084,7 +1091,9 @@ def _comment_payload(comment_obj, liked_comment_ids, parent_id=None):
 def build_comment_replies_data(parent_comment, user, limit=FEED_REPLIES_PREVIEW, offset=0, replies_count=None):
     """Replies for one root comment thread (includes replies-to-replies, shown flat)."""
     root = get_root_comment(parent_comment)
-    reply_qs = get_thread_replies_qs(parent_comment.post, root)
+    post = parent_comment.post
+    post_author_id = post.author_id
+    reply_qs = get_thread_replies_qs(post, root)
     if replies_count is None:
         replies_count = reply_qs.count()
 
@@ -1098,7 +1107,10 @@ def build_comment_replies_data(parent_comment, user, limit=FEED_REPLIES_PREVIEW,
     loaded = offset + len(replies)
     return {
         'replies': [
-            _comment_payload(r, liked_comment_ids, parent_id=root.id)
+            _comment_payload(
+                r, liked_comment_ids, parent_id=root.id,
+                user=user, post_author_id=post_author_id,
+            )
             for r in replies
         ],
         'replies_count': replies_count,
@@ -1109,13 +1121,12 @@ def build_comment_replies_data(parent_comment, user, limit=FEED_REPLIES_PREVIEW,
 
 
 def build_feed_comments_data(post, user, limit=FEED_COMMENTS_PREVIEW, offset=0):
-    """Top root comments by likes, then newest; replies loaded separately per comment."""
-    root_qs = Comment.objects.filter(post=post, parent=None).select_related('author')
+    """Root comments: nhiều tim + trả lời trước, rồi mới nhất."""
+    root_qs = get_root_comments_qs(post)
     root_comments_count = root_qs.count()
+    post_author_id = post.author_id
 
-    root_comments = list(
-        root_qs.order_by('-likes_count', '-created_at')[offset:offset + limit]
-    )
+    root_comments = list(root_qs[offset:offset + limit])
 
     replies_by_parent = {}
     reply_counts = {}
@@ -1141,9 +1152,15 @@ def build_feed_comments_data(post, user, limit=FEED_COMMENTS_PREVIEW, offset=0):
         preview_replies = replies_by_parent.get(comment.id, [])
         total_replies = reply_counts.get(comment.id, 0)
         comments_data.append({
-            **_comment_payload(comment, liked_comment_ids),
+            **_comment_payload(
+                comment, liked_comment_ids,
+                user=user, post_author_id=post_author_id,
+            ),
             'replies': [
-                _comment_payload(reply, liked_comment_ids, parent_id=comment.id)
+                _comment_payload(
+                    reply, liked_comment_ids, parent_id=comment.id,
+                    user=user, post_author_id=post_author_id,
+                )
                 for reply in preview_replies
             ],
             'replies_count': total_replies,
@@ -1328,24 +1345,21 @@ def track_feed_impression(user, posts):
 
 def get_post_comments(post):
     """Helper để lấy comments cho bài viết kèm với thông tin replies"""
-    comments = Comment.objects.filter(
-        post=post,
-        parent=None
-    ).select_related('author').order_by('-created_at')
-    
+    comments = get_root_comments_qs(post)
+
     comments_data = []
     for comment in comments:
         replies = Comment.objects.filter(
             parent=comment
-        ).select_related('author').order_by('created_at')
-        
+        ).select_related('author').order_by('-likes_count', '-created_at')
+
         data = {
             'comment': comment,
             'replies': replies,
-            'replies_count': replies.count()
+            'replies_count': getattr(comment, 'replies_total', None) or replies.count()
         }
         comments_data.append(data)
-    
+
     return comments_data
 
 def process_hashtags(post):

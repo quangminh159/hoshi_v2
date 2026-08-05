@@ -1,5 +1,9 @@
 """Helpers chuẩn hóa payload tin nhắn chat."""
 
+import re
+
+COMMENT_ANCHOR_RE = re.compile(r'#comment-(\d+)')
+
 
 def _attachment_info(message):
     """Trả về (has_attachment, attachment_type, attachment_url)."""
@@ -14,7 +18,15 @@ def _attachment_info(message):
     return False, None, None
 
 
-def serialize_shared_post(post):
+def extract_shared_comment_id(content):
+    """Lấy comment id từ deep link #comment-<id> trong nội dung tin nhắn."""
+    if not content:
+        return None
+    match = COMMENT_ANCHOR_RE.search(str(content))
+    return int(match.group(1)) if match else None
+
+
+def serialize_shared_post(post, comment_id=None):
     if not post:
         return None
     first_media = post.media.order_by('order').first()
@@ -24,13 +36,18 @@ def serialize_shared_post(post):
             'url': first_media.file.url,
             'media_type': first_media.media_type,
         }
+    url = post.get_absolute_url()
+    if comment_id:
+        url = f'{url}#comment-{comment_id}'
     return {
         'id': post.id,
         'author_username': post.author.username,
         'author_avatar': post.author.get_avatar_url(),
         'caption': (post.caption or '')[:120],
-        'url': post.get_absolute_url(),
+        'url': url,
         'media': media_preview,
+        'comment_id': comment_id,
+        'is_shared_comment': bool(comment_id),
     }
 
 
@@ -59,6 +76,7 @@ def serialize_chat_message(message, user=None):
     has_attachment, attachment_type, attachment_url = _attachment_info(message)
     shared_post = getattr(message, 'shared_post', None)
     is_system = bool(getattr(message, 'is_system', False))
+    comment_id = None if is_system else extract_shared_comment_id(message.content)
 
     return {
         'id': message.id,
@@ -75,6 +93,6 @@ def serialize_chat_message(message, user=None):
         'file_name': message.file_name,
         'file_size': message.file_size,
         'reply_to': None if is_system else serialize_reply_to(message),
-        'shared_post': None if is_system else serialize_shared_post(shared_post),
+        'shared_post': None if is_system else serialize_shared_post(shared_post, comment_id=comment_id),
         'is_system': is_system,
     }
