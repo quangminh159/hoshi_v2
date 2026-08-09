@@ -20,7 +20,7 @@ from django.contrib.contenttypes.models import ContentType
 from notifications.models import Notification
 from notifications.signals import send_notification_to_websocket
 from .comment_utils import resolve_reply_parent, serialize_comment, get_root_comments_qs
-from .views import _media_type_for_file, process_hashtags, process_mentions
+from .views import _media_type_for_file, process_hashtags, process_mentions, process_comment_mentions
 
 User = get_user_model()
 
@@ -472,6 +472,7 @@ def add_comment(request):
         if audio:
             comment.audio = audio
         comment.save()
+        process_comment_mentions(comment)
 
         post.comments_count = post.comments.count()
         post.save(update_fields=['comments_count'])
@@ -625,6 +626,8 @@ def edit_comment(request, pk):
     comment.text = text
     # unique update_fields
     comment.save(update_fields=list(dict.fromkeys(update_fields)))
+    process_comment_mentions(comment)
+    comment.refresh_from_db()
 
     parent_data = None
     if comment.parent_id:

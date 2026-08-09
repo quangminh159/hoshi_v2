@@ -1267,6 +1267,11 @@
         bindCommentEditMediaControls(form);
 
         const textarea = form.querySelector('.comment-edit-input');
+        if (typeof window.initCommentMentionSuggestions === 'function') {
+            // Cho phép bind lại mỗi lần mở form sửa
+            if (textarea) delete textarea.dataset.captionSuggestBound;
+            window.initCommentMentionSuggestions(textarea, { placement: 'below' });
+        }
         textarea?.focus();
         textarea?.setSelectionRange(textarea.value.length, textarea.value.length);
 
@@ -2039,6 +2044,12 @@
                     ? replyInfo.getAttribute('data-parent-id') : null;
                 addComment(postId, text, parentId, form, mediaFile);
             });
+
+            const commentInput = form.querySelector('.comment-input, input[name="text"]');
+            if (typeof window.initCommentMentionSuggestions === 'function') {
+                window.initCommentMentionSuggestions(commentInput);
+            }
+
             form.setAttribute('data-initialized', 'true');
         });
 

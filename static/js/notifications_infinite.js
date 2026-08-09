@@ -1,5 +1,5 @@
 /**
- * Cuộn vô hạn trang Thông báo
+ * Cuộn vô hạn + filter pills trang Thông báo
  */
 (function () {
     'use strict';
@@ -8,9 +8,11 @@
     const sentinel = document.getElementById('notifications-sentinel');
     const loadingEl = document.getElementById('notifications-loading');
     const endEl = document.getElementById('notifications-end');
+    const filtersEl = document.querySelector('.notif-filters');
     if (!list || !sentinel) return;
 
     const apiUrl = list.dataset.apiUrl || '/notifications/api/';
+    let activeFilter = list.dataset.filter || 'all';
     let nextPage = list.dataset.nextPage ? parseInt(list.dataset.nextPage, 10) : null;
     let hasMore = list.dataset.hasMore === 'true';
     let isLoading = false;
@@ -73,6 +75,7 @@
         el.className = `list-group-item list-group-item-action text-decoration-none text-dark ${unreadClass}`;
         el.id = `notification-${n.id}`;
         el.dataset.id = n.id;
+        el.dataset.type = n.notification_type || '';
         el.innerHTML = `
             <div class="d-flex w-100 justify-content-between gap-2">
                 <div class="d-flex align-items-start">
@@ -93,12 +96,29 @@
         loadingEl?.classList.toggle('d-none', !on);
     }
 
+    function showEmpty() {
+        if (list.querySelector('[data-id]')) return;
+        if (document.getElementById('notifications-empty')) return;
+        const empty = document.createElement('div');
+        empty.className = 'alert alert-info mb-0';
+        empty.id = 'notifications-empty';
+        empty.textContent = 'Bạn không có thông báo nào.';
+        list.appendChild(empty);
+    }
+
+    function buildUrl(page) {
+        const url = new URL(apiUrl, window.location.origin);
+        url.searchParams.set('page', String(page));
+        url.searchParams.set('filter', activeFilter || 'all');
+        return url.toString();
+    }
+
     async function loadMore() {
         if (isLoading || !hasMore || !nextPage) return;
         setLoading(true);
 
         try {
-            const response = await fetch(`${apiUrl}?page=${nextPage}`, {
+            const response = await fetch(buildUrl(nextPage), {
                 headers: { 'X-Requested-With': 'XMLHttpRequest' },
                 credentials: 'same-origin',
             });
@@ -122,10 +142,68 @@
             if (!hasMore) {
                 endEl?.classList.remove('d-none');
                 loadingEl?.classList.add('d-none');
-                observer.disconnect();
+                if (!list.querySelector('[data-id]')) showEmpty();
             }
         } catch (err) {
             console.error('Notifications load error:', err);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    async function switchFilter(filterKey) {
+        if (!filterKey || filterKey === activeFilter) return;
+        activeFilter = filterKey;
+        list.dataset.filter = filterKey;
+
+        filtersEl?.querySelectorAll('.notif-filter-pill').forEach((btn) => {
+            const on = btn.dataset.filter === filterKey;
+            btn.classList.toggle('is-active', on);
+            btn.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+
+        const url = new URL(window.location.href);
+        if (filterKey === 'all') url.searchParams.delete('filter');
+        else url.searchParams.set('filter', filterKey);
+        window.history.replaceState({}, '', url);
+
+        loadedIds.clear();
+        list.innerHTML = '';
+        endEl?.classList.add('d-none');
+        hasMore = true;
+        nextPage = 1;
+        observer.disconnect();
+        setLoading(true);
+
+        try {
+            const response = await fetch(buildUrl(1), {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                credentials: 'same-origin',
+            });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const data = await response.json();
+            const items = Array.isArray(data.notifications) ? data.notifications : [];
+
+            items.forEach((n) => {
+                if (!n?.id || loadedIds.has(String(n.id))) return;
+                loadedIds.add(String(n.id));
+                list.appendChild(createNotificationElement(n));
+            });
+
+            hasMore = data.has_next === true;
+            nextPage = data.next_page || null;
+            list.dataset.hasMore = hasMore ? 'true' : 'false';
+            list.dataset.nextPage = nextPage || '';
+
+            if (!items.length) showEmpty();
+            if (hasMore) observer.observe(sentinel);
+            else {
+                endEl?.classList.toggle('d-none', !items.length);
+                loadingEl?.classList.add('d-none');
+            }
+        } catch (err) {
+            console.error('Notifications filter error:', err);
+            showEmpty();
         } finally {
             setLoading(false);
         }
@@ -144,7 +222,13 @@
         loadingEl?.classList.add('d-none');
     }
 
-    // Đánh dấu đã đọc khi click item (giống dropdown)
+    filtersEl?.addEventListener('click', (e) => {
+        const btn = e.target.closest('.notif-filter-pill');
+        if (!btn) return;
+        e.preventDefault();
+        switchFilter(btn.dataset.filter || 'all');
+    });
+
     list.addEventListener('click', (e) => {
         if (e.target.closest('.accept-follow-request, .reject-follow-request')) return;
         const item = e.target.closest('[data-id]');

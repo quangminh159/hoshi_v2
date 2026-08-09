@@ -105,7 +105,12 @@ def create_mention_notification(sender, instance, created, **kwargs):
     if not created:
         return
     recipient = instance.user
-    sender_user = getattr(instance.post, 'author', None)
+    # Mention trong bình luận → người gửi là tác giả cmt; trong caption → tác giả bài
+    sender_user = None
+    if instance.comment_id:
+        sender_user = getattr(instance.comment, 'author', None)
+    if not sender_user:
+        sender_user = getattr(instance.post, 'author', None)
     if not sender_user or sender_user == recipient:
         return
     if not _pref_enabled(recipient, 'mention_notifications'):

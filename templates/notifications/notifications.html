@@ -4,9 +4,13 @@
 
 {% block title %}{% trans "Thông báo" %} - {{ block.super }}{% endblock %}
 
+{% block extra_css %}
+<link href="{% static 'css/notifications_page.css' %}?v=1" rel="stylesheet">
+{% endblock %}
+
 {% block content %}
 <div class="container py-4 notifications-page">
-    <div class="d-flex justify-content-between align-items-center mb-4 gap-2 flex-wrap">
+    <div class="d-flex justify-content-between align-items-center mb-3 gap-2 flex-wrap">
         <h3 class="mb-0">{% trans "Thông báo" %}</h3>
         {% if notifications %}
         <a href="{% url 'notifications:mark_all_as_read' %}"
@@ -16,10 +20,34 @@
         {% endif %}
     </div>
 
+    <div class="notif-filters" role="tablist" aria-label="{% trans 'Lọc thông báo' %}">
+        <button type="button" class="notif-filter-pill{% if active_filter == 'all' %} is-active{% endif %}"
+                data-filter="all" role="tab" aria-selected="{% if active_filter == 'all' %}true{% else %}false{% endif %}">
+            {% trans "Tất cả" %}
+        </button>
+        <button type="button" class="notif-filter-pill{% if active_filter == 'following' %} is-active{% endif %}"
+                data-filter="following" role="tab" aria-selected="{% if active_filter == 'following' %}true{% else %}false{% endif %}">
+            {% trans "Người bạn theo dõi" %}
+        </button>
+        <button type="button" class="notif-filter-pill{% if active_filter == 'comments' %} is-active{% endif %}"
+                data-filter="comments" role="tab" aria-selected="{% if active_filter == 'comments' %}true{% else %}false{% endif %}">
+            {% trans "Bình luận" %}
+        </button>
+        <button type="button" class="notif-filter-pill{% if active_filter == 'follows' %} is-active{% endif %}"
+                data-filter="follows" role="tab" aria-selected="{% if active_filter == 'follows' %}true{% else %}false{% endif %}">
+            {% trans "Theo dõi" %}
+        </button>
+        <button type="button" class="notif-filter-pill{% if active_filter == 'mentions' %} is-active{% endif %}"
+                data-filter="mentions" role="tab" aria-selected="{% if active_filter == 'mentions' %}true{% else %}false{% endif %}">
+            {% trans "Thẻ & đề cập" %}
+        </button>
+    </div>
+
     <div id="notifications-list" class="list-group notifications-infinite-list"
          data-next-page="{% if has_more %}{{ next_page }}{% endif %}"
          data-has-more="{{ has_more|yesno:'true,false' }}"
-         data-api-url="{% url 'notifications:api_list' %}">
+         data-api-url="{% url 'notifications:api_list' %}"
+         data-filter="{{ active_filter|default:'all' }}">
         {% if notifications %}
             {% for notification in notifications %}
                 {% if notification.notification_type == 'follow_request' %}
@@ -61,7 +89,8 @@
                 <a href="{{ notification.link }}"
                    class="list-group-item list-group-item-action text-decoration-none text-dark {% if not notification.is_read %}bg-light{% endif %}"
                    id="notification-{{ notification.id }}"
-                   data-id="{{ notification.id }}">
+                   data-id="{{ notification.id }}"
+                   data-type="{{ notification.notification_type }}">
                     <div class="d-flex w-100 justify-content-between gap-2">
                         <div class="d-flex align-items-start">
                             <img src="{{ notification.sender.get_avatar_url }}"
@@ -102,7 +131,7 @@
 
 {% block extra_js %}
 <script src="{% static 'js/follow_requests.js' %}?v=1"></script>
-<script src="{% static 'js/notifications_infinite.js' %}?v=realtime-1"></script>
+<script src="{% static 'js/notifications_infinite.js' %}?v=filters-1"></script>
 <script>
 document.querySelector('.mobile-bottom-nav__item[data-nav="activity"]')?.classList.add('is-active');
 </script>

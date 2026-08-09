@@ -711,6 +711,7 @@ def add_comment(request, post_id):
     if audio:
         comment.audio = audio
     comment.save()
+    process_comment_mentions(comment)
 
     # Tăng comment_count
     post.comments_count = post.comments.count()
@@ -1454,3 +1455,39 @@ def process_mentions(post):
     Mention.objects.filter(post=post, comment__isnull=True).exclude(
         user_id__in=keep_user_ids
     ).delete()
+
+
+def process_comment_mentions(comment):
+    """
+    Tạo Mention từ @username trong bình luận.
+    Chuẩn hóa text + gửi thông báo (qua signal Mention).
+    """
+    from .mention_utils import normalize_caption_mentions, resolve_mentioned_user
+
+    if not comment:
+        return
+
+    text = comment.text or ''
+    if text:
+        normalized = normalize_caption_mentions(text)
+        if normalized != text:
+            comment.text = normalized
+            comment.save(update_fields=['text'])
+            text = normalized
+
+    usernames = {name.lower() for name in re.findall(r'@(\w+)', text)} if text else set()
+    existing = list(
+        Mention.objects.filter(comment=comment).select_related('user')
+    )
+    existing_by_username = {m.user.username.lower(): m for m in existing}
+    keep_user_ids = set()
+
+    for username in usernames:
+        user = resolve_mentioned_user(username)
+        if not user or user.id == comment.author_id:
+            continue
+        keep_user_ids.add(user.id)
+        if user.username.lower() not in existing_by_username:
+            Mention.objects.create(user=user, post=comment.post, comment=comment)
+
+    Mention.objects.filter(comment=comment).exclude(user_id__in=keep_user_ids).delete()

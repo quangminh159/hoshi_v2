@@ -7,13 +7,13 @@
 {% block body_class %} post-detail-layout{% endblock %}
 
 {% block extra_css %}
-<link href="{% static 'css/feed.css' %}?v=comment-audio-5" rel="stylesheet">
-<link href="{% static 'css/post_detail.css' %}?v=comment-audio-5" rel="stylesheet">
+<link href="{% static 'css/feed.css' %}?v=comment-mention-1" rel="stylesheet">
+<link href="{% static 'css/post_detail.css' %}?v=comment-mention-1" rel="stylesheet">
 <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
 <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
 <link href="https://unpkg.com/filepond-plugin-file-poster/dist/filepond-plugin-file-poster.css" rel="stylesheet">
 <link href="https://unpkg.com/filepond-plugin-media-preview/dist/filepond-plugin-media-preview.css" rel="stylesheet">
-<link href="{% static 'css/create_post_composer.css' %}" rel="stylesheet">
+<link href="{% static 'css/create_post_composer.css' %}?v=comment-mention-1" rel="stylesheet">
 <link href="{% static 'css/share_post_modal.css' %}" rel="stylesheet">
 {% endblock %}
 
@@ -238,8 +238,11 @@
 {% endblock %}
 
 {% block extra_js %}
+<script>
+window.HOSHI_USER_SUGGESTIONS_URL = '{% url "posts:user_suggestions" %}';
+</script>
 <script src="{% static 'js/share_post_modal.js' %}?v=share-comment-1"></script>
-<script src="{% static 'js/edit_caption_suggestions.js' %}"></script>
+<script src="{% static 'js/edit_caption_suggestions.js' %}?v=comment-mention-1"></script>
 <script src="https://unpkg.com/filepond-plugin-image-exif-orientation/dist/filepond-plugin-image-exif-orientation.js"></script>
 <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
 <script src="https://unpkg.com/filepond-plugin-file-poster/dist/filepond-plugin-file-poster.js"></script>
@@ -867,7 +870,12 @@ function startCommentEdit(commentId) {
     }
 
     bindCommentEditMediaControls(form);
-    form.querySelector('.comment-edit-input')?.focus();
+    const editInput = form.querySelector('.comment-edit-input');
+    if (typeof initCommentMentionSuggestions === 'function' && editInput) {
+        delete editInput.dataset.captionSuggestBound;
+        initCommentMentionSuggestions(editInput, { placement: 'below' });
+    }
+    editInput?.focus();
 
     form.querySelector('.comment-edit-cancel')?.addEventListener('click', (e) => {
         e.preventDefault();
@@ -2353,11 +2361,19 @@ document.addEventListener('DOMContentLoaded', function() {
 // Gợi ý #hashtag và @mention ở trong trang chỉnh sửa bài viết
 (function () {
     const caption = document.getElementById('edit-caption');
-    if (!caption || typeof initEditCaptionSuggestions !== 'function') return;
-    initEditCaptionSuggestions(caption, {
-        hashtagUrl: '{% url "posts:hashtag_suggestions" %}',
-        userUrl: '{% url "posts:user_suggestions" %}',
-        box: document.getElementById('edit-caption-suggestions'),
+    if (caption && typeof initEditCaptionSuggestions === 'function') {
+        initEditCaptionSuggestions(caption, {
+            hashtagUrl: '{% url "posts:hashtag_suggestions" %}',
+            userUrl: '{% url "posts:user_suggestions" %}',
+            box: document.getElementById('edit-caption-suggestions'),
+        });
+    }
+
+    // Gợi ý @mention khi viết bình luận
+    document.querySelectorAll('.add-comment-form input[name="text"], .add-comment-form .comment-input').forEach((input) => {
+        if (typeof initCommentMentionSuggestions === 'function') {
+            initCommentMentionSuggestions(input);
+        }
     });
 })();
 

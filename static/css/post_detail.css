@@ -234,6 +234,7 @@
 .post-detail-comment-form {
     border-top: 1px solid #efefef;
     padding-top: 0.75rem;
+    position: relative;
 }
 
 .comment-image-btn {

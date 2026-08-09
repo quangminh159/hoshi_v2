@@ -423,6 +423,28 @@
     right: 0;
 }
 
+.comment-mention-suggestion-box {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 100%;
+    z-index: 1090;
+    pointer-events: none;
+}
+
+.comment-mention-suggestion-box .suggestion-dropdown,
+.suggestion-dropdown--above {
+    pointer-events: auto;
+    top: auto;
+    bottom: 4px;
+    left: 0;
+    right: 0;
+}
+
+.suggestion-box--above.comment-mention-suggestion-box {
+    top: auto;
+}
+
 .edit-upload-zone .filepond--drop-label {
     min-height: 96px;
     font-size: 0.8rem;

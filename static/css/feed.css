@@ -413,9 +413,74 @@
     padding-left: 0.25rem;
 }
 
+.suggestion-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    z-index: 1080;
+    background: #fff;
+    border: 1px solid #efefef;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.suggestion-dropdown--above {
+    top: auto;
+    bottom: 4px;
+}
+
+.suggestion-item {
+    padding: 0.55rem 0.85rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background 0.1s;
+}
+
+.suggestion-item:hover {
+    background: #f5f5f5;
+}
+
+.suggestion-item img {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.suggestion-item .location-meta {
+    font-size: 0.75rem;
+    color: #8e8e8e;
+}
+
+.edit-caption-suggestion-box {
+    position: relative;
+    z-index: 1060;
+}
+
+.comment-mention-suggestion-box {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 100%;
+    z-index: 1090;
+    pointer-events: none;
+}
+
+.comment-mention-suggestion-box .suggestion-dropdown {
+    pointer-events: auto;
+}
+
 .feed-page .add-comment-form {
     padding: 0 1rem 1rem;
     margin-top: 0 !important;
+    position: relative;
 }
 
 .feed-page .add-comment-form .input-group {
@@ -423,6 +488,22 @@
     border-radius: 24px;
     padding: 0.2rem 0.2rem 0.2rem 1rem;
     border: 1px solid #efefef;
+}
+
+.feed-page .comment-mention-suggestion-box .suggestion-dropdown,
+.post-detail-page .comment-mention-suggestion-box .suggestion-dropdown {
+    max-height: 220px;
+}
+
+.feed-page .comment-edit-form,
+.post-detail-page .comment-edit-form {
+    position: relative;
+}
+
+.feed-page .mention-link,
+.post-detail-page .mention-link {
+    font-weight: 600;
+    text-decoration: none;
 }
 
 .feed-page .add-comment-form .form-control {

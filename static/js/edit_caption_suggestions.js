@@ -7,39 +7,60 @@
         return parts[parts.length - 1] || '';
     }
 
-    function replaceCurrentWord(textarea, replacement) {
-        const text = textarea.value;
-        const caretPos = textarea.selectionStart;
+    function replaceCurrentWord(field, replacement) {
+        const text = field.value;
+        const caretPos = field.selectionStart;
         const before = text.substring(0, caretPos);
         const after = text.substring(caretPos);
-        const start = before.lastIndexOf(getCurrentWord(text, caretPos));
+        const word = getCurrentWord(text, caretPos);
+        const start = before.lastIndexOf(word);
         const newText = before.substring(0, start) + replacement + after;
-        textarea.value = newText;
+        field.value = newText;
         const newPos = start + replacement.length;
-        textarea.setSelectionRange(newPos, newPos);
-        textarea.dispatchEvent(new Event('input', { bubbles: true }));
+        field.setSelectionRange(newPos, newPos);
+        field.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
     /**
-     * Gắn gợi ý #hashtag và @mention (chỉ người đang follow) cho textarea chỉnh sửa.
-     * @param {HTMLTextAreaElement} textarea
-     * @param {{hashtagUrl: string, userUrl: string, box?: HTMLElement}} options
+     * Gắn gợi ý #hashtag và/hoặc @mention cho textarea/input.
+     * @param {HTMLTextAreaElement|HTMLInputElement} field
+     * @param {{
+     *   hashtagUrl?: string,
+     *   userUrl: string,
+     *   box?: HTMLElement,
+     *   mentionsOnly?: boolean,
+     *   followingOnly?: boolean,
+     *   placement?: 'below'|'above',
+     * }} options
      */
-    window.initEditCaptionSuggestions = function (textarea, options) {
-        if (!textarea || textarea.dataset.captionSuggestBound === '1') return;
-        textarea.dataset.captionSuggestBound = '1';
+    window.initEditCaptionSuggestions = function (field, options) {
+        if (!field || field.dataset.captionSuggestBound === '1') return;
+        field.dataset.captionSuggestBound = '1';
 
-        const hashtagUrl = options.hashtagUrl;
+        const hashtagUrl = options.hashtagUrl || '';
         const userUrl = options.userUrl;
+        const mentionsOnly = !!options.mentionsOnly;
+        const followingOnly = options.followingOnly !== false;
+        const placement = options.placement || 'below';
+
         let box = options.box;
         if (!box) {
             box = document.createElement('div');
-            box.className = 'edit-caption-suggestion-box';
-            const wrap = textarea.closest('.position-relative') || textarea.parentElement;
+            box.className = mentionsOnly
+                ? 'edit-caption-suggestion-box comment-mention-suggestion-box'
+                : 'edit-caption-suggestion-box';
+            if (placement === 'above') {
+                box.classList.add('suggestion-box--above');
+            }
+            const wrap = field.closest('.position-relative')
+                || field.closest('.input-group')?.parentElement
+                || field.parentElement;
             if (wrap && !wrap.classList.contains('position-relative')) {
                 wrap.classList.add('position-relative');
             }
-            (wrap || textarea.parentElement).appendChild(box);
+            (wrap || field.parentElement).appendChild(box);
+        } else if (placement === 'above') {
+            box.classList.add('suggestion-box--above');
         }
 
         let timeout = null;
@@ -56,6 +77,9 @@
 
             const dropdown = document.createElement('div');
             dropdown.className = 'suggestion-dropdown';
+            if (placement === 'above') {
+                dropdown.classList.add('suggestion-dropdown--above');
+            }
 
             items.forEach((item) => {
                 const el = document.createElement('div');
@@ -65,7 +89,7 @@
                     e.preventDefault();
                     onSelect(item);
                     clearBox();
-                    textarea.focus();
+                    field.focus();
                 });
                 dropdown.appendChild(el);
             });
@@ -73,12 +97,12 @@
             box.appendChild(dropdown);
         }
 
-        textarea.addEventListener('input', function () {
+        field.addEventListener('input', function () {
             clearTimeout(timeout);
             const caretPos = this.selectionStart;
             const word = getCurrentWord(this.value, caretPos);
 
-            if (word.startsWith('#') && word.length > 1) {
+            if (!mentionsOnly && hashtagUrl && word.startsWith('#') && word.length > 1) {
                 mode = 'hashtag';
                 const query = word.substring(1);
                 timeout = setTimeout(() => {
@@ -103,18 +127,19 @@
                                 };
                             }).filter((item) => item.value.length > 2);
 
-                            showItems(items, (item) => replaceCurrentWord(textarea, item.value));
+                            showItems(items, (item) => replaceCurrentWord(field, item.value));
                         })
                         .catch(clearBox);
                 }, 250);
                 return;
             }
 
-            if (word.startsWith('@') && word.length > 1) {
+            if (userUrl && word.startsWith('@') && word.length > 1) {
                 mode = 'user';
                 const query = word.substring(1);
+                const followParam = followingOnly ? 'true' : 'false';
                 timeout = setTimeout(() => {
-                    fetch(`${userUrl}?q=${encodeURIComponent(query)}&following_only=true`)
+                    fetch(`${userUrl}?q=${encodeURIComponent(query)}&following_only=${followParam}`)
                         .then((r) => r.json())
                         .then((users) => {
                             if (mode !== 'user') return;
@@ -128,7 +153,7 @@
                                            </div>`,
                                     value: '@' + user.username + ' ',
                                 })),
-                                (item) => replaceCurrentWord(textarea, item.value)
+                                (item) => replaceCurrentWord(field, item.value)
                             );
                         })
                         .catch(clearBox);
@@ -140,9 +165,26 @@
         });
 
         document.addEventListener('click', (e) => {
-            if (e.target !== textarea && !box.contains(e.target)) {
+            if (e.target !== field && !box.contains(e.target)) {
                 clearBox();
             }
+        });
+    };
+
+    /**
+     * Gợi ý @mention cho ô bình luận (feed / chi tiết bài / sửa cmt).
+     */
+    window.initCommentMentionSuggestions = function (field, options) {
+        if (!field) return;
+        const opts = options || {};
+        const userUrl = opts.userUrl || window.HOSHI_USER_SUGGESTIONS_URL;
+        if (!userUrl) return;
+        window.initEditCaptionSuggestions(field, {
+            userUrl: userUrl,
+            mentionsOnly: true,
+            followingOnly: opts.followingOnly !== false,
+            placement: opts.placement || 'above',
+            box: opts.box,
         });
     };
 })(window);

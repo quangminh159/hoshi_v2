@@ -42,6 +42,7 @@
     
     {% block extra_css %}{% endblock %}
     <link href="{% static 'css/hoshi_audio_player.css' %}?v=11" rel="stylesheet">
+    <link href="{% static 'css/like_effects.css' %}?v=4" rel="stylesheet">
 </head>
 <body class="bg-light{% if user.is_authenticated %} user-authenticated{% endif %}{% block body_class %}{% endblock %}" {% if user.is_authenticated %}data-user-id="{{ user.id }}"{% endif %}>
     <!-- Navbar -->
@@ -299,6 +300,7 @@
     <script src="{% static 'js/theme.js' %}?v=1"></script>
     <script src="{% static 'js/main.js' %}"></script>
     <script src="{% static 'js/hoshi_audio_player.js' %}?v=8"></script>
+    <script src="{% static 'js/like_effects.js' %}?v=4"></script>
     <script src="{% static 'js/debug_feed.js' %}"></script>
     <script src="{% static 'js/disable_multiple_submissions.js' %}"></script>
     <script src="{% static 'js/webrtc_call.js' %}?v=4"></script>

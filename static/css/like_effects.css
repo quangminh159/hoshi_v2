@@ -1,0 +1,178 @@
+/* Hoshi like effects — particles khi thả tim */
+
+.hoshi-like-fx-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    overflow: hidden;
+}
+
+.hoshi-like-fx-particle {
+    position: fixed;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transform: translate(-50%, -50%) scale(var(--fx-scale, 1)) rotate(var(--fx-rotate, 0deg));
+    opacity: 1;
+    animation: hoshi-like-float var(--fx-duration, 1100ms) var(--fx-delay, 0ms) ease-out forwards;
+    will-change: transform, opacity;
+    pointer-events: none;
+    user-select: none;
+}
+
+@keyframes hoshi-like-float {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.35) rotate(calc(var(--fx-rotate, 0deg) * 0.2));
+    }
+    12% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform:
+            translate(calc(-50% + var(--fx-dx, 0px)), calc(-50% + var(--fx-dy, -100px)))
+            scale(var(--fx-scale, 1))
+            rotate(var(--fx-rotate, 0deg));
+    }
+}
+
+/* Nút tim nhịp nhẹ khi like */
+.like-button.hoshi-like-fx-pulse,
+.comment-like-button.hoshi-like-fx-pulse {
+    animation: hoshi-like-btn-pulse 0.42s ease-out;
+}
+
+.like-button.hoshi-like-fx-pulse i,
+.comment-like-button.hoshi-like-fx-pulse i {
+    color: #ed4956;
+}
+
+@keyframes hoshi-like-btn-pulse {
+    0% { transform: scale(1); }
+    35% { transform: scale(1.28); }
+    100% { transform: scale(1); }
+}
+
+/* Cờ Việt Nam (CSS) */
+.hoshi-vn-flag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 18px;
+    background: #da251d;
+    border-radius: 2px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+    position: relative;
+}
+
+.hoshi-vn-flag__star {
+    color: #ffff00;
+    font-size: 12px;
+    line-height: 1;
+    text-shadow: 0 0 1px rgba(0, 0, 0, 0.15);
+}
+
+.hoshi-vn-star {
+    color: #ffff00;
+    font-size: 14px;
+    line-height: 1;
+    filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.2));
+}
+
+.hoshi-like-fx--emoji {
+    font-size: 18px;
+    line-height: 1;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
+}
+
+.hoshi-like-fx--flower {
+    font-size: 20px;
+}
+
+.hoshi-like-fx--peach {
+    font-size: 20px;
+}
+
+.hoshi-like-fx--mai {
+    font-size: 19px;
+}
+
+.hoshi-like-fx--lotus {
+    font-size: 20px;
+}
+
+.hoshi-like-fx--tet {
+    font-size: 19px;
+}
+
+.hoshi-like-fx--midautumn {
+    font-size: 20px;
+}
+
+.hoshi-like-fx--gioto {
+    font-size: 18px;
+}
+
+.hoshi-like-fx--big {
+    font-size: 22px;
+}
+
+.hoshi-like-fx--rocket {
+    font-size: 28px;
+}
+
+.hoshi-like-fx--fire {
+    font-size: 20px;
+    filter: drop-shadow(0 0 4px rgba(255, 100, 0, 0.55));
+}
+
+.hoshi-like-fx--ice {
+    filter: drop-shadow(0 0 4px rgba(120, 200, 255, 0.55));
+}
+
+.hoshi-like-fx--disco {
+    font-size: 20px;
+}
+
+.hoshi-like-fx--valentine {
+    font-size: 20px;
+    filter: drop-shadow(0 0 5px rgba(237, 73, 86, 0.45));
+}
+
+.hoshi-fx-letter {
+    font-weight: 800;
+    font-size: 22px;
+    font-family: Georgia, 'Times New Roman', serif;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+.hoshi-fx-bubble {
+    display: inline-block;
+    padding: 0.15rem 0.45rem;
+    border-radius: 999px;
+    background: #fff;
+    color: #262626;
+    font-size: 12px;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    white-space: nowrap;
+}
+
+.hoshi-confetti {
+    display: block;
+    width: 8px;
+    height: 12px;
+    border-radius: 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hoshi-like-fx-particle,
+    .like-button.hoshi-like-fx-pulse,
+    .comment-like-button.hoshi-like-fx-pulse {
+        animation: none !important;
+        display: none;
+    }
+}

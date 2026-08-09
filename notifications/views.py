@@ -7,6 +7,15 @@ from .models import Notification
 
 NOTIFICATIONS_PAGE_SIZE = 15
 
+# Tabs kiểu Instagram: All / People you follow / Comments / Follows / Tags & mentions
+NOTIFICATION_FILTERS = {
+    'all': None,
+    'following': 'following',
+    'comments': ('comment', 'comment_reply'),
+    'follows': ('follow', 'follow_request'),
+    'mentions': ('mention',),
+}
+
 
 def _activity_notifications(user):
     """Thông báo hoạt động — không gồm tin nhắn chat."""
@@ -15,6 +24,22 @@ def _activity_notifications(user):
         .exclude(notification_type='message')
         .select_related('sender')
     )
+
+
+def _apply_notification_filter(qs, user, filter_key):
+    key = (filter_key or 'all').strip().lower()
+    if key not in NOTIFICATION_FILTERS:
+        key = 'all'
+
+    spec = NOTIFICATION_FILTERS[key]
+    if key == 'following':
+        following_ids = list(user.get_following_user_ids())
+        if not following_ids:
+            return qs.none(), key
+        return qs.filter(sender_id__in=following_ids), key
+    if isinstance(spec, tuple):
+        return qs.filter(notification_type__in=spec), key
+    return qs, key
 
 
 def _serialize_notification(notification):
@@ -37,7 +62,9 @@ def _serialize_notification(notification):
 
 @login_required
 def notification_list(request):
+    filter_key = request.GET.get('filter', 'all')
     qs = _activity_notifications(request.user).order_by('-created_at')
+    qs, filter_key = _apply_notification_filter(qs, request.user, filter_key)
     paginator = Paginator(qs, NOTIFICATIONS_PAGE_SIZE)
     page_obj = paginator.get_page(1)
 
@@ -45,6 +72,7 @@ def notification_list(request):
         'notifications': page_obj,
         'has_more': page_obj.has_next(),
         'next_page': 2 if page_obj.has_next() else None,
+        'active_filter': filter_key,
     }
     return render(request, 'notifications/notifications.html', context)
 
@@ -57,7 +85,9 @@ def api_notifications(request):
     except (TypeError, ValueError):
         page_number = 1
 
+    filter_key = request.GET.get('filter', 'all')
     qs = _activity_notifications(request.user).order_by('-created_at')
+    qs, filter_key = _apply_notification_filter(qs, request.user, filter_key)
     paginator = Paginator(qs, NOTIFICATIONS_PAGE_SIZE)
 
     try:
@@ -67,12 +97,14 @@ def api_notifications(request):
             'notifications': [],
             'has_next': False,
             'next_page': None,
+            'filter': filter_key,
         })
 
     return JsonResponse({
         'notifications': [_serialize_notification(n) for n in page_obj.object_list],
         'has_next': page_obj.has_next(),
         'next_page': page_obj.next_page_number() if page_obj.has_next() else None,
+        'filter': filter_key,
     })
 
 
