@@ -206,7 +206,7 @@ def _deny_private_post_access(request, post, as_json=False):
     if as_json:
         return JsonResponse({'status': 'error', 'message': message}, status=403)
     messages.error(request, message)
-    return redirect('posts:feed')
+    return redirect('posts:index')
 
 
 @login_required
@@ -217,7 +217,7 @@ def post_detail(request, post_id):
     # Kiểm tra xem tác giả bài viết có chặn người dùng hiện tại không
     if UserBlock.objects.filter(blocker=post.author, blocked=request.user).exists():
         messages.error(request, 'Bạn không thể xem bài viết này vì tác giả đã chặn bạn.')
-        return redirect('posts:feed')
+        return redirect('posts:index')
 
     denied = _deny_private_post_access(request, post)
     if denied:

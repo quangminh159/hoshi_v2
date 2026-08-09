@@ -21,7 +21,7 @@
 <div class="feed-shell post-detail-shell">
     <div class="feed-page post-detail-page">
         <div class="post-detail-topbar">
-            <a href="javascript:history.back()" class="post-detail-back" aria-label="Quay lại">
+            <a href="{% url 'posts:index' %}" class="post-detail-back" id="post-detail-back" aria-label="Quay lại">
                 <i class="fas fa-arrow-left"></i>
             </a>
             <span class="post-detail-topbar-title">Bài viết</span>
@@ -1520,6 +1520,17 @@ document.addEventListener('DOMContentLoaded', function() {
         hashtagUrl: '{% url "posts:hashtag_suggestions" %}',
         userUrl: '{% url "posts:user_suggestions" %}',
         box: document.getElementById('edit-caption-suggestions'),
+    });
+})();
+
+// Nút ← : về trang feed
+(function () {
+    const backBtn = document.getElementById('post-detail-back');
+    if (!backBtn) return;
+
+    backBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.location.href = backBtn.getAttribute('href') || '{% url "posts:index" %}';
     });
 })();
 
