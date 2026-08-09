@@ -46,20 +46,6 @@
                             <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
                         {% endif %}
                     </form>
-                    
-                    <div class="divider d-flex align-items-center my-4">
-                        <p class="text-center fw-bold mx-3 mb-0">Hoặc</p>
-                    </div>
-                    
-                    <div class="d-grid gap-2">
-                        <a href="{% provider_login_url 'google' %}" class="btn btn-outline-dark">
-                            <i class="fab fa-google me-2"></i>Đăng ký với Google
-                        </a>
-                        
-                        <a href="{% provider_login_url 'apple' %}" class="btn btn-outline-secondary">
-                            <i class="fab fa-apple me-2"></i>Đăng ký với Apple
-                        </a>
-                    </div>
                 </div>
             </div>
             

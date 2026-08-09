@@ -58,6 +58,7 @@ class Media(models.Model):
     MEDIA_TYPES = (
         ('image', _('Image')),
         ('video', _('Video')),
+        ('audio', _('Audio')),
     )
     
     post = models.ForeignKey(Post,
@@ -116,6 +117,12 @@ class Comment(models.Model):
         null=True,
         verbose_name=_('video'),
     )
+    audio = models.FileField(
+        upload_to='comments/audio/%Y/%m/',
+        blank=True,
+        null=True,
+        verbose_name=_('audio'),
+    )
     parent = models.ForeignKey('self',
                              on_delete=models.CASCADE,
                              null=True,
@@ -148,6 +155,15 @@ class Comment(models.Model):
         if self.video:
             try:
                 return self.video.url
+            except Exception:
+                return None
+        return None
+
+    @property
+    def audio_url(self):
+        if self.audio:
+            try:
+                return self.audio.url
             except Exception:
                 return None
         return None
@@ -213,6 +229,7 @@ class PostMedia(models.Model):
     MEDIA_TYPES = (
         ('image', _('Image')),
         ('video', _('Video')),
+        ('audio', _('Audio')),
     )
     
     post = models.ForeignKey(Post,

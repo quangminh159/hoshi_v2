@@ -1,11 +1,12 @@
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
 from django.shortcuts import redirect, render
 from posts.views import home
 from django.views.generic.base import RedirectView
 from accounts.views import CustomPasswordResetView, password_reset_otp
+from hoshi.range_media import serve_media_with_range
 
 
 def redirect_legacy_profile(request, username):
@@ -53,6 +54,11 @@ if settings.DEBUG:
     urlpatterns += [
         path('__debug__/', include('debug_toolbar.urls')),
     ]
-    
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# Media: view có HTTP Range (bắt buộc để tua audio/video file lớn).
+# static() của Django + Daphne không trả 206 → trình duyệt không tua được.
+_media_prefix = settings.MEDIA_URL.lstrip('/')
+urlpatterns += [
+    re_path(rf'^{_media_prefix}(?P<path>.*)$', serve_media_with_range),
+]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) 

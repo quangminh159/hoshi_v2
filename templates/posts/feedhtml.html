@@ -83,6 +83,10 @@
                 <img src="{{ media.file.url }}" 
                      class="d-block w-100" 
                      alt="Post image">
+                {% elif media.media_type == 'audio' %}
+                <div class="post-audio-player">
+                    <audio class="post-audio" controls preload="metadata" src="{{ media.file.url }}"></audio>
+                </div>
                 {% else %}
                 <video class="d-block w-100" controls>
                     <source src="{{ media.file.url }}" type="video/mp4">

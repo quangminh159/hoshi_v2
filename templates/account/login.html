@@ -1,7 +1,7 @@
 {% extends 'base/auth_base.html' %}
 {% load i18n %}
 {% load static %}
-{% load account socialaccount %}
+{% load account %}
 
 {% block title %}{% trans "Đăng nhập" %} - {{ block.super }}{% endblock %}
 
@@ -92,19 +92,6 @@
                                 <i class="fas fa-sign-in-alt me-2"></i>{% trans "Đăng nhập" %}
                             </button>
                         </form>
-
-                        <div class="auth-separator">
-                            <span>{% trans "hoặc tiếp tục với" %}</span>
-                        </div>
-
-                        <div class="social-login">
-                            <!-- Xóa sử dụng {% get_providers %} để tránh lỗi -->
-                            <a href="/accounts/google/login/" class="social-btn google">
-                                <i class="fab fa-google"></i>
-                                <span>{% trans "Đăng nhập với Google" %}</span>
-                            </a>
-                            
-                        </div>
 
                         <div class="auth-footer">
                             <p>{% trans "Chưa có tài khoản?" %} <a href="{% url 'account_signup' %}">{% trans "Đăng ký ngay" %}</a></p>

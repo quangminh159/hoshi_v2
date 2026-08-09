@@ -7,3 +7,10 @@ https://developers.facebook.com/apps/?show_reminder=true
 
 chạy để có thể chat trực tiếp
 python -m daphne -p 8000 hoshi.asgi:application
+
+Stop-Process -Id 14932 -Force
+python -m daphne -p 8000 hoshi.asgi:application
+
+tìm server đang chạy
+netstat -ano | findstr ":8000"
+Stop-Process -Id <PID_LISTENING> -Force

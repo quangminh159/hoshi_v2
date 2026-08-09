@@ -147,6 +147,7 @@
                             <button type="button" class="type-btn active" data-type="all">Tất cả</button>
                             <button type="button" class="type-btn" data-type="image">Ảnh</button>
                             <button type="button" class="type-btn" data-type="video">Video</button>
+                            <button type="button" class="type-btn" data-type="audio">Âm thanh</button>
                         </div>
                         
                         <!-- Media Upload -->
@@ -155,11 +156,29 @@
                                    id="media" 
                                    name="media" 
                                    class="filepond"
-                                   accept="image/*,video/*"
+                                   accept="image/*,video/*,audio/*,.mp3,.m4a,.wav,.ogg,.aac,.flac,.webm"
                                    multiple
                                    data-allow-reorder="true">
+                            <div class="composer-audio-tools mt-2">
+                                <button type="button" class="btn btn-outline-secondary btn-sm" id="editPageAudioPickBtn" title="Chọn file nhạc">
+                                    <i class="fas fa-music me-1"></i>Nhạc
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" id="editPageVoiceRecordBtn" title="Ghi âm">
+                                    <i class="fas fa-microphone me-1"></i>Ghi âm
+                                </button>
+                                <input type="file" id="editPageAudioFileInput" class="d-none" accept="audio/*,.mp3,.m4a,.wav,.ogg,.aac,.flac,.wma">
+                            </div>
+                            <div id="editPageVoiceRecordingBar" class="post-voice-recording-bar d-none mt-2">
+                                <span class="post-voice-rec-dot" aria-hidden="true"></span>
+                                <span class="post-voice-timer" id="editPageVoiceTimer">0:00</span>
+                                <span class="post-voice-hint">Đang ghi âm...</span>
+                                <div class="post-voice-actions ms-auto">
+                                    <button type="button" class="btn btn-sm btn-light" id="editPageVoiceCancelBtn">Hủy</button>
+                                    <button type="button" class="btn btn-sm btn-primary" id="editPageVoiceSaveBtn">Dùng bản ghi</button>
+                                </div>
+                            </div>
                             <div class="form-text mt-1">
-                                Kích thước tối đa: 1GB cho mỗi file. Định dạng: JPEG, PNG, GIF, MP4, MOV, MKV.
+                                Ảnh, video, nhạc hoặc ghi âm. Kích thước tối đa: 1GB/file.
                             </div>
                         </div>
                         
@@ -244,6 +263,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const IMAGE_EXT = /\.(jpe?g|png|gif|webp|bmp|heic|heif)$/i;
     const VIDEO_EXT = /\.(mp4|mov|mkv|webm|avi|m4v|wmv|3gp|3gpp|mpeg|mpg|flv|ts|mts)$/i;
+    const AUDIO_EXT = /\.(mp3|m4a|wav|ogg|aac|flac|wma|opus|oga)$/i;
     let activeMediaFilter = 'all';
 
     function isImageFile(file) {
@@ -255,20 +275,33 @@ document.addEventListener('DOMContentLoaded', function() {
     function isVideoFile(file) {
         const type = (file.type || '').toLowerCase();
         const name = (file.name || '').toLowerCase();
+        if (name.startsWith('voice-')) return false;
+        if (type.startsWith('audio/')) return false;
         return type.startsWith('video/') || VIDEO_EXT.test(name);
+    }
+
+    function isAudioFile(file) {
+        const type = (file.type || '').toLowerCase();
+        const name = (file.name || '').toLowerCase();
+        if (type.startsWith('audio/')) return true;
+        if (AUDIO_EXT.test(name)) return true;
+        if (name.startsWith('voice-') && /\.(webm|m4a|ogg|mp4)$/i.test(name)) return true;
+        return false;
     }
 
     function isAllowedFile(file) {
         if (activeMediaFilter === 'image') return isImageFile(file);
         if (activeMediaFilter === 'video') return isVideoFile(file);
-        return isImageFile(file) || isVideoFile(file);
+        if (activeMediaFilter === 'audio') return isAudioFile(file);
+        return isImageFile(file) || isVideoFile(file) || isAudioFile(file);
     }
 
     function updateFileInputAccept() {
         const input = document.getElementById('media');
         if (activeMediaFilter === 'image') input.setAttribute('accept', 'image/*');
         else if (activeMediaFilter === 'video') input.setAttribute('accept', 'video/*');
-        else input.setAttribute('accept', 'image/*,video/*');
+        else if (activeMediaFilter === 'audio') input.setAttribute('accept', 'audio/*,.mp3,.m4a,.wav,.ogg,.aac,.flac,.webm');
+        else input.setAttribute('accept', 'image/*,video/*,audio/*,.mp3,.m4a,.wav,.ogg,.aac,.flac,.webm');
     }
 
     // Location autocomplete + GPS
@@ -381,14 +414,14 @@ document.addEventListener('DOMContentLoaded', function() {
         allowReorder: true,
         storeAsFile: true,
         allowVideoPreview: true,
-        labelIdle: 'Kéo & thả ảnh hoặc video của bạn ở đây hoặc <span class="filepond--label-action">Tìm</span>',
+        labelIdle: 'Kéo & thả ảnh, video hoặc nhạc hoặc <span class="filepond--label-action">Tìm</span>',
         labelFileTypeNotAllowed: 'Loại file không được hỗ trợ',
         stylePanelLayout: 'compact',
         styleItemPanelAspectRatio: 1,
         beforeAddFile: (item) => {
             const file = item.file || item;
             if (!isAllowedFile(file)) {
-                alert('File không được hỗ trợ. Vui lòng chọn ảnh hoặc video (MP4, MOV, MKV, WEBM...).');
+                alert('File không được hỗ trợ. Vui lòng chọn ảnh, video hoặc âm thanh.');
                 return false;
             }
             return true;
@@ -407,6 +440,133 @@ document.addEventListener('DOMContentLoaded', function() {
             updateMediaPreviews();
         }
     });
+
+    // Nhạc + ghi âm
+    (function bindEditPageAudioTools() {
+        const audioPickBtn = document.getElementById('editPageAudioPickBtn');
+        const audioFileInput = document.getElementById('editPageAudioFileInput');
+        const voiceRecordBtn = document.getElementById('editPageVoiceRecordBtn');
+        const voiceBar = document.getElementById('editPageVoiceRecordingBar');
+        const voiceTimer = document.getElementById('editPageVoiceTimer');
+        const voiceCancelBtn = document.getElementById('editPageVoiceCancelBtn');
+        const voiceSaveBtn = document.getElementById('editPageVoiceSaveBtn');
+        const MAX_VOICE_SECONDS = 180;
+
+        function formatTimer(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = seconds % 60;
+            return `${m}:${String(s).padStart(2, '0')}`;
+        }
+        function pickMime() {
+            const candidates = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus'];
+            if (!window.MediaRecorder || !MediaRecorder.isTypeSupported) return '';
+            return candidates.find((t) => MediaRecorder.isTypeSupported(t)) || '';
+        }
+        function mimeToExt(mime) {
+            if (!mime) return 'webm';
+            if (mime.includes('mp4')) return 'm4a';
+            if (mime.includes('ogg')) return 'ogg';
+            return 'webm';
+        }
+        function addAudio(file) {
+            if (!file) return;
+            pond.addFile(file).catch((err) => {
+                console.error(err);
+                alert('Không thêm được file âm thanh.');
+            });
+        }
+
+        let mediaRecorder = null;
+        let mediaStream = null;
+        let recordedChunks = [];
+        let recordingStartedAt = 0;
+        let recordingTimerId = null;
+        let shouldSaveVoice = false;
+
+        function stopTracks() {
+            if (mediaStream) {
+                mediaStream.getTracks().forEach((t) => t.stop());
+                mediaStream = null;
+            }
+        }
+        function resetUI() {
+            if (recordingTimerId) { clearInterval(recordingTimerId); recordingTimerId = null; }
+            voiceBar?.classList.add('d-none');
+            if (voiceTimer) voiceTimer.textContent = '0:00';
+            voiceRecordBtn?.classList.remove('is-recording');
+            recordedChunks = [];
+            mediaRecorder = null;
+            shouldSaveVoice = false;
+        }
+        function stopVoice(save) {
+            shouldSaveVoice = !!save;
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                try { mediaRecorder.stop(); } catch (_) {}
+            } else {
+                stopTracks();
+                resetUI();
+            }
+        }
+
+        audioPickBtn?.addEventListener('click', () => audioFileInput?.click());
+        audioFileInput?.addEventListener('change', () => {
+            const file = audioFileInput.files && audioFileInput.files[0];
+            if (file) addAudio(file);
+            audioFileInput.value = '';
+        });
+
+        async function startVoice() {
+            if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') {
+                alert('Trình duyệt không hỗ trợ ghi âm.');
+                return;
+            }
+            if (mediaRecorder && mediaRecorder.state === 'recording') return;
+            try {
+                mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            } catch (err) {
+                alert('Không thể truy cập micro.');
+                return;
+            }
+            recordedChunks = [];
+            shouldSaveVoice = false;
+            const mime = pickMime();
+            try {
+                mediaRecorder = mime ? new MediaRecorder(mediaStream, { mimeType: mime }) : new MediaRecorder(mediaStream);
+            } catch (err) {
+                stopTracks();
+                alert('Không thể bắt đầu ghi âm.');
+                return;
+            }
+            mediaRecorder.ondataavailable = (e) => { if (e.data?.size > 0) recordedChunks.push(e.data); };
+            mediaRecorder.onstop = () => {
+                stopTracks();
+                const save = shouldSaveVoice;
+                const chunks = recordedChunks.slice();
+                const usedMime = (mediaRecorder && mediaRecorder.mimeType) || mime || 'audio/webm';
+                resetUI();
+                if (!save) return;
+                const blob = new Blob(chunks, { type: usedMime.split(';')[0] });
+                if (blob.size < 500) { alert('Bản ghi quá ngắn.'); return; }
+                addAudio(new File([blob], `voice-${Date.now()}.${mimeToExt(usedMime)}`, { type: blob.type || 'audio/webm' }));
+            };
+            mediaRecorder.start(250);
+            recordingStartedAt = Date.now();
+            voiceBar?.classList.remove('d-none');
+            voiceRecordBtn?.classList.add('is-recording');
+            recordingTimerId = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - recordingStartedAt) / 1000);
+                if (voiceTimer) voiceTimer.textContent = formatTimer(elapsed);
+                if (elapsed >= MAX_VOICE_SECONDS) stopVoice(true);
+            }, 250);
+        }
+
+        voiceRecordBtn?.addEventListener('click', () => {
+            if (mediaRecorder && mediaRecorder.state === 'recording') stopVoice(true);
+            else startVoice();
+        });
+        voiceCancelBtn?.addEventListener('click', () => stopVoice(false));
+        voiceSaveBtn?.addEventListener('click', () => stopVoice(true));
+    })();
     
     // Hiển thị media hiện có
     loadExistingMedia();
@@ -441,6 +601,16 @@ document.addEventListener('DOMContentLoaded', function() {
         {% if media.media_type == 'image' %}
         previewItem.innerHTML = `
             <img src="{{ media.file.url }}" alt="Existing image">
+            <button class="remove-media" data-id="{{ media.id }}">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        {% elif media.media_type == 'audio' %}
+        previewItem.classList.add('media-preview-item--audio');
+        previewItem.innerHTML = `
+            <div class="edit-media-audio-preview" style="padding:8px;display:flex;align-items:center;gap:8px;height:100%;">
+                <audio src="{{ media.file.url }}" controls preload="metadata" style="width:100%;height:32px;"></audio>
+            </div>
             <button class="remove-media" data-id="{{ media.id }}">
                 <i class="fas fa-times"></i>
             </button>

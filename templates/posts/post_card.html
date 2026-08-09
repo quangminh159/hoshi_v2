@@ -144,6 +144,10 @@
                                      class="d-block w-100" 
                                      alt="Shared post image"
                                      style="cursor:zoom-in">
+                                {% elif media.media_type == 'audio' %}
+                                <div class="post-audio-player">
+                                    <audio class="post-audio" controls preload="metadata" src="{{ media.file.url }}"></audio>
+                                </div>
                                 {% else %}
                                 <video class="d-block w-100 feed-video" controls playsinline muted style="cursor:zoom-in">
                                     <source src="{{ media.file.url }}" type="video/mp4">
@@ -218,6 +222,10 @@
                      class="d-block w-100" 
                      alt="Post image"
                      style="cursor:zoom-in">
+                {% elif media.media_type == 'audio' %}
+                <div class="post-audio-player">
+                    <audio class="post-audio" controls preload="metadata" src="{{ media.file.url }}"></audio>
+                </div>
                 {% else %}
                 <video class="d-block w-100 feed-video" controls playsinline muted style="cursor:zoom-in">
                     <source src="{{ media.file.url }}" type="video/mp4">
@@ -803,7 +811,7 @@ function getCookie(name) {
                                 <button type="button" class="edit-media-remove delete-media-btn" data-media-id="{{ media.id }}" title="{% trans 'Xóa' %}" aria-label="{% trans 'Xóa' %}">
                                     <i class="fas fa-times"></i>
                                 </button>
-                                <span class="edit-media-badge">{% if media.media_type == 'image' %}{% trans "Ảnh" %}{% else %}{% trans "Video" %}{% endif %}</span>
+                                <span class="edit-media-badge">{% if media.media_type == 'image' %}{% trans "Ảnh" %}{% elif media.media_type == 'audio' %}{% trans "Âm thanh" %}{% else %}{% trans "Video" %}{% endif %}</span>
                             </div>
                             {% endfor %}
                         </div>
@@ -815,7 +823,7 @@ function getCookie(name) {
                                    id="edit-new-media-{{ post.id }}"
                                    name="new_media"
                                    class="filepond edit-filepond"
-                                   accept="image/*,video/*"
+                                   accept="image/*,video/*,audio/*,.mp3,.m4a,.wav,.ogg,.aac,.flac"
                                    multiple
                                    data-allow-reorder="true"
                                    data-post-id="{{ post.id }}">

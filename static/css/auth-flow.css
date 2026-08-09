@@ -1,11 +1,11 @@
-/* Shared auth-flow: logout + password reset */
+/* Shared auth-flow: logout + password reset — cùng palette Hoshi */
 .auth-flow {
-    --af-ink: #1c1917;
-    --af-muted: #78716c;
-    --af-line: rgba(28, 25, 23, 0.12);
-    --af-surface: rgba(255, 252, 248, 0.9);
-    --af-accent: #0f766e;
-    --af-accent-deep: #115e59;
+    --af-ink: var(--text-color, #262626);
+    --af-muted: var(--light-text-color, #8e8e8e);
+    --af-line: var(--border-color, #dbdbdb);
+    --af-surface: var(--surface-color, #ffffff);
+    --af-accent: var(--primary-color, #405de6);
+    --af-accent-deep: #3349c4;
     --af-danger: #b91c1c;
     --af-ok: #047857;
 
@@ -16,12 +16,18 @@
     align-items: center;
     justify-content: center;
     padding: 2rem 1.25rem 2.5rem;
-    font-family: "Outfit", sans-serif;
+    font-family: var(
+        --hoshi-font,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        "Helvetica Neue",
+        Arial,
+        sans-serif
+    );
     color: var(--af-ink);
-    background:
-        radial-gradient(1200px 600px at 12% -10%, rgba(15, 118, 110, 0.18), transparent 55%),
-        radial-gradient(900px 500px at 100% 10%, rgba(120, 113, 108, 0.16), transparent 50%),
-        linear-gradient(165deg, #e7e5e4 0%, #fafaf9 42%, #d6d3d1 100%);
+    background: var(--background-color, #fafafa);
 }
 
 .auth-flow__atmosphere {
@@ -43,7 +49,7 @@
     height: min(42vw, 320px);
     left: -6%;
     bottom: 8%;
-    background: radial-gradient(circle, rgba(15, 118, 110, 0.35), transparent 70%);
+    background: radial-gradient(circle, rgba(64, 93, 230, 0.22), transparent 70%);
 }
 
 .auth-flow__orb--b {
@@ -51,7 +57,7 @@
     height: min(36vw, 260px);
     right: -4%;
     top: 12%;
-    background: radial-gradient(circle, rgba(68, 64, 60, 0.2), transparent 70%);
+    background: radial-gradient(circle, rgba(88, 81, 219, 0.16), transparent 70%);
     animation-delay: -3s;
 }
 
@@ -91,7 +97,7 @@
 }
 
 .auth-flow__name {
-    font-family: "Fraunces", serif;
+    font-family: inherit;
     font-size: 1.65rem;
     font-weight: 700;
     letter-spacing: -0.03em;
@@ -101,10 +107,11 @@
 .auth-flow__panel {
     background: var(--af-surface);
     border: 1px solid var(--af-line);
-    border-radius: 28px;
+    border-radius: 16px;
     padding: 2rem 1.75rem 1.75rem;
-    backdrop-filter: blur(18px);
-    box-shadow: 0 24px 60px rgba(28, 25, 23, 0.08);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 8px 28px var(--shadow-color, rgba(0, 0, 0, 0.08));
     animation: af-rise 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
 }
 

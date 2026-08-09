@@ -11,7 +11,17 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: var(
+        --hoshi-font,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        "Helvetica Neue",
+        Arial,
+        "Noto Sans",
+        sans-serif
+    );
     color: var(--text-color);
     background-color: var(--background-color);
     min-height: 100vh;
@@ -35,13 +45,14 @@ a:hover {
 
 /* Buttons */
 .btn-primary {
-    background-color: #0d6efd;
-    border-color: #0d6efd;
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
 }
 
-.btn-primary:hover {
-    background-color: #0b5ed7;
-    border-color: #0a58ca;
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: #3349c4;
+    border-color: #3349c4;
 }
 
 .btn-outline-primary {
@@ -573,38 +584,33 @@ a:hover {
     text-decoration: underline;
 }
 
-/* Auth Pages */
+/* Auth Pages — cùng palette app (#405de6), không gradient tím lệch browser */
 .auth-page {
     min-height: 100vh;
     display: flex;
     align-items: center;
-    background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
+    background: var(--background-color, #fafafa);
     padding: 2rem 0;
 }
 
 .auth-card {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px);
-    border: none;
-    border-radius: 24px;
-    box-shadow: 
-        0 20px 40px rgba(0, 0, 0, 0.1),
-        inset 0 -4px 8px rgba(255, 255, 255, 0.2),
-        inset 0 4px 8px rgba(255, 255, 255, 0.2);
+    background: var(--surface-color, #fff);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border-color, #dbdbdb);
+    border-radius: 16px;
+    box-shadow: 0 8px 28px var(--shadow-color, rgba(0, 0, 0, 0.08));
     overflow: hidden;
-    transition: all 0.3s ease;
+    transition: box-shadow 0.2s ease;
 }
 
 .auth-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 
-        0 30px 60px rgba(0, 0, 0, 0.12),
-        inset 0 -4px 8px rgba(255, 255, 255, 0.2),
-        inset 0 4px 8px rgba(255, 255, 255, 0.2);
+    transform: none;
+    box-shadow: 0 12px 32px var(--shadow-color, rgba(0, 0, 0, 0.1));
 }
 
 .auth-card .card-body {
-    padding: 3rem;
+    padding: 2.5rem;
 }
 
 .auth-logo {
@@ -617,19 +623,19 @@ a:hover {
 }
 
 .auth-title {
-    font-size: 2.5rem;
-    font-weight: 800;
-    background: linear-gradient(120deg, #1a1a1a, #4a4a4a);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-color, #1a1a1a);
+    background: none;
+    -webkit-text-fill-color: unset;
     margin-bottom: 0.5rem;
-    letter-spacing: -0.5px;
+    letter-spacing: -0.02em;
 }
 
 .auth-subtitle {
-    color: #666;
-    font-size: 1.1rem;
-    margin-bottom: 2.5rem;
+    color: var(--light-text-color, #666);
+    font-size: 1rem;
+    margin-bottom: 2rem;
     font-weight: 500;
 }
 
@@ -946,44 +952,7 @@ a:hover {
     }
 }
 
-/* Custom styles */
-body {
-    background: #f0f2f5;
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif;
-}
-
-/* Auth pages */
-.auth-page {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-.auth-card {
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(10px);
-    border: none;
-    border-radius: 16px;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
-}
-
-.auth-card .card-body {
-    padding: 48px;
-}
-
-.auth-title {
-    color: #1a1a1a;
-    font-size: 28px;
-    font-weight: 700;
-    margin-bottom: 8px;
-}
-
-.auth-subtitle {
-    color: #666;
-    font-size: 16px;
-    margin-bottom: 32px;
-}
+/* Custom styles — giữ 1 body rule (đã set ở đầu file) */
 
 .form-label {
     color: #1a1a1a;

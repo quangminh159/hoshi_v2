@@ -29,8 +29,9 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <!-- Custom CSS -->
-    <link href="{% static 'css/style.css' %}?v=chat-bottom-nav-1" rel="stylesheet">
-    <link href="{% static 'css/theme.css' %}?v=1" rel="stylesheet">
+    <link href="{% static 'css/cross_browser.css' %}?v=2" rel="stylesheet">
+    <link href="{% static 'css/style.css' %}?v=unify-ui-1" rel="stylesheet">
+    <link href="{% static 'css/theme.css' %}?v=2" rel="stylesheet">
     <link href="{% static 'css/notification_dropdown.css' %}" rel="stylesheet">
     <link href="{% static 'css/media_lightbox.css' %}?v=5" rel="stylesheet">
     <link href="{% static 'css/webrtc_call.css' %}?v=3" rel="stylesheet">
@@ -40,6 +41,7 @@
     {% endif %}
     
     {% block extra_css %}{% endblock %}
+    <link href="{% static 'css/hoshi_audio_player.css' %}?v=11" rel="stylesheet">
 </head>
 <body class="bg-light{% if user.is_authenticated %} user-authenticated{% endif %}{% block body_class %}{% endblock %}" {% if user.is_authenticated %}data-user-id="{{ user.id }}"{% endif %}>
     <!-- Navbar -->
@@ -54,15 +56,6 @@
             </button>
             
             <div class="collapse navbar-collapse" id="navbarNav">
-                <form class="d-flex mx-auto navbar-search-form" action="{% url 'posts:search' %}" method="get">
-                    <div class="input-group">
-                        <input type="search" class="form-control" name="q" placeholder="{% trans 'Tìm kiếm...' %}">
-                        <button class="btn btn-outline-secondary" type="submit">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </div>
-                </form>
-                
                 <ul class="navbar-nav ms-auto align-items-lg-center">
                     <li class="nav-item me-lg-2 mb-2 mb-lg-0">
                         <button type="button" class="theme-toggle-btn" data-theme-toggle aria-label="{% trans 'Đổi giao diện sáng/tối' %}">
@@ -305,6 +298,7 @@
     <!-- Custom JS -->
     <script src="{% static 'js/theme.js' %}?v=1"></script>
     <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'js/hoshi_audio_player.js' %}?v=8"></script>
     <script src="{% static 'js/debug_feed.js' %}"></script>
     <script src="{% static 'js/disable_multiple_submissions.js' %}"></script>
     <script src="{% static 'js/webrtc_call.js' %}?v=4"></script>

@@ -262,12 +262,11 @@ def _get_uploaded_media_files(request):
 def _media_type_for_file(uploaded_file):
     """Xác định loại media từ content-type hoặc phần mở rộng file."""
     content_type = (getattr(uploaded_file, 'content_type', '') or '').lower()
-    if content_type.startswith('video/'):
-        return 'video'
-    if content_type.startswith('image/'):
-        return 'image'
-
     filename = (uploaded_file.name or '').lower()
+
+    audio_extensions = (
+        '.mp3', '.m4a', '.wav', '.ogg', '.aac', '.flac', '.wma', '.opus', '.oga',
+    )
     video_extensions = (
         '.mp4', '.mov', '.mkv', '.webm', '.avi', '.m4v', '.wmv',
         '.3gp', '.3gpp', '.mpeg', '.mpg', '.flv', '.ts', '.mts',
@@ -276,13 +275,29 @@ def _media_type_for_file(uploaded_file):
         '.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.heic', '.heif',
     )
 
+    # Audio trước video (ghi âm browser thường ra audio/webm hoặc video/webm)
+    if content_type.startswith('audio/'):
+        return 'audio'
+    if filename.endswith(audio_extensions):
+        return 'audio'
+    # Voice recording: tên voice-* + webm/m4a/ogg
+    if filename.startswith('voice-') and filename.endswith(('.webm', '.m4a', '.ogg', '.mp4')):
+        return 'audio'
+
+    if content_type.startswith('video/'):
+        return 'video'
+    if content_type.startswith('image/'):
+        return 'image'
+
     if filename.endswith(video_extensions):
         return 'video'
     if filename.endswith(image_extensions):
         return 'image'
 
-    # Một số trình duyệt/OS gửi video với content-type chung
+    # Một số trình duyệt/OS gửi file với content-type chung
     if content_type in ('application/octet-stream', 'binary/octet-stream', 'application/mp4'):
+        if filename.endswith(audio_extensions):
+            return 'audio'
         if filename.endswith(video_extensions):
             return 'video'
         if filename.endswith(image_extensions):
@@ -305,7 +320,7 @@ def create(request):
             caption = (form.cleaned_data.get('caption') or '').strip()
 
             if not media_files and not caption:
-                error_message = 'Vui lòng nhập nội dung hoặc chọn ít nhất một ảnh/video.'
+                error_message = 'Vui lòng nhập nội dung hoặc chọn ít nhất một ảnh/video/âm thanh.'
                 if _is_ajax_request(request):
                     return JsonResponse({'error': error_message}, status=400)
                 messages.error(request, error_message)
@@ -324,7 +339,7 @@ def create(request):
                 media_type = _media_type_for_file(file)
                 if not media_type:
                     upload_errors.append(
-                        f'File {file.name} không hợp lệ. Chỉ chấp nhận file hình ảnh và video.'
+                        f'File {file.name} không hợp lệ. Chỉ chấp nhận ảnh, video hoặc âm thanh.'
                     )
                     continue
 
@@ -406,7 +421,7 @@ def edit_post(request, post_id):
                     
                     media_type = _media_type_for_file(file)
                     if not media_type:
-                        messages.error(request, f'File {file.name} không hợp lệ. Chỉ chấp nhận ảnh hoặc video.')
+                        messages.error(request, f'File {file.name} không hợp lệ. Chỉ chấp nhận ảnh, video hoặc âm thanh.')
                         return redirect('posts:edit', post_id=post.id)
                     
                     PostMedia.objects.create(
@@ -598,8 +613,8 @@ def save_post(request, post_id):
 @login_required
 @require_POST
 def add_comment(request, post_id):
-    """Thêm bình luận vào bài viết (text và/hoặc ảnh/video ngắn)."""
-    from .comment_media import validate_comment_image, validate_comment_video
+    """Thêm bình luận vào bài viết (text và/hoặc ảnh/video ngắn/ghi âm)."""
+    from .comment_media import validate_comment_image, validate_comment_video, validate_comment_audio
 
     post = get_object_or_404(Post, id=post_id)
 
@@ -613,18 +628,20 @@ def add_comment(request, post_id):
     parent_id = request.POST.get('parent_id')
     image = request.FILES.get('image')
     video = request.FILES.get('video')
+    audio = request.FILES.get('audio')
 
-    if not text and not image and not video:
+    media_count = sum(1 for f in (image, video, audio) if f)
+    if not text and media_count == 0:
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({
                 'success': False,
-                'message': 'Vui lòng nhập nội dung, chọn ảnh hoặc video ngắn'
+                'message': 'Vui lòng nhập nội dung, chọn ảnh/video hoặc ghi âm'
             })
-        messages.error(request, 'Vui lòng nhập nội dung, chọn ảnh hoặc video ngắn')
+        messages.error(request, 'Vui lòng nhập nội dung, chọn ảnh/video hoặc ghi âm')
         return redirect('posts:post_detail', post_id=post_id)
 
-    if image and video:
-        msg = 'Chỉ chọn một trong ảnh hoặc video cho mỗi bình luận'
+    if media_count > 1:
+        msg = 'Chỉ chọn một trong ảnh, video hoặc ghi âm cho mỗi bình luận'
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({'success': False, 'message': msg})
         messages.error(request, msg)
@@ -640,6 +657,14 @@ def add_comment(request, post_id):
 
     if video:
         err = validate_comment_video(video)
+        if err:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'message': err})
+            messages.error(request, err)
+            return redirect('posts:post_detail', post_id=post_id)
+
+    if audio:
+        err = validate_comment_audio(audio)
         if err:
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({'success': False, 'message': err})
@@ -683,6 +708,8 @@ def add_comment(request, post_id):
         comment.image = image
     if video:
         comment.video = video
+    if audio:
+        comment.audio = audio
     comment.save()
 
     # Tăng comment_count
@@ -726,6 +753,8 @@ def add_comment(request, post_id):
             'image_url': comment.image_url,
             'video': comment.video_url,
             'video_url': comment.video_url,
+            'audio': comment.audio_url,
+            'audio_url': comment.audio_url,
             'created_at': comment.created_at.isoformat(),
             'author': {
                 'id': request.user.id,
@@ -1064,11 +1093,16 @@ FEED_REPLIES_PAGE_SIZE = 7
 
 def _comment_payload(comment_obj, liked_comment_ids, parent_id=None, user=None, post_author_id=None):
     can_delete = False
+    can_edit = False
     if user is not None and getattr(user, 'is_authenticated', False):
+        can_edit = comment_obj.author_id == user.id
         can_delete = (
-            comment_obj.author_id == user.id
+            can_edit
             or (post_author_id is not None and post_author_id == user.id)
         )
+    is_edited = False
+    if comment_obj.updated_at and comment_obj.created_at:
+        is_edited = (comment_obj.updated_at - comment_obj.created_at).total_seconds() > 2
     data = {
         'id': comment_obj.id,
         'text': comment_obj.text or '',
@@ -1076,12 +1110,17 @@ def _comment_payload(comment_obj, liked_comment_ids, parent_id=None, user=None, 
         'image_url': comment_obj.image_url,
         'video': comment_obj.video_url,
         'video_url': comment_obj.video_url,
+        'audio': comment_obj.audio_url,
+        'audio_url': comment_obj.audio_url,
         'created_at': comment_obj.created_at.isoformat(),
+        'updated_at': comment_obj.updated_at.isoformat() if comment_obj.updated_at else None,
         'author_id': comment_obj.author_id,
         'author_username': comment_obj.author.username,
         'likes_count': comment_obj.likes_count,
         'is_liked': comment_obj.id in liked_comment_ids,
         'can_delete': can_delete,
+        'can_edit': can_edit,
+        'is_edited': is_edited,
     }
     if parent_id is not None:
         data['parent_id'] = parent_id

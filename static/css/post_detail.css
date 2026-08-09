@@ -115,6 +115,65 @@
     background: #000;
 }
 
+.post-detail-page .post-audio-player {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    min-height: 0;
+    padding: 0.65rem 0.85rem;
+    border-radius: 14px;
+    background: #f5f5f5;
+    border: 1px solid #ebebeb;
+}
+
+.post-detail-page .post-audio-player__icon {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    color: #262626;
+    box-shadow: none;
+    border: 1px solid #e8e8e8;
+    font-size: 0.95rem;
+}
+
+.post-detail-page .post-audio {
+    width: 100%;
+    flex: 1;
+    min-width: 0;
+    height: 36px;
+}
+
+.post-detail-page .post-detail-media.carousel.slide:has(.post-audio-player):not(:has(img)):not(:has(video)),
+.post-detail-page .post-detail-media:has(.post-audio-player):not(:has(img)):not(:has(video)) {
+    width: 100%;
+    max-width: 100%;
+    aspect-ratio: auto;
+    max-height: none;
+    height: auto;
+    background: transparent;
+    overflow: visible;
+    border-radius: 0;
+}
+
+.post-detail-page .post-detail-media:has(.post-audio-player):not(:has(img)):not(:has(video)) .carousel-inner,
+.post-detail-page .post-detail-media:has(.post-audio-player):not(:has(img)):not(:has(video)) .carousel-item {
+    height: auto;
+    background: transparent;
+}
+
+.post-detail-page .post-detail-media:has(.post-audio-player):not(:has(img)):not(:has(video)) .carousel-control-prev,
+.post-detail-page .post-detail-media:has(.post-audio-player):not(:has(img)):not(:has(video)) .carousel-control-next,
+.post-detail-page .post-detail-media:has(.post-audio-player):not(:has(img)):not(:has(video)) .carousel-indicators {
+    display: none;
+}
+
 .post-detail-page .shared-post-container {
     margin-top: 0.5rem;
 }
@@ -247,6 +306,169 @@
     max-height: 160px;
 }
 
+.comment-edit-form .comment-edit-input {
+    font-size: 0.875rem;
+    resize: vertical;
+    min-height: 2.5rem;
+}
+
+.comment-edit-preview-thumb {
+    max-width: 120px;
+    max-height: 120px;
+    border-radius: 8px;
+    object-fit: cover;
+    display: block;
+}
+
+.comment-edit-preview-video {
+    max-width: 160px;
+    max-height: 160px;
+    border-radius: 8px;
+    display: block;
+}
+
+.comment-edit-preview-audio {
+    width: min(100%, 280px);
+    height: 36px;
+    display: block;
+}
+
+.comment-edit-voice-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 12px;
+    background: #fafafa;
+    border: 1px solid #efefef;
+    font-size: 0.8125rem;
+}
+
+.comment-edit-voice-bar.d-none {
+    display: none !important;
+}
+
+.comment-edit-voice.is-recording {
+    color: #ed4956;
+}
+
+.comment-edited-label {
+    font-size: inherit;
+}
+
+.comment-audio-wrap,
+.comment-audio-player {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    margin-top: 0.4rem;
+    padding: 0.65rem 0.85rem;
+    background: #f5f5f5;
+    border: 1px solid #ebebeb;
+    border-radius: 14px;
+}
+
+.comment-audio-player__icon {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    color: #262626;
+    border: 1px solid #e8e8e8;
+    font-size: 0.95rem;
+}
+
+.comment-audio,
+.comment-preview-audio {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: 100%;
+    height: 40px;
+    display: block;
+}
+
+.comment-preview-audio {
+    max-width: 280px;
+}
+
+.post-detail-page .comment-header-row {
+    width: 100%;
+}
+
+.post-detail-page .comment-text {
+    display: block;
+    word-break: break-word;
+}
+
+.post-detail-page .comment-meta-row .btn-link {
+    font-size: inherit;
+    vertical-align: baseline;
+}
+
+.post-detail-comments-header {
+    display: none;
+}
+
+.comment-voice-btn {
+    border: none !important;
+    background: transparent;
+    color: #737373;
+    border-radius: 50% !important;
+    padding: 0.35rem 0.55rem;
+}
+
+.comment-voice-btn.is-recording {
+    color: #ed4956;
+}
+
+.comment-voice-recording-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 12px;
+    background: #fafafa;
+    border: 1px solid #efefef;
+    font-size: 0.8125rem;
+}
+
+.comment-voice-recording-bar.d-none {
+    display: none !important;
+}
+
+.comment-voice-rec-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ed4956;
+    flex-shrink: 0;
+    animation: commentVoicePulse 1s ease infinite;
+}
+
+.comment-voice-timer {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    color: #262626;
+}
+
+.comment-voice-hint {
+    color: #8e8e8e;
+}
+
+@keyframes commentVoicePulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+}
+
 .post-detail-page .like-button.liked .fas.fa-heart {
     color: #ed4956 !important;
 }
@@ -279,6 +501,52 @@
     height: 100%;
     object-fit: cover;
     display: block;
+}
+
+.edit-media-item--audio {
+    width: min(100%, 280px);
+    height: auto;
+    min-height: 72px;
+    padding: 0.5rem;
+}
+
+.edit-media-audio-preview {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.edit-media-audio-preview > i {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    color: #262626;
+    font-size: 0.8rem;
+}
+
+.edit-media-audio-preview audio {
+    flex: 1;
+    min-width: 0;
+    width: 100%;
+    height: 32px;
+}
+
+.edit-audio-tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+#editVoiceRecordBtn.is-recording {
+    color: #ed4956;
+    border-color: #ed4956;
 }
 
 .edit-media-item[data-deleted="true"] {
@@ -462,6 +730,17 @@
         max-height: min(72vw, 70vh);
         border-radius: 12px;
         aspect-ratio: 1 / 1;
+    }
+
+    .post-detail-page .post-detail-media.carousel.slide:has(.post-audio-player):not(:has(img)):not(:has(video)),
+    .post-detail-page .post-detail-media:has(.post-audio-player):not(:has(img)):not(:has(video)) {
+        width: 100%;
+        max-width: 100%;
+        max-height: none;
+        aspect-ratio: auto;
+        height: auto;
+        background: transparent;
+        border-radius: 0;
     }
 }
 

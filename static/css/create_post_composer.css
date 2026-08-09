@@ -504,3 +504,58 @@
         margin: 0.5rem;
     }
 }
+
+/* Audio / voice tools in composer */
+.composer-audio-tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0.65rem 0 0.25rem;
+}
+
+.composer-audio-tools .btn.is-recording,
+#postVoiceRecordBtn.is-recording {
+    background: #fee2e2;
+    border-color: #fca5a5;
+    color: #b91c1c;
+}
+
+.post-voice-recording-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.65rem;
+    padding: 0.65rem 0.75rem;
+    border-radius: 12px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+}
+
+.post-voice-rec-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ef4444;
+    animation: postVoicePulse 1s ease infinite;
+}
+
+@keyframes postVoicePulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.45; transform: scale(0.85); }
+}
+
+.post-voice-timer {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    min-width: 2.5rem;
+}
+
+.post-voice-hint {
+    color: #7f1d1d;
+    font-size: 0.875rem;
+}
+
+.post-voice-actions {
+    display: flex;
+    gap: 0.35rem;
+}

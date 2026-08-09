@@ -1,6 +1,8 @@
 (function () {
     const IMAGE_EXT = /\.(jpe?g|png|gif|webp|bmp|heic|heif)$/i;
     const VIDEO_EXT = /\.(mp4|mov|mkv|webm|avi|m4v|wmv|3gp|3gpp|mpeg|mpg|flv|ts|mts)$/i;
+    const AUDIO_EXT = /\.(mp3|m4a|wav|ogg|aac|flac|wma|opus|oga)$/i;
+    const MAX_VOICE_SECONDS = 180;
 
     function isImageFile(file) {
         const type = (file.type || '').toLowerCase();
@@ -11,16 +13,52 @@
     function isVideoFile(file) {
         const type = (file.type || '').toLowerCase();
         const name = (file.name || '').toLowerCase();
+        // Ghi âm voice-* không coi là video
+        if (name.startsWith('voice-')) return false;
+        if (type.startsWith('audio/')) return false;
         return type.startsWith('video/') || VIDEO_EXT.test(name);
     }
 
+    function isAudioFile(file) {
+        const type = (file.type || '').toLowerCase();
+        const name = (file.name || '').toLowerCase();
+        if (type.startsWith('audio/')) return true;
+        if (AUDIO_EXT.test(name)) return true;
+        if (name.startsWith('voice-') && /\.(webm|m4a|ogg|mp4)$/i.test(name)) return true;
+        return false;
+    }
+
     function isAllowedFile(file) {
-        return isImageFile(file) || isVideoFile(file);
+        return isImageFile(file) || isVideoFile(file) || isAudioFile(file);
     }
 
     function getCsrfToken() {
         const input = document.querySelector('[name=csrfmiddlewaretoken]');
         return input ? input.value : '';
+    }
+
+    function formatVoiceTimer(seconds) {
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        return `${m}:${String(s).padStart(2, '0')}`;
+    }
+
+    function pickAudioMimeType() {
+        const candidates = [
+            'audio/webm;codecs=opus',
+            'audio/webm',
+            'audio/mp4',
+            'audio/ogg;codecs=opus',
+        ];
+        if (!window.MediaRecorder || !MediaRecorder.isTypeSupported) return '';
+        return candidates.find((t) => MediaRecorder.isTypeSupported(t)) || '';
+    }
+
+    function mimeToExt(mime) {
+        if (!mime) return 'webm';
+        if (mime.includes('mp4')) return 'm4a';
+        if (mime.includes('ogg')) return 'ogg';
+        return 'webm';
     }
 
     window.resetCreatePostComposer = function (scope) {
@@ -40,6 +78,9 @@
 
         if (form._createPostPond) {
             form._createPostPond.removeFiles();
+        }
+        if (typeof form._stopPostVoice === 'function') {
+            form._stopPostVoice(false);
         }
     };
 
@@ -75,13 +116,160 @@
             beforeAddFile: (item) => {
                 const file = item.file || item;
                 if (!isAllowedFile(file)) {
-                    alert('File không được hỗ trợ. Vui lòng chọn ảnh hoặc video.');
+                    alert('File không được hỗ trợ. Vui lòng chọn ảnh, video hoặc âm thanh.');
                     return false;
                 }
                 return true;
             },
         });
         form._createPostPond = pond;
+
+        // --- Audio pick + voice record ---
+        const audioPickBtn = scope.querySelector('#postAudioPickBtn');
+        const audioFileInput = scope.querySelector('#postAudioFileInput');
+        const voiceRecordBtn = scope.querySelector('#postVoiceRecordBtn');
+        const voiceBar = scope.querySelector('#postVoiceRecordingBar');
+        const voiceTimer = scope.querySelector('#postVoiceTimer');
+        const voiceCancelBtn = scope.querySelector('#postVoiceCancelBtn');
+        const voiceSaveBtn = scope.querySelector('#postVoiceSaveBtn');
+
+        let mediaRecorder = null;
+        let mediaStream = null;
+        let recordedChunks = [];
+        let recordingStartedAt = 0;
+        let recordingTimerId = null;
+        let shouldSaveVoice = false;
+
+        function stopVoiceTracks() {
+            if (mediaStream) {
+                mediaStream.getTracks().forEach((t) => t.stop());
+                mediaStream = null;
+            }
+        }
+
+        function resetVoiceUI() {
+            if (recordingTimerId) {
+                clearInterval(recordingTimerId);
+                recordingTimerId = null;
+            }
+            if (voiceBar) voiceBar.classList.add('d-none');
+            if (voiceTimer) voiceTimer.textContent = '0:00';
+            if (voiceRecordBtn) voiceRecordBtn.classList.remove('is-recording');
+            recordedChunks = [];
+            mediaRecorder = null;
+            shouldSaveVoice = false;
+        }
+
+        function stopPostVoice(save) {
+            shouldSaveVoice = !!save;
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                try { mediaRecorder.stop(); } catch (_) { /* ignore */ }
+            } else {
+                stopVoiceTracks();
+                resetVoiceUI();
+            }
+        }
+        form._stopPostVoice = stopPostVoice;
+
+        function addAudioFileToPond(file) {
+            if (!pond || !file) return;
+            pond.addFile(file).catch((err) => {
+                console.error('Add audio error:', err);
+                alert('Không thêm được file âm thanh. Vui lòng thử lại.');
+            });
+        }
+
+        if (audioPickBtn && audioFileInput) {
+            audioPickBtn.addEventListener('click', () => audioFileInput.click());
+            audioFileInput.addEventListener('change', () => {
+                const file = audioFileInput.files && audioFileInput.files[0];
+                if (file) addAudioFileToPond(file);
+                audioFileInput.value = '';
+            });
+        }
+
+        async function startVoiceRecording() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || typeof MediaRecorder === 'undefined') {
+                alert('Trình duyệt không hỗ trợ ghi âm.');
+                return;
+            }
+            if (mediaRecorder && mediaRecorder.state === 'recording') return;
+
+            try {
+                mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            } catch (err) {
+                console.error('Mic permission error:', err);
+                alert('Không thể truy cập micro. Hãy cho phép quyền micro rồi thử lại.');
+                return;
+            }
+
+            recordedChunks = [];
+            shouldSaveVoice = false;
+            const mime = pickAudioMimeType();
+            try {
+                mediaRecorder = mime
+                    ? new MediaRecorder(mediaStream, { mimeType: mime })
+                    : new MediaRecorder(mediaStream);
+            } catch (err) {
+                console.error('MediaRecorder error:', err);
+                stopVoiceTracks();
+                alert('Không thể bắt đầu ghi âm trên trình duyệt này.');
+                return;
+            }
+
+            mediaRecorder.ondataavailable = (e) => {
+                if (e.data && e.data.size > 0) recordedChunks.push(e.data);
+            };
+
+            mediaRecorder.onstop = () => {
+                stopVoiceTracks();
+                const save = shouldSaveVoice;
+                const chunks = recordedChunks.slice();
+                const usedMime = (mediaRecorder && mediaRecorder.mimeType) || mime || 'audio/webm';
+                resetVoiceUI();
+
+                if (!save) return;
+                const blob = new Blob(chunks, { type: usedMime.split(';')[0] });
+                if (blob.size < 500) {
+                    alert('Bản ghi quá ngắn. Hãy ghi lại.');
+                    return;
+                }
+                const ext = mimeToExt(usedMime);
+                const file = new File([blob], `voice-${Date.now()}.${ext}`, {
+                    type: blob.type || 'audio/webm',
+                });
+                addAudioFileToPond(file);
+            };
+
+            mediaRecorder.start(250);
+            recordingStartedAt = Date.now();
+            if (voiceBar) voiceBar.classList.remove('d-none');
+            if (voiceRecordBtn) voiceRecordBtn.classList.add('is-recording');
+
+            recordingTimerId = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - recordingStartedAt) / 1000);
+                if (voiceTimer) voiceTimer.textContent = formatVoiceTimer(elapsed);
+                if (elapsed >= MAX_VOICE_SECONDS) {
+                    stopPostVoice(true);
+                }
+            }, 250);
+        }
+
+        if (voiceRecordBtn) {
+            voiceRecordBtn.addEventListener('click', () => {
+                if (mediaRecorder && mediaRecorder.state === 'recording') {
+                    stopPostVoice(true);
+                } else {
+                    startVoiceRecording();
+                }
+            });
+        }
+        if (voiceCancelBtn) {
+            voiceCancelBtn.addEventListener('click', () => stopPostVoice(false));
+        }
+        if (voiceSaveBtn) {
+            voiceSaveBtn.addEventListener('click', () => stopPostVoice(true));
+        }
 
         const captionInput = scope.querySelector('#caption');
         const suggestionBox = scope.querySelector('#suggestionBox');

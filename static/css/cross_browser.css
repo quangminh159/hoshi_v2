@@ -1,0 +1,156 @@
+/**
+ * Cross-browser baseline — đồng nhất form/control giữa Chrome, Edge, Firefox, Safari.
+ * Load sau Bootstrap, trước style.css / theme.css.
+ */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: var(
+        --hoshi-font,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        "Helvetica Neue",
+        Arial,
+        "Noto Sans",
+        sans-serif
+    );
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+img,
+svg,
+video,
+canvas,
+audio,
+iframe {
+    max-width: 100%;
+    vertical-align: middle;
+}
+
+button,
+input,
+optgroup,
+select,
+textarea {
+    font: inherit;
+    color: inherit;
+    letter-spacing: inherit;
+}
+
+button,
+[type="button"],
+[type="reset"],
+[type="submit"] {
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+}
+
+/* Ô nhập thống nhất — tránh skin native lệch browser */
+.form-control,
+.form-select,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+input[type="tel"],
+input[type="url"],
+input[type="number"],
+textarea,
+select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border-radius: 0.5rem;
+    background-clip: padding-box;
+}
+
+input[type="search"] {
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+/* Range: chỉ bỏ skin native; track tự style ở component (audio player…) */
+input[type="range"] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+input[type="range"]::-moz-focus-outer {
+    border: 0;
+}
+
+/* Video: khung ổn định; controls native vẫn khác browser nhưng container đồng nhất */
+video {
+    background: #000;
+    display: block;
+}
+
+/* Scrollbar Firefox + WebKit */
+.notification-dropdown,
+.feed-tabs,
+.chat-messages,
+[data-hoshi-scroll] {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.25) transparent;
+}
+
+.notification-dropdown::-webkit-scrollbar,
+.feed-tabs::-webkit-scrollbar,
+.chat-messages::-webkit-scrollbar,
+[data-hoshi-scroll]::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.notification-dropdown::-webkit-scrollbar-thumb,
+.feed-tabs::-webkit-scrollbar-thumb,
+.chat-messages::-webkit-scrollbar-thumb,
+[data-hoshi-scroll]::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 999px;
+}
+
+[data-bs-theme="dark"] .notification-dropdown,
+[data-bs-theme="dark"] .feed-tabs,
+[data-bs-theme="dark"] .chat-messages,
+[data-bs-theme="dark"] [data-hoshi-scroll] {
+    scrollbar-color: rgba(255, 255, 255, 0.28) transparent;
+}
+
+[data-bs-theme="dark"] .notification-dropdown::-webkit-scrollbar-thumb,
+[data-bs-theme="dark"] .feed-tabs::-webkit-scrollbar-thumb,
+[data-bs-theme="dark"] .chat-messages::-webkit-scrollbar-thumb,
+[data-bs-theme="dark"] [data-hoshi-scroll]::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.28);
+}
+
+/* Backdrop blur Safari */
+.auth-card,
+.auth-flow__panel,
+.notification-dropdown-menu,
+.media-lightbox__backdrop,
+.call-overlay {
+    -webkit-backdrop-filter: blur(12px);
+}

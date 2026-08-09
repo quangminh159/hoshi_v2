@@ -21,6 +21,7 @@ urlpatterns = [
     path('comments/add/', api.add_comment, name='add_comment'),
     path('comments/<int:pk>/replies/', api.comment_replies, name='comment_replies'),
     path('comments/<int:pk>/delete/', api.delete_comment, name='delete_comment'),
+    path('comments/<int:pk>/edit/', api.edit_comment, name='edit_comment'),
     path('comments/<int:pk>/like/', api.like_comment, name='like_comment'),
     path('<int:pk>/', api.post_detail, name='post_detail'),
     path('<int:pk>/like/', api.like_post, name='like_post'),

@@ -7,8 +7,8 @@
 {% block body_class %} post-detail-layout{% endblock %}
 
 {% block extra_css %}
-<link href="{% static 'css/feed.css' %}?v=feed-linkify-1" rel="stylesheet">
-<link href="{% static 'css/post_detail.css' %}?v=comment-video-1" rel="stylesheet">
+<link href="{% static 'css/feed.css' %}?v=comment-audio-5" rel="stylesheet">
+<link href="{% static 'css/post_detail.css' %}?v=comment-audio-5" rel="stylesheet">
 <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
 <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
 <link href="https://unpkg.com/filepond-plugin-file-poster/dist/filepond-plugin-file-poster.css" rel="stylesheet">
@@ -75,24 +75,28 @@
                     
                     <!-- Media hiện tại + thêm mới -->
                     <div class="mb-3">
-                        <label class="form-label">Ảnh / video</label>
+                        <label class="form-label">Ảnh / video / âm thanh</label>
                         {% if post.media.exists %}
                         <div class="edit-current-media current-media-container">
                             {% for media in post.media.all %}
-                            <div class="media-item edit-media-item" data-media-id="{{ media.id }}">
+                            <div class="media-item edit-media-item{% if media.media_type == 'audio' %} edit-media-item--audio{% endif %}" data-media-id="{{ media.id }}">
                                 {% if media.media_type == 'image' %}
                                 <img src="{{ media.file.url }}?v={{ post.updated_at|date:'U' }}-{{ media.id }}" alt="Post media">
+                                {% elif media.media_type == 'audio' %}
+                                <div class="edit-media-audio-preview">
+                                    <audio src="{{ media.file.url }}?v={{ post.updated_at|date:'U' }}-{{ media.id }}" controls preload="metadata"></audio>
+                                </div>
                                 {% else %}
                                 <video src="{{ media.file.url }}?v={{ post.updated_at|date:'U' }}-{{ media.id }}" muted playsinline></video>
                                 {% endif %}
                                 <button type="button" class="edit-media-remove delete-media-btn" data-media-id="{{ media.id }}" title="Xóa" aria-label="Xóa">
                                     <i class="fas fa-times"></i>
                                 </button>
-                                <span class="edit-media-badge">{% if media.media_type == 'image' %}Ảnh{% else %}Video{% endif %}</span>
+                                <span class="edit-media-badge">{% if media.media_type == 'image' %}Ảnh{% elif media.media_type == 'audio' %}Âm thanh{% else %}Video{% endif %}</span>
                             </div>
                             {% endfor %}
                         </div>
-                        <p class="form-text mb-2">Nhấn × để đánh dấu xóa ảnh/video hiện có.</p>
+                        <p class="form-text mb-2">Nhấn × để đánh dấu xóa media hiện có.</p>
                         {% endif %}
 
                         <div class="upload-zone edit-upload-zone">
@@ -100,11 +104,34 @@
                                    id="edit-new-media"
                                    name="new_media"
                                    class="filepond"
-                                   accept="image/*,video/*"
+                                   accept="image/*,video/*,audio/*,.mp3,.m4a,.wav,.ogg,.aac,.flac,.webm"
                                    multiple
                                    data-allow-reorder="true">
                         </div>
-                        <p class="upload-hint mb-0">Kéo thả hoặc chọn ảnh/video mới · tối đa 1GB/file</p>
+                        <div class="composer-audio-tools edit-audio-tools mt-2">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" id="editAudioPickBtn" title="Chọn file nhạc">
+                                <i class="fas fa-music me-1"></i>Nhạc
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" id="editVoiceRecordBtn" title="Ghi âm">
+                                <i class="fas fa-microphone me-1"></i>Ghi âm
+                            </button>
+                            <input type="file"
+                                   id="editAudioFileInput"
+                                   class="d-none"
+                                   accept="audio/*,.mp3,.m4a,.wav,.ogg,.aac,.flac,.wma">
+                        </div>
+                        <div id="editVoiceRecordingBar" class="post-voice-recording-bar d-none mt-2">
+                            <span class="post-voice-rec-dot" aria-hidden="true"></span>
+                            <span class="post-voice-timer" id="editVoiceTimer">0:00</span>
+                            <span class="post-voice-hint">Đang ghi âm...</span>
+                            <div class="post-voice-actions ms-auto">
+                                <button type="button" class="btn btn-sm btn-light" id="editVoiceCancelBtn">Hủy</button>
+                                <button type="button" class="btn btn-sm btn-primary" id="editVoiceSaveBtn">
+                                    <i class="fas fa-check me-1"></i>Dùng bản ghi
+                                </button>
+                            </div>
+                        </div>
+                        <p class="upload-hint mb-0 mt-2">Kéo thả ảnh/video/nhạc, hoặc ghi âm · tối đa 1GB/file</p>
                     </div>
                     
                     <div class="mb-3">
@@ -522,6 +549,385 @@ function deleteComment(commentId) {
     }
 }
 
+function cancelCommentEdit(commentEl) {
+    if (!commentEl) return;
+    const editor = commentEl.querySelector('.comment-edit-form');
+    if (editor) {
+        if (typeof editor._stopEditVoice === 'function') {
+            try { editor._stopEditVoice(false); } catch (_) { /* ignore */ }
+        }
+        editor.querySelectorAll('.comment-edit-preview-audio, .comment-edit-preview-video').forEach((el) => {
+            if (el.src && el.src.startsWith('blob:')) {
+                try { URL.revokeObjectURL(el.src); } catch (_) { /* ignore */ }
+            }
+        });
+        editor.remove();
+    }
+    commentEl.querySelectorAll('.comment-text, .comment-image-wrap, .comment-video-wrap, .comment-audio-wrap')
+        .forEach((el) => el.classList.remove('d-none'));
+    commentEl.classList.remove('is-editing-comment');
+}
+
+function applyCommentUpdateToDom(commentEl, comment) {
+    const text = comment?.text || '';
+    const isEdited = comment?.is_edited !== false;
+    const host = commentEl.querySelector('.comment-body-main')
+        || commentEl.querySelector('.min-w-0')
+        || commentEl;
+    let textEl = commentEl.querySelector('.comment-text');
+    if (text) {
+        if (!textEl) {
+            const usernameLink = host.querySelector('a.text-decoration-none.fw-bold, a.fw-bold');
+            textEl = document.createElement('div');
+            textEl.className = 'comment-text mt-1';
+            const header = host.querySelector('.comment-header-row');
+            if (header) header.insertAdjacentElement('afterend', textEl);
+            else if (usernameLink) usernameLink.insertAdjacentElement('afterend', textEl);
+            else host.insertAdjacentElement('afterbegin', textEl);
+        }
+        textEl.dataset.rawText = text;
+        textEl.innerHTML = urlify(text);
+        textEl.classList.remove('d-none');
+    } else if (textEl) {
+        textEl.remove();
+    }
+
+    commentEl.querySelectorAll('.comment-image-wrap, .comment-video-wrap, .comment-audio-wrap')
+        .forEach((el) => el.remove());
+    const mediaHtml = commentImageHtml(comment || {}) + commentVideoHtml(comment || {}) + commentAudioHtml(comment || {});
+    if (mediaHtml) {
+        const meta = host.querySelector('.text-muted.small') || commentEl.querySelector('.text-muted.small');
+        const tmp = document.createElement('div');
+        tmp.innerHTML = mediaHtml;
+        Array.from(tmp.childNodes).forEach((node) => {
+            if (meta && meta.parentNode === host) meta.insertAdjacentElement('beforebegin', node);
+            else if (meta) meta.parentNode?.insertBefore(node, meta);
+            else host.appendChild(node);
+        });
+    }
+
+    const meta = commentEl.querySelector('.text-muted.small');
+    if (meta && isEdited && !meta.querySelector('.comment-edited-label')) {
+        const editedLabel = document.createElement('span');
+        editedLabel.className = 'comment-edited-label text-muted';
+        editedLabel.textContent = ' · Đã chỉnh sửa';
+        const firstNode = meta.childNodes[0];
+        if (firstNode) firstNode.after(editedLabel);
+        else meta.insertAdjacentElement('afterbegin', editedLabel);
+    }
+}
+
+function clearCommentEditPreview(form) {
+    const preview = form.querySelector('.comment-edit-media-preview');
+    const fileInput = form.querySelector('.comment-edit-file');
+    if (fileInput) fileInput.value = '';
+    form._pendingEditFile = null;
+    if (!preview) return;
+    preview.classList.add('d-none');
+    const thumb = preview.querySelector('.comment-edit-preview-thumb');
+    const videoEl = preview.querySelector('.comment-edit-preview-video');
+    const audioEl = preview.querySelector('.comment-edit-preview-audio');
+    const keepHint = preview.querySelector('.comment-edit-keep-hint');
+    if (thumb) { thumb.src = ''; thumb.classList.add('d-none'); }
+    if (videoEl) {
+        videoEl.pause();
+        if (videoEl.src?.startsWith('blob:')) { try { URL.revokeObjectURL(videoEl.src); } catch (_) {} }
+        videoEl.removeAttribute('src'); videoEl.load(); videoEl.classList.add('d-none');
+    }
+    if (audioEl) {
+        audioEl.pause();
+        if (audioEl.src?.startsWith('blob:')) { try { URL.revokeObjectURL(audioEl.src); } catch (_) {} }
+        audioEl.removeAttribute('src'); audioEl.load(); audioEl.classList.add('d-none');
+    }
+    if (keepHint) keepHint.classList.add('d-none');
+}
+
+async function setCommentEditMediaFile(form, file) {
+    clearCommentEditPreview(form);
+    if (!file) return false;
+    const preview = form.querySelector('.comment-edit-media-preview');
+    const thumb = preview?.querySelector('.comment-edit-preview-thumb');
+    const videoEl = preview?.querySelector('.comment-edit-preview-video');
+    const audioEl = preview?.querySelector('.comment-edit-preview-audio');
+    if (!preview) return false;
+
+    if (file.type.startsWith('image/')) {
+        if (file.size > 5 * 1024 * 1024) { alert('Ảnh bình luận tối đa 5MB'); return false; }
+        form._pendingEditFile = file;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            if (thumb) { thumb.src = ev.target.result; thumb.classList.remove('d-none'); }
+            preview.classList.remove('d-none');
+        };
+        reader.readAsDataURL(file);
+        return true;
+    }
+    if (isCommentAudioFile(file)) {
+        if (file.size > COMMENT_AUDIO_MAX_BYTES) { alert('Ghi âm bình luận tối đa 10MB'); return false; }
+        form._pendingEditFile = file;
+        if (audioEl) { audioEl.src = URL.createObjectURL(file); audioEl.classList.remove('d-none'); }
+        preview.classList.remove('d-none');
+        return true;
+    }
+    if (file.type.startsWith('video/')) {
+        if (file.size > COMMENT_VIDEO_MAX_BYTES) { alert('Video bình luận tối đa 15MB'); return false; }
+        try {
+            const duration = await readVideoDuration(file);
+            if (!Number.isFinite(duration) || duration > COMMENT_VIDEO_MAX_SECONDS + 0.35) {
+                alert('Video bình luận tối đa 5 giây');
+                return false;
+            }
+        } catch (err) {
+            alert(err.message || 'Không đọc được video');
+            return false;
+        }
+        form._pendingEditFile = file;
+        if (videoEl) { videoEl.src = URL.createObjectURL(file); videoEl.classList.remove('d-none'); }
+        preview.classList.remove('d-none');
+        return true;
+    }
+    alert('Chỉ chọn ảnh, video ngắn hoặc file ghi âm');
+    return false;
+}
+
+function bindCommentEditMediaControls(form) {
+    const fileInput = form.querySelector('.comment-edit-file');
+    const voiceBtn = form.querySelector('.comment-edit-voice');
+    const voiceBar = form.querySelector('.comment-edit-voice-bar');
+    const voiceTimer = form.querySelector('.comment-edit-voice-timer');
+    const voiceCancel = form.querySelector('.comment-edit-voice-cancel');
+    const voiceSave = form.querySelector('.comment-edit-voice-save');
+    const keepHint = form.querySelector('.comment-edit-keep-hint');
+
+    if (form._hadExistingMedia && keepHint) {
+        keepHint.classList.remove('d-none');
+        form.querySelector('.comment-edit-media-preview')?.classList.remove('d-none');
+    }
+
+    fileInput?.addEventListener('change', () => {
+        const file = fileInput.files && fileInput.files[0];
+        if (file) setCommentEditMediaFile(form, file);
+    });
+
+    let mediaRecorder = null;
+    let mediaStream = null;
+    let recordedChunks = [];
+    let recordingStartedAt = 0;
+    let recordingTimerId = null;
+    let shouldSaveVoice = false;
+
+    function stopVoiceTracks() {
+        if (mediaStream) {
+            mediaStream.getTracks().forEach((t) => t.stop());
+            mediaStream = null;
+        }
+    }
+    function resetVoiceUI() {
+        if (recordingTimerId) { clearInterval(recordingTimerId); recordingTimerId = null; }
+        voiceBar?.classList.add('d-none');
+        if (voiceTimer) voiceTimer.textContent = '0:00';
+        voiceBtn?.classList.remove('is-recording');
+        recordedChunks = [];
+        mediaRecorder = null;
+        shouldSaveVoice = false;
+    }
+    function stopEditVoice(save) {
+        shouldSaveVoice = !!save;
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+            try { mediaRecorder.stop(); } catch (_) {}
+        } else {
+            stopVoiceTracks();
+            resetVoiceUI();
+        }
+    }
+    form._stopEditVoice = stopEditVoice;
+
+    async function startEditVoice() {
+        if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') {
+            alert('Trình duyệt không hỗ trợ ghi âm.');
+            return;
+        }
+        if (mediaRecorder && mediaRecorder.state === 'recording') return;
+        try {
+            mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        } catch (err) {
+            alert('Không thể truy cập micro. Hãy cho phép quyền micro rồi thử lại.');
+            return;
+        }
+        recordedChunks = [];
+        shouldSaveVoice = false;
+        const mime = pickCommentAudioMimeType();
+        try {
+            mediaRecorder = mime ? new MediaRecorder(mediaStream, { mimeType: mime }) : new MediaRecorder(mediaStream);
+        } catch (err) {
+            stopVoiceTracks();
+            alert('Không thể bắt đầu ghi âm trên trình duyệt này.');
+            return;
+        }
+        mediaRecorder.ondataavailable = (e) => { if (e.data?.size > 0) recordedChunks.push(e.data); };
+        mediaRecorder.onstop = () => {
+            stopVoiceTracks();
+            const save = shouldSaveVoice;
+            const chunks = recordedChunks.slice();
+            const usedMime = (mediaRecorder && mediaRecorder.mimeType) || mime || 'audio/webm';
+            resetVoiceUI();
+            if (!save) return;
+            const blob = new Blob(chunks, { type: usedMime.split(';')[0] });
+            if (blob.size < 500) { alert('Bản ghi quá ngắn. Hãy ghi lại.'); return; }
+            const file = new File([blob], `voice-${Date.now()}.${commentAudioMimeToExt(usedMime)}`, {
+                type: blob.type || 'audio/webm',
+            });
+            setCommentEditMediaFile(form, file);
+        };
+        mediaRecorder.start(250);
+        recordingStartedAt = Date.now();
+        voiceBar?.classList.remove('d-none');
+        voiceBtn?.classList.add('is-recording');
+        recordingTimerId = setInterval(() => {
+            const elapsed = Math.floor((Date.now() - recordingStartedAt) / 1000);
+            if (voiceTimer) voiceTimer.textContent = formatCommentVoiceTimer(elapsed);
+            if (elapsed >= COMMENT_VOICE_MAX_SECONDS) stopEditVoice(true);
+        }, 250);
+    }
+
+    voiceBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (mediaRecorder && mediaRecorder.state === 'recording') stopEditVoice(true);
+        else startEditVoice();
+    });
+    voiceCancel?.addEventListener('click', (e) => { e.preventDefault(); stopEditVoice(false); });
+    voiceSave?.addEventListener('click', (e) => { e.preventDefault(); stopEditVoice(true); });
+}
+
+function startCommentEdit(commentId) {
+    const commentEl = document.getElementById(`comment-${commentId}`);
+    if (!commentEl || commentEl.classList.contains('is-editing-comment')) return;
+
+    document.querySelectorAll('.is-editing-comment').forEach((el) => cancelCommentEdit(el));
+
+    const textEl = commentEl.querySelector('.comment-text');
+    const currentText = textEl?.dataset?.rawText != null
+        ? textEl.dataset.rawText
+        : (textEl?.textContent || '');
+    const existingMedia = commentEl.querySelector('.comment-image-wrap, .comment-video-wrap, .comment-audio-wrap');
+
+    const host = commentEl.querySelector('.comment-body-main')
+        || commentEl.querySelector('.min-w-0')
+        || commentEl;
+    commentEl.classList.add('is-editing-comment');
+    if (textEl) textEl.classList.add('d-none');
+    if (existingMedia) existingMedia.classList.add('d-none');
+
+    const form = document.createElement('div');
+    form.className = 'comment-edit-form mt-1 mb-1';
+    form._hadExistingMedia = !!existingMedia;
+    form._pendingEditFile = null;
+    const escaped = String(currentText)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    form.innerHTML = `
+        <textarea class="form-control form-control-sm comment-edit-input" rows="2" maxlength="500">${escaped}</textarea>
+        <div class="comment-edit-media-preview d-none mt-2">
+            <div class="comment-edit-preview-inner">
+                <img src="" alt="Xem trước" class="comment-edit-preview-thumb d-none">
+                <video src="" class="comment-edit-preview-video d-none" muted playsinline controls></video>
+                <audio src="" class="comment-edit-preview-audio d-none" controls></audio>
+            </div>
+            <small class="text-muted d-block mt-1 comment-edit-keep-hint d-none">Giữ media hiện tại (đổi bằng nút bên dưới)</small>
+        </div>
+        <div class="comment-edit-voice-bar d-none mt-2">
+            <span class="comment-voice-rec-dot" aria-hidden="true"></span>
+            <span class="comment-edit-voice-timer">0:00</span>
+            <span class="comment-voice-hint">Đang ghi âm...</span>
+            <div class="ms-auto d-flex gap-1">
+                <button type="button" class="btn btn-sm btn-light comment-edit-voice-cancel">Hủy</button>
+                <button type="button" class="btn btn-sm btn-primary comment-edit-voice-save">Dùng</button>
+            </div>
+        </div>
+        <div class="d-flex gap-1 align-items-center mt-2 flex-wrap">
+            <label class="btn btn-sm btn-light mb-0" title="Đổi ảnh/video">
+                <i class="far fa-image"></i>
+                <input type="file" class="d-none comment-edit-file" accept="image/*,video/mp4,video/webm,video/quicktime,audio/*">
+            </label>
+            <button type="button" class="btn btn-sm btn-light comment-edit-voice" title="Ghi âm mới">
+                <i class="fas fa-microphone"></i>
+            </button>
+        </div>
+        <div class="d-flex gap-2 mt-2">
+            <button type="button" class="btn btn-sm btn-primary comment-edit-save">Lưu</button>
+            <button type="button" class="btn btn-sm btn-light comment-edit-cancel">Hủy</button>
+        </div>`;
+
+    if (existingMedia) existingMedia.insertAdjacentElement('beforebegin', form);
+    else {
+        const meta = commentEl.querySelector('.text-muted.small');
+        if (meta) meta.insertAdjacentElement('beforebegin', form);
+        else host.appendChild(form);
+    }
+
+    bindCommentEditMediaControls(form);
+    form.querySelector('.comment-edit-input')?.focus();
+
+    form.querySelector('.comment-edit-cancel')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        cancelCommentEdit(commentEl);
+    });
+    form.querySelector('.comment-edit-save')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        saveCommentEdit(commentId, commentEl, form);
+    });
+}
+
+function saveCommentEdit(commentId, commentEl, form) {
+    const saveBtn = form.querySelector('.comment-edit-save');
+    const cancelBtn = form.querySelector('.comment-edit-cancel');
+    const textarea = form.querySelector('.comment-edit-input');
+    const text = (textarea?.value || '').trim();
+    const pendingFile = form._pendingEditFile || null;
+    const hadMedia = !!form._hadExistingMedia;
+
+    if (!text && !pendingFile && !hadMedia) {
+        alert('Bình luận không được để trống');
+        return;
+    }
+
+    if (saveBtn) saveBtn.disabled = true;
+    if (cancelBtn) cancelBtn.disabled = true;
+
+    const formData = new FormData();
+    formData.append('text', text);
+    if (pendingFile) {
+        if (isCommentAudioFile(pendingFile)) formData.append('audio', pendingFile);
+        else if (pendingFile.type.startsWith('video/')) formData.append('video', pendingFile);
+        else formData.append('image', pendingFile);
+    }
+
+    fetch(`/api/posts/comments/${commentId}/edit/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCookie('csrftoken') },
+        body: formData
+    })
+    .then(async (response) => {
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Không lưu được bình luận');
+        return data;
+    })
+    .then((data) => {
+        cancelCommentEdit(commentEl);
+        applyCommentUpdateToDom(commentEl, data.comment || { text, is_edited: true });
+        if (typeof window.initHoshiAudioPlayers === 'function') {
+            window.initHoshiAudioPlayers(commentEl);
+        }
+    })
+    .catch((err) => {
+        console.error('Edit comment error:', err);
+        alert(err.message || 'Không lưu được bình luận');
+        if (saveBtn) saveBtn.disabled = false;
+        if (cancelBtn) cancelBtn.disabled = false;
+    });
+}
+
 // ====== CUSTOM HANDLING FOR COMMENT FORM ======
 // Biến global để theo dõi trạng thái đang submit
 var isSubmittingComment = false;
@@ -540,11 +946,12 @@ document.addEventListener('DOMContentLoaded', function() {
         input.replaceWith(input.cloneNode(true));
     });
 
-    // Preview ảnh/video bình luận
+    // Preview ảnh/video/ghi âm bình luận
     document.querySelectorAll('.add-comment-form').forEach(form => {
         const imageInput = form.querySelector('.comment-image-input');
         const preview = form.querySelector('.comment-image-preview');
         const clearBtn = form.querySelector('.comment-image-clear');
+        bindCommentVoiceRecording(form);
         if (!imageInput || !preview) return;
 
         imageInput.addEventListener('change', function() {
@@ -582,8 +989,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const input = form.querySelector('input[name="text"]');
         const text = input.value.trim();
         const imageInput = form.querySelector('.comment-image-input');
-        const mediaFile = imageInput && imageInput.files && imageInput.files[0] ? imageInput.files[0] : null;
-        const isVideo = mediaFile && mediaFile.type.startsWith('video/');
+        const mediaFile = form._pendingCommentMedia
+            || (imageInput && imageInput.files && imageInput.files[0] ? imageInput.files[0] : null);
+        const isAudio = isCommentAudioFile(mediaFile);
+        const isVideo = mediaFile && mediaFile.type.startsWith('video/') && !isAudio;
         const isImage = mediaFile && mediaFile.type.startsWith('image/');
         const replyInfo = form.querySelector('.reply-info');
         const isReply = replyInfo && !replyInfo.classList.contains('d-none');
@@ -639,6 +1048,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (parentId) formData.append('parent_id', parentId);
         if (isImage) formData.append('image', mediaFile);
         if (isVideo) formData.append('video', mediaFile);
+        if (isAudio) formData.append('audio', mediaFile);
 
         // Gửi bình luận (multipart khi có media)
         fetch('/api/posts/comments/add/', {
@@ -814,23 +1224,81 @@ function commentVideoHtml(comment) {
     </div>`;
 }
 
+function commentAudioHtml(comment) {
+    const url = comment.audio_url || comment.audio;
+    if (!url) return '';
+    return `<div class="comment-audio-wrap comment-audio-player mt-1">
+        <audio class="comment-audio" src="${url}" controls preload="metadata"></audio>
+    </div>`;
+}
+
 function commentBodyHtml(comment) {
     const text = comment.text || '';
-    const textHtml = text ? `<span class="comment-text">${urlify(text)}</span>` : '';
-    return textHtml + commentImageHtml(comment) + commentVideoHtml(comment);
+    const textHtml = text
+        ? `<div class="comment-text mt-1" data-raw-text="${String(text).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}">${urlify(text)}</div>`
+        : '';
+    return textHtml + commentImageHtml(comment) + commentVideoHtml(comment) + commentAudioHtml(comment);
 }
 
 const COMMENT_VIDEO_MAX_SECONDS = 5;
 const COMMENT_VIDEO_MAX_BYTES = 15 * 1024 * 1024;
+const COMMENT_AUDIO_MAX_BYTES = 10 * 1024 * 1024;
+const COMMENT_VOICE_MAX_SECONDS = 120;
+
+function isCommentAudioFile(file) {
+    if (!file) return false;
+    const type = (file.type || '').toLowerCase();
+    const name = (file.name || '').toLowerCase();
+    if (name.startsWith('voice-')) return true;
+    if (type.startsWith('audio/')) return true;
+    return /\.(m4a|mp3|ogg|wav|aac|flac)$/i.test(name);
+}
+
+function formatCommentVoiceTimer(seconds) {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${String(s).padStart(2, '0')}`;
+}
+
+function pickCommentAudioMimeType() {
+    const candidates = [
+        'audio/webm;codecs=opus',
+        'audio/webm',
+        'audio/mp4',
+        'audio/ogg;codecs=opus',
+    ];
+    if (!window.MediaRecorder || !MediaRecorder.isTypeSupported) return '';
+    return candidates.find((t) => MediaRecorder.isTypeSupported(t)) || '';
+}
+
+function commentAudioMimeToExt(mime) {
+    if (!mime) return 'webm';
+    if (mime.includes('mp4')) return 'm4a';
+    if (mime.includes('ogg')) return 'ogg';
+    return 'webm';
+}
+
+function assignFileToCommentInput(input, file) {
+    if (!input || !file) return;
+    try {
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        input.files = dt.files;
+    } catch (err) {
+        console.error('assignFileToCommentInput:', err);
+    }
+}
 
 function clearCommentMediaPreview(form) {
     const preview = form.querySelector('.comment-image-preview');
     const imageInput = form.querySelector('.comment-image-input');
+    form._pendingCommentMedia = null;
     if (imageInput) imageInput.value = '';
     if (!preview) return;
     preview.classList.add('d-none');
     const thumb = preview.querySelector('.comment-preview-thumb');
     const videoEl = preview.querySelector('.comment-preview-video');
+    const audioEl = preview.querySelector('.comment-preview-audio');
     if (thumb) {
         thumb.src = '';
         thumb.classList.add('d-none');
@@ -840,6 +1308,15 @@ function clearCommentMediaPreview(form) {
         videoEl.removeAttribute('src');
         videoEl.load();
         videoEl.classList.add('d-none');
+    }
+    if (audioEl) {
+        audioEl.pause();
+        if (audioEl.src && audioEl.src.startsWith('blob:')) {
+            try { URL.revokeObjectURL(audioEl.src); } catch (_) { /* ignore */ }
+        }
+        audioEl.removeAttribute('src');
+        audioEl.load();
+        audioEl.classList.add('d-none');
     }
 }
 
@@ -871,6 +1348,29 @@ async function handleCommentMediaSelected(form, file) {
 
     const thumb = preview.querySelector('.comment-preview-thumb');
     const videoEl = preview.querySelector('.comment-preview-video');
+    const audioEl = preview.querySelector('.comment-preview-audio');
+
+    function hidePreviewMedia() {
+        if (thumb) {
+            thumb.src = '';
+            thumb.classList.add('d-none');
+        }
+        if (videoEl) {
+            videoEl.pause();
+            videoEl.removeAttribute('src');
+            videoEl.load();
+            videoEl.classList.add('d-none');
+        }
+        if (audioEl) {
+            audioEl.pause();
+            if (audioEl.src && audioEl.src.startsWith('blob:')) {
+                try { URL.revokeObjectURL(audioEl.src); } catch (_) { /* ignore */ }
+            }
+            audioEl.removeAttribute('src');
+            audioEl.load();
+            audioEl.classList.add('d-none');
+        }
+    }
 
     if (file.type.startsWith('image/')) {
         if (file.size > 5 * 1024 * 1024) {
@@ -878,10 +1378,9 @@ async function handleCommentMediaSelected(form, file) {
             clearCommentMediaPreview(form);
             return false;
         }
-        if (videoEl) {
-            videoEl.classList.add('d-none');
-            videoEl.removeAttribute('src');
-        }
+        hidePreviewMedia();
+        form._pendingCommentMedia = file;
+        assignFileToCommentInput(imageInput, file);
         const reader = new FileReader();
         reader.onload = (ev) => {
             if (thumb) {
@@ -891,6 +1390,23 @@ async function handleCommentMediaSelected(form, file) {
             preview.classList.remove('d-none');
         };
         reader.readAsDataURL(file);
+        return true;
+    }
+
+    if (isCommentAudioFile(file)) {
+        if (file.size > COMMENT_AUDIO_MAX_BYTES) {
+            alert('Ghi âm bình luận tối đa 10MB');
+            clearCommentMediaPreview(form);
+            return false;
+        }
+        hidePreviewMedia();
+        form._pendingCommentMedia = file;
+        assignFileToCommentInput(imageInput, file);
+        if (audioEl) {
+            audioEl.src = URL.createObjectURL(file);
+            audioEl.classList.remove('d-none');
+        }
+        preview.classList.remove('d-none');
         return true;
     }
 
@@ -912,10 +1428,9 @@ async function handleCommentMediaSelected(form, file) {
             clearCommentMediaPreview(form);
             return false;
         }
-        if (thumb) {
-            thumb.src = '';
-            thumb.classList.add('d-none');
-        }
+        hidePreviewMedia();
+        form._pendingCommentMedia = file;
+        assignFileToCommentInput(imageInput, file);
         if (videoEl) {
             videoEl.src = URL.createObjectURL(file);
             videoEl.classList.remove('d-none');
@@ -924,10 +1439,141 @@ async function handleCommentMediaSelected(form, file) {
         return true;
     }
 
-    alert('Chỉ chọn ảnh hoặc video (MP4/WEBM/MOV)');
+    alert('Chỉ chọn ảnh, video ngắn hoặc file ghi âm');
     if (imageInput) imageInput.value = '';
     clearCommentMediaPreview(form);
     return false;
+}
+
+function bindCommentVoiceRecording(form) {
+    if (!form || form.dataset.voiceBound === '1') return;
+    form.dataset.voiceBound = '1';
+
+    const voiceBtn = form.querySelector('.comment-voice-btn');
+    const voiceBar = form.querySelector('.comment-voice-recording-bar');
+    const voiceTimer = form.querySelector('.comment-voice-timer');
+    const voiceCancelBtn = form.querySelector('.comment-voice-cancel');
+    const voiceSaveBtn = form.querySelector('.comment-voice-save');
+    const imageInput = form.querySelector('.comment-image-input');
+    if (!voiceBtn || !voiceBar) return;
+
+    let mediaRecorder = null;
+    let mediaStream = null;
+    let recordedChunks = [];
+    let recordingStartedAt = 0;
+    let recordingTimerId = null;
+    let shouldSaveVoice = false;
+
+    function stopVoiceTracks() {
+        if (mediaStream) {
+            mediaStream.getTracks().forEach((t) => t.stop());
+            mediaStream = null;
+        }
+    }
+
+    function resetVoiceUI() {
+        if (recordingTimerId) {
+            clearInterval(recordingTimerId);
+            recordingTimerId = null;
+        }
+        voiceBar.classList.add('d-none');
+        if (voiceTimer) voiceTimer.textContent = '0:00';
+        voiceBtn.classList.remove('is-recording');
+        recordedChunks = [];
+        mediaRecorder = null;
+        shouldSaveVoice = false;
+    }
+
+    function stopCommentVoice(save) {
+        shouldSaveVoice = !!save;
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+            try { mediaRecorder.stop(); } catch (_) { /* ignore */ }
+        } else {
+            stopVoiceTracks();
+            resetVoiceUI();
+        }
+    }
+
+    async function startCommentVoice() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || typeof MediaRecorder === 'undefined') {
+            alert('Trình duyệt không hỗ trợ ghi âm.');
+            return;
+        }
+        if (mediaRecorder && mediaRecorder.state === 'recording') return;
+
+        try {
+            mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        } catch (err) {
+            console.error('Mic permission error:', err);
+            alert('Không thể truy cập micro. Hãy cho phép quyền micro rồi thử lại.');
+            return;
+        }
+
+        recordedChunks = [];
+        shouldSaveVoice = false;
+        const mime = pickCommentAudioMimeType();
+        try {
+            mediaRecorder = mime
+                ? new MediaRecorder(mediaStream, { mimeType: mime })
+                : new MediaRecorder(mediaStream);
+        } catch (err) {
+            console.error('MediaRecorder error:', err);
+            stopVoiceTracks();
+            alert('Không thể bắt đầu ghi âm trên trình duyệt này.');
+            return;
+        }
+
+        mediaRecorder.ondataavailable = (e) => {
+            if (e.data && e.data.size > 0) recordedChunks.push(e.data);
+        };
+
+        mediaRecorder.onstop = () => {
+            stopVoiceTracks();
+            const save = shouldSaveVoice;
+            const chunks = recordedChunks.slice();
+            const usedMime = (mediaRecorder && mediaRecorder.mimeType) || mime || 'audio/webm';
+            resetVoiceUI();
+
+            if (!save) return;
+            const blob = new Blob(chunks, { type: usedMime.split(';')[0] });
+            if (blob.size < 500) {
+                alert('Bản ghi quá ngắn. Hãy ghi lại.');
+                return;
+            }
+            const ext = commentAudioMimeToExt(usedMime);
+            const file = new File([blob], `voice-${Date.now()}.${ext}`, {
+                type: blob.type || 'audio/webm',
+            });
+            handleCommentMediaSelected(form, file);
+        };
+
+        mediaRecorder.start(250);
+        recordingStartedAt = Date.now();
+        voiceBar.classList.remove('d-none');
+        voiceBtn.classList.add('is-recording');
+
+        recordingTimerId = setInterval(() => {
+            const elapsed = Math.floor((Date.now() - recordingStartedAt) / 1000);
+            if (voiceTimer) voiceTimer.textContent = formatCommentVoiceTimer(elapsed);
+            if (elapsed >= COMMENT_VOICE_MAX_SECONDS) {
+                stopCommentVoice(true);
+            }
+        }, 250);
+    }
+
+    voiceBtn.addEventListener('click', () => {
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+            stopCommentVoice(true);
+        } else {
+            startCommentVoice();
+        }
+    });
+    if (voiceCancelBtn) {
+        voiceCancelBtn.addEventListener('click', () => stopCommentVoice(false));
+    }
+    if (voiceSaveBtn) {
+        voiceSaveBtn.addEventListener('click', () => stopCommentVoice(true));
+    }
 }
 
 // Hàm thêm bình luận vào DOM
@@ -961,53 +1607,63 @@ function addCommentToDOM(comment, postId, parentId) {
             // Tạo HTML cho reply
             const replyHTML = `
             <div class="reply-comment mb-2" id="comment-${comment.id}" data-comment-id="${comment.id}">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <a href="/accounts/profile/${comment.author_username || comment.author.username}/" 
-                           class="text-dark text-decoration-none fw-bold">
-                            ${comment.author_username || comment.author.username}
-                        </a>
-                        <span class="text-muted small me-1">đã trả lời</span>
-                        <a href="#comment-${parentId}" class="text-dark fw-bold small">@${document.querySelector(`#comment-${parentId} a.text-dark.text-decoration-none.fw-bold`).textContent}</a>:
-                        ${commentBodyHtml(comment)}
+                <div class="comment-body-main">
+                    <div class="d-flex justify-content-between align-items-start gap-2 comment-header-row">
+                        <div class="min-w-0">
+                            <a href="/accounts/profile/${comment.author_username || comment.author.username}/" 
+                               class="text-dark text-decoration-none fw-bold">
+                                ${comment.author_username || comment.author.username}
+                            </a>
+                            <span class="text-muted small me-1">đã trả lời</span>
+                            <a href="#comment-${parentId}" class="text-dark fw-bold small">@${document.querySelector(`#comment-${parentId} a.text-dark.text-decoration-none.fw-bold`).textContent}</a>
+                        </div>
+                        <div class="dropdown flex-shrink-0">
+                            <button class="btn btn-link btn-sm p-0 text-muted" 
+                                    type="button" 
+                                    data-bs-toggle="dropdown" 
+                                    aria-expanded="false">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <button class="dropdown-item share-comment-button" 
+                                            data-post-id="${postId}"
+                                            data-comment-id="${comment.id}"
+                                            onclick="openShareCommentModal(${postId}, ${comment.id})">
+                                        <i class="fas fa-paper-plane me-2"></i>Chia sẻ qua chat
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="dropdown-item edit-comment-button"
+                                            data-comment-id="${comment.id}"
+                                            onclick="startCommentEdit(${comment.id})">
+                                        <i class="fas fa-pen me-2"></i>Chỉnh sửa
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="dropdown-item text-danger" 
+                                           onclick="deleteComment(${comment.id})">
+                                        <i class="fas fa-trash-alt me-2"></i>Xóa
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
-                    <div class="dropdown">
-                        <button class="btn btn-link btn-sm p-0 text-muted dropdown-toggle" 
-                                type="button" 
-                                data-bs-toggle="dropdown" 
-                                aria-expanded="false">
-                            <i class="fas fa-ellipsis-h"></i>
+                    ${commentBodyHtml(comment)}
+                    <div class="text-muted small comment-meta-row mt-1">
+                        vừa xong · 
+                        <button class="btn btn-link btn-sm p-0 text-muted like-comment-button" 
+                                data-comment-id="${comment.id}">
+                            <span>Thích</span>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <button class="dropdown-item share-comment-button" 
-                                        data-post-id="${postId}"
-                                        data-comment-id="${comment.id}"
-                                        onclick="openShareCommentModal(${postId}, ${comment.id})">
-                                    <i class="fas fa-paper-plane me-2"></i>Chia sẻ qua chat
-                                </button>
-                            </li>
-                            <li>
-                                <button class="dropdown-item text-danger" 
-                                       onclick="deleteComment(${comment.id})">
-                                    <i class="fas fa-trash-alt me-2"></i>Xóa
-                                </button>
-                            </li>
-                        </ul>
+                        <span class="ms-1">·</span>
+                        <button class="btn btn-link btn-sm p-0 text-muted reply-button ms-1" 
+                                data-username="${comment.author_username || comment.author.username}"
+                                data-post-id="${postId}"
+                                data-comment-id="${comment.id}">
+                            Trả lời
+                        </button>
                     </div>
-                </div>
-                <div class="text-muted small">
-                    vừa xong · 
-                    <button class="btn btn-link btn-sm p-0 text-muted like-comment-button" 
-                            data-comment-id="${comment.id}">
-                        <span>Thích</span>
-                    </button>
-                    <span class="ms-1">·</span>
-                    <button class="btn btn-link btn-sm p-0 text-muted reply-button ms-1" 
-                            data-username="${comment.author_username || comment.author.username}"
-                            data-post-id="${postId}">
-                        Trả lời
-                    </button>
                 </div>
             </div>`;
             
@@ -1019,21 +1675,18 @@ function addCommentToDOM(comment, postId, parentId) {
         const commentHTML = `
         <div class="d-flex mb-3 comment" id="comment-${comment.id}" data-comment-id="${comment.id}">
             <img src="${avatarUrl}" 
-                 class="rounded-circle me-2" 
+                 class="rounded-circle me-2 flex-shrink-0" 
                  width="32" 
                  height="32"
                  alt="${comment.author_username || comment.author.username}">
-            <div class="flex-grow-1">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <a href="/accounts/profile/${comment.author_username || comment.author.username}/" 
-                           class="text-dark text-decoration-none fw-bold">
-                            ${comment.author_username || comment.author.username}
-                        </a>
-                        ${commentBodyHtml(comment)}
-                    </div>
-                    <div class="dropdown">
-                        <button class="btn btn-link btn-sm p-0 text-muted dropdown-toggle" 
+            <div class="flex-grow-1 min-w-0 comment-body-main">
+                <div class="d-flex justify-content-between align-items-start gap-2 comment-header-row">
+                    <a href="/accounts/profile/${comment.author_username || comment.author.username}/" 
+                       class="text-dark text-decoration-none fw-bold">
+                        ${comment.author_username || comment.author.username}
+                    </a>
+                    <div class="dropdown flex-shrink-0">
+                        <button class="btn btn-link btn-sm p-0 text-muted" 
                                 type="button" 
                                 data-bs-toggle="dropdown" 
                                 aria-expanded="false">
@@ -1049,6 +1702,13 @@ function addCommentToDOM(comment, postId, parentId) {
                                 </button>
                             </li>
                             <li>
+                                <button class="dropdown-item edit-comment-button"
+                                        data-comment-id="${comment.id}"
+                                        onclick="startCommentEdit(${comment.id})">
+                                    <i class="fas fa-pen me-2"></i>Chỉnh sửa
+                                </button>
+                            </li>
+                            <li>
                                 <button class="dropdown-item text-danger" 
                                        onclick="deleteComment(${comment.id})">
                                     <i class="fas fa-trash-alt me-2"></i>Xóa
@@ -1057,7 +1717,8 @@ function addCommentToDOM(comment, postId, parentId) {
                         </ul>
                     </div>
                 </div>
-                <div class="text-muted small">
+                ${commentBodyHtml(comment)}
+                <div class="text-muted small comment-meta-row mt-1">
                     vừa xong · 
                     <button class="btn btn-link btn-sm p-0 text-muted like-comment-button" 
                             data-comment-id="${comment.id}">
@@ -1066,7 +1727,8 @@ function addCommentToDOM(comment, postId, parentId) {
                     <span class="ms-1">·</span>
                     <button class="btn btn-link btn-sm p-0 text-muted reply-button ms-1" 
                             data-username="${comment.author_username || comment.author.username}"
-                            data-post-id="${postId}">
+                            data-post-id="${postId}"
+                            data-comment-id="${comment.id}">
                         Trả lời
                     </button>
                 </div>
@@ -1089,6 +1751,9 @@ function addCommentToDOM(comment, postId, parentId) {
     
     // Khởi tạo lại các nút cho bình luận mới
     initializeNewComment(comment.id, postId);
+    if (typeof window.initHoshiAudioPlayers === 'function') {
+        window.initHoshiAudioPlayers(document.getElementById(`comment-${comment.id}`));
+    }
 }
 
 // Hàm khởi tạo các nút cho bình luận mới
@@ -1180,6 +1845,8 @@ function initializeNewComment(commentId, postId) {
 
     const IMAGE_EXT = /\.(jpe?g|png|gif|webp|bmp|heic|heif)$/i;
     const VIDEO_EXT = /\.(mp4|mov|mkv|webm|avi|m4v|wmv|3gp|3gpp|mpeg|mpg|flv|ts|mts)$/i;
+    const AUDIO_EXT = /\.(mp3|m4a|wav|ogg|aac|flac|wma|opus|oga)$/i;
+    const MAX_EDIT_VOICE_SECONDS = 180;
 
     function isImageFile(file) {
         const type = (file.type || '').toLowerCase();
@@ -1190,11 +1857,46 @@ function initializeNewComment(commentId, postId) {
     function isVideoFile(file) {
         const type = (file.type || '').toLowerCase();
         const name = (file.name || '').toLowerCase();
+        if (name.startsWith('voice-')) return false;
+        if (type.startsWith('audio/')) return false;
         return type.startsWith('video/') || VIDEO_EXT.test(name);
     }
 
+    function isAudioFile(file) {
+        const type = (file.type || '').toLowerCase();
+        const name = (file.name || '').toLowerCase();
+        if (type.startsWith('audio/')) return true;
+        if (AUDIO_EXT.test(name)) return true;
+        if (name.startsWith('voice-') && /\.(webm|m4a|ogg|mp4)$/i.test(name)) return true;
+        return false;
+    }
+
     function isAllowedFile(file) {
-        return isImageFile(file) || isVideoFile(file);
+        return isImageFile(file) || isVideoFile(file) || isAudioFile(file);
+    }
+
+    function formatEditVoiceTimer(seconds) {
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        return `${m}:${String(s).padStart(2, '0')}`;
+    }
+
+    function pickEditAudioMimeType() {
+        const candidates = [
+            'audio/webm;codecs=opus',
+            'audio/webm',
+            'audio/mp4',
+            'audio/ogg;codecs=opus',
+        ];
+        if (!window.MediaRecorder || !MediaRecorder.isTypeSupported) return '';
+        return candidates.find((t) => MediaRecorder.isTypeSupported(t)) || '';
+    }
+
+    function editAudioMimeToExt(mime) {
+        if (!mime) return 'webm';
+        if (mime.includes('mp4')) return 'm4a';
+        if (mime.includes('ogg')) return 'ogg';
+        return 'webm';
     }
 
     function initEditPond() {
@@ -1213,7 +1915,7 @@ function initializeNewComment(commentId, postId) {
             allowReorder: true,
             storeAsFile: true,
             allowVideoPreview: true,
-            labelIdle: '<i class="fas fa-cloud-upload-alt mb-1 d-block" style="color:#c7c7c7;font-size:1.25rem"></i>Kéo thả hoặc <span class="filepond--label-action">chọn ảnh/video</span>',
+            labelIdle: '<i class="fas fa-cloud-upload-alt mb-1 d-block" style="color:#c7c7c7;font-size:1.25rem"></i>Kéo thả hoặc <span class="filepond--label-action">chọn ảnh/video/nhạc</span>',
             labelFileTypeNotAllowed: 'Loại file không được hỗ trợ',
             stylePanelLayout: 'compact',
             styleItemPanelAspectRatio: 1,
@@ -1221,13 +1923,146 @@ function initializeNewComment(commentId, postId) {
             beforeAddFile: (item) => {
                 const file = item.file || item;
                 if (!isAllowedFile(file)) {
-                    alert('File không được hỗ trợ. Vui lòng chọn ảnh hoặc video.');
+                    alert('File không được hỗ trợ. Vui lòng chọn ảnh, video hoặc âm thanh.');
                     return false;
                 }
                 return true;
             },
         });
+
+        bindEditAudioTools();
         return editPond;
+    }
+
+    function bindEditAudioTools() {
+        if (editModalEl.dataset.audioToolsBound === '1') return;
+        editModalEl.dataset.audioToolsBound = '1';
+
+        const audioPickBtn = editModalEl.querySelector('#editAudioPickBtn');
+        const audioFileInput = editModalEl.querySelector('#editAudioFileInput');
+        const voiceRecordBtn = editModalEl.querySelector('#editVoiceRecordBtn');
+        const voiceBar = editModalEl.querySelector('#editVoiceRecordingBar');
+        const voiceTimer = editModalEl.querySelector('#editVoiceTimer');
+        const voiceCancelBtn = editModalEl.querySelector('#editVoiceCancelBtn');
+        const voiceSaveBtn = editModalEl.querySelector('#editVoiceSaveBtn');
+
+        let mediaRecorder = null;
+        let mediaStream = null;
+        let recordedChunks = [];
+        let recordingStartedAt = 0;
+        let recordingTimerId = null;
+        let shouldSaveVoice = false;
+
+        function stopVoiceTracks() {
+            if (mediaStream) {
+                mediaStream.getTracks().forEach((t) => t.stop());
+                mediaStream = null;
+            }
+        }
+
+        function resetVoiceUI() {
+            if (recordingTimerId) {
+                clearInterval(recordingTimerId);
+                recordingTimerId = null;
+            }
+            voiceBar?.classList.add('d-none');
+            if (voiceTimer) voiceTimer.textContent = '0:00';
+            voiceRecordBtn?.classList.remove('is-recording');
+            recordedChunks = [];
+            mediaRecorder = null;
+            shouldSaveVoice = false;
+        }
+
+        function stopEditVoice(save) {
+            shouldSaveVoice = !!save;
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                try { mediaRecorder.stop(); } catch (_) { /* ignore */ }
+            } else {
+                stopVoiceTracks();
+                resetVoiceUI();
+            }
+        }
+        editModalEl._stopEditVoice = stopEditVoice;
+
+        function addAudioToPond(file) {
+            const pond = initEditPond();
+            if (!pond || !file) return;
+            pond.addFile(file).catch((err) => {
+                console.error('Add audio error:', err);
+                alert('Không thêm được file âm thanh. Vui lòng thử lại.');
+            });
+        }
+
+        if (audioPickBtn && audioFileInput) {
+            audioPickBtn.addEventListener('click', () => audioFileInput.click());
+            audioFileInput.addEventListener('change', () => {
+                const file = audioFileInput.files && audioFileInput.files[0];
+                if (file) addAudioToPond(file);
+                audioFileInput.value = '';
+            });
+        }
+
+        async function startEditVoice() {
+            if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') {
+                alert('Trình duyệt không hỗ trợ ghi âm.');
+                return;
+            }
+            if (mediaRecorder && mediaRecorder.state === 'recording') return;
+            try {
+                mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            } catch (err) {
+                alert('Không thể truy cập micro. Hãy cho phép quyền micro rồi thử lại.');
+                return;
+            }
+            recordedChunks = [];
+            shouldSaveVoice = false;
+            const mime = pickEditAudioMimeType();
+            try {
+                mediaRecorder = mime
+                    ? new MediaRecorder(mediaStream, { mimeType: mime })
+                    : new MediaRecorder(mediaStream);
+            } catch (err) {
+                stopVoiceTracks();
+                alert('Không thể bắt đầu ghi âm trên trình duyệt này.');
+                return;
+            }
+            mediaRecorder.ondataavailable = (e) => {
+                if (e.data && e.data.size > 0) recordedChunks.push(e.data);
+            };
+            mediaRecorder.onstop = () => {
+                stopVoiceTracks();
+                const save = shouldSaveVoice;
+                const chunks = recordedChunks.slice();
+                const usedMime = (mediaRecorder && mediaRecorder.mimeType) || mime || 'audio/webm';
+                resetVoiceUI();
+                if (!save) return;
+                const blob = new Blob(chunks, { type: usedMime.split(';')[0] });
+                if (blob.size < 500) {
+                    alert('Bản ghi quá ngắn. Hãy ghi lại.');
+                    return;
+                }
+                const file = new File([blob], `voice-${Date.now()}.${editAudioMimeToExt(usedMime)}`, {
+                    type: blob.type || 'audio/webm',
+                });
+                addAudioToPond(file);
+            };
+            mediaRecorder.start(250);
+            recordingStartedAt = Date.now();
+            voiceBar?.classList.remove('d-none');
+            voiceRecordBtn?.classList.add('is-recording');
+            recordingTimerId = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - recordingStartedAt) / 1000);
+                if (voiceTimer) voiceTimer.textContent = formatEditVoiceTimer(elapsed);
+                if (elapsed >= MAX_EDIT_VOICE_SECONDS) stopEditVoice(true);
+            }, 250);
+        }
+
+        voiceRecordBtn?.addEventListener('click', () => {
+            if (mediaRecorder && mediaRecorder.state === 'recording') stopEditVoice(true);
+            else startEditVoice();
+        });
+        voiceCancelBtn?.addEventListener('click', () => stopEditVoice(false));
+        voiceSaveBtn?.addEventListener('click', () => stopEditVoice(true));
     }
 
     function clearEditPond() {
@@ -1354,6 +2189,9 @@ function initializeNewComment(commentId, postId) {
 
     editModalEl.addEventListener('hidden.bs.modal', function() {
         clearLocationSuggestions();
+        if (typeof editModalEl._stopEditVoice === 'function') {
+            editModalEl._stopEditVoice(false);
+        }
         clearEditPond();
     });
 

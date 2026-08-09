@@ -23,8 +23,11 @@ def get_root_comments_qs(post):
     )
 
 
-def serialize_comment(comment, post_id=None, is_duplicate=False, parent_data=None, can_delete=True):
+def serialize_comment(comment, post_id=None, is_duplicate=False, parent_data=None, can_delete=True, can_edit=True):
     """JSON payload for comment create/list responses."""
+    is_edited = False
+    if comment.updated_at and comment.created_at:
+        is_edited = (comment.updated_at - comment.created_at).total_seconds() > 2
     return {
         'id': comment.id,
         'text': comment.text or '',
@@ -32,18 +35,23 @@ def serialize_comment(comment, post_id=None, is_duplicate=False, parent_data=Non
         'image_url': comment.image_url,
         'video': comment.video_url,
         'video_url': comment.video_url,
+        'audio': comment.audio_url,
+        'audio_url': comment.audio_url,
         'author_id': comment.author_id,
         'author_username': comment.author.username,
         'author_avatar': comment.author.get_avatar_url() if hasattr(comment.author, 'get_avatar_url') else (
             comment.author.avatar.url if getattr(comment.author, 'avatar', None) else None
         ),
         'created_at': comment.created_at.isoformat(),
+        'updated_at': comment.updated_at.isoformat() if comment.updated_at else None,
         'likes_count': comment.likes_count,
         'parent': parent_data,
         'parent_id': comment.parent_id,
         'post_id': post_id or comment.post_id,
         'is_duplicate': is_duplicate,
         'can_delete': can_delete,
+        'can_edit': can_edit,
+        'is_edited': is_edited,
     }
 
 

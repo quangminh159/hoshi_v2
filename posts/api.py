@@ -287,8 +287,8 @@ def comment_replies(request, pk):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def add_comment(request):
-    """API thêm bình luận (text và/hoặc ảnh/video ngắn)."""
-    from .comment_media import validate_comment_image, validate_comment_video
+    """API thêm bình luận (text và/hoặc ảnh/video ngắn/ghi âm)."""
+    from .comment_media import validate_comment_image, validate_comment_video, validate_comment_audio
 
     try:
         data = request.data
@@ -296,29 +296,39 @@ def add_comment(request):
         text = (data.get('text') or '').strip()
         parent_id = data.get('parent_id') or None
         request_id = data.get('request_id', '') or ''
-        image = request.FILES.get('image')
-        video = request.FILES.get('video')
+        image = request.FILES.get('image') or data.get('image')
+        video = request.FILES.get('video') or data.get('video')
+        audio = request.FILES.get('audio') or data.get('audio')
+        # UploadedFile mới hợp lệ; bỏ qua string rỗng từ form
+        if not hasattr(image, 'read'):
+            image = None
+        if not hasattr(video, 'read'):
+            video = None
+        if not hasattr(audio, 'read'):
+            audio = None
 
         if parent_id in ('', 'null', 'undefined'):
             parent_id = None
 
         print(
             f"Processing comment request: post_id={post_id}, text={text[:20] if text else '[empty]'}..., "
-            f"parent_id={parent_id}, request_id={request_id}, has_image={bool(image)}, has_video={bool(video)}"
+            f"parent_id={parent_id}, request_id={request_id}, has_image={bool(image)}, "
+            f"has_video={bool(video)}, has_audio={bool(audio)}"
         )
 
         if not post_id:
             return Response({'error': 'Missing required fields'}, status=status.HTTP_400_BAD_REQUEST)
 
-        if not text and not image and not video:
+        media_count = sum(1 for f in (image, video, audio) if f)
+        if not text and media_count == 0:
             return Response(
-                {'error': 'Vui lòng nhập nội dung, chọn ảnh hoặc video ngắn'},
+                {'error': 'Vui lòng nhập nội dung, chọn ảnh/video hoặc ghi âm'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        if image and video:
+        if media_count > 1:
             return Response(
-                {'error': 'Chỉ chọn một trong ảnh hoặc video cho mỗi bình luận'},
+                {'error': 'Chỉ chọn một trong ảnh, video hoặc ghi âm cho mỗi bình luận'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -335,6 +345,11 @@ def add_comment(request):
 
         if video:
             err = validate_comment_video(video)
+            if err:
+                return Response({'error': err}, status=status.HTTP_400_BAD_REQUEST)
+
+        if audio:
+            err = validate_comment_audio(audio)
             if err:
                 return Response({'error': err}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -389,7 +404,7 @@ def add_comment(request):
             cache.set(request_cache_key, True, 300)
 
         # Chống duplicate text-only gần đây
-        if text and not image and not video:
+        if text and not image and not video and not audio:
             comment_content_hash = hashlib.md5(
                 f"{request.user.id}:{post_id}:{text}:{parent_id or ''}".encode()
             ).hexdigest()
@@ -424,7 +439,7 @@ def add_comment(request):
             except Comment.DoesNotExist:
                 return Response({'error': 'Parent comment not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        if text and not image and not video:
+        if text and not image and not video and not audio:
             recent_comments = Comment.objects.filter(
                 post=post,
                 author=request.user,
@@ -454,6 +469,8 @@ def add_comment(request):
             comment.image = image
         if video:
             comment.video = video
+        if audio:
+            comment.audio = audio
         comment.save()
 
         post.comments_count = post.comments.count()
@@ -516,6 +533,118 @@ def delete_comment(request, pk):
         return Response({'error': 'Không tìm thấy bình luận'}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST', 'PATCH'])
+@permission_classes([IsAuthenticated])
+def edit_comment(request, pk):
+    """Chỉnh sửa bình luận: text và/hoặc ảnh/video/ghi âm (chỉ tác giả)."""
+    from .comment_media import validate_comment_image, validate_comment_video, validate_comment_audio
+
+    try:
+        comment = Comment.objects.select_related('author', 'post', 'parent', 'parent__author').get(pk=pk)
+    except Comment.DoesNotExist:
+        return Response({'error': 'Không tìm thấy bình luận'}, status=status.HTTP_404_NOT_FOUND)
+
+    if comment.author_id != request.user.id:
+        return Response({'error': 'Bạn chỉ có thể sửa bình luận của chính mình'}, status=status.HTTP_403_FORBIDDEN)
+
+    data = request.data
+    if 'text' not in data and not any(k in request.FILES for k in ('image', 'video', 'audio')):
+        # Cho phép FormData chỉ gửi media/clear mà không gửi text (giữ text cũ)
+        text = (comment.text or '').strip()
+    else:
+        text = str(data.get('text') if data.get('text') is not None else (comment.text or '')).strip()
+
+    if len(text) > 500:
+        return Response({'error': 'Bình luận quá dài (tối đa 500 ký tự)'}, status=status.HTTP_400_BAD_REQUEST)
+
+    image = request.FILES.get('image') or data.get('image')
+    video = request.FILES.get('video') or data.get('video')
+    audio = request.FILES.get('audio') or data.get('audio')
+    if not hasattr(image, 'read'):
+        image = None
+    if not hasattr(video, 'read'):
+        video = None
+    if not hasattr(audio, 'read'):
+        audio = None
+
+    media_uploads = sum(1 for f in (image, video, audio) if f)
+    if media_uploads > 1:
+        return Response(
+            {'error': 'Chỉ chọn một trong ảnh, video hoặc ghi âm cho mỗi bình luận'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    clear_media = _parse_bool(data.get('clear_media'))
+
+    if image:
+        err = validate_comment_image(image)
+        if err:
+            return Response({'error': err}, status=status.HTTP_400_BAD_REQUEST)
+    if video:
+        err = validate_comment_video(video)
+        if err:
+            return Response({'error': err}, status=status.HTTP_400_BAD_REQUEST)
+    if audio:
+        err = validate_comment_audio(audio)
+        if err:
+            return Response({'error': err}, status=status.HTTP_400_BAD_REQUEST)
+
+    def _clear_media_fields(c):
+        for field_name in ('image', 'video', 'audio'):
+            field = getattr(c, field_name)
+            if field:
+                field.delete(save=False)
+                setattr(c, field_name, None)
+
+    update_fields = ['text', 'updated_at']
+
+    if media_uploads:
+        _clear_media_fields(comment)
+        if image:
+            comment.image = image
+            update_fields.extend(['image', 'video', 'audio'])
+        elif video:
+            comment.video = video
+            update_fields.extend(['image', 'video', 'audio'])
+        else:
+            comment.audio = audio
+            update_fields.extend(['image', 'video', 'audio'])
+    elif clear_media:
+        _clear_media_fields(comment)
+        update_fields.extend(['image', 'video', 'audio'])
+
+    has_media = bool(comment.image or comment.video or comment.audio)
+    if not text and not has_media:
+        return Response(
+            {'error': 'Bình luận không được để trống'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    comment.text = text
+    # unique update_fields
+    comment.save(update_fields=list(dict.fromkeys(update_fields)))
+
+    parent_data = None
+    if comment.parent_id:
+        parent_data = {
+            'id': comment.parent.id,
+            'author_username': comment.parent.author.username,
+        }
+
+    return Response({
+        'success': True,
+        'message': 'Đã cập nhật bình luận',
+        'comment': serialize_comment(
+            comment,
+            post_id=comment.post_id,
+            parent_data=parent_data,
+            can_delete=True,
+            can_edit=True,
+        ),
+    })
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -608,7 +737,7 @@ def edit_post(request, post_id):
                 if not media_type:
                     return Response({
                         'status': 'error',
-                        'message': f'File {file.name} không hợp lệ. Chỉ chấp nhận ảnh hoặc video.'
+                        'message': f'File {file.name} không hợp lệ. Chỉ chấp nhận ảnh, video hoặc âm thanh.'
                     }, status=status.HTTP_400_BAD_REQUEST)
 
                 PostMedia.objects.create(

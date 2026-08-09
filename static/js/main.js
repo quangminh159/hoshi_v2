@@ -745,6 +745,12 @@ function initializeCommentForms() {
             
             if (!text && !imageFile) return;
             
+            const isAudio = imageFile && (
+                (imageFile.name || '').toLowerCase().startsWith('voice-')
+                || (imageFile.type || '').toLowerCase().startsWith('audio/')
+            );
+            const isVideo = imageFile && (imageFile.type || '').startsWith('video/') && !isAudio;
+            
             // Tạo một khóa duy nhất cho yêu cầu này
             const requestKey = `${postId}-${text}-${parentId || ''}`;
             
@@ -803,7 +809,11 @@ function initializeCommentForms() {
             formData.append('timestamp', String(timestamp));
             formData.append('request_id', requestId);
             if (parentId) formData.append('parent_id', parentId);
-            if (imageFile) formData.append('image', imageFile);
+            if (imageFile) {
+                if (isAudio) formData.append('audio', imageFile);
+                else if (isVideo) formData.append('video', imageFile);
+                else formData.append('image', imageFile);
+            }
 
             fetch('/api/posts/comments/add/', {
                 method: 'POST',
@@ -1046,6 +1056,8 @@ function addCommentToDOM(comment, postId, isReply, parentId) {
         id: comment.id,
         text: comment.text || '',
         image: comment.image_url || comment.image || null,
+        video: comment.video_url || comment.video || null,
+        audio: comment.audio_url || comment.audio || null,
         created_at: comment.created_at,
         author: {
             username: comment.author ? comment.author.username : comment.author_username,
@@ -1065,6 +1077,12 @@ function addCommentToDOM(comment, postId, isReply, parentId) {
     const imageHtml = normalizedComment.image
         ? `<div class="comment-image-wrap mt-1"><a href="${normalizedComment.image}" target="_blank" rel="noopener"><img src="${normalizedComment.image}" alt="Ảnh bình luận" class="comment-image"></a></div>`
         : '';
+    const videoHtml = normalizedComment.video
+        ? `<div class="comment-video-wrap mt-1"><video class="comment-video" src="${normalizedComment.video}" controls playsinline preload="metadata"></video></div>`
+        : '';
+    const audioHtml = normalizedComment.audio
+        ? `<div class="comment-audio-wrap comment-audio-player mt-1"><audio class="comment-audio" src="${normalizedComment.audio}" controls preload="metadata"></audio></div>`
+        : '';
     
     // Tạo HTML cho comment mới
     const commentHTML = `
@@ -1077,6 +1095,8 @@ function addCommentToDOM(comment, postId, isReply, parentId) {
                     </a>
                     ${normalizedComment.text ? `<span class="ms-1">${normalizedComment.text}</span>` : ''}
                     ${imageHtml}
+                    ${videoHtml}
+                    ${audioHtml}
                 </div>
                 <div class="dropdown">
                     <button class="btn btn-link btn-sm p-0 text-muted dropdown-toggle" 

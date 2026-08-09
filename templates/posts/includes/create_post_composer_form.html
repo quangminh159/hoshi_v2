@@ -19,11 +19,37 @@
                    id="media"
                    name="media"
                    class="filepond"
-                   accept="image/*,video/*"
+                   accept="image/*,video/*,audio/*,.mp3,.m4a,.wav,.ogg,.aac,.flac"
                    multiple
                    data-allow-reorder="true">
         </div>
-        <p class="upload-hint">Ảnh & video (tùy chọn) · hoặc chỉ đăng chữ · tối đa 1GB/file</p>
+
+        <div class="composer-audio-tools">
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="postAudioPickBtn" title="Chọn file nhạc">
+                <i class="fas fa-music me-1"></i>Nhạc
+            </button>
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="postVoiceRecordBtn" title="Ghi âm">
+                <i class="fas fa-microphone me-1"></i>Ghi âm
+            </button>
+            <input type="file"
+                   id="postAudioFileInput"
+                   class="d-none"
+                   accept="audio/*,.mp3,.m4a,.wav,.ogg,.aac,.flac,.wma">
+        </div>
+
+        <div id="postVoiceRecordingBar" class="post-voice-recording-bar d-none">
+            <span class="post-voice-rec-dot" aria-hidden="true"></span>
+            <span class="post-voice-timer" id="postVoiceTimer">0:00</span>
+            <span class="post-voice-hint">Đang ghi âm...</span>
+            <div class="post-voice-actions ms-auto">
+                <button type="button" class="btn btn-sm btn-light" id="postVoiceCancelBtn">Hủy</button>
+                <button type="button" class="btn btn-sm btn-primary" id="postVoiceSaveBtn">
+                    <i class="fas fa-check me-1"></i>Dùng bản ghi
+                </button>
+            </div>
+        </div>
+
+        <p class="upload-hint">Ảnh, video, nhạc hoặc ghi âm (tùy chọn) · hoặc chỉ đăng chữ · tối đa 1GB/file</p>
 
         <div class="extra-fields">
             <div class="location-field">
@@ -48,7 +74,7 @@
     </div>
 
     <div class="create-post-footer">
-        <p class="footer-hint mb-0 d-none d-sm-block">Có thể đăng chỉ chữ, hoặc kèm ảnh/video</p>
+        <p class="footer-hint mb-0 d-none d-sm-block">Có thể đăng chữ, ảnh, video hoặc âm thanh</p>
         <button type="submit" class="btn btn-post-submit ms-sm-auto">
             <i class="fas fa-paper-plane"></i>
             <span>Đăng bài</span>
