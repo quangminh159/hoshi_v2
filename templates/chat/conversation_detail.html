@@ -8,7 +8,7 @@
 {% block body_class %} chat-layout chat-detail-layout{% endblock %}
 
 {% block extra_css %}
-<link href="{% static 'css/chat.css' %}?v=chat-balance-1" rel="stylesheet">
+<link href="{% static 'css/chat.css' %}?v=shared-card-1" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -197,7 +197,15 @@
                   </a>
                 {% endif %}
 
-                {% if message.content %}
+                {% with display_text=message|shared_display_text %}
+                {% if display_text %}
+                  <div class="message-text">{{ display_text|linkify }}</div>
+                  {% with preview_url=display_text|first_url %}
+                    {% if preview_url %}
+                      <div class="message-link-preview" data-preview-url="{{ preview_url }}" hidden></div>
+                    {% endif %}
+                  {% endwith %}
+                {% elif message.content and not message.shared_post %}
                   <div class="message-text">{{ message.content|linkify }}</div>
                   {% with preview_url=message.content|first_url %}
                     {% if preview_url %}
@@ -205,6 +213,7 @@
                     {% endif %}
                   {% endwith %}
                 {% endif %}
+                {% endwith %}
 
                 <div class="message-meta">
                   <span class="message-time">{{ message.created_at|date:"H:i" }}</span>
@@ -901,34 +910,71 @@
       };
     }
 
+    function mspStatsHtml(item) {
+      const likes = escapeHtml(item.likes_display ?? item.likes_count ?? 0);
+      const comments = escapeHtml(item.comments_display ?? item.comments_count ?? 0);
+      const reposts = escapeHtml(item.reposts_display ?? item.reposts_count ?? '');
+      const shares = escapeHtml(item.shares_display ?? item.shares_count ?? '');
+      return `
+        <div class="msp-stats" aria-hidden="true">
+          <span><i class="far fa-heart"></i> ${likes}</span>
+          <span><i class="far fa-comment"></i> ${comments}</span>
+          <span><i class="fas fa-retweet"></i>${reposts !== '' && reposts !== '0' ? ` ${reposts}` : ''}</span>
+          <span><i class="far fa-paper-plane"></i>${shares !== '' && shares !== '0' ? ` ${shares}` : ''}</span>
+        </div>`;
+    }
+
     function buildSharedPostCard(sharedPost) {
       if (!sharedPost) return null;
       const link = document.createElement('a');
-      const commentId = sharedPost.comment_id;
+      const comment = sharedPost.comment || null;
+      const commentId = sharedPost.comment_id || comment?.id;
       const href = sharedPost.url
         || (commentId ? `/posts/${sharedPost.id}/#comment-${commentId}` : `/posts/${sharedPost.id}/`);
       link.href = href;
-      link.className = 'message-shared-post' + (commentId ? ' message-shared-post--comment' : '');
+      link.className = 'message-shared-post' + (comment ? ' message-shared-post--thread' : '');
 
       const mediaHtml = sharedPost.media ? `
-        <div class="message-shared-post__media">
+        <div class="msp-media">
           ${sharedPost.media.media_type === 'image'
-            ? `<img src="${sharedPost.media.url}" alt="" loading="lazy">`
-            : `<video src="${sharedPost.media.url}" muted preload="metadata"></video>
-               <span class="message-shared-post__play"><i class="fas fa-play"></i></span>`}
+            ? `<img src="${escapeHtml(sharedPost.media.url)}" alt="" loading="lazy">`
+            : `<video src="${escapeHtml(sharedPost.media.url)}" muted preload="metadata"></video>
+               <span class="msp-play"><i class="fas fa-play"></i></span>`}
         </div>` : '';
 
-      const ctaLabel = commentId ? 'Xem bình luận' : 'Xem bài viết';
-      link.innerHTML = `
-        <div class="message-shared-post__header">
-          <img src="${sharedPost.author_avatar || ''}" alt="" class="message-shared-post__avatar" loading="lazy">
-          <span class="message-shared-post__author">${sharedPost.author_username || ''}</span>
-        </div>
-        ${mediaHtml}
-        ${sharedPost.caption ? `<p class="message-shared-post__caption">${sharedPost.caption}</p>` : ''}
-        <span class="message-shared-post__link">${ctaLabel} <i class="fas fa-external-link-alt ms-1"></i></span>`;
+      const postBlock = `
+        <div class="msp-post">
+          <div class="msp-header">
+            <img src="${escapeHtml(sharedPost.author_avatar || '')}" alt="" class="msp-avatar" loading="lazy">
+            <span class="msp-username">${escapeHtml(sharedPost.author_username || '')}</span>
+            <span class="msp-time">${escapeHtml(sharedPost.time_ago || '')}</span>
+          </div>
+          ${sharedPost.caption ? `<p class="msp-text">${escapeHtml(sharedPost.caption)}</p>` : ''}
+          ${mediaHtml}
+          ${mspStatsHtml(sharedPost)}
+        </div>`;
+
+      let commentBlock = '';
+      if (comment) {
+        commentBlock = `
+          <div class="msp-comment">
+            <div class="msp-thread-line" aria-hidden="true"></div>
+            <div class="msp-comment-body">
+              <div class="msp-header">
+                <img src="${escapeHtml(comment.author_avatar || '')}" alt="" class="msp-avatar" loading="lazy">
+                <span class="msp-username">${escapeHtml(comment.author_username || '')}</span>
+                <span class="msp-time">${escapeHtml(comment.time_ago || '')}</span>
+              </div>
+              ${comment.text ? `<p class="msp-text">${escapeHtml(comment.text)}</p>` : ''}
+              ${mspStatsHtml(comment)}
+            </div>
+          </div>`;
+      }
+
+      link.innerHTML = postBlock + commentBlock;
       return link;
     }
+
 
     async function uploadPendingAttachments(messageText, submitButton) {
       const preview = document.getElementById('attachmentPreview');

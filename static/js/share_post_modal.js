@@ -127,7 +127,6 @@
 
         const postId = modal.querySelector('.share-post-id')?.value;
         const caption = modal.querySelector('.share-caption')?.value || '';
-        const asNewPost = modal.querySelector('.share-as-new-post')?.checked ?? true;
         const submitBtn = modal.querySelector('.share-feed-submit');
         const url = modal.dataset.shareUrl || '/posts/share/';
 
@@ -149,7 +148,7 @@
             body: JSON.stringify({
                 post_id: postId,
                 caption,
-                as_new_post: asNewPost,
+                as_new_post: true,
             }),
         })
             .then((res) => res.json().then((data) => ({ ok: res.ok, data })))

@@ -70,16 +70,10 @@
                 <div class="share-tab-pane share-tab-pane--feed" id="share-tab-feed{% if share_modal_id %}-{{ share_modal_id }}{% endif %}">
                     <form class="share-feed-form">
                         {% csrf_token %}
-                        <div class="mb-3">
+                        <div class="mb-0">
                             <label for="share-caption{% if share_modal_id %}-{{ share_modal_id }}{% endif %}" class="form-label">Viết gì đó về bài viết này</label>
                             <textarea class="form-control share-caption" id="share-caption{% if share_modal_id %}-{{ share_modal_id }}{% endif %}" rows="3"
                                       placeholder="Bạn đang nghĩ gì về bài viết này?"></textarea>
-                        </div>
-                        <div class="mb-0">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input share-as-new-post" type="checkbox" id="share-as-new-post{% if share_modal_id %}-{{ share_modal_id }}{% endif %}" checked>
-                                <label class="form-check-label" for="share-as-new-post{% if share_modal_id %}-{{ share_modal_id }}{% endif %}">Đăng như bài viết mới</label>
-                            </div>
                         </div>
                     </form>
                 </div>

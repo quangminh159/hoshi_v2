@@ -1,29 +1,57 @@
-{% load chat_tags %}
+{% load chat_tags i18n %}
 {% with share_href=message|shared_post_href comment_id=message.content|shared_comment_id %}
-<a href="{{ share_href }}" class="message-shared-post{% if comment_id %} message-shared-post--comment{% endif %}">
-  <div class="message-shared-post__header">
-    <img src="{{ post.author.get_avatar_url }}" alt="" class="message-shared-post__avatar" loading="lazy">
-    <span class="message-shared-post__author">{{ post.author.username }}</span>
-  </div>
-  {% with first_media=post.media.first %}
-  {% if first_media %}
-  <div class="message-shared-post__media">
-    {% if first_media.media_type == 'image' %}
-    <img src="{{ first_media.file.url }}" alt="" loading="lazy">
-    {% else %}
-    <video src="{{ first_media.file.url }}" muted preload="metadata"></video>
-    <span class="message-shared-post__play"><i class="fas fa-play"></i></span>
+{% with shared_comment=comment_id|shared_comment_obj:post %}
+<a href="{{ share_href }}" class="message-shared-post{% if shared_comment %} message-shared-post--thread{% endif %}">
+  <div class="msp-post">
+    <div class="msp-header">
+      <img src="{{ post.author.get_avatar_url }}" alt="" class="msp-avatar" loading="lazy">
+      <span class="msp-username">{{ post.author.username }}</span>
+      <span class="msp-time">{{ post.created_at|msp_short_time }}</span>
+    </div>
+    {% if post.caption %}
+    <p class="msp-text">{{ post.caption|truncatechars:200 }}</p>
     {% endif %}
+    {% with first_media=post.media.first %}
+    {% if first_media %}
+    <div class="msp-media">
+      {% if first_media.media_type == 'image' %}
+      <img src="{{ first_media.file.url }}" alt="" loading="lazy">
+      {% else %}
+      <video src="{{ first_media.file.url }}" muted preload="metadata"></video>
+      <span class="msp-play"><i class="fas fa-play"></i></span>
+      {% endif %}
+    </div>
+    {% endif %}
+    {% endwith %}
+    <div class="msp-stats" aria-hidden="true">
+      <span><i class="far fa-heart"></i> {{ post.likes_count|msp_compact }}</span>
+      <span><i class="far fa-comment"></i> {{ post.comments_count|msp_compact }}</span>
+      <span><i class="fas fa-retweet"></i> {{ post.shared_posts.count|msp_compact }}</span>
+      <span><i class="far fa-paper-plane"></i> {{ post.shared_posts.count|msp_compact }}</span>
+    </div>
   </div>
-  {% endif %}
-  {% endwith %}
-  {% if post.caption %}
-  <p class="message-shared-post__caption">{{ post.caption|truncatechars:120 }}</p>
-  {% endif %}
-  {% if comment_id %}
-  <span class="message-shared-post__link">Xem bình luận <i class="fas fa-external-link-alt ms-1"></i></span>
-  {% else %}
-  <span class="message-shared-post__link">Xem bài viết <i class="fas fa-external-link-alt ms-1"></i></span>
+
+  {% if shared_comment %}
+  <div class="msp-comment">
+    <div class="msp-thread-line" aria-hidden="true"></div>
+    <div class="msp-comment-body">
+      <div class="msp-header">
+        <img src="{{ shared_comment.author.get_avatar_url }}" alt="" class="msp-avatar" loading="lazy">
+        <span class="msp-username">{{ shared_comment.author.username }}</span>
+        <span class="msp-time">{{ shared_comment.created_at|msp_short_time }}</span>
+      </div>
+      {% if shared_comment.text %}
+      <p class="msp-text">{{ shared_comment.text|truncatechars:280 }}</p>
+      {% endif %}
+      <div class="msp-stats" aria-hidden="true">
+        <span><i class="far fa-heart"></i> {{ shared_comment.likes_count|msp_compact }}</span>
+        <span><i class="far fa-comment"></i> {{ shared_comment.replies.count|msp_compact }}</span>
+        <span><i class="fas fa-retweet"></i></span>
+        <span><i class="far fa-paper-plane"></i></span>
+      </div>
+    </div>
+  </div>
   {% endif %}
 </a>
+{% endwith %}
 {% endwith %}

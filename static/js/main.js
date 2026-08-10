@@ -28,6 +28,35 @@ function throttle(func, limit) {
     };
 }
 
+/** Logo: hover có CSS; click logo / trang chủ thì xoay + nảy. */
+function playBrandLogoAnimation() {
+    document.querySelectorAll('a.brand-logo').forEach((logo) => {
+        logo.classList.remove('is-animating');
+        void logo.offsetWidth;
+        logo.classList.add('is-animating');
+        const onEnd = () => {
+            logo.classList.remove('is-animating');
+            logo.removeEventListener('animationend', onEnd);
+        };
+        logo.addEventListener('animationend', onEnd);
+    });
+}
+
+document.addEventListener('click', (e) => {
+    const logoLink = e.target.closest('a.brand-logo');
+    if (logoLink) {
+        playBrandLogoAnimation();
+        return;
+    }
+    const homeNav = e.target.closest('a.nav-link, a.mobile-bottom-nav__item');
+    if (!homeNav) return;
+    const isHomeIcon = !!homeNav.querySelector('.fa-home');
+    const navHome = homeNav.getAttribute('data-nav') === 'home';
+    if (isHomeIcon || navHome) {
+        playBrandLogoAnimation();
+    }
+}, true);
+
 // Hàm bọc để tránh đăng ký trùng lặp event listeners
 function safeAddEventListener(element, eventType, handler, handlerId) {
     if (!element || !eventType || !handler) return;
