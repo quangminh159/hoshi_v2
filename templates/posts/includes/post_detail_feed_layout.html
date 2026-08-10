@@ -118,7 +118,7 @@
                     </button>
                     <button class="btn btn-light btn-sm me-2" type="button" onclick="document.getElementById('comment-input').focus()">
                         <i class="far fa-comment"></i>
-                        <span id="post-comment-count">{{ post.comments_count }}</span>
+                        <span class="comments-count post-comment-count" data-post-id="{{ post.id }}" id="post-comment-count-actions">{{ post.comments_count }}</span>
                     </button>
                     <button class="btn btn-light btn-sm me-2 share-button"
                             data-post-id="{{ post.id }}"
@@ -137,7 +137,7 @@
             {% if not post.hide_likes %}
             <p class="mb-0 likes-count-display">
                 <a href="#" class="text-dark text-decoration-none fw-bold show-likes-button" data-post-id="{{ post.id }}">
-                    <span class="likes-count-text">{{ post.likes_count }} lượt thích</span>
+                    <span class="likes-count-text" data-post-id="{{ post.id }}">{{ post.likes_count }} lượt thích</span>
                 </a>
             </p>
             {% endif %}
@@ -146,7 +146,7 @@
 
     <section class="post-detail-comments-section" aria-label="Bình luận">
                         <div class="post-detail-comments-header">
-            <h2>Bình luận <span class="text-muted fw-normal">(<span id="post-comment-count">{{ total_comments }}</span>)</span></h2>
+            <h2>Bình luận <span class="text-muted fw-normal">(<span class="post-comment-count" data-post-id="{{ post.id }}" id="post-comment-count">{{ total_comments }}</span>)</span></h2>
         </div>
 
         <div id="post-detail-comments-list" class="post-detail-comments-list">
@@ -217,29 +217,28 @@
                         <audio class="comment-audio" src="{{ comment.audio.url }}" controls preload="metadata"></audio>
                     </div>
                     {% endif %}
-                    <div class="text-muted small comment-meta-row mt-1">
-                        {{ comment.created_at|timesince }} trước{% if comment.updated_at and comment.updated_at > comment.created_at %}<span class="comment-edited-label text-muted"> · Đã chỉnh sửa</span>{% endif %} ·
-                        <button class="btn btn-link btn-sm p-0 text-muted like-comment-button"
-                                data-comment-id="{{ comment.id }}">
+                    <div class="text-muted small comment-meta-row mt-1 d-flex align-items-center flex-wrap gap-2">
+                        <span>{{ comment.created_at|timesince }} trước{% if comment.updated_at and comment.updated_at > comment.created_at %}<span class="comment-edited-label text-muted"> · Đã chỉnh sửa</span>{% endif %}</span>
+                        <button class="btn btn-link btn-sm p-0 comment-action-btn comment-like-button like-comment-button{% if comment_item.is_liked %} is-liked{% endif %}"
+                                data-comment-id="{{ comment.id }}"
+                                aria-label="Thích"
+                                title="Thích">
                             {% if comment_item.is_liked %}
-                            <span class="text-primary">Đã thích</span>
+                            <i class="fas fa-heart" aria-hidden="true"></i>
                             {% else %}
-                            <span>Thích</span>
+                            <i class="far fa-heart" aria-hidden="true"></i>
                             {% endif %}
+                            <span class="comment-likes-count" data-comment-id="{{ comment.id }}">{% if comment.likes_count %}{{ comment.likes_count }}{% endif %}</span>
                         </button>
-                        <span>·</span>
-                        <button class="btn btn-link btn-sm p-0 text-muted reply-button"
+                        <button class="btn btn-link btn-sm p-0 comment-action-btn text-muted reply-button"
                                 data-username="{{ comment.author.username }}"
                                 data-post-id="{{ post.id }}"
-                                data-comment-id="{{ comment.id }}">
-                            Trả lời
+                                data-comment-id="{{ comment.id }}"
+                                aria-label="Trả lời"
+                                title="Trả lời">
+                            <i class="far fa-comment" aria-hidden="true"></i>
+                            <span class="comment-replies-count" data-comment-id="{{ comment.id }}">{% if comment_item.replies_count %}{{ comment_item.replies_count }}{% elif comment_item.replies %}{{ comment_item.replies|length }}{% endif %}</span>
                         </button>
-                        {% if comment.likes_count > 0 %}
-                        <span class="ms-2">
-                            <i class="fas fa-heart text-danger small"></i>
-                            <span class="comment-likes-count" data-comment-id="{{ comment.id }}">{{ comment.likes_count }}</span>
-                        </span>
-                        {% endif %}
                     </div>
 
                     {% if comment_item.replies %}
@@ -306,29 +305,27 @@
                                     <audio class="comment-audio" src="{{ reply.reply.audio.url }}" controls preload="metadata"></audio>
                                 </div>
                                 {% endif %}
-                                <div class="text-muted small comment-meta-row mt-1">
-                                    {{ reply.reply.created_at|timesince }} trước{% if reply.reply.updated_at and reply.reply.updated_at > reply.reply.created_at %}<span class="comment-edited-label text-muted"> · Đã chỉnh sửa</span>{% endif %} ·
-                                    <button class="btn btn-link btn-sm p-0 text-muted like-comment-button"
-                                            data-comment-id="{{ reply.reply.id }}">
+                                <div class="text-muted small comment-meta-row mt-1 d-flex align-items-center flex-wrap gap-2">
+                                    <span>{{ reply.reply.created_at|timesince }} trước{% if reply.reply.updated_at and reply.reply.updated_at > reply.reply.created_at %}<span class="comment-edited-label text-muted"> · Đã chỉnh sửa</span>{% endif %}</span>
+                                    <button class="btn btn-link btn-sm p-0 comment-action-btn comment-like-button like-comment-button{% if reply.is_liked %} is-liked{% endif %}"
+                                            data-comment-id="{{ reply.reply.id }}"
+                                            aria-label="Thích"
+                                            title="Thích">
                                         {% if reply.is_liked %}
-                                        <span class="text-primary">Đã thích</span>
+                                        <i class="fas fa-heart" aria-hidden="true"></i>
                                         {% else %}
-                                        <span>Thích</span>
+                                        <i class="far fa-heart" aria-hidden="true"></i>
                                         {% endif %}
+                                        <span class="comment-likes-count" data-comment-id="{{ reply.reply.id }}">{% if reply.reply.likes_count %}{{ reply.reply.likes_count }}{% endif %}</span>
                                     </button>
-                                    <span>·</span>
-                                    <button class="btn btn-link btn-sm p-0 text-muted reply-button"
+                                    <button class="btn btn-link btn-sm p-0 comment-action-btn text-muted reply-button"
                                             data-username="{{ reply.reply.author.username }}"
                                             data-post-id="{{ post.id }}"
-                                            data-comment-id="{{ reply.reply.id }}">
-                                        Trả lời
+                                            data-comment-id="{{ reply.reply.id }}"
+                                            aria-label="Trả lời"
+                                            title="Trả lời">
+                                        <i class="far fa-comment" aria-hidden="true"></i>
                                     </button>
-                                    {% if reply.reply.likes_count > 0 %}
-                                    <span class="ms-2">
-                                        <i class="fas fa-heart text-danger small"></i>
-                                        <span class="comment-likes-count" data-comment-id="{{ reply.reply.id }}">{{ reply.reply.likes_count }}</span>
-                                    </span>
-                                    {% endif %}
                                 </div>
                             </div>
                         </div>

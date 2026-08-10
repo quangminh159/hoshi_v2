@@ -4,9 +4,11 @@ https://console.cloud.google.com/apis/credentials?invt=AbunUQ&project=hoshi-4567
 link facebook client
 https://developers.facebook.com/apps/?show_reminder=true
 
+chạy server bình thường
+python manage.py runserver
 
 chạy để có thể chat trực tiếp
-python -m daphne -p 8000 hoshi.asgi:application
+.\venv\Scripts\python.exe -m daphne -b 0.0.0.0 -p 8000 hoshi.asgi:application
 
 Stop-Process -Id 14932 -Force
 python -m daphne -p 8000 hoshi.asgi:application
@@ -14,3 +16,48 @@ python -m daphne -p 8000 hoshi.asgi:application
 tìm server đang chạy
 netstat -ano | findstr ":8000"
 Stop-Process -Id <PID_LISTENING> -Force
+
+========== TEST TRÊN ĐIỆN THOẠI (FREE) ==========
+
+--- Cách 1: cùng Wi-Fi (LAN) ---
+1. Lấy IP máy:
+   ipconfig
+   (xem IPv4, ví dụ 192.168.1.25)
+
+2. Chạy server (bắt buộc 0.0.0.0):
+   cd C:\hoshi_v2
+   .\venv\Scripts\python.exe -m daphne -b 0.0.0.0 -p 8000 hoshi.asgi:application
+
+3. Trên điện thoại (cùng Wi-Fi), mở:
+   http://192.168.1.25:8000
+   (đổi đúng IP máy anh)
+
+--- Cách 2: ngrok (HTTPS, dùng cả 4G) ---
+Đã có ngrok.exe trong C:\hoshi_v2 và đã login token.
+
+1. Terminal 1 — chạy app:
+   cd C:\hoshi_v2
+   .\venv\Scripts\python.exe -m daphne -b 0.0.0.0 -p 8000 hoshi.asgi:application
+
+2. Terminal 2 — mở tunnel:
+   cd C:\hoshi_v2
+   .\ngrok.exe http 8000
+
+3. Copy URL https://....ngrok-free.app hiện trên màn hình ngrok
+   (hoặc xem http://127.0.0.1:4040 trên PC)
+
+4. Mở URL đó trên điện thoại → lần đầu bấm "Visit Site"
+
+Lưu ý:
+- Phải dùng .\venv\Scripts\python.exe (không dùng python hệ thống)
+- Tắt ngrok / daphne rồi bật lại → URL ngrok có thể đổi
+- Giữ 2 terminal chạy trong lúc test
+
+========== GỌI THOẠI / VIDEO ==========
+- Ưu tiên mở cửa sổ riêng /chat/call/
+- Nếu trình duyệt chặn popup → tự gọi ngay trên trang (vẫn gọi được)
+- Muốn cửa sổ riêng: thanh địa chỉ → icon popup bị chặn → Luôn cho phép
+- Đóng cửa sổ gọi = cúp máy
+- F5 tab chính không cắt nếu đang gọi trong cửa sổ riêng
+- F5 trong cửa sổ gọi vẫn cắt
+

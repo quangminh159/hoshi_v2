@@ -30,11 +30,11 @@
     
     <!-- Custom CSS -->
     <link href="{% static 'css/cross_browser.css' %}?v=2" rel="stylesheet">
-    <link href="{% static 'css/style.css' %}?v=nav-icons-1" rel="stylesheet">
-    <link href="{% static 'css/theme.css' %}?v=nav-icons-1" rel="stylesheet">
+    <link href="{% static 'css/style.css' %}?v=nav-icons-2" rel="stylesheet">
+    <link href="{% static 'css/theme.css' %}?v=comment-actions-1" rel="stylesheet">
     <link href="{% static 'css/notification_dropdown.css' %}" rel="stylesheet">
     <link href="{% static 'css/media_lightbox.css' %}?v=5" rel="stylesheet">
-    <link href="{% static 'css/webrtc_call.css' %}?v=3" rel="stylesheet">
+    <link href="{% static 'css/webrtc_call.css' %}?v=13" rel="stylesheet">
     
     {% if user.is_authenticated %}
     <meta name="user-id" content="{{ user.id }}">
@@ -298,13 +298,13 @@
     
     <!-- Custom JS -->
     <script src="{% static 'js/theme.js' %}?v=1"></script>
-    <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'js/main.js' %}?v=comment-actions-1"></script>
     <script src="{% static 'js/hoshi_audio_player.js' %}?v=8"></script>
     <script src="{% static 'js/like_effects.js' %}?v=4"></script>
     <script src="{% static 'js/debug_feed.js' %}"></script>
     <script src="{% static 'js/disable_multiple_submissions.js' %}"></script>
-    <script src="{% static 'js/webrtc_call.js' %}?v=4"></script>
-    <script src="{% static 'js/notifications.js' %}?v=webrtc-call-1"></script>
+    <script src="{% static 'js/webrtc_call.js' %}?v=18"></script>
+    <script src="{% static 'js/notifications.js' %}?v=comment-actions-1"></script>
     <script src="{% static 'js/follow_requests.js' %}?v=1"></script>
     <script src="{% static 'js/media_lightbox.js' %}?v=7"></script>
     

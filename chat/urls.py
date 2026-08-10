@@ -6,6 +6,7 @@ app_name = 'chat'
 urlpatterns = [
     # Chat UI views
     path('', views.chat_home, name='home'),
+    path('call/', views.call_window, name='call_window'),
     path('conversations/', views.conversation_list, name='conversation_list'),
     path('conversations/<int:conversation_id>/', views.conversation_detail, name='conversation_detail'),
     path('conversations/<int:conversation_id>/send/', views.send_message, name='send_message'),

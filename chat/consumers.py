@@ -181,6 +181,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
             }))
             return
 
+        if meta.get('is_blocked'):
+            await self.send(text_data=json.dumps({
+                'type': 'call_error',
+                'message': 'Không thể gọi vì một trong hai bên đã chặn.',
+            }))
+            return
+
         other_id = meta['other_user_id']
         from_user = {
             'id': self.user.id,
@@ -229,6 +236,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def get_dm_call_meta(self):
+        from chat.conversation_utils import users_are_blocked
+
         try:
             conversation = (
                 Conversation.objects.prefetch_related('participants')
@@ -250,6 +259,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'other_user_id': other.id,
             'other_username': other.username,
             'self_avatar': avatar,
+            'is_blocked': users_are_blocked(self.user, other),
         }
 
     @database_sync_to_async
@@ -448,6 +458,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
     
     @database_sync_to_async
     def save_message(self, content, reply_to=None):
+        from chat.conversation_utils import unhide_conversation_participants
+
         conversation = Conversation.objects.get(id=self.conversation_id)
 
         if not conversation.is_group:
@@ -464,6 +476,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 )
             except ConversationMessage.DoesNotExist:
                 reply_parent = None
+
+        # Tin mới → hiện lại cho người từng ẩn cuộc trò chuyện
+        unhide_conversation_participants(conversation)
 
         message = ConversationMessage.objects.create(
             conversation=conversation,

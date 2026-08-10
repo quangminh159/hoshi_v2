@@ -1,0 +1,60 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cuộc gọi - Hoshi</title>
+    <link rel="shortcut icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{% static 'css/webrtc_call.css' %}?v=13" rel="stylesheet">
+    <style>
+        html, body {
+            margin: 0;
+            min-height: 100%;
+            background: #0f1117;
+            color: #fff;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        }
+        body.hoshi-call-popup-page {
+            overflow: hidden;
+        }
+        body.hoshi-call-popup-page .hoshi-call-overlay {
+            z-index: 1;
+        }
+        .hoshi-call-popup-fallback {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            text-align: center;
+            opacity: 0.85;
+        }
+        .hoshi-call-popup-fallback[hidden] {
+            display: none !important;
+        }
+    </style>
+    <meta name="user-id" content="{{ user.id }}">
+</head>
+<body class="hoshi-call-popup-page user-authenticated" data-user-id="{{ user.id }}">
+    <div class="hoshi-call-popup-fallback" id="hoshiCallPopupFallback">
+        Đang mở cuộc gọi...
+    </div>
+
+    <script>
+        window.HOSHI_CALL_POPUP = true;
+        window.HOSHI_CALL_WINDOW_URL = '{% url "chat:call_window" %}';
+    </script>
+    <script src="{% static 'js/webrtc_call.js' %}?v=18"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.HoshiCall && typeof window.HoshiCall.bootPopup === 'function') {
+                window.HoshiCall.bootPopup();
+            }
+            const fb = document.getElementById('hoshiCallPopupFallback');
+            if (fb) fb.hidden = true;
+        });
+    </script>
+</body>
+</html>

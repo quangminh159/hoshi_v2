@@ -3,6 +3,8 @@
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from django.contrib.auth import get_user_model
+from django.db import transaction
+from django.db.models import Count
 from django.utils import timezone
 
 from accounts.models import UserBlock
@@ -22,23 +24,95 @@ def users_are_blocked(user_a, user_b):
     ).exists()
 
 
-def find_direct_conversation(user, recipient):
-    """Tìm DM 1-1 (không phải nhóm) giữa hai người — tái sử dụng hội thoại cũ."""
-    from django.db.models import Count
-
-    if not user or not recipient or user.id == recipient.id:
-        return None
-
-    # Dùng distinct=True để tránh Count bị nhân do JOIN M2M (filter 2 participants).
-    return (
-        Conversation.objects.filter(is_group=False)
-        .filter(participants=user)
+def _direct_conversation_qs(user, recipient):
+    """Query DM 1-1 giữa hai user (có thể nhiều bản trùng do race/bug cũ)."""
+    # Không annotate Count trên cùng queryset đã filter(participants=...) —
+    # JOIN M2M làm Count luôn = 1 và tạo DM trùng vô hạn.
+    both = (
+        Conversation.objects.filter(is_group=False, participants=user)
         .filter(participants=recipient)
+        .values('id')
+    )
+    return (
+        Conversation.objects.filter(is_group=False, id__in=both)
         .annotate(member_count=Count('participants', distinct=True))
         .filter(member_count=2)
-        .order_by('-last_message_time', '-id')
-        .first()
     )
+
+
+def find_all_direct_conversations(user, recipient):
+    if not user or not recipient or user.id == recipient.id:
+        return []
+    return list(
+        _direct_conversation_qs(user, recipient)
+        .annotate(msg_count=Count('messages', distinct=True))
+        .order_by('-msg_count', '-last_message_time', '-id')
+    )
+
+
+def choose_canonical_direct_conversation(conversations):
+    """Ưu tiên hội thoại có tin nhắn / mới nhất."""
+    if not conversations:
+        return None
+    scored = []
+    for c in conversations:
+        msg_count = getattr(c, 'msg_count', None)
+        if msg_count is None:
+            msg_count = c.messages.count()
+        scored.append((msg_count, c.last_message_time or c.created_at, c.id, c))
+    scored.sort(key=lambda x: (x[0], x[1], x[2]), reverse=True)
+    return scored[0][3]
+
+
+def merge_duplicate_direct_conversations(conversations):
+    """
+    Gộp các DM trùng cùng 2 người vào 1 hội thoại.
+    Chuyển tin nhắn sang bản giữ lại, xóa bản thừa (thường là trống).
+    """
+    conversations = [c for c in conversations if c is not None]
+    if not conversations:
+        return None
+    if len(conversations) == 1:
+        return conversations[0]
+
+    keep = choose_canonical_direct_conversation(conversations)
+    if not keep:
+        return None
+
+    with transaction.atomic():
+        keep = Conversation.objects.select_for_update().get(pk=keep.pk)
+        for other in conversations:
+            if other.id == keep.id:
+                continue
+            other = Conversation.objects.select_for_update().filter(pk=other.id).first()
+            if not other:
+                continue
+            ConversationMessage.objects.filter(conversation_id=other.id).update(
+                conversation_id=keep.id
+            )
+            other.delete()
+
+        latest = (
+            ConversationMessage.objects.filter(conversation_id=keep.id)
+            .order_by('-created_at')
+            .values_list('created_at', flat=True)
+            .first()
+        )
+        if latest and (not keep.last_message_time or latest > keep.last_message_time):
+            keep.last_message_time = latest
+            keep.save(update_fields=['last_message_time'])
+
+    return Conversation.objects.filter(pk=keep.pk).first() or keep
+
+
+def find_direct_conversation(user, recipient):
+    """Tìm DM 1-1 (không phải nhóm) giữa hai người — tái sử dụng hội thoại cũ."""
+    convs = find_all_direct_conversations(user, recipient)
+    if not convs:
+        return None
+    if len(convs) > 1:
+        return merge_duplicate_direct_conversations(convs)
+    return convs[0]
 
 
 def get_direct_conversation_for_share(user, recipient, conversation_id=None):
@@ -47,37 +121,176 @@ def get_direct_conversation_for_share(user, recipient, conversation_id=None):
     Ưu tiên conversation_id hợp lệ (đã có sẵn), không thì tìm DM cũ,
     chỉ tạo mới khi chưa từng chat với người đó.
     """
-    from django.db.models import Count
-
     if conversation_id:
         try:
             cid = int(conversation_id)
         except (TypeError, ValueError):
             cid = None
         if cid:
-            conversation = (
-                Conversation.objects.filter(pk=cid, is_group=False)
-                .annotate(member_count=Count('participants', distinct=True))
-                .filter(member_count=2, participants=user)
+            both = (
+                Conversation.objects.filter(pk=cid, is_group=False, participants=user)
                 .filter(participants=recipient)
+                .values('id')
+            )
+            conversation = (
+                Conversation.objects.filter(pk=cid, is_group=False, id__in=both)
+                .annotate(member_count=Count('participants', distinct=True))
+                .filter(member_count=2)
                 .first()
             )
             if conversation:
+                siblings = find_all_direct_conversations(user, recipient)
+                if len(siblings) > 1:
+                    return merge_duplicate_direct_conversations(siblings)
                 return conversation
 
     return get_or_create_direct_conversation(user, recipient)
 
 
 def get_or_create_direct_conversation(user, recipient):
-    """Tìm hoặc tạo cuộc trò chuyện 1-1 giữa hai người dùng."""
+    """Tìm hoặc tạo cuộc trò chuyện 1-1 giữa hai người dùng (chống race tạo trùng)."""
+    if not user or not recipient or user.id == recipient.id:
+        raise ValueError('Cần hai người dùng khác nhau để tạo DM.')
+
     conversation = find_direct_conversation(user, recipient)
     if conversation:
+        unhide_conversation_for_user(conversation, user)
         return conversation
 
-    conversation = Conversation.objects.create(is_group=False, created_by=user)
-    ConversationParticipant.objects.create(conversation=conversation, user=user)
-    ConversationParticipant.objects.create(conversation=conversation, user=recipient)
-    return conversation
+    # Khóa 2 user theo id tăng dần để 2 request song song không tạo 2 DM.
+    ids = sorted([user.id, recipient.id])
+    with transaction.atomic():
+        list(User.objects.select_for_update().filter(id__in=ids).order_by('id'))
+
+        conversation = find_direct_conversation(user, recipient)
+        if conversation:
+            unhide_conversation_for_user(conversation, user)
+            return conversation
+
+        conversation = Conversation.objects.create(is_group=False, created_by=user)
+        ConversationParticipant.objects.create(conversation=conversation, user=user)
+        ConversationParticipant.objects.create(conversation=conversation, user=recipient)
+        return conversation
+
+
+def dedupe_direct_conversations_for_user(user, conversations):
+    """
+    Trong danh sách inbox: chỉ giữ 1 DM cho mỗi người đối diện.
+    Gộp bản trùng trong DB nếu phát hiện.
+    """
+    if not user:
+        return list(conversations or [])
+
+    result = []
+    seen_other = {}
+    pending_merge = {}
+
+    for conv in conversations or []:
+        if getattr(conv, 'is_group', False):
+            result.append(conv)
+            continue
+        other = getattr(conv, 'other_user', None) or conv.get_other_participant(user)
+        other_id = getattr(other, 'id', None)
+        if other_id is None:
+            result.append(conv)
+            continue
+
+        if other_id not in seen_other:
+            seen_other[other_id] = conv
+            result.append(conv)
+            continue
+
+        keep = seen_other[other_id]
+        pending_merge.setdefault(other_id, [keep]).append(conv)
+
+    for other_id, group in pending_merge.items():
+        group_ids = {c.id for c in group}
+        first_id = group[0].id
+        result = [c for c in result if c.id not in group_ids or c.id == first_id]
+        canonical = merge_duplicate_direct_conversations(group)
+        if not canonical:
+            continue
+        for i, c in enumerate(result):
+            if c.id == first_id or c.id == canonical.id:
+                canonical.other_user = (
+                    getattr(group[0], 'other_user', None)
+                    or canonical.get_other_participant(user)
+                )
+                canonical.display_title = canonical.get_display_title(user)
+                canonical.display_avatar = canonical.get_display_avatar_url(user)
+                canonical.is_blocked = getattr(group[0], 'is_blocked', False)
+                canonical.unread_count = sum(
+                    getattr(x, 'unread_count', 0) or 0 for x in group
+                )
+                result[i] = canonical
+                break
+        else:
+            canonical.other_user = canonical.get_other_participant(user)
+            canonical.display_title = canonical.get_display_title(user)
+            canonical.display_avatar = canonical.get_display_avatar_url(user)
+            result.append(canonical)
+
+    result.sort(key=lambda c: c.last_message_time or c.created_at, reverse=True)
+    return result
+
+
+def hide_conversation_for_user(conversation, user):
+    """
+    Xóa phía mình (DM): chỉ ẩn khỏi inbox của user, không xóa dữ liệu bên kia.
+    Nếu mọi thành viên đều đã ẩn → xóa hẳn hội thoại.
+    """
+    if not conversation or not user:
+        return {'hidden': False}
+
+    row = ConversationParticipant.objects.filter(
+        conversation=conversation, user=user
+    ).first()
+    if not row:
+        return {'hidden': False}
+
+    row.left_at = timezone.now()
+    row.save(update_fields=['left_at'])
+
+    active_left = ConversationParticipant.objects.filter(
+        conversation=conversation, left_at__isnull=True
+    ).exists()
+    if not active_left:
+        ConversationMessage.objects.filter(conversation=conversation).delete()
+        conversation.delete()
+        return {'hidden': True, 'deleted': True}
+
+    return {'hidden': True, 'deleted': False}
+
+
+def unhide_conversation_for_user(conversation, user):
+    """Hiện lại hội thoại đã ẩn cho một user (khi mở lại / nhận tin mới)."""
+    if not conversation or not user:
+        return
+    ConversationParticipant.objects.filter(
+        conversation=conversation, user=user, left_at__isnull=False
+    ).update(left_at=None)
+
+
+def unhide_conversation_participants(conversation, except_user=None):
+    """Bỏ ẩn cho mọi thành viên (thường khi có tin nhắn mới)."""
+    if not conversation:
+        return
+    qs = ConversationParticipant.objects.filter(
+        conversation=conversation, left_at__isnull=False
+    )
+    if except_user is not None:
+        # Vẫn hiện lại cả người gửi nếu họ từng ẩn — tin mới của chính họ cũng mở lại thread
+        pass
+    qs.update(left_at=None)
+
+
+def hidden_conversation_ids_for_user(user):
+    if not user:
+        return []
+    return list(
+        ConversationParticipant.objects.filter(user=user, left_at__isnull=False)
+        .values_list('conversation_id', flat=True)
+    )
 
 
 def create_group_conversation(creator, member_users, name=''):
@@ -121,6 +334,8 @@ def create_system_message(conversation, actor, content):
     text = (content or '').strip()
     if not conversation or not text:
         return None
+
+    unhide_conversation_participants(conversation)
 
     message = ConversationMessage.objects.create(
         conversation=conversation,
@@ -174,6 +389,8 @@ def conversation_inbox_payload(conversation, viewer):
 
 def send_conversation_message(user, conversation, content='', shared_post=None):
     """Tạo tin nhắn, cập nhật conversation và broadcast qua WebSocket."""
+    unhide_conversation_participants(conversation)
+
     message = ConversationMessage.objects.create(
         conversation=conversation,
         sender=user,

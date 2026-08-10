@@ -180,7 +180,7 @@ def feed(request):
                 'comment': comment,
                 'is_liked': CommentLike.objects.filter(user=request.user, comment=comment).exists(),
                 'replies': replies_with_like,
-                'replies_count': replies.count()
+                'replies_count': Comment.objects.filter(parent=comment).count(),
             })
         
         posts_with_comments.append({
@@ -553,16 +553,13 @@ def like_post(request, post_id):
         denied = _deny_private_post_access(request, post, as_json=True)
         if denied:
             return denied
-            
-        if post.likes.filter(id=request.user.id).exists():
-            # Nếu người dùng đã thích, bỏ thích
-            post.likes.remove(request.user)
+
+        like, created = Like.objects.get_or_create(user=request.user, post=post)
+        if not created:
+            like.delete()
             liked = False
         else:
-            # Nếu người dùng chưa thích, thêm thích
-            post.likes.add(request.user)
             liked = True
-            
             # Gửi thông báo cho người viết bài nếu không phải chính họ
             if post.author != request.user:
                 Notification.objects.create(
@@ -573,14 +570,24 @@ def like_post(request, post_id):
                     notification_type='like',
                     text=f"{request.user.username} đã thích bài viết của bạn."
                 )
-        
-        # Trả về số lượt thích mới
-        likes_count = post.likes.count()
-        
+
+        likes_count = post.post_likes.count()
+        post.likes_count = likes_count
+        post.save(update_fields=['likes_count'])
+
+        from posts.realtime import broadcast_post_engagement
+        broadcast_post_engagement(
+            post.id,
+            likes_count=likes_count,
+            comments_count=post.comments_count,
+            action='like' if liked else 'unlike',
+            actor_id=request.user.id,
+        )
+
         return JsonResponse({
-            'status': 'success',
+            'status': 'liked' if liked else 'unliked',
             'liked': liked,
-            'likes_count': likes_count
+            'likes_count': likes_count,
         })
     except Exception as e:
         return JsonResponse({
@@ -715,7 +722,23 @@ def add_comment(request, post_id):
 
     # Tăng comment_count
     post.comments_count = post.comments.count()
-    post.save()
+    post.save(update_fields=['comments_count'])
+
+    from posts.realtime import broadcast_post_engagement
+    replies_count = None
+    parent_comment_id = None
+    if parent is not None:
+        parent_comment_id = parent.id
+        replies_count = Comment.objects.filter(parent_id=parent.id).count()
+    broadcast_post_engagement(
+        post.id,
+        likes_count=post.likes_count,
+        comments_count=post.comments_count,
+        action='comment_add',
+        actor_id=request.user.id,
+        parent_comment_id=parent_comment_id,
+        replies_count=replies_count,
+    )
 
     # Gửi thông báo cho người đăng bài viết
     if post.author != request.user:
@@ -763,7 +786,8 @@ def add_comment(request, post_id):
                 'avatar': request.user.avatar.url if request.user.avatar else None
             },
             'post_id': post.id,
-            'parent_id': parent.id if parent else None
+            'parent_id': parent.id if parent else None,
+            'comments_count': post.comments_count,
         })
 
     # Nếu không phải AJAX, redirect như bình thường
@@ -782,12 +806,32 @@ def delete_comment(request, post_id, comment_id):
     if comment.author_id != request.user.id and post.author_id != request.user.id:
         return JsonResponse({'error': 'Bạn không có quyền xóa bình luận này'}, status=403)
 
+    parent_id = comment.parent_id
     comment.delete()
 
     post.comments_count = post.comments.count()
     post.save(update_fields=['comments_count'])
 
-    return JsonResponse({'status': 'success'})
+    replies_count = None
+    if parent_id:
+        replies_count = Comment.objects.filter(parent_id=parent_id).count()
+
+    from posts.realtime import broadcast_post_engagement
+    broadcast_post_engagement(
+        post.id,
+        likes_count=post.likes_count,
+        comments_count=post.comments_count,
+        action='comment_delete',
+        actor_id=request.user.id,
+        parent_comment_id=parent_id,
+        replies_count=replies_count,
+    )
+
+    return JsonResponse({
+        'status': 'success',
+        'comments_count': post.comments_count,
+        'post_id': post.id,
+    })
 
 @login_required
 def report_post(request, post_id):
@@ -945,25 +989,38 @@ def get_post_likes(request, post_id):
 def like_comment(request, comment_id):
     """Thích/bỏ thích bình luận"""
     comment = get_object_or_404(Comment, id=comment_id)
-    
-    # Kiểm tra xem người dùng đã thích bình luận chưa
+
     like, created = CommentLike.objects.get_or_create(
         user=request.user,
         comment=comment
     )
-    
-    # Nếu đã thích thì bỏ thích
+
     if not created:
         like.delete()
-        comment.likes_count = comment.likes.count()
-        comment.save()
+        comment.likes_count = comment.comment_likes.count()
+        comment.save(update_fields=['likes_count'])
+        from posts.realtime import broadcast_post_engagement
+        broadcast_post_engagement(
+            comment.post_id,
+            action='comment_unlike',
+            actor_id=request.user.id,
+            comment_id=comment.id,
+            comment_likes_count=comment.likes_count,
+        )
         return JsonResponse({'status': 'unliked', 'likes_count': comment.likes_count})
-    
-    # Cập nhật số lượng thích
-    comment.likes_count = comment.likes.count()
-    comment.save()
-    
-    # Gửi thông báo cho người viết bình luận
+
+    comment.likes_count = comment.comment_likes.count()
+    comment.save(update_fields=['likes_count'])
+
+    from posts.realtime import broadcast_post_engagement
+    broadcast_post_engagement(
+        comment.post_id,
+        action='comment_like',
+        actor_id=request.user.id,
+        comment_id=comment.id,
+        comment_likes_count=comment.likes_count,
+    )
+
     if comment.author != request.user:
         Notification.objects.get_or_create(
             recipient=comment.author,
@@ -972,7 +1029,7 @@ def like_comment(request, comment_id):
             content_object=comment,
             action_object=comment
         )
-    
+
     return JsonResponse({'status': 'liked', 'likes_count': comment.likes_count})
 
 @login_required

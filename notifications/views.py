@@ -42,12 +42,58 @@ def _apply_notification_filter(qs, user, filter_key):
     return qs, key
 
 
+def _attach_follow_back_flags(user, notifications):
+    """Gắn cờ hiện nút Theo dõi lại cho thông báo follow."""
+    items = list(notifications)
+    sender_ids = {
+        n.sender_id
+        for n in items
+        if n.notification_type == 'follow' and n.sender_id and n.sender_id != user.id
+    }
+    following_ids = set()
+    pending_ids = set()
+    if sender_ids:
+        from accounts.models import UserFollowing, FollowRequest
+        following_ids = set(
+            UserFollowing.objects.filter(
+                user=user, following_user_id__in=sender_ids
+            ).values_list('following_user_id', flat=True)
+        )
+        pending_ids = set(
+            FollowRequest.objects.filter(
+                from_user=user,
+                to_user_id__in=sender_ids,
+            ).values_list('to_user_id', flat=True)
+        )
+
+    for n in items:
+        if n.notification_type != 'follow' or not n.sender_id or n.sender_id == user.id:
+            n.is_following_sender = False
+            n.follow_request_pending = False
+            n.show_follow_back = False
+            continue
+        n.is_following_sender = n.sender_id in following_ids
+        n.follow_request_pending = n.sender_id in pending_ids
+        n.show_follow_back = not n.is_following_sender and not n.follow_request_pending
+        # Tránh hiển thị trùng "Hoshi Hoshi đã theo dõi bạn"
+        raw = (n.text or '').strip()
+        uname = n.sender.username if n.sender else ''
+        if uname and raw.lower().startswith(uname.lower()):
+            raw = raw[len(uname):].lstrip(' :,-')
+        n.display_text = raw or 'đã theo dõi bạn'
+    return items
+
+
 def _serialize_notification(notification):
     sender = notification.sender
-    return {
+    data = {
         'id': notification.id,
         'notification_type': notification.notification_type,
-        'text': notification.text or '',
+        'text': (
+            getattr(notification, 'display_text', None)
+            or notification.text
+            or ''
+        ),
         'is_read': notification.is_read,
         'link': notification.link,
         'created_at': notification.created_at.isoformat(),
@@ -57,7 +103,12 @@ def _serialize_notification(notification):
             'username': sender.username if sender else '',
             'avatar_url': sender.get_avatar_url() if sender else '/static/img/default-avatar.png',
         },
+        'show_follow_back': bool(getattr(notification, 'show_follow_back', False)),
+        'is_following_sender': bool(getattr(notification, 'is_following_sender', False)),
+        'follow_request_pending': bool(getattr(notification, 'follow_request_pending', False)),
     }
+    return data
+
 
 
 @login_required
@@ -67,9 +118,10 @@ def notification_list(request):
     qs, filter_key = _apply_notification_filter(qs, request.user, filter_key)
     paginator = Paginator(qs, NOTIFICATIONS_PAGE_SIZE)
     page_obj = paginator.get_page(1)
+    notifications = _attach_follow_back_flags(request.user, page_obj.object_list)
 
     context = {
-        'notifications': page_obj,
+        'notifications': notifications,
         'has_more': page_obj.has_next(),
         'next_page': 2 if page_obj.has_next() else None,
         'active_filter': filter_key,
@@ -100,8 +152,9 @@ def api_notifications(request):
             'filter': filter_key,
         })
 
+    notifications = _attach_follow_back_flags(request.user, page_obj.object_list)
     return JsonResponse({
-        'notifications': [_serialize_notification(n) for n in page_obj.object_list],
+        'notifications': [_serialize_notification(n) for n in notifications],
         'has_next': page_obj.has_next(),
         'next_page': page_obj.next_page_number() if page_obj.has_next() else None,
         'filter': filter_key,
@@ -125,11 +178,9 @@ def mark_all_as_read(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
-    notification_type = request.POST.get('type')
+    filter_key = request.POST.get('filter') or request.GET.get('filter') or 'all'
     notifications = _activity_notifications(request.user).filter(is_read=False)
-
-    if notification_type:
-        notifications = notifications.filter(notification_type=notification_type)
+    notifications, filter_key = _apply_notification_filter(notifications, request.user, filter_key)
 
     count = notifications.count()
     notifications.update(is_read=True)
@@ -137,6 +188,7 @@ def mark_all_as_read(request):
     return JsonResponse({
         'success': True,
         'count': count,
+        'filter': filter_key,
     })
 
 
@@ -160,15 +212,18 @@ def delete_all_notifications(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
-    notification_type = request.POST.get('type')
+    # filter=all (mặc định) → xóa hết; nếu đang ở tab khác → xóa theo tab đang xem
+    filter_key = request.POST.get('filter') or request.GET.get('filter') or 'all'
     notifications = _activity_notifications(request.user)
-
-    if notification_type:
-        notifications = notifications.filter(notification_type=notification_type)
-
+    notifications, filter_key = _apply_notification_filter(notifications, request.user, filter_key)
+    count = notifications.count()
     notifications.delete()
 
-    return JsonResponse({'status': 'success'})
+    return JsonResponse({
+        'status': 'success',
+        'count': count,
+        'filter': filter_key,
+    })
 
 
 @login_required

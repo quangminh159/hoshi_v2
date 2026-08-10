@@ -26,7 +26,7 @@
     'use strict';
 
     const STORAGE_KEY = 'hoshi_like_effect';
-    const DEFAULT_EFFECT = 'valentine';
+    const DEFAULT_EFFECT = 'vietnam_flag';
 
     const registry = Object.create(null);
     let activeName = DEFAULT_EFFECT;

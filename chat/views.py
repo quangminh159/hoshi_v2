@@ -91,6 +91,14 @@ def chat_home(request):
     return redirect('chat:conversation_list')
 
 @login_required
+def call_window(request):
+    """Cửa sổ popup riêng cho gọi thoại/video — sống độc lập với tab app chính."""
+    return render(request, 'chat/call_window.html', {
+        'title': 'Cuộc gọi',
+    })
+
+
+@login_required
 def conversation_list(request):
     """Hiển thị danh sách cuộc trò chuyện của người dùng"""
     user = request.user
@@ -105,9 +113,15 @@ def conversation_list(request):
     # Hợp nhất danh sách các ID người dùng bị chặn hoặc đã chặn user
     blocked_user_ids = list(blocked_users) + list(blocking_users)
     
-    # Lấy tất cả cuộc trò chuyện của người dùng
+    # Lấy cuộc trò chuyện chưa bị user ẩn (xóa phía mình)
+    from .conversation_utils import (
+        dedupe_direct_conversations_for_user,
+        hidden_conversation_ids_for_user,
+    )
+    hidden_ids = hidden_conversation_ids_for_user(user)
     all_conversations = list(
         Conversation.objects.filter(participants=user)
+        .exclude(id__in=hidden_ids)
         .select_related('created_by')
         .prefetch_related('participants')
         .order_by('-last_message_time')
@@ -127,7 +141,10 @@ def conversation_list(request):
                 other_participant.id in blocked_user_ids if other_participant else False
             )
         conversation.unread_count = unread_map.get(conversation.id, 0)
-    
+
+    # Gộp DM trùng (cùng 1 người nhưng nhiều hội thoại do race tạo cũ)
+    all_conversations = dedupe_direct_conversations_for_user(user, all_conversations)
+
     context = {
         'conversations': all_conversations
     }
@@ -145,6 +162,10 @@ def conversation_detail(request, conversation_id):
     # Kiểm tra quyền truy cập
     if not conversation.participants.filter(id=user.id).exists():
         raise Http404("Không tìm thấy cuộc trò chuyện")
+
+    # Mở lại hội thoại đã ẩn phía mình
+    from .conversation_utils import unhide_conversation_for_user
+    unhide_conversation_for_user(conversation, user)
     
     # Lấy người dùng khác trong cuộc trò chuyện (DM)
     other_user = None if conversation.is_group else conversation.get_other_participant(user)
@@ -263,6 +284,9 @@ def send_message(request, conversation_id):
         
         # Tạo tin nhắn mới nếu có nội dung hoặc đính kèm
         if message_content or has_attachment:
+            from .conversation_utils import unhide_conversation_participants
+            unhide_conversation_participants(conversation)
+
             # Tạo tin nhắn mới
             message = ConversationMessage.objects.create(
                 conversation=conversation,
@@ -957,7 +981,7 @@ def new_chat(request, conversation_id=None):
 @require_POST
 @csrf_protect
 def delete_conversation(request, conversation_id):
-    """Xóa cuộc trò chuyện (DM) hoặc rời nhóm."""
+    """Xóa cuộc trò chuyện phía mình (DM) hoặc rời nhóm."""
     user = request.user
     conversation = get_object_or_404(Conversation, id=conversation_id)
     
@@ -980,12 +1004,14 @@ def delete_conversation(request, conversation_id):
                 conversation.save(update_fields=['created_by'])
             return JsonResponse({"success": True, "left_group": True}, status=200)
 
-        # DM: xóa toàn bộ
-        ConversationMessage.objects.filter(conversation=conversation).delete()
-        ConversationParticipant.objects.filter(conversation=conversation).delete()
-        conversation.delete()
-        
-        return JsonResponse({"success": True}, status=200)
+        # DM: chỉ ẩn phía mình — bên kia vẫn giữ cuộc trò chuyện
+        from .conversation_utils import hide_conversation_for_user
+        result = hide_conversation_for_user(conversation, user)
+        return JsonResponse({
+            "success": True,
+            "hidden": True,
+            "deleted": bool(result.get('deleted')),
+        }, status=200)
     except Exception as e:
         console.print(f"Error deleting conversation: {e}")
         return JsonResponse({"error": "Đã xảy ra lỗi khi xóa cuộc trò chuyện"}, status=500)
@@ -1016,6 +1042,9 @@ def upload_attachment(request, conversation_id):
         return JsonResponse({'status': 'error', 'message': 'Không có tệp đính kèm'}, status=400)
 
     message_content = request.POST.get('message', '').strip()
+    from .conversation_utils import unhide_conversation_participants
+    unhide_conversation_participants(conversation)
+
     message = ConversationMessage.objects.create(
         conversation=conversation,
         sender=user,

@@ -7,8 +7,8 @@
 {% block body_class %} profile-layout{% endblock %}
 
 {% block extra_css %}
-<link href="{% static 'css/feed.css' %}?v=comment-mention-1" rel="stylesheet">
-<link href="{% static 'css/profile.css' %}?v=avatar-view-1" rel="stylesheet">
+<link href="{% static 'css/feed.css' %}?v=comment-actions-1" rel="stylesheet">
+<link href="{% static 'css/profile.css' %}?v=dark-search-1" rel="stylesheet">
 <link href="{% static 'css/share_post_modal.css' %}" rel="stylesheet">
 {% endblock %}
 
@@ -266,12 +266,22 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Đóng' %}"></button>
       </div>
       <div class="modal-body">
+        <div class="profile-user-search mb-3">
+          <i class="fas fa-search profile-user-search__icon" aria-hidden="true"></i>
+          <input type="search"
+                 class="form-control profile-user-search__input"
+                 id="followers-search"
+                 placeholder="{% trans 'Tìm theo tên hoặc @username' %}"
+                 autocomplete="off"
+                 disabled>
+        </div>
         <div class="d-flex justify-content-center mb-3">
           <div class="spinner-border text-dark" role="status" id="followers-spinner">
             <span class="visually-hidden">{% trans "Đang tải..." %}</span>
           </div>
         </div>
         <div id="followers-list" class="user-list"></div>
+        <p class="text-center text-muted small d-none mb-0" id="followers-search-empty">{% trans "Không tìm thấy người dùng phù hợp." %}</p>
       </div>
     </div>
   </div>
@@ -287,12 +297,22 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Đóng' %}"></button>
       </div>
       <div class="modal-body">
+        <div class="profile-user-search mb-3">
+          <i class="fas fa-search profile-user-search__icon" aria-hidden="true"></i>
+          <input type="search"
+                 class="form-control profile-user-search__input"
+                 id="following-search"
+                 placeholder="{% trans 'Tìm theo tên hoặc @username' %}"
+                 autocomplete="off"
+                 disabled>
+        </div>
         <div class="d-flex justify-content-center mb-3">
           <div class="spinner-border text-dark" role="status" id="following-spinner">
             <span class="visually-hidden">{% trans "Đang tải..." %}</span>
           </div>
         </div>
         <div id="following-list" class="user-list"></div>
+        <p class="text-center text-muted small d-none mb-0" id="following-search-empty">{% trans "Không tìm thấy người dùng phù hợp." %}</p>
       </div>
     </div>
   </div>
@@ -305,7 +325,7 @@
 window.HOSHI_USER_SUGGESTIONS_URL = '{% url "posts:user_suggestions" %}';
 </script>
 <script src="{% static 'js/edit_caption_suggestions.js' %}?v=comment-mention-1"></script>
-<script src="{% static 'js/infinite_scroll.js' %}?v=comment-mention-1"></script>
+<script src="{% static 'js/infinite_scroll.js' %}?v=comment-actions-1"></script>
 <script src="{% static 'js/share_post_modal.js' %}?v=share-dm-reuse-1"></script>
 <script>
 window.currentUserId = '{{ request.user.id }}';
@@ -340,7 +360,7 @@ function createUserListItem(user) {
             <img src="${avatar}" alt="${username}" 
                  class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;">
             <div>
-                <div class="fw-bold text-dark">${username}</div>
+                <div class="fw-bold user-item__name">${username}</div>
                 <div class="text-muted small">${name}</div>
             </div>
         </a>
@@ -635,95 +655,158 @@ function getCookie(name) {
     return cookieValue;
 }
 
+// Cache danh sách để tìm kiếm trong modal
+const followListCache = {
+    followers: [],
+    following: [],
+};
+
+function normalizeSearchText(value) {
+    return String(value || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .trim();
+}
+
+function userMatchesQuery(user, query) {
+    if (!query) return true;
+    const username = normalizeSearchText(user.username);
+    const name = normalizeSearchText(user.name);
+    const q = normalizeSearchText(query).replace(/^@/, '');
+    return username.includes(q) || name.includes(q);
+}
+
+function renderFollowUserList(kind, users, emptyHtml) {
+    const listEl = document.getElementById(`${kind}-list`);
+    const emptyEl = document.getElementById(`${kind}-search-empty`);
+    const searchInput = document.getElementById(`${kind}-search`);
+    if (!listEl) return;
+
+    listEl.innerHTML = '';
+    if (emptyEl) emptyEl.classList.add('d-none');
+
+    if (!Array.isArray(users) || users.length === 0) {
+        listEl.innerHTML = emptyHtml;
+        if (searchInput) {
+            searchInput.value = '';
+            searchInput.disabled = true;
+        }
+        return;
+    }
+
+    if (searchInput) searchInput.disabled = false;
+
+    const query = searchInput ? searchInput.value : '';
+    const filtered = users.filter((u) => userMatchesQuery(u, query));
+
+    if (filtered.length === 0) {
+        if (emptyEl) emptyEl.classList.remove('d-none');
+        return;
+    }
+
+    filtered.forEach((user) => {
+        listEl.appendChild(createUserListItem(user));
+    });
+}
+
+function bindFollowSearch(kind) {
+    const searchInput = document.getElementById(`${kind}-search`);
+    if (!searchInput || searchInput.dataset.bound === '1') return;
+    searchInput.dataset.bound = '1';
+    searchInput.addEventListener('input', () => {
+        const emptyDefault = kind === 'followers'
+            ? '<p class="text-center text-muted">{% blocktrans with username=profile_user.username %}Chưa có ai theo dõi {{ username }}.{% endblocktrans %}</p>'
+            : '<p class="text-center text-muted">{% blocktrans with username=profile_user.username %}{{ username }} chưa theo dõi ai.{% endblocktrans %}</p>';
+        renderFollowUserList(kind, followListCache[kind], emptyDefault);
+    });
+}
+
 // Xử lý tải danh sách người theo dõi
-document.getElementById('followersModal')?.addEventListener('show.bs.modal', function (event) {
+document.getElementById('followersModal')?.addEventListener('show.bs.modal', function () {
     const username = "{{ profile_user.username }}";
     const followersSpinner = document.getElementById('followers-spinner');
     const followersList = document.getElementById('followers-list');
-    
-    // Kiểm tra username hợp lệ
+    const searchInput = document.getElementById('followers-search');
+    const emptyEl = document.getElementById('followers-search-empty');
+    const emptyHtml = '<p class="text-center text-muted">{% blocktrans with username=profile_user.username %}Chưa có ai theo dõi {{ username }}.{% endblocktrans %}</p>';
+
+    bindFollowSearch('followers');
+
     if (!username || username === 'undefined') {
         followersSpinner.classList.add('d-none');
         followersList.innerHTML = '<p class="text-center text-danger">{% trans "Tên người dùng không hợp lệ" %}</p>';
         return;
     }
-    
-    // Reset danh sách và hiển thị spinner
+
+    followListCache.followers = [];
     followersList.innerHTML = '';
+    if (emptyEl) emptyEl.classList.add('d-none');
+    if (searchInput) {
+        searchInput.value = '';
+        searchInput.disabled = true;
+    }
     followersSpinner.classList.remove('d-none');
-    
-    // Gọi API để lấy danh sách người theo dõi
+
     fetch(`/api/accounts/users/${username}/followers/`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('{% trans "Lỗi khi tải danh sách người theo dõi" %}');
-            }
+        .then((response) => {
+            if (!response.ok) throw new Error('{% trans "Lỗi khi tải danh sách người theo dõi" %}');
             return response.json();
         })
-        .then(data => {
-            // Ẩn spinner sau khi tải xong
+        .then((data) => {
             followersSpinner.classList.add('d-none');
-            
-            // Kiểm tra dữ liệu trả về có hợp lệ không
-            if (data && Array.isArray(data.followers) && data.followers.length > 0) {
-                data.followers.forEach(follower => {
-                    const userItem = createUserListItem(follower);
-                    followersList.appendChild(userItem);
-                });
-            } else {
-                followersList.innerHTML = '<p class="text-center text-muted">{% blocktrans with username=profile_user.username %}Chưa có ai theo dõi {{ username }}.{% endblocktrans %}</p>';
-            }
+            followListCache.followers = (data && Array.isArray(data.followers)) ? data.followers : [];
+            renderFollowUserList('followers', followListCache.followers, emptyHtml);
         })
-        .catch(error => {
+        .catch((error) => {
             console.error('Error:', error);
             followersSpinner.classList.add('d-none');
             followersList.innerHTML = '<p class="text-center text-danger">{% trans "Có lỗi xảy ra khi tải danh sách người theo dõi." %}</p>';
+            if (searchInput) searchInput.disabled = true;
         });
 });
 
 // Xử lý tải danh sách đang theo dõi
-document.getElementById('followingModal')?.addEventListener('show.bs.modal', function (event) {
+document.getElementById('followingModal')?.addEventListener('show.bs.modal', function () {
     const username = "{{ profile_user.username }}";
     const followingSpinner = document.getElementById('following-spinner');
     const followingList = document.getElementById('following-list');
-    
-    // Kiểm tra username hợp lệ
+    const searchInput = document.getElementById('following-search');
+    const emptyEl = document.getElementById('following-search-empty');
+    const emptyHtml = '<p class="text-center text-muted">{% blocktrans with username=profile_user.username %}{{ username }} chưa theo dõi ai.{% endblocktrans %}</p>';
+
+    bindFollowSearch('following');
+
     if (!username || username === 'undefined') {
         followingSpinner.classList.add('d-none');
         followingList.innerHTML = '<p class="text-center text-danger">{% trans "Tên người dùng không hợp lệ" %}</p>';
         return;
     }
-    
-    // Reset danh sách và hiển thị spinner
+
+    followListCache.following = [];
     followingList.innerHTML = '';
+    if (emptyEl) emptyEl.classList.add('d-none');
+    if (searchInput) {
+        searchInput.value = '';
+        searchInput.disabled = true;
+    }
     followingSpinner.classList.remove('d-none');
-    
-    // Gọi API để lấy danh sách đang theo dõi
+
     fetch(`/api/accounts/users/${username}/following/`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('{% trans "Lỗi khi tải danh sách đang theo dõi" %}');
-            }
+        .then((response) => {
+            if (!response.ok) throw new Error('{% trans "Lỗi khi tải danh sách đang theo dõi" %}');
             return response.json();
         })
-        .then(data => {
-            // Ẩn spinner sau khi tải xong
+        .then((data) => {
             followingSpinner.classList.add('d-none');
-            
-            // Kiểm tra dữ liệu trả về có hợp lệ không
-            if (data && Array.isArray(data.following) && data.following.length > 0) {
-                data.following.forEach(following => {
-                    const userItem = createUserListItem(following);
-                    followingList.appendChild(userItem);
-                });
-            } else {
-                followingList.innerHTML = '<p class="text-center text-muted">{% blocktrans with username=profile_user.username %}{{ username }} chưa theo dõi ai.{% endblocktrans %}</p>';
-            }
+            followListCache.following = (data && Array.isArray(data.following)) ? data.following : [];
+            renderFollowUserList('following', followListCache.following, emptyHtml);
         })
-        .catch(error => {
+        .catch((error) => {
             console.error('Error:', error);
             followingSpinner.classList.add('d-none');
             followingList.innerHTML = '<p class="text-center text-danger">{% trans "Có lỗi xảy ra khi tải danh sách đang theo dõi." %}</p>';
+            if (searchInput) searchInput.disabled = true;
         });
 });
 

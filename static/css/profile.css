@@ -414,6 +414,51 @@ body.profile-layout.bg-light {
     border-bottom: none !important;
 }
 
+.user-item__name {
+    color: var(--text-color, #111);
+}
+
+.profile-user-search {
+    position: relative;
+}
+
+.profile-user-search__icon {
+    position: absolute;
+    left: 0.85rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--light-text-color, #8e8e8e);
+    pointer-events: none;
+    font-size: 0.85rem;
+}
+
+.profile-user-search__input {
+    padding-left: 2.25rem;
+    border-radius: 999px;
+    background: var(--input-bg, #fff);
+    border-color: var(--border-color, #dbdbdb);
+    color: var(--text-color, #111);
+}
+
+.profile-user-search__input:focus {
+    border-color: var(--primary-color, #405de6);
+    box-shadow: 0 0 0 0.2rem rgba(64, 93, 230, 0.15);
+}
+
+.profile-user-search__input:disabled {
+    opacity: 0.65;
+}
+
+[data-bs-theme="dark"] .user-item__name {
+    color: #f2f2f2 !important;
+}
+
+[data-bs-theme="dark"] .profile-user-search__input {
+    background: var(--input-bg) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-color) !important;
+}
+
 .profile-modal .modal-header {
     flex-direction: column;
     align-items: flex-start;
@@ -482,5 +527,195 @@ body.profile-layout.bg-light {
 
     .profile-hero__username {
         font-size: 1.75rem;
+    }
+}
+
+/* ---- Dark mode ---- */
+[data-bs-theme="dark"] body.profile-layout {
+    --profile-ink: #f2f2f2;
+    --profile-muted: #a3a3a3;
+    --profile-line: #3a3a3a;
+    --profile-soft: #1e1e22;
+    --profile-accent: #8aa4ff;
+}
+
+[data-bs-theme="dark"] body.profile-layout.bg-light {
+    background:
+        radial-gradient(ellipse 120% 60% at 50% -10%, rgba(138, 164, 255, 0.08), transparent 55%),
+        linear-gradient(180deg, #0b0b0d 0%, #121214 100%) !important;
+    color: var(--profile-ink);
+}
+
+[data-bs-theme="dark"] .profile-shell {
+    color: var(--profile-ink);
+}
+
+[data-bs-theme="dark"] .profile-hero {
+    background: var(--card-bg, #18181b) !important;
+    border-color: var(--profile-line) !important;
+    color: var(--profile-ink);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+[data-bs-theme="dark"] .profile-hero__avatar {
+    background: var(--profile-soft);
+    box-shadow: 0 0 0 3px #18181b, 0 0 0 4px #3a3a3a;
+}
+
+[data-bs-theme="dark"] .profile-hero__avatar-btn:hover .profile-hero__avatar {
+    box-shadow: 0 0 0 3px #18181b, 0 0 0 4px #5a5a5a;
+}
+
+[data-bs-theme="dark"] .profile-hero__username,
+[data-bs-theme="dark"] .profile-hero__fullname,
+[data-bs-theme="dark"] .profile-stat__value,
+[data-bs-theme="dark"] .profile-private-badge,
+[data-bs-theme="dark"] .profile-private-lock__title {
+    color: var(--profile-ink) !important;
+}
+
+[data-bs-theme="dark"] .profile-hero__bio {
+    color: #c4c4c4 !important;
+}
+
+[data-bs-theme="dark"] .profile-stat__label,
+[data-bs-theme="dark"] .profile-private-lock__text {
+    color: var(--profile-muted) !important;
+}
+
+[data-bs-theme="dark"] .profile-btn--primary {
+    background: var(--profile-accent);
+    border-color: var(--profile-accent);
+    color: #0b0b0d;
+}
+
+[data-bs-theme="dark"] .profile-btn--primary:hover,
+[data-bs-theme="dark"] .profile-btn--primary:focus {
+    background: #a8b4ff;
+    border-color: #a8b4ff;
+    color: #0b0b0d;
+}
+
+[data-bs-theme="dark"] .profile-btn--muted {
+    background: var(--profile-soft);
+    color: var(--profile-ink);
+    border-color: var(--profile-line);
+}
+
+[data-bs-theme="dark"] .profile-btn--muted:hover,
+[data-bs-theme="dark"] .profile-btn--muted:focus {
+    background: #2a2a30;
+    color: #fff;
+}
+
+[data-bs-theme="dark"] .profile-btn--ghost {
+    color: var(--profile-ink);
+    border-color: var(--profile-line);
+    background: transparent;
+}
+
+[data-bs-theme="dark"] .profile-btn--ghost:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+[data-bs-theme="dark"] .profile-stats {
+    border-top-color: var(--profile-line);
+}
+
+[data-bs-theme="dark"] .profile-link {
+    color: #9eb4ff;
+}
+
+[data-bs-theme="dark"] .profile-link:hover {
+    color: #c2d0ff;
+}
+
+[data-bs-theme="dark"] .profile-tabs {
+    background: var(--card-bg, #18181b) !important;
+    border-color: var(--profile-line) !important;
+}
+
+[data-bs-theme="dark"] .profile-tab {
+    color: var(--profile-muted);
+}
+
+[data-bs-theme="dark"] .profile-tab:hover {
+    color: var(--profile-ink);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+[data-bs-theme="dark"] .profile-tab.is-active {
+    color: var(--profile-ink) !important;
+    border-bottom-color: var(--profile-accent);
+    background: transparent;
+}
+
+[data-bs-theme="dark"] .profile-empty-icon {
+    border-color: #4a4a4a;
+    color: #8a8a8a;
+}
+
+[data-bs-theme="dark"] .profile-private-lock {
+    border-top-color: var(--profile-line);
+    color: var(--profile-ink);
+}
+
+[data-bs-theme="dark"] .profile-private-lock__icon {
+    border-color: var(--profile-ink);
+    color: var(--profile-ink);
+}
+
+[data-bs-theme="dark"] .user-item:hover {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+[data-bs-theme="dark"] .profile-modal .modal-content {
+    background: #18181b;
+    color: var(--profile-ink);
+    border-color: var(--profile-line);
+}
+
+[data-bs-theme="dark"] .profile-modal .modal-header,
+[data-bs-theme="dark"] .profile-modal .modal-body,
+[data-bs-theme="dark"] .profile-modal .modal-footer {
+    background: #18181b;
+    color: var(--profile-ink);
+    border-color: var(--profile-line);
+}
+
+[data-bs-theme="dark"] .profile-modal .btn-close {
+    filter: invert(1) grayscale(1);
+    opacity: 0.8;
+}
+
+[data-bs-theme="dark"] .profile-feed .spinner-border.text-dark,
+[data-bs-theme="dark"] .profile-modal .spinner-border.text-dark {
+    color: #f2f2f2 !important;
+}
+
+[data-bs-theme="dark"] .profile-feed #posts-container .card,
+[data-bs-theme="dark"] .profile-feed #posts-container .feed-post-card {
+    background: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-color);
+}
+
+[data-bs-theme="dark"] .profile-feed .dropdown-menu {
+    background: #1c1c20;
+    border-color: var(--border-color);
+}
+
+[data-bs-theme="dark"] .profile-feed .dropdown-item {
+    color: var(--text-color);
+}
+
+[data-bs-theme="dark"] .profile-feed .dropdown-item:hover {
+    background: var(--hover-bg);
+    color: #fff;
+}
+
+@media (max-width: 991.98px) {
+    [data-bs-theme="dark"] .profile-hero {
+        box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04);
     }
 }

@@ -112,7 +112,6 @@ a:hover {
     border-radius: 0;
     object-fit: contain;
     transition: transform 0.25s cubic-bezier(0.34, 1.4, 0.64, 1);
-    filter: none;
 }
 
 .brand-logo:hover .brand-logo__mark {
@@ -694,7 +693,7 @@ a:hover {
     margin-bottom: 1.5rem;
     border-radius: 0;
     object-fit: contain;
-    filter: none;
+    filter: var(--logo-filter, none);
 }
 
 .auth-title {

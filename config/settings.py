@@ -18,6 +18,19 @@ DEBUG = env.bool('DJANGO_DEBUG', default=True)
 
 ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=['*'])
 
+# Cho phép form POST qua ngrok / tunnel HTTPS khi đang DEBUG
+CSRF_TRUSTED_ORIGINS = env.list('DJANGO_CSRF_TRUSTED_ORIGINS', default=[])
+if DEBUG:
+    CSRF_TRUSTED_ORIGINS = list(CSRF_TRUSTED_ORIGINS) + [
+        'https://*.ngrok-free.app',
+        'https://*.ngrok-free.dev',
+        'https://*.ngrok.io',
+        'http://*.ngrok-free.app',
+        'http://*.ngrok.io',
+        'http://127.0.0.1:8000',
+        'http://localhost:8000',
+    ]
+
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',

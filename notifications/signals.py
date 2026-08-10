@@ -148,6 +148,6 @@ def create_follow_notification(sender, instance, created, **kwargs):
         recipient=followed_user,
         sender=follower,
         notification_type='follow',
-        text=f'{follower.username} đã theo dõi bạn'
+        text=f'đã theo dõi bạn'
     )
     send_notification_to_websocket(notification)

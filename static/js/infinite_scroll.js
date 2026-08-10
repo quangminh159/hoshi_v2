@@ -276,9 +276,9 @@
                                 <i class="${post.is_liked ? 'fas' : 'far'} fa-heart"></i>
                                 ${post.hide_likes ? '' : `<span class="likes-count" data-post-id="${post.id}">${post.likes_count}</span>`}
                             </button>
-                            <a href="/posts/${post.id}/" class="btn btn-light btn-sm me-2">
+                            <a href="/posts/${post.id}/" class="btn btn-light btn-sm me-2 comment-button" data-post-id="${post.id}">
                                 <i class="far fa-comment"></i>
-                                <span>${post.comments_count}</span>
+                                <span class="comments-count" data-post-id="${post.id}">${post.comments_count}</span>
                             </a>
                             <button class="btn btn-light btn-sm share-button" data-post-id="${post.id}"
                                     data-bs-toggle="modal" data-bs-target="#sharePostModal"
@@ -367,19 +367,68 @@
         });
     }
 
+    function setPostLikeCount(postId, count) {
+        const n = Math.max(0, Number(count) || 0);
+        document.querySelectorAll(`.likes-count[data-post-id="${postId}"]`).forEach((el) => {
+            el.textContent = String(n);
+        });
+        document.querySelectorAll(`.likes-count-text[data-post-id="${postId}"], .likes-count-display [data-post-id="${postId}"] .likes-count-text`).forEach((el) => {
+            el.textContent = `${n} lượt thích`;
+        });
+        document.querySelectorAll(`.likes-count-display a[data-post-id="${postId}"]`).forEach((el) => {
+            const textEl = el.querySelector('.likes-count-text');
+            if (textEl) textEl.textContent = `${n} lượt thích`;
+            else el.textContent = `${n} lượt thích`;
+        });
+    }
+
+    function setPostCommentCount(postId, count) {
+        const n = Math.max(0, Number(count) || 0);
+        document.querySelectorAll(`.comments-count[data-post-id="${postId}"]`).forEach((el) => {
+            el.textContent = String(n);
+        });
+        document.querySelectorAll(`.post-comment-count[data-post-id="${postId}"], #post-comment-count`).forEach((el) => {
+            // Chỉ cập nhật #post-comment-count khi đang ở đúng bài (trang detail)
+            if (el.id === 'post-comment-count') {
+                const pagePost = document.querySelector('.like-button[data-post-id]');
+                if (pagePost && String(pagePost.getAttribute('data-post-id')) !== String(postId)) return;
+            }
+            if (el.dataset.postId && String(el.dataset.postId) !== String(postId)) return;
+            el.textContent = String(n);
+        });
+    }
+
+    function bumpPostCommentCount(postId, delta = 1) {
+        const el = document.querySelector(`.comments-count[data-post-id="${postId}"]`)
+            || document.querySelector(`.post-comment-count[data-post-id="${postId}"]`)
+            || document.getElementById('post-comment-count');
+        const current = el ? (parseInt(el.textContent, 10) || 0) : 0;
+        setPostCommentCount(postId, current + delta);
+    }
+
+    function setPostLikedState(postId, liked) {
+        document.querySelectorAll(`.like-button[data-post-id="${postId}"]`).forEach((btn) => {
+            const heart = btn.querySelector('i');
+            if (heart) heart.className = liked ? 'fas fa-heart' : 'far fa-heart';
+            btn.classList.toggle('liked', !!liked);
+        });
+        if (liked) localStorage.setItem(`post_liked_${postId}`, 'true');
+        else localStorage.removeItem(`post_liked_${postId}`);
+    }
+
     function likePost(postId) {
         const button = document.querySelector(`.like-button[data-post-id="${postId}"]`);
         if (!button) return;
         const icon = button.querySelector('i');
-        const countEl = button.querySelector('.likes-count');
-        const wasLiked = icon.classList.contains('fas');
+        const countEl = document.querySelector(`.likes-count[data-post-id="${postId}"]`)
+            || button.querySelector('.likes-count');
+        const wasLiked = button.classList.contains('liked')
+            || !!(icon && icon.classList.contains('fas'));
         const prevCount = countEl ? parseInt(countEl.textContent, 10) || 0 : 0;
+        const nextCount = wasLiked ? Math.max(0, prevCount - 1) : prevCount + 1;
 
-        icon.className = wasLiked ? 'far fa-heart' : 'fas fa-heart';
-        button.classList.toggle('liked', !wasLiked);
-        if (countEl) countEl.textContent = wasLiked ? Math.max(0, prevCount - 1) : prevCount + 1;
-        if (wasLiked) localStorage.removeItem(`post_liked_${postId}`);
-        else localStorage.setItem(`post_liked_${postId}`, 'true');
+        setPostLikedState(postId, !wasLiked);
+        setPostLikeCount(postId, nextCount);
 
         fetch(`/api/posts/${postId}/like/`, {
             method: 'POST',
@@ -388,26 +437,15 @@
         })
         .then((r) => r.json())
         .then((data) => {
-            document.querySelectorAll(`.like-button[data-post-id="${postId}"]`).forEach((btn) => {
-                const heart = btn.querySelector('i');
-                if (data.status === 'liked') {
-                    heart.className = 'fas fa-heart';
-                    btn.classList.add('liked');
-                    localStorage.setItem(`post_liked_${postId}`, 'true');
-                } else {
-                    heart.className = 'far fa-heart';
-                    btn.classList.remove('liked');
-                    localStorage.removeItem(`post_liked_${postId}`);
-                }
-            });
-            document.querySelectorAll(`.likes-count[data-post-id="${postId}"]`).forEach((el) => {
-                el.textContent = data.likes_count;
-            });
+            const liked = data.status === 'liked' || data.liked === true;
+            setPostLikedState(postId, liked);
+            if (typeof data.likes_count === 'number') {
+                setPostLikeCount(postId, data.likes_count);
+            }
         })
         .catch(() => {
-            icon.className = wasLiked ? 'fas fa-heart' : 'far fa-heart';
-            button.classList.toggle('liked', wasLiked);
-            if (countEl) countEl.textContent = prevCount;
+            setPostLikedState(postId, wasLiked);
+            setPostLikeCount(postId, prevCount);
         });
     }
 
@@ -1339,19 +1377,47 @@
         });
     }
 
-    function buildRootCommentBodyHtml(comment, postId) {
-        const username = comment.author_username || comment.author?.username || 'user';
+    function formatActionCount(n) {
+        const v = Number(n) || 0;
+        return v > 0 ? String(v) : '';
+    }
+
+    /** Meta: icon thích + số, icon trả lời (+ số phản hồi nếu root). */
+    function commentMetaActionsHtml(comment, postId, username, { showReplyCount = false } = {}) {
         const commentId = comment.id;
         const isLiked = comment.is_liked === true;
-        const likesCount = comment.likes_count || 0;
-        const likeLabel = isLiked ? 'Đã thích' : 'Thích';
-        const likeBtnClass = isLiked ? 'text-primary' : 'text-muted';
+        const likesCount = Number(comment.likes_count) || 0;
+        const repliesCount = Number(comment.replies_count ?? comment.replies?.length) || 0;
+        const likeActive = isLiked ? 'is-liked' : '';
+        const heartClass = isLiked ? 'fas fa-heart' : 'far fa-heart';
+        const repliesCountHtml = showReplyCount
+            ? `<span class="comment-replies-count" data-comment-id="${commentId}">${formatActionCount(repliesCount)}</span>`
+            : '';
+
+        return `
+            <button type="button"
+                    class="btn btn-link btn-sm p-0 comment-action-btn comment-like-button like-comment-button ${likeActive}"
+                    data-comment-id="${commentId}"
+                    aria-label="Thích"
+                    title="Thích">
+                <i class="${heartClass}" aria-hidden="true"></i>
+                <span class="comment-likes-count" data-comment-id="${commentId}">${formatActionCount(likesCount)}</span>
+            </button>
+            <button type="button"
+                    class="btn btn-link btn-sm p-0 comment-action-btn text-muted reply-button"
+                    data-username="${escapeHtml(username)}"
+                    data-post-id="${postId}"
+                    data-comment-id="${commentId}"
+                    aria-label="Trả lời"
+                    title="Trả lời">
+                <i class="far fa-comment" aria-hidden="true"></i>
+                ${repliesCountHtml}
+            </button>`;
+    }
+
+    function buildRootCommentBodyHtml(comment, postId) {
+        const username = comment.author_username || comment.author?.username || 'user';
         const timeLabel = formatCommentTime(comment.created_at);
-        const likesHtml = likesCount > 0 ? `
-            <span class="ms-2 comment-likes-wrap">
-                <i class="fas fa-heart text-danger small"></i>
-                <span class="comment-likes-count" data-comment-id="${commentId}">${likesCount}</span>
-            </span>` : '';
 
         return `
             <div class="comment-body-main">
@@ -1361,21 +1427,9 @@
                 </div>
                 ${commentTextSpanHtml(comment.text)}
                 ${commentMediaHtml(comment)}
-                <div class="text-muted small d-flex align-items-center flex-wrap mt-1 comment-meta-row">
+                <div class="text-muted small d-flex align-items-center flex-wrap gap-2 mt-1 comment-meta-row">
                     <span>${timeLabel}</span>${commentEditedLabelHtml(comment)}
-                    <span class="mx-1">·</span>
-                    <button type="button" class="btn btn-link btn-sm p-0 comment-like-button ${likeBtnClass}"
-                            data-comment-id="${commentId}">
-                        <span>${likeLabel}</span>
-                    </button>
-                    <span class="mx-1">·</span>
-                    <button type="button" class="btn btn-link btn-sm p-0 text-muted reply-button"
-                            data-username="${escapeHtml(username)}"
-                            data-post-id="${postId}"
-                            data-comment-id="${commentId}">
-                        Trả lời
-                    </button>
-                    ${likesHtml}
+                    ${commentMetaActionsHtml(comment, postId, username, { showReplyCount: true })}
                 </div>
             </div>`;
     }
@@ -1383,16 +1437,7 @@
     function buildReplyHtml(comment, postId) {
         const username = comment.author_username || comment.author?.username || 'user';
         const commentId = comment.id;
-        const isLiked = comment.is_liked === true;
-        const likesCount = comment.likes_count || 0;
-        const likeLabel = isLiked ? 'Đã thích' : 'Thích';
-        const likeBtnClass = isLiked ? 'text-primary' : 'text-muted';
         const timeLabel = formatCommentTime(comment.created_at);
-        const likesHtml = likesCount > 0 ? `
-            <span class="ms-2 comment-likes-wrap">
-                <i class="fas fa-heart text-danger small"></i>
-                <span class="comment-likes-count" data-comment-id="${commentId}">${likesCount}</span>
-            </span>` : '';
 
         return `
             <div class="comment reply-comment mb-2" id="comment-${commentId}" data-comment-id="${commentId}">
@@ -1403,21 +1448,9 @@
                     </div>
                     ${commentTextSpanHtml(comment.text)}
                     ${commentMediaHtml(comment)}
-                    <div class="text-muted small d-flex align-items-center flex-wrap mt-1 comment-meta-row">
+                    <div class="text-muted small d-flex align-items-center flex-wrap gap-2 mt-1 comment-meta-row">
                         <span>${timeLabel}</span>${commentEditedLabelHtml(comment)}
-                        <span class="mx-1">·</span>
-                        <button type="button" class="btn btn-link btn-sm p-0 comment-like-button ${likeBtnClass}"
-                                data-comment-id="${commentId}">
-                            <span>${likeLabel}</span>
-                        </button>
-                        <span class="mx-1">·</span>
-                        <button type="button" class="btn btn-link btn-sm p-0 text-muted reply-button"
-                                data-username="${escapeHtml(username)}"
-                                data-post-id="${postId}"
-                                data-comment-id="${commentId}">
-                            Trả lời
-                        </button>
-                        ${likesHtml}
+                        ${commentMetaActionsHtml(comment, postId, username, { showReplyCount: false })}
                     </div>
                 </div>
             </div>`;
@@ -1629,16 +1662,41 @@
         });
     }
 
-    function likeComment(commentId, button) {
-        const label = button.querySelector('span');
-        const wasLiked = label?.textContent.trim() === 'Đã thích';
-        const commentEl = document.getElementById(`comment-${commentId}`);
+    function setCommentLikeUi(commentId, liked, likesCount) {
+        const countText = formatActionCount(likesCount);
+        document.querySelectorAll(
+            `.comment-like-button[data-comment-id="${commentId}"], .like-comment-button[data-comment-id="${commentId}"]`
+        ).forEach((btn) => {
+            const icon = btn.querySelector('i');
+            if (icon) {
+                icon.classList.toggle('far', !liked);
+                icon.classList.toggle('fas', liked);
+                icon.classList.add('fa-heart');
+            }
+            btn.classList.toggle('is-liked', liked);
+            const countEl = btn.querySelector('.comment-likes-count');
+            if (countEl) countEl.textContent = countText;
+        });
+        document.querySelectorAll(`.comment-likes-count[data-comment-id="${commentId}"]`).forEach((el) => {
+            el.textContent = countText;
+        });
+    }
 
-        if (label) {
-            label.textContent = wasLiked ? 'Thích' : 'Đã thích';
-            button.classList.toggle('text-primary', !wasLiked);
-            button.classList.toggle('text-muted', wasLiked);
-        }
+    function setCommentRepliesCount(commentId, repliesCount) {
+        const countText = formatActionCount(repliesCount);
+        document.querySelectorAll(`.comment-replies-count[data-comment-id="${commentId}"]`).forEach((el) => {
+            el.textContent = countText;
+        });
+    }
+
+    function likeComment(commentId, button) {
+        const icon = button.querySelector('i');
+        const wasLiked = button.classList.contains('is-liked') || (icon && icon.classList.contains('fas'));
+        const countEl = button.querySelector('.comment-likes-count');
+        const prevCount = parseInt(countEl?.textContent, 10) || 0;
+        const nextCount = wasLiked ? Math.max(0, prevCount - 1) : prevCount + 1;
+
+        setCommentLikeUi(commentId, !wasLiked, nextCount);
 
         fetch(`/api/posts/comments/${commentId}/like/`, {
             method: 'POST',
@@ -1654,46 +1712,16 @@
             return data;
         })
         .then((data) => {
-            if (label) {
-                const liked = data.status === 'liked';
-                label.textContent = liked ? 'Đã thích' : 'Thích';
-                button.classList.toggle('text-primary', liked);
-                button.classList.toggle('text-muted', !liked);
-            }
-
-            let wrap = commentEl?.querySelector('.comment-likes-wrap');
-            if (data.likes_count > 0) {
-                if (wrap) {
-                    wrap.querySelector('.comment-likes-count').textContent = data.likes_count;
-                } else if (commentEl) {
-                    const actions = commentEl.querySelector('.text-muted.small');
-                    actions?.insertAdjacentHTML('beforeend', `
-                        <span class="ms-2 comment-likes-wrap">
-                            <i class="fas fa-heart text-danger small"></i>
-                            <span class="comment-likes-count" data-comment-id="${commentId}">${data.likes_count}</span>
-                        </span>`);
-                }
-            } else if (wrap) {
-                wrap.remove();
-            }
+            setCommentLikeUi(commentId, data.status === 'liked', data.likes_count);
         })
         .catch((err) => {
             console.error('Like comment error:', err);
-            if (label) {
-                label.textContent = wasLiked ? 'Đã thích' : 'Thích';
-                button.classList.toggle('text-primary', wasLiked);
-                button.classList.toggle('text-muted', !wasLiked);
-            }
+            setCommentLikeUi(commentId, wasLiked, prevCount);
         });
     }
 
     function updateFeedCommentCount(postId, delta = 1) {
-        const postCard = document.getElementById(`post-${postId}`);
-        const countEl = postCard?.querySelector(`a[href="/posts/${postId}/"] span`);
-        if (countEl) {
-            const current = parseInt(countEl.textContent, 10) || 0;
-            countEl.textContent = Math.max(0, current + delta);
-        }
+        bumpPostCommentCount(postId, delta);
     }
 
     function deleteComment(commentId, button) {
@@ -1743,8 +1771,7 @@
 
             if (postId) {
                 if (typeof data.comments_count === 'number') {
-                    const countEl = postCard?.querySelector(`a[href="/posts/${postId}/"] span`);
-                    if (countEl) countEl.textContent = data.comments_count;
+                    setPostCommentCount(postId, data.comments_count);
                 } else {
                     updateFeedCommentCount(postId, -removedCount);
                 }
@@ -1794,6 +1821,19 @@
                 replies?.appendChild(commentEl);
             }
             updateLoadMoreRepliesButton(rootId, true);
+            const replyCountEl = parent?.querySelector(`.comment-replies-count[data-comment-id="${rootId}"]`);
+            if (replyCountEl) {
+                const n = (parseInt(replyCountEl.textContent, 10) || 0) + 1;
+                setCommentRepliesCount(rootId, n);
+            } else {
+                const replyBtn = parent?.querySelector(`.reply-button[data-comment-id="${rootId}"]`);
+                if (replyBtn && !replyBtn.querySelector('.comment-replies-count')) {
+                    replyBtn.insertAdjacentHTML(
+                        'beforeend',
+                        `<span class="comment-replies-count" data-comment-id="${rootId}">1</span>`
+                    );
+                }
+            }
         } else {
             let section = postCard.querySelector('.comments-section');
             if (!section) {
@@ -1857,7 +1897,11 @@
             if (data.comment) {
                 const replyParentId = data.comment.parent?.id || data.comment.parent_id || parentId;
                 appendCommentToFeed(data.comment, postId, !!replyParentId, replyParentId);
-                updateFeedCommentCount(postId);
+                if (typeof data.comments_count === 'number') {
+                    setPostCommentCount(postId, data.comments_count);
+                } else {
+                    updateFeedCommentCount(postId);
+                }
                 const input = document.getElementById(`comment-input-${postId}`);
                 if (input) input.value = '';
                 clearCommentMediaPreview(form);
@@ -2053,7 +2097,7 @@
             form.setAttribute('data-initialized', 'true');
         });
 
-        scope.querySelectorAll('.comment-like-button:not([data-initialized])').forEach((button) => {
+        scope.querySelectorAll('.comment-like-button:not([data-initialized]), .like-comment-button:not([data-initialized])').forEach((button) => {
             button.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -2247,5 +2291,8 @@
     }
 
     window.restoreInteractionStates = restoreInteractionStates;
+    window.setPostLikeCount = setPostLikeCount;
+    window.setPostCommentCount = setPostCommentCount;
+    window.bumpPostCommentCount = bumpPostCommentCount;
     window.infiniteScroll = { loadMorePosts, resetAndReload, refresh: restoreInteractionStates };
 })();

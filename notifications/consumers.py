@@ -21,13 +21,18 @@ class NotificationConsumer(AsyncWebsocketConsumer):
             return
 
         self.room_group_name = f'notifications_{self.user_id}'
+        self.feed_group_name = 'feed_engagement'
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
+        await self.channel_layer.group_add(self.feed_group_name, self.channel_name)
         await self.accept()
 
     async def disconnect(self, close_code):
         room = getattr(self, 'room_group_name', None)
         if room:
             await self.channel_layer.group_discard(room, self.channel_name)
+        feed = getattr(self, 'feed_group_name', None)
+        if feed:
+            await self.channel_layer.group_discard(feed, self.channel_name)
 
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
@@ -51,6 +56,13 @@ class NotificationConsumer(AsyncWebsocketConsumer):
             'notification': notification_data,
             'unread_count': unread_count,
         }))
+
+    async def post_engagement(self, event):
+        """Realtime like/comment counts cho mọi user đang mở app."""
+        payload = event.get('payload') or {}
+        if not payload:
+            return
+        await self.send(text_data=json.dumps(payload))
 
     @database_sync_to_async
     def get_notification_data(self, notification_id):

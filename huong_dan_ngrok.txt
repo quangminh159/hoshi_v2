@@ -1,0 +1,72 @@
+========== HƯỚNG DẪN CHẠY HOSHI + NGROK ==========
+
+Cần 2 terminal, cùng thư mục: C:\hoshi_v2
+
+----------------------------------------
+BƯỚC 1 — CHẠY SERVER (Daphne)
+----------------------------------------
+cd C:\hoshi_v2
+.\venv\Scripts\python.exe -m daphne -b 0.0.0.0 -p 8000 hoshi.asgi:application
+
+Thấy "Listening on ... 8000" là OK.
+Giữ terminal này chạy (đừng tắt).
+
+Lưu ý:
+- Dùng đúng .\venv\Scripts\python.exe
+- Muốn chat / gọi thoại thì dùng Daphne, không dùng manage.py runserver
+
+----------------------------------------
+BƯỚC 2 — MỞ NGROK
+----------------------------------------
+Mở terminal thứ 2:
+
+cd C:\hoshi_v2
+.\ngrok.exe http 8000
+
+Copy URL dạng:
+https://xxxx.ngrok-free.app
+
+Hoặc xem trên PC:
+http://127.0.0.1:4040
+
+Giữ terminal ngrok chạy trong lúc test.
+
+----------------------------------------
+BƯỚC 3 — MỞ TRÊN ĐIỆN THOẠI
+----------------------------------------
+1. Dán URL https://....ngrok-free.app vào trình duyệt điện thoại
+2. Lần đầu ngrok hiện cảnh báo → bấm "Visit Site"
+3. Đăng nhập Hoshi và test (dùng được cả 4G)
+
+----------------------------------------
+TẮT / BẬT LẠI
+----------------------------------------
+Tắt server (tìm PID cổng 8000):
+netstat -ano | findstr ":8000"
+Stop-Process -Id <PID> -Force
+
+Tắt ngrok: Ctrl+C ở terminal ngrok
+
+Mỗi lần tắt rồi bật lại ngrok → URL có thể đổi → copy URL mới
+
+----------------------------------------
+LỖI THƯỜNG GẶP
+----------------------------------------
+- Port 8000 bị chiếm:
+  netstat -ano | findstr ":8000"
+  Stop-Process -Id <PID> -Force
+  rồi chạy lại Daphne
+
+- Điện thoại không vào được:
+  kiểm tra cả 2 terminal còn chạy, URL đúng https://
+
+- Chat / gọi không realtime:
+  phải dùng Daphne, không dùng runserver
+
+----------------------------------------
+GỌI THOẠI / VIDEO
+----------------------------------------
+- Ưu tiên cửa sổ riêng /chat/call/
+- Trình duyệt chặn popup → gọi ngay trên trang vẫn được
+- Cho phép popup: thanh địa chỉ → icon bị chặn → Luôn cho phép
+- Đóng cửa sổ gọi = cúp máy

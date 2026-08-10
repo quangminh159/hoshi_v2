@@ -88,20 +88,35 @@ class PostViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'])
     def like(self, request, pk=None):
         post = self.get_object()
+        from posts.realtime import broadcast_post_engagement
         like, created = Like.objects.get_or_create(
             user=request.user,
             post=post
         )
-        
+
         if created:
             post.likes_count = post.post_likes.count()
-            post.save()
-            return Response({'status': 'liked'})
-        
+            post.save(update_fields=['likes_count'])
+            broadcast_post_engagement(
+                post.id,
+                likes_count=post.likes_count,
+                comments_count=post.comments_count,
+                action='like',
+                actor_id=request.user.id,
+            )
+            return Response({'status': 'liked', 'likes_count': post.likes_count})
+
         like.delete()
         post.likes_count = post.post_likes.count()
-        post.save()
-        return Response({'status': 'unliked'})
+        post.save(update_fields=['likes_count'])
+        broadcast_post_engagement(
+            post.id,
+            likes_count=post.likes_count,
+            comments_count=post.comments_count,
+            action='unlike',
+            actor_id=request.user.id,
+        )
+        return Response({'status': 'unliked', 'likes_count': post.likes_count})
     
     @action(detail=True, methods=['post'])
     def save(self, request, pk=None):
@@ -132,11 +147,19 @@ class CommentViewSet(viewsets.ModelViewSet):
             author=self.request.user,
             post_id=self.kwargs['post_pk']
         )
-        
+
         # Update post's comments count
         post = Post.objects.get(id=self.kwargs['post_pk'])
         post.comments_count = post.comments.count()
-        post.save()
+        post.save(update_fields=['comments_count'])
+        from posts.realtime import broadcast_post_engagement
+        broadcast_post_engagement(
+            post.id,
+            likes_count=post.likes_count,
+            comments_count=post.comments_count,
+            action='comment_add',
+            actor_id=self.request.user.id,
+        )
     
     @action(detail=True, methods=['post'])
     def like(self, request, post_pk=None, pk=None):
@@ -208,20 +231,36 @@ def like_post(request, pk):
         post = Post.objects.get(pk=pk)
     except Post.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
-    
+
+    from posts.realtime import broadcast_post_engagement
+
     like, created = Like.objects.get_or_create(
         user=request.user,
         post=post
     )
-    
+
     if not created:
         like.delete()
         post.likes_count = post.post_likes.count()
-        post.save()
+        post.save(update_fields=['likes_count'])
+        broadcast_post_engagement(
+            post.id,
+            likes_count=post.likes_count,
+            comments_count=post.comments_count,
+            action='unlike',
+            actor_id=request.user.id,
+        )
         return Response({'status': 'unliked', 'likes_count': post.likes_count})
-    
+
     post.likes_count = post.post_likes.count()
-    post.save()
+    post.save(update_fields=['likes_count'])
+    broadcast_post_engagement(
+        post.id,
+        likes_count=post.likes_count,
+        comments_count=post.comments_count,
+        action='like',
+        actor_id=request.user.id,
+    )
     return Response({'status': 'liked', 'likes_count': post.likes_count})
 
 @api_view(['POST'])
@@ -477,6 +516,22 @@ def add_comment(request):
         post.comments_count = post.comments.count()
         post.save(update_fields=['comments_count'])
 
+        from posts.realtime import broadcast_post_engagement
+        replies_count = None
+        parent_comment_id = None
+        if root_parent is not None:
+            parent_comment_id = root_parent.id
+            replies_count = Comment.objects.filter(parent_id=root_parent.id).count()
+        broadcast_post_engagement(
+            post.id,
+            likes_count=post.likes_count,
+            comments_count=post.comments_count,
+            action='comment_add',
+            actor_id=request.user.id,
+            parent_comment_id=parent_comment_id,
+            replies_count=replies_count,
+        )
+
         parent_data = _build_parent_data(root_parent, direct_parent)
 
         if direct_parent and direct_parent.author != request.user:
@@ -494,7 +549,10 @@ def add_comment(request):
             'author', 'parent', 'parent__author'
         ).get(pk=comment.pk)
 
-        return Response({'comment': _payload(comment, False, parent_data)})
+        return Response({
+            'comment': _payload(comment, False, parent_data),
+            'comments_count': post.comments_count,
+        })
     except Exception as e:
         print(f"Error in add_comment: {str(e)}")
         import traceback
@@ -513,21 +571,38 @@ def delete_comment(request, pk):
         if comment.author != request.user and comment.post.author != request.user:
             return Response({'error': 'Bạn không có quyền xóa bình luận này'}, status=status.HTTP_403_FORBIDDEN)
         
-        # Lưu post_id trước khi xóa comment để cập nhật số lượng comment sau đó
+        # Lưu post_id / parent trước khi xóa
         post_id = comment.post.id
-        
+        parent_id = comment.parent_id
+
         # Xóa comment
         comment.delete()
-        
+
         # Cập nhật số lượng comment của bài viết
         post = Post.objects.get(id=post_id)
         post.comments_count = post.comments.count()
         post.save(update_fields=['comments_count'])
-        
+
+        replies_count = None
+        if parent_id:
+            replies_count = Comment.objects.filter(parent_id=parent_id).count()
+
+        from posts.realtime import broadcast_post_engagement
+        broadcast_post_engagement(
+            post.id,
+            likes_count=post.likes_count,
+            comments_count=post.comments_count,
+            action='comment_delete',
+            actor_id=request.user.id,
+            parent_comment_id=parent_id,
+            replies_count=replies_count,
+        )
+
         return Response({
             'success': True,
             'message': 'Đã xóa bình luận',
             'comments_count': post.comments_count,
+            'post_id': post.id,
         })
         
     except Comment.DoesNotExist:
@@ -655,26 +730,38 @@ def like_comment(request, pk):
     """API endpoint để thích bình luận"""
     try:
         comment = Comment.objects.get(pk=pk)
-        
-        # Kiểm tra xem đã like chưa
+
         like, created = CommentLike.objects.get_or_create(
             user=request.user,
             comment=comment
         )
-        
+
         if not created:
-            # Nếu đã like, xóa like
             like.delete()
-            # Cập nhật số lượng like
             comment.likes_count = comment.comment_likes.count()
-            comment.save()
+            comment.save(update_fields=['likes_count'])
+            from posts.realtime import broadcast_post_engagement
+            broadcast_post_engagement(
+                comment.post_id,
+                action='comment_unlike',
+                actor_id=request.user.id,
+                comment_id=comment.id,
+                comment_likes_count=comment.likes_count,
+            )
             return Response({'status': 'unliked', 'likes_count': comment.likes_count})
-        
-        # Nếu chưa like, cập nhật số lượng like
+
         comment.likes_count = comment.comment_likes.count()
-        comment.save()
+        comment.save(update_fields=['likes_count'])
+        from posts.realtime import broadcast_post_engagement
+        broadcast_post_engagement(
+            comment.post_id,
+            action='comment_like',
+            actor_id=request.user.id,
+            comment_id=comment.id,
+            comment_likes_count=comment.likes_count,
+        )
         return Response({'status': 'liked', 'likes_count': comment.likes_count})
-        
+
     except Comment.DoesNotExist:
         return Response({'error': 'Không tìm thấy bình luận'}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:

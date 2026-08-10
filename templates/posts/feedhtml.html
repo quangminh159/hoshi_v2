@@ -166,19 +166,22 @@
                         </a>
                         {{ comment.text|format_comment }}
                         
-                        <div class="text-muted small d-flex align-items-center mt-1">
+                        <div class="text-muted small d-flex align-items-center flex-wrap gap-2 mt-1 comment-meta-row">
                             <span>{{ comment.created_at|timesince }} trước</span>
-                            <span class="mx-1">·</span>
-                            <button class="btn btn-link btn-sm p-0 text-muted comment-like-button"
-                                    data-comment-id="{{ comment.id }}">
-                                <span>Thích</span>
+                            <button class="btn btn-link btn-sm p-0 comment-action-btn comment-like-button like-comment-button"
+                                    data-comment-id="{{ comment.id }}"
+                                    aria-label="Thích"
+                                    title="Thích">
+                                <i class="far fa-heart" aria-hidden="true"></i>
+                                <span class="comment-likes-count" data-comment-id="{{ comment.id }}"></span>
                             </button>
-                            <span class="mx-1">·</span>
-                            <button class="btn btn-link btn-sm p-0 text-muted reply-button"
+                            <button class="btn btn-link btn-sm p-0 comment-action-btn text-muted reply-button"
                                     data-username="{{ comment.author.username }}"
                                     data-post-id="{{ post.id }}"
-                                    data-comment-id="{{ comment.id }}">
-                                <span>Trả lời</span>
+                                    data-comment-id="{{ comment.id }}"
+                                    aria-label="Trả lời"
+                                    title="Trả lời">
+                                <i class="far fa-comment" aria-hidden="true"></i>
                             </button>
                         </div>
                     </div>

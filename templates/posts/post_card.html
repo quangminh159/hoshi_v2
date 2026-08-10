@@ -266,10 +266,10 @@
                 <span class="likes-count" data-post-id="{{ post.id }}">{{ post.likes_count }}</span>
                 {% endif %}
             </button>
-            <button class="btn btn-link text-dark p-0 me-3 comment-button"
-                    onclick="window.location.href='{% url 'posts:post_detail' post_id=post.id %}'">
+                <button class="btn btn-link text-dark p-0 me-3 comment-button"
+                        onclick="window.location.href='{% url 'posts:post_detail' post_id=post.id %}'">
                 <i class="far fa-comment"></i>
-                <span>{{ post.comments_count }}</span>
+                <span class="comments-count" data-post-id="{{ post.id }}">{{ post.comments_count }}</span>
             </button>
             <button class="btn btn-link text-dark p-0 me-3 share-button" 
                     data-post-id="{{ post.id }}"
@@ -321,23 +321,27 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(response => response.json())
             .then(data => {
-                if (data.liked) {
+                const liked = data.liked === true || data.status === 'liked';
+                if (liked) {
                     likeIcon.classList.remove('far');
                     likeIcon.classList.add('fas');
-                    // Lưu trạng thái like vào localStorage
+                    this.classList.add('liked');
                     localStorage.setItem(`post_liked_${postId}`, 'true');
                 } else {
                     likeIcon.classList.remove('fas');
                     likeIcon.classList.add('far');
-                    // Xoá trạng thái like khỏi localStorage
+                    this.classList.remove('liked');
                     localStorage.removeItem(`post_liked_${postId}`);
                 }
-                likeCountSpan.textContent = data.likes_count;
-                
-                // Cập nhật các hiển thị số lượt like khác trên trang
-                document.querySelectorAll(`.likes-count-display a[data-post-id="${postId}"]`).forEach(element => {
-                    element.textContent = `${data.likes_count} {% trans "lượt thích" %}`;
-                });
+                const n = typeof data.likes_count === 'number' ? data.likes_count : null;
+                if (n !== null) {
+                    document.querySelectorAll(`.likes-count[data-post-id="${postId}"]`).forEach((el) => {
+                        el.textContent = String(n);
+                    });
+                    document.querySelectorAll(`.likes-count-display a[data-post-id="${postId}"]`).forEach(element => {
+                        element.textContent = `${n} {% trans "lượt thích" %}`;
+                    });
+                }
             })
             .catch(error => {
                 console.error('Error:', error);

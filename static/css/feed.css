@@ -390,6 +390,47 @@
     color: var(--primary-color, #405de6) !important;
 }
 
+.comment-meta-row .comment-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    line-height: 1;
+    text-decoration: none !important;
+    color: var(--light-text-color, #8e8e8e) !important;
+    min-height: 1.25rem;
+}
+
+.comment-meta-row .comment-action-btn i {
+    font-size: 0.8125rem;
+}
+
+.comment-meta-row .comment-action-btn.is-liked,
+.comment-meta-row .comment-action-btn.is-liked i {
+    color: #ed4956 !important;
+}
+
+.comment-meta-row .comment-likes-count,
+.comment-meta-row .comment-replies-count {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: inherit;
+    min-width: 0.5rem;
+}
+
+.comment-meta-row .comment-likes-count:empty,
+.comment-meta-row .comment-replies-count:empty {
+    display: none;
+}
+
+.comment-meta-row .comment-action-btn:hover {
+    color: var(--text-color, #262626) !important;
+}
+
+.comment-meta-row .comment-action-btn.is-liked:hover,
+.comment-meta-row .comment-action-btn.is-liked:hover i {
+    color: #ed4956 !important;
+}
+
 .feed-page .comments-section a.fw-bold {
     font-size: 0.875rem;
     margin-right: 0.35rem;

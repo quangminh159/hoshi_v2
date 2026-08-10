@@ -58,7 +58,7 @@
           {% endwith %}
         {% endif %}
         <div class="chat-actions">
-          {% if not is_group and conversation.other_user %}
+          {% if not is_group and conversation.other_user and not is_blocked %}
             <button type="button" class="btn-back" id="startVoiceCallBtn" title="{% trans 'Gọi thoại' %}">
               <i class="fas fa-phone"></i>
             </button>
@@ -610,6 +610,13 @@
     const currentUserId = {{ request.user.id }};
     const isGroupChat = {% if is_group %}true{% else %}false{% endif %};
     const wsProtocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+    // Soft-nav có thể tạo lại trang chat → đóng socket cũ tránh double signal
+    if (window.hoshiChatSocket
+        && Number(window.hoshiChatConversationId) === Number(conversationId)
+        && (window.hoshiChatSocket.readyState === WebSocket.OPEN
+            || window.hoshiChatSocket.readyState === WebSocket.CONNECTING)) {
+      try { window.hoshiChatSocket.close(); } catch (e) { /* ignore */ }
+    }
     chatSocket = new WebSocket(
       wsProtocol + window.location.host + '/ws/chat/' + conversationId + '/'
     );

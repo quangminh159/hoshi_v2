@@ -5,19 +5,26 @@
 {% block title %}{% trans "Thông báo" %} - {{ block.super }}{% endblock %}
 
 {% block extra_css %}
-<link href="{% static 'css/notifications_page.css' %}?v=1" rel="stylesheet">
+<link href="{% static 'css/notifications_page.css' %}?v=delete-all-1" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
 <div class="container py-4 notifications-page">
     <div class="d-flex justify-content-between align-items-center mb-3 gap-2 flex-wrap">
         <h3 class="mb-0">{% trans "Thông báo" %}</h3>
-        {% if notifications %}
-        <a href="{% url 'notifications:mark_all_as_read' %}"
-           class="text-decoration-none text-primary small mark-all-read">
-            {% trans "Đánh dấu tất cả đã đọc" %}
-        </a>
-        {% endif %}
+        <div class="notif-header-actions d-flex align-items-center gap-3{% if not notifications %} d-none{% endif %}"
+             id="notif-header-actions">
+            <button type="button"
+                    class="btn btn-link btn-sm text-primary text-decoration-none p-0 mark-all-read-btn"
+                    id="mark-all-read-btn">
+                {% trans "Đánh dấu tất cả đã đọc" %}
+            </button>
+            <button type="button"
+                    class="btn btn-link btn-sm text-danger text-decoration-none p-0 delete-all-notifications-btn"
+                    id="delete-all-notifications-btn">
+                {% trans "Xóa tất cả" %}
+            </button>
+        </div>
     </div>
 
     <div class="notif-filters" role="tablist" aria-label="{% trans 'Lọc thông báo' %}">
@@ -57,7 +64,7 @@
                      data-type="follow_request"
                      data-username="{{ notification.sender.username }}">
                     <div class="d-flex w-100 justify-content-between align-items-center gap-2 flex-wrap">
-                        <div class="d-flex align-items-center">
+                        <div class="d-flex align-items-center min-w-0">
                             <a href="{{ notification.link }}" class="text-decoration-none text-dark">
                                 <img src="{{ notification.sender.get_avatar_url }}"
                                      class="rounded-circle me-2"
@@ -65,7 +72,7 @@
                                      height="40"
                                      alt="{{ notification.sender.username }}">
                             </a>
-                            <div>
+                            <div class="min-w-0">
                                 <a href="{{ notification.link }}" class="text-decoration-none text-dark">
                                     <strong>{{ notification.sender.username }}</strong>
                                 </a>
@@ -73,7 +80,7 @@
                                 <div><small class="text-muted">{% blocktrans with time=notification.created_at|timesince %}{{ time }} trước{% endblocktrans %}</small></div>
                             </div>
                         </div>
-                        <div class="d-flex gap-2 follow-request-actions">
+                        <div class="d-flex gap-2 align-items-center flex-shrink-0">
                             <button type="button" class="btn btn-sm btn-primary accept-follow-request"
                                     data-username="{{ notification.sender.username }}">
                                 {% trans "Xác nhận" %}
@@ -82,30 +89,89 @@
                                     data-username="{{ notification.sender.username }}">
                                 {% trans "Từ chối" %}
                             </button>
+                            <button type="button"
+                                    class="btn btn-sm btn-link text-muted delete-notification-btn"
+                                    data-id="{{ notification.id }}"
+                                    title="{% trans 'Xóa thông báo' %}"
+                                    aria-label="{% trans 'Xóa thông báo' %}">
+                                <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% elif notification.notification_type == 'follow' %}
+                <div class="list-group-item {% if not notification.is_read %}bg-light{% endif %}"
+                     id="notification-{{ notification.id }}"
+                     data-id="{{ notification.id }}"
+                     data-type="follow"
+                     data-username="{{ notification.sender.username }}">
+                    <div class="d-flex w-100 justify-content-between align-items-center gap-2">
+                        <a href="{{ notification.link }}" class="d-flex align-items-center min-w-0 text-decoration-none text-dark flex-grow-1">
+                            <img src="{{ notification.sender.get_avatar_url }}"
+                                 class="rounded-circle me-2 flex-shrink-0"
+                                 width="40"
+                                 height="40"
+                                 alt="{{ notification.sender.username }}">
+                            <div class="min-w-0">
+                                <strong>{{ notification.sender.username }}</strong>
+                                {{ notification.display_text|default:notification.text }}
+                                <div><small class="text-muted">{% blocktrans with time=notification.created_at|timesince %}{{ time }} trước{% endblocktrans %}</small></div>
+                            </div>
+                        </a>
+                        <div class="d-flex gap-2 align-items-center flex-shrink-0">
+                            {% if notification.show_follow_back %}
+                            <button type="button"
+                                    class="btn btn-sm btn-primary follow-back-btn"
+                                    data-username="{{ notification.sender.username }}">
+                                {% trans "Theo dõi lại" %}
+                            </button>
+                            {% elif notification.follow_request_pending %}
+                            <button type="button" class="btn btn-sm btn-outline-secondary" disabled>
+                                {% trans "Đã gửi yêu cầu" %}
+                            </button>
+                            {% elif notification.is_following_sender %}
+                            <button type="button" class="btn btn-sm btn-outline-secondary" disabled>
+                                {% trans "Đang theo dõi" %}
+                            </button>
+                            {% endif %}
+                            <button type="button"
+                                    class="btn btn-sm btn-link text-muted delete-notification-btn"
+                                    data-id="{{ notification.id }}"
+                                    title="{% trans 'Xóa thông báo' %}"
+                                    aria-label="{% trans 'Xóa thông báo' %}">
+                                <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
                 {% else %}
-                <a href="{{ notification.link }}"
-                   class="list-group-item list-group-item-action text-decoration-none text-dark {% if not notification.is_read %}bg-light{% endif %}"
-                   id="notification-{{ notification.id }}"
-                   data-id="{{ notification.id }}"
-                   data-type="{{ notification.notification_type }}">
-                    <div class="d-flex w-100 justify-content-between gap-2">
-                        <div class="d-flex align-items-start">
+                <div class="list-group-item {% if not notification.is_read %}bg-light{% endif %}"
+                     id="notification-{{ notification.id }}"
+                     data-id="{{ notification.id }}"
+                     data-type="{{ notification.notification_type }}">
+                    <div class="d-flex w-100 justify-content-between align-items-center gap-2">
+                        <a href="{{ notification.link }}"
+                           class="d-flex align-items-start min-w-0 text-decoration-none text-dark flex-grow-1">
                             <img src="{{ notification.sender.get_avatar_url }}"
-                                 class="rounded-circle me-2"
+                                 class="rounded-circle me-2 flex-shrink-0"
                                  width="40"
                                  height="40"
                                  alt="{{ notification.sender.username }}">
-                            <div>
+                            <div class="min-w-0">
                                 <strong>{{ notification.sender.username }}</strong>
                                 {{ notification.text }}
+                                <div><small class="text-muted">{% blocktrans with time=notification.created_at|timesince %}{{ time }} trước{% endblocktrans %}</small></div>
                             </div>
-                        </div>
-                        <small class="text-muted text-nowrap">{% blocktrans with time=notification.created_at|timesince %}{{ time }} trước{% endblocktrans %}</small>
+                        </a>
+                        <button type="button"
+                                class="btn btn-sm btn-link text-muted delete-notification-btn flex-shrink-0"
+                                data-id="{{ notification.id }}"
+                                title="{% trans 'Xóa thông báo' %}"
+                                aria-label="{% trans 'Xóa thông báo' %}">
+                            <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                        </button>
                     </div>
-                </a>
+                </div>
                 {% endif %}
             {% endfor %}
         {% else %}
@@ -131,7 +197,7 @@
 
 {% block extra_js %}
 <script src="{% static 'js/follow_requests.js' %}?v=1"></script>
-<script src="{% static 'js/notifications_infinite.js' %}?v=filters-1"></script>
+<script src="{% static 'js/notifications_infinite.js' %}?v=delete-all-1"></script>
 <script>
 document.querySelector('.mobile-bottom-nav__item[data-nav="activity"]')?.classList.add('is-active');
 </script>

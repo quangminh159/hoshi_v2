@@ -243,3 +243,82 @@
         animation: none !important;
     }
 }
+
+/* ---- Dark mode ---- */
+[data-bs-theme="dark"] .logout-page {
+    --logout-ink: #f5f5f4;
+    --logout-muted: #a8a29e;
+    --logout-line: rgba(245, 245, 244, 0.14);
+    --logout-surface: rgba(28, 25, 23, 0.92);
+    --logout-accent: #2dd4bf;
+    --logout-accent-deep: #5eead4;
+
+    color: var(--logout-ink);
+    background:
+        radial-gradient(1200px 600px at 12% -10%, rgba(45, 212, 191, 0.14), transparent 55%),
+        radial-gradient(900px 500px at 100% 10%, rgba(120, 113, 108, 0.22), transparent 50%),
+        linear-gradient(165deg, #0c0a09 0%, #1c1917 42%, #292524 100%);
+}
+
+[data-bs-theme="dark"] .logout-grain {
+    opacity: 0.12;
+    mix-blend-mode: soft-light;
+}
+
+[data-bs-theme="dark"] .logout-orb--a {
+    background: radial-gradient(circle, rgba(45, 212, 191, 0.28), transparent 70%);
+}
+
+[data-bs-theme="dark"] .logout-orb--b {
+    background: radial-gradient(circle, rgba(168, 162, 158, 0.18), transparent 70%);
+}
+
+[data-bs-theme="dark"] .logout-panel {
+    background: var(--logout-surface);
+    border-color: var(--logout-line);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+    color: var(--logout-ink);
+}
+
+[data-bs-theme="dark"] .logout-brand,
+[data-bs-theme="dark"] .logout-brand__name,
+[data-bs-theme="dark"] .logout-title,
+[data-bs-theme="dark"] .logout-copy strong {
+    color: var(--logout-ink);
+}
+
+[data-bs-theme="dark"] .logout-kicker {
+    color: var(--logout-accent);
+}
+
+[data-bs-theme="dark"] .logout-copy,
+[data-bs-theme="dark"] .logout-footnote {
+    color: var(--logout-muted);
+}
+
+[data-bs-theme="dark"] .logout-btn--primary {
+    background: #f5f5f4;
+    color: #1c1917;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+}
+
+[data-bs-theme="dark"] .logout-btn--primary:hover {
+    background: #fff;
+    color: #0c0a09;
+}
+
+[data-bs-theme="dark"] .logout-btn--ghost {
+    color: var(--logout-ink);
+    border-color: var(--logout-line);
+    background: transparent;
+}
+
+[data-bs-theme="dark"] .logout-btn--ghost:hover {
+    background: rgba(245, 245, 244, 0.06);
+    color: var(--logout-accent-deep);
+    border-color: rgba(45, 212, 191, 0.4);
+}
+
+[data-bs-theme="dark"] .logout-brand__mark {
+    filter: invert(1) brightness(1.08);
+}

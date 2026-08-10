@@ -180,6 +180,29 @@ function restoreLikeStates() {
 
 // Like post
 function likePost(postId) {
+    const button = document.querySelector(`.like-button[data-post-id="${postId}"]`);
+    const icon = button?.querySelector('i');
+    const countEl = document.querySelector(`.likes-count[data-post-id="${postId}"]`);
+    const wasLiked = !!(button?.classList.contains('liked') || (icon && icon.classList.contains('fas')));
+    const prevCount = countEl ? (parseInt(countEl.textContent, 10) || 0) : 0;
+    const nextCount = wasLiked ? Math.max(0, prevCount - 1) : prevCount + 1;
+
+    // Optimistic
+    document.querySelectorAll(`.like-button[data-post-id="${postId}"]`).forEach((btn) => {
+        const heart = btn.querySelector('i');
+        if (heart) {
+            heart.classList.toggle('far', wasLiked);
+            heart.classList.toggle('fas', !wasLiked);
+        }
+        btn.classList.toggle('liked', !wasLiked);
+    });
+    document.querySelectorAll(`.likes-count[data-post-id="${postId}"]`).forEach((el) => {
+        el.textContent = String(nextCount);
+    });
+    document.querySelectorAll(`.likes-count-display a[data-post-id="${postId}"]`).forEach((el) => {
+        el.textContent = `${nextCount} lượt thích`;
+    });
+
     fetch(`/api/posts/${postId}/like/`, {
         method: 'POST',
         headers: {
@@ -189,36 +212,43 @@ function likePost(postId) {
     })
     .then(response => response.json())
     .then(data => {
-        const likeButtons = document.querySelectorAll(`.like-button[data-post-id="${postId}"]`);
-        const likeCountElements = document.querySelectorAll(`.likes-count[data-post-id="${postId}"]`);
-        const likeCountDisplays = document.querySelectorAll(`.likes-count-display a[data-post-id="${postId}"]`);
-        
-        likeButtons.forEach(likeButton => {
+        const liked = data.status === 'liked' || data.liked === true;
+        document.querySelectorAll(`.like-button[data-post-id="${postId}"]`).forEach(likeButton => {
             const heartIcon = likeButton.querySelector('i');
-            if (data.status === 'liked') {
+            if (liked) {
                 heartIcon.classList.remove('far');
                 heartIcon.classList.add('fas');
-                // Lưu trạng thái like vào localStorage
+                likeButton.classList.add('liked');
                 localStorage.setItem(`post_liked_${postId}`, 'true');
-            } else if (data.status === 'unliked') {
+            } else {
                 heartIcon.classList.remove('fas');
                 heartIcon.classList.add('far');
-                // Xoá trạng thái like khỏi localStorage
+                likeButton.classList.remove('liked');
                 localStorage.removeItem(`post_liked_${postId}`);
             }
         });
 
-        likeCountElements.forEach(likeCount => {
-            likeCount.textContent = data.likes_count;
+        const n = typeof data.likes_count === 'number' ? data.likes_count : nextCount;
+        document.querySelectorAll(`.likes-count[data-post-id="${postId}"]`).forEach(likeCount => {
+            likeCount.textContent = String(n);
         });
-
-        likeCountDisplays.forEach(likeCountDisplay => {
-            likeCountDisplay.textContent = `${data.likes_count} lượt thích`;
+        document.querySelectorAll(`.likes-count-display a[data-post-id="${postId}"]`).forEach(likeCountDisplay => {
+            likeCountDisplay.textContent = `${n} lượt thích`;
         });
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Có lỗi xảy ra khi thích bài viết');
+        document.querySelectorAll(`.like-button[data-post-id="${postId}"]`).forEach((btn) => {
+            const heart = btn.querySelector('i');
+            if (heart) {
+                heart.classList.toggle('far', !wasLiked);
+                heart.classList.toggle('fas', wasLiked);
+            }
+            btn.classList.toggle('liked', wasLiked);
+        });
+        document.querySelectorAll(`.likes-count[data-post-id="${postId}"]`).forEach((el) => {
+            el.textContent = String(prevCount);
+        });
     });
 }
 
@@ -1122,18 +1152,22 @@ function addCommentToDOM(comment, postId, isReply, parentId) {
                     </ul>
                 </div>
             </div>
-            <div class="text-muted small">
-                vừa xong · 
-                <button class="btn btn-link btn-sm p-0 text-muted like-comment-button" 
-                        data-comment-id="${normalizedComment.id}">
-                    <span>Thích</span>
+            <div class="text-muted small d-flex align-items-center flex-wrap gap-2 comment-meta-row">
+                <span>vừa xong</span>
+                <button class="btn btn-link btn-sm p-0 comment-action-btn comment-like-button like-comment-button" 
+                        data-comment-id="${normalizedComment.id}"
+                        aria-label="Thích"
+                        title="Thích">
+                    <i class="far fa-heart" aria-hidden="true"></i>
+                    <span class="comment-likes-count" data-comment-id="${normalizedComment.id}"></span>
                 </button>
-                <span class="ms-1">·</span>
-                <button class="btn btn-link btn-sm p-0 text-muted reply-button ms-1" 
+                <button class="btn btn-link btn-sm p-0 comment-action-btn text-muted reply-button" 
                         data-username="${normalizedComment.author.username}"
                         data-post-id="${postId}"
-                        data-comment-id="${normalizedComment.id}">
-                    Trả lời
+                        data-comment-id="${normalizedComment.id}"
+                        aria-label="Trả lời"
+                        title="Trả lời">
+                    <i class="far fa-comment" aria-hidden="true"></i>
                 </button>
             </div>
         </div>
@@ -1233,51 +1267,17 @@ function initializeNewCommentButtons(commentElement) {
     });
     
     // Khởi tạo nút Like
-    const likeButtons = commentElement.querySelectorAll('.like-comment-button');
+    const likeButtons = commentElement.querySelectorAll('.like-comment-button, .comment-like-button');
     likeButtons.forEach(button => {
-        button.addEventListener('click', function() {
+        if (button.getAttribute('data-initialized') === 'true') return;
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
             const commentId = this.getAttribute('data-comment-id');
             if (!commentId) return;
-            
-            fetch(`/api/posts/comments/${commentId}/like/`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': getCookie('csrftoken'),
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                const textElement = button.querySelector('span');
-                
-                if (data.status === 'liked') {
-                    textElement.textContent = 'Đã thích';
-                    textElement.classList.add('text-primary');
-                } else {
-                    textElement.textContent = 'Thích';
-                    textElement.classList.remove('text-primary');
-                }
-                
-                // Cập nhật số lượng likes nếu có
-                if (data.likes_count > 0) {
-                    let likesCountElement = commentElement.querySelector('.comment-likes-count');
-                    if (!likesCountElement) {
-                        const likesCountHTML = `
-                            <span class="ms-2">
-                                <i class="fas fa-heart text-danger small"></i>
-                                <span class="comment-likes-count" data-comment-id="${commentId}">${data.likes_count}</span>
-                            </span>
-                        `;
-                        button.closest('.text-muted.small').insertAdjacentHTML('beforeend', likesCountHTML);
-                    } else {
-                        likesCountElement.textContent = data.likes_count;
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('Lỗi khi thích bình luận:', error);
-            });
+            likeComment(commentId);
         });
+        button.setAttribute('data-initialized', 'true');
     });
     
     // Khởi tạo nút Delete
@@ -1375,6 +1375,35 @@ function getCurrentUserId() {
 
 // Like comment
 function likeComment(commentId) {
+    const buttons = document.querySelectorAll(
+        `.like-comment-button[data-comment-id="${commentId}"], .comment-like-button[data-comment-id="${commentId}"]`
+    );
+    const first = buttons[0];
+    const icon = first?.querySelector('i');
+    const wasLiked = first?.classList.contains('is-liked') || (icon && icon.classList.contains('fas'));
+    const countEl = first?.querySelector('.comment-likes-count');
+    const prevCount = parseInt(countEl?.textContent, 10) || 0;
+    const nextCount = wasLiked ? Math.max(0, prevCount - 1) : prevCount + 1;
+
+    const applyUi = (liked, count) => {
+        const text = count > 0 ? String(count) : '';
+        buttons.forEach((button) => {
+            const heart = button.querySelector('i');
+            if (heart) {
+                heart.classList.toggle('far', !liked);
+                heart.classList.toggle('fas', liked);
+            }
+            button.classList.toggle('is-liked', liked);
+            const c = button.querySelector('.comment-likes-count');
+            if (c) c.textContent = text;
+        });
+        document.querySelectorAll(`.comment-likes-count[data-comment-id="${commentId}"]`).forEach((el) => {
+            el.textContent = text;
+        });
+    };
+
+    applyUi(!wasLiked, nextCount);
+
     fetch(`/api/posts/comments/${commentId}/like/`, {
         method: 'POST',
         headers: {
@@ -1384,31 +1413,10 @@ function likeComment(commentId) {
     })
     .then(response => response.json())
     .then(data => {
-        const commentLikeButtons = document.querySelectorAll(`.like-comment-button[data-comment-id="${commentId}"]`);
-        const commentLikesCountElements = document.querySelectorAll(`.comment-likes-count[data-comment-id="${commentId}"]`);
-        
-        commentLikeButtons.forEach(button => {
-            const likeText = button.querySelector('span');
-            if (data.status === 'liked') {
-                likeText.textContent = 'Đã thích';
-                likeText.classList.add('text-primary');
-            } else if (data.status === 'unliked') {
-                likeText.textContent = 'Thích';
-                likeText.classList.remove('text-primary');
-            }
-        });
-
-        commentLikesCountElements.forEach(likeCountElement => {
-            if (data.likes_count > 0) {
-                likeCountElement.textContent = data.likes_count;
-                likeCountElement.closest('.comment').querySelector('.comment-likes-count-container').style.display = 'inline';
-            } else {
-                likeCountElement.closest('.comment').querySelector('.comment-likes-count-container').style.display = 'none';
-            }
-        });
+        applyUi(data.status === 'liked', data.likes_count || 0);
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Có lỗi xảy ra khi thích bình luận');
+        applyUi(wasLiked, prevCount);
     });
 } 

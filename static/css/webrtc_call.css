@@ -38,6 +38,15 @@
     display: none;
 }
 
+/* Luôn giữ kênh audio remote (không display:none) */
+.hoshi-call-remote-audio {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
 .hoshi-call-overlay.has-remote-video.is-active .hoshi-call-remote,
 .hoshi-call-overlay.is-video.is-active.has-remote-video .hoshi-call-remote {
     display: block;
@@ -70,9 +79,8 @@
     padding: 1.5rem;
 }
 
-/* Ẩn panel thoại khi đang xem video đối phương hoặc đã bật cam mình */
-.hoshi-call-overlay.is-active.has-remote-video .hoshi-call-voice-panel,
-.hoshi-call-overlay.is-active.has-local-video .hoshi-call-voice-panel {
+/* Ẩn panel thoại chỉ khi đã vào cuộc gọi + đang xem video */
+.hoshi-call-overlay.is-media-fullscreen .hoshi-call-voice-panel {
     display: none;
 }
 
@@ -133,6 +141,13 @@
     transition: transform 0.15s ease, background 0.15s ease;
 }
 
+/* display:inline-flex ở trên làm Firefox bỏ qua attribute hidden → nút thừa */
+.hoshi-call-btn[hidden],
+.hoshi-call-mini[hidden],
+.hoshi-call-controls [hidden] {
+    display: none !important;
+}
+
 .hoshi-call-btn:hover {
     transform: scale(1.05);
     background: rgba(255, 255, 255, 0.22);
@@ -170,5 +185,220 @@
     .hoshi-call-btn {
         width: 52px;
         height: 52px;
+    }
+}
+
+/* ---- Thu nhỏ: bóng nổi, dùng tiếp app ---- */
+.hoshi-call-overlay.is-minimized {
+    inset: auto;
+    right: 1rem;
+    bottom: calc(1.25rem + env(safe-area-inset-bottom));
+    width: auto;
+    min-width: 220px;
+    max-width: min(340px, calc(100vw - 1.5rem));
+    height: auto;
+    border-radius: 999px;
+    background: rgba(20, 22, 30, 0.94);
+    box-shadow: 0 10px 32px rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    z-index: 2100;
+    overflow: hidden;
+    pointer-events: auto;
+    touch-action: none;
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.hoshi-call-overlay.is-minimized.is-dragging {
+    cursor: grabbing;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+    transition: none;
+}
+
+/* Thu nhỏ + đang có video → cửa sổ PiP */
+.hoshi-call-overlay.is-minimized.is-mini-video {
+    width: 148px;
+    min-width: 148px;
+    max-width: 168px;
+    height: 236px;
+    border-radius: 16px;
+    background: #111;
+}
+
+.hoshi-call-overlay.is-minimized .hoshi-call-stage {
+    min-height: 0;
+    height: 100%;
+    background: transparent;
+    padding: 0;
+    flex-direction: row;
+}
+
+.hoshi-call-overlay.is-minimized:not(.is-mini-video) .hoshi-call-remote,
+.hoshi-call-overlay.is-minimized:not(.is-mini-video) .hoshi-call-local,
+.hoshi-call-overlay.is-minimized .hoshi-call-voice-panel,
+.hoshi-call-overlay.is-minimized .hoshi-call-controls {
+    display: none !important;
+}
+
+.hoshi-call-overlay.is-minimized.is-mini-video .hoshi-call-remote {
+    display: block !important;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 16px;
+    z-index: 1;
+}
+
+.hoshi-call-overlay.is-minimized.is-mini-video.has-local-video .hoshi-call-local {
+    display: block !important;
+    width: 44px;
+    height: 62px;
+    right: 0.4rem;
+    top: 0.4rem;
+    border-radius: 8px;
+    border-width: 1.5px;
+    z-index: 3;
+}
+
+.hoshi-call-overlay.is-minimized .hoshi-call-remote-audio {
+    position: fixed;
+    left: -9999px;
+}
+
+.hoshi-call-mini {
+    display: none;
+    align-items: center;
+    gap: 0.35rem;
+    width: 100%;
+    padding: 0.4rem 0.45rem 0.4rem 0.4rem;
+}
+
+.hoshi-call-overlay.is-minimized .hoshi-call-mini:not([hidden]) {
+    display: flex;
+}
+
+.hoshi-call-overlay.is-minimized.is-mini-video .hoshi-call-mini:not([hidden]) {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 4;
+    padding: 0.35rem 0.4rem;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.82));
+    border-radius: 0 0 16px 16px;
+}
+
+.hoshi-call-overlay.is-minimized.is-mini-video .hoshi-call-mini__main {
+    padding: 0;
+}
+
+.hoshi-call-overlay.is-minimized.is-mini-video .hoshi-call-mini__avatar {
+    display: none;
+}
+
+.hoshi-call-overlay.is-minimized.is-mini-video .hoshi-call-mini__name {
+    font-size: 0.75rem;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.hoshi-call-overlay.is-minimized.is-mini-video .hoshi-call-mini__timer {
+    font-size: 0.68rem;
+}
+
+.hoshi-call-overlay.is-minimized.is-mini-video .hoshi-call-mini__btn {
+    width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
+}
+
+.hoshi-call-mini__main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    border: none;
+    background: transparent;
+    color: #fff;
+    text-align: left;
+    cursor: pointer;
+    padding: 0.15rem 0.25rem;
+    border-radius: 999px;
+}
+
+.hoshi-call-mini__main:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.hoshi-call-mini__avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 2px solid rgba(48, 164, 108, 0.85);
+}
+
+.hoshi-call-mini__meta {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.2;
+}
+
+.hoshi-call-mini__name {
+    font-size: 0.875rem;
+    font-weight: 650;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.hoshi-call-mini__timer {
+    font-size: 0.75rem;
+    opacity: 0.8;
+    font-variant-numeric: tabular-nums;
+}
+
+.hoshi-call-mini__btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    touch-action: manipulation;
+}
+
+.hoshi-call-mini__btn.is-off {
+    background: rgba(255, 255, 255, 0.35);
+    color: #111;
+}
+
+.hoshi-call-mini__btn--danger {
+    background: #e5484d;
+}
+
+@media (max-width: 576px) {
+    .hoshi-call-overlay.is-minimized {
+        right: 0.75rem;
+        bottom: calc(4.5rem + env(safe-area-inset-bottom));
+        min-width: 0;
+        width: calc(100vw - 1.5rem);
+        max-width: 320px;
+    }
+
+    .hoshi-call-overlay.is-minimized.is-mini-video {
+        width: 132px;
+        min-width: 132px;
+        max-width: 148px;
+        height: 210px;
     }
 }

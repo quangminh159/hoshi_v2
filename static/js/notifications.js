@@ -45,6 +45,10 @@ function connectWebSocket() {
 
         socket.addEventListener('message', (event) => {
             const data = JSON.parse(event.data);
+            if (data && data.type === 'post_engagement') {
+                handlePostEngagement(data);
+                return;
+            }
             handleNotification(data);
         });
 
@@ -178,7 +182,116 @@ function handleChatInboxMessage(data) {
     });
 }
 
+function applyLiveLikeCount(postId, count) {
+    if (typeof window.setPostLikeCount === 'function') {
+        window.setPostLikeCount(postId, count);
+        return;
+    }
+    const n = Math.max(0, Number(count) || 0);
+    document.querySelectorAll(`.likes-count[data-post-id="${postId}"]`).forEach((el) => {
+        el.textContent = String(n);
+    });
+    document.querySelectorAll(`.likes-count-text[data-post-id="${postId}"], .likes-count-text`).forEach((el) => {
+        if (el.dataset.postId && String(el.dataset.postId) !== String(postId)) return;
+        el.textContent = `${n} lượt thích`;
+    });
+    document.querySelectorAll(`.likes-count-display a[data-post-id="${postId}"]`).forEach((el) => {
+        const textEl = el.querySelector('.likes-count-text');
+        if (textEl) textEl.textContent = `${n} lượt thích`;
+        else el.textContent = `${n} lượt thích`;
+    });
+}
+
+function applyLiveCommentCount(postId, count) {
+    if (typeof window.setPostCommentCount === 'function') {
+        window.setPostCommentCount(postId, count);
+        return;
+    }
+    const n = Math.max(0, Number(count) || 0);
+    document.querySelectorAll(
+        `.comments-count[data-post-id="${postId}"], `
+        + `.post-comment-count[data-post-id="${postId}"], `
+        + `#post-comment-count, #post-comment-count-actions`
+    ).forEach((el) => {
+        if (el.dataset.postId && String(el.dataset.postId) !== String(postId)) return;
+        if ((el.id === 'post-comment-count' || el.id === 'post-comment-count-actions')) {
+            const pagePost = document.querySelector('.like-button[data-post-id]');
+            if (pagePost && String(pagePost.getAttribute('data-post-id')) !== String(postId)) return;
+        }
+        el.textContent = String(n);
+    });
+}
+
+/** Realtime: người khác like/cmt → cập nhật số trên bài đang hiện (không cần reload). */
+function applyLiveCommentLikeCount(commentId, likesCount) {
+    const n = Number(likesCount) || 0;
+    const text = n > 0 ? String(n) : '';
+    document.querySelectorAll(`.comment-likes-count[data-comment-id="${commentId}"]`).forEach((el) => {
+        el.textContent = text;
+    });
+}
+
+function applyLiveCommentRepliesCount(commentId, repliesCount) {
+    const n = Number(repliesCount) || 0;
+    const text = n > 0 ? String(n) : '';
+    let updated = false;
+    document.querySelectorAll(`.comment-replies-count[data-comment-id="${commentId}"]`).forEach((el) => {
+        el.textContent = text;
+        updated = true;
+    });
+    if (!updated && n > 0) {
+        const replyBtn = document.querySelector(
+            `#comment-${commentId} .reply-button[data-comment-id="${commentId}"], `
+            + `.root-comment[data-comment-id="${commentId}"] .reply-button[data-comment-id="${commentId}"]`
+        );
+        if (replyBtn && !replyBtn.querySelector('.comment-replies-count')) {
+            replyBtn.insertAdjacentHTML(
+                'beforeend',
+                `<span class="comment-replies-count" data-comment-id="${commentId}">${text}</span>`
+            );
+        }
+    }
+}
+
+function handlePostEngagement(data) {
+    if (!data) return;
+    const postId = data.post_id;
+    const commentId = data.comment_id;
+
+    if (postId != null) {
+        const visible = document.querySelector(
+            `#post-${postId}, .likes-count[data-post-id="${postId}"], `
+            + `.comments-count[data-post-id="${postId}"], .like-button[data-post-id="${postId}"]`
+        );
+        if (visible) {
+            if (typeof data.likes_count === 'number') {
+                applyLiveLikeCount(postId, data.likes_count);
+            }
+            if (typeof data.comments_count === 'number') {
+                applyLiveCommentCount(postId, data.comments_count);
+            }
+        }
+    }
+
+    if (commentId != null && typeof data.comment_likes_count === 'number') {
+        if (document.querySelector(`#comment-${commentId}, .comment-likes-count[data-comment-id="${commentId}"]`)) {
+            applyLiveCommentLikeCount(commentId, data.comment_likes_count);
+        }
+    }
+
+    const parentId = data.parent_comment_id;
+    if (parentId != null && typeof data.replies_count === 'number') {
+        if (document.querySelector(`#comment-${parentId}, .comment-replies-count[data-comment-id="${parentId}"]`)) {
+            applyLiveCommentRepliesCount(parentId, data.replies_count);
+        }
+    }
+}
+
 function handleNotification(data) {
+    if (data && data.type === 'post_engagement') {
+        handlePostEngagement(data);
+        return;
+    }
     const notification = data.notification;
     const isMessage = notification && notification.notification_type === 'message';
 
