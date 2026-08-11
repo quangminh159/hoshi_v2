@@ -1,0 +1,129 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+{% load static %}
+{% load chat_tags %}
+
+{% block title %}{% trans "Tin nhắn chờ" %}{% endblock %}
+
+{% block body_class %} chat-layout{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/chat.css' %}?v=msg-request-1" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="chat-page">
+  <div class="chat-shell">
+    <header class="chat-list-header">
+      <div class="d-flex align-items-center gap-2">
+        <a href="{% url 'chat:conversation_list' %}" class="chat-btn-icon" title="{% trans 'Quay lại' %}">
+          <i class="fas fa-arrow-left"></i>
+        </a>
+        <div>
+          <h1 class="chat-list-title">{% trans "Tin nhắn chờ" %}</h1>
+          <p class="chat-list-subtitle mb-0">
+            {% trans "Tin từ người bạn chưa theo dõi" %}
+            {% if message_request_count %} · {{ message_request_count }}{% endif %}
+          </p>
+        </div>
+      </div>
+    </header>
+
+    <p class="chat-request-hint">
+      {% trans "Chấp nhận để chuyển vào hộp thư chính. Từ chối sẽ ẩn cuộc trò chuyện này." %}
+    </p>
+
+    <div class="conversation-list" id="conversationList">
+      {% if conversations %}
+        {% for conversation in conversations %}
+          {% with other_user=conversation.other_user %}
+          <div class="conversation-wrapper conversation-wrapper--request{% if conversation.unread_count %} has-unread{% endif %}"
+               id="conversation-{{ conversation.id }}"
+               data-username="{{ conversation.display_title|lower }}">
+            <a href="{% url 'chat:conversation_detail' conversation.id %}" class="conversation-item">
+              <div class="conversation-avatar">
+                <img src="{{ conversation.display_avatar }}" alt="{{ conversation.display_title }}">
+                {% if conversation.unread_count %}
+                <span class="conversation-unread-dot" aria-hidden="true"></span>
+                {% endif %}
+              </div>
+              <div class="conversation-info">
+                <div class="conversation-name">
+                  <span class="{% if conversation.unread_count %}fw-bold{% endif %}">{{ conversation.display_title }}</span>
+                  <span class="conversation-time">
+                    {% if conversation.last_message_time %}
+                      {{ conversation.last_message_time|date:"H:i" }}
+                    {% endif %}
+                  </span>
+                </div>
+                <div class="conversation-last-message {% if conversation.unread_count %}fw-semibold text-body{% endif %}">
+                  {% with last_message=conversation.get_last_message %}
+                    {% if last_message %}
+                      {% if last_message.content %}
+                        {{ last_message.content|truncatechars:45 }}
+                      {% elif last_message.image %}
+                        <i class="far fa-image"></i> {% trans "Hình ảnh" %}
+                      {% elif last_message.video %}
+                        <i class="far fa-file-video"></i> {% trans "Video" %}
+                      {% elif last_message.audio %}
+                        <i class="fas fa-microphone"></i> {% trans "Tin nhắn thoại" %}
+                      {% else %}
+                        {% trans "Tin nhắn mới" %}
+                      {% endif %}
+                    {% else %}
+                      {% trans "Yêu cầu nhắn tin" %}
+                    {% endif %}
+                  {% endwith %}
+                </div>
+              </div>
+            </a>
+            <div class="chat-request-actions">
+              <form method="post" action="{% url 'chat:accept_message_request' conversation.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-primary">{% trans "Chấp nhận" %}</button>
+              </form>
+              <form method="post" action="{% url 'chat:decline_message_request' conversation.id %}"
+                    onsubmit="return confirm('{% trans "Từ chối tin nhắn này?" %}');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-secondary">{% trans "Từ chối" %}</button>
+              </form>
+            </div>
+          </div>
+          {% endwith %}
+        {% endfor %}
+      {% else %}
+        <div class="chat-empty-state py-5 text-center text-muted">
+          <i class="fas fa-envelope-open-text fa-3x mb-3 opacity-50"></i>
+          <h5 class="text-dark">{% trans "Không có tin nhắn chờ" %}</h5>
+          <p class="mb-0">{% trans "Khi người lạ nhắn tin, yêu cầu sẽ hiện ở đây." %}</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  window.addEventListener('hoshi:message-request-accepted', function (event) {
+    const detail = event.detail || {};
+    const conversationId = detail.conversation_id;
+    if (!conversationId) return;
+    const wrap = document.getElementById('conversation-' + conversationId);
+    if (!wrap) return;
+    wrap.remove();
+    const list = document.getElementById('conversationList');
+    if (list && !list.querySelector('.conversation-wrapper')) {
+      list.innerHTML = `
+        <div class="chat-empty-state py-5 text-center text-muted">
+          <i class="fas fa-envelope-open-text fa-3x mb-3 opacity-50"></i>
+          <h5 class="text-dark">Không có tin nhắn chờ</h5>
+          <p class="mb-0">Khi người lạ nhắn tin, yêu cầu sẽ hiện ở đây.</p>
+        </div>`;
+    }
+  });
+});
+</script>
+{% endblock %}

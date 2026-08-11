@@ -1,6 +1,9 @@
 from allauth.account.adapter import DefaultAccountAdapter
 from django.shortcuts import redirect
 from django.urls import reverse
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 # Không hiện banner xanh “Successfully signed in/out…” trên feed
@@ -31,8 +34,38 @@ class AccountAdapter(DefaultAccountAdapter):
             extra_tags=extra_tags,
         )
 
+    def send_mail(self, template_prefix, email, context):
+        """Không làm fail đăng ký/đăng nhập khi SMTP lỗi (quota Gmail, mạng…)."""
+        try:
+            return super().send_mail(template_prefix, email, context)
+        except Exception as exc:
+            logger.warning(
+                'Không gửi được email (%s → %s): %s',
+                template_prefix,
+                email,
+                exc,
+            )
+            return None
+
+    def send_confirmation_mail(self, request, emailconfirmation, signup):
+        try:
+            return super().send_confirmation_mail(request, emailconfirmation, signup)
+        except Exception as exc:
+            logger.warning(
+                'Không gửi được email xác nhận (%s): %s',
+                getattr(getattr(emailconfirmation, 'email_address', None), 'email', '?'),
+                exc,
+            )
+            return None
+
     def pre_login(self, request, user, **kwargs):
-        response = super().pre_login(request, user, **kwargs)
+        try:
+            response = super().pre_login(request, user, **kwargs)
+        except Exception as exc:
+            # SMTP / email confirmation lỗi không được chặn đăng nhập sau signup
+            logger.warning('pre_login email step failed for user=%s: %s', getattr(user, 'pk', None), exc)
+            response = None
+
         if response:
             return response
 

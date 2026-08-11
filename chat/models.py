@@ -98,6 +98,16 @@ class Conversation(models.Model):
         blank=True,
         related_name='created_conversations',
     )
+    # Tin nhắn chờ 
+    is_message_request = models.BooleanField(default=False, db_index=True)
+    message_request_for = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='pending_message_requests',
+        help_text='User cần chấp nhận tin nhắn chờ này',
+    )
 
     def __str__(self):
         if self.is_group and self.name:
@@ -167,9 +177,12 @@ class Conversation(models.Model):
         row = self.get_participant_row(user)
         return bool(row and row.is_admin)
 
-    def get_last_message(self):
-        """Lấy tin nhắn cuối cùng của cuộc trò chuyện"""
-        return self.messages.order_by('-created_at').first()
+    def get_last_message(self, viewer=None):
+        """Lấy tin nhắn cuối cùng của cuộc trò chuyện (ẩn tin đã xóa phía viewer)."""
+        qs = self.messages.order_by('-created_at')
+        if viewer is not None:
+            qs = qs.exclude(hidden_for=viewer)
+        return qs.first()
 
 class ConversationParticipant(models.Model):
     conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name='conversation_participants')
@@ -218,6 +231,14 @@ class ConversationMessage(models.Model):
         blank=True,
         related_name='shared_in_messages',
     )
+    # Xóa tin: chỉ mình (M2M) hoặc thu hồi cả hai bên
+    is_deleted_for_everyone = models.BooleanField(default=False, db_index=True)
+    deleted_for_everyone_at = models.DateTimeField(null=True, blank=True)
+    hidden_for = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        blank=True,
+        related_name='hidden_chat_messages',
+    )
     
     class Meta:
         ordering = ['created_at']
@@ -227,10 +248,31 @@ class ConversationMessage(models.Model):
     
     def has_attachment(self):
         """Kiểm tra xem tin nhắn có đính kèm tệp không"""
+        if self.is_deleted_for_everyone:
+            return False
         return bool(self.image or self.video or self.document or self.audio)
-    
+
+    def clear_attachments(self):
+        """Xóa file đính kèm trên disk và gỡ field (khi thu hồi tin)."""
+        import os
+        for field_name in ('image', 'video', 'audio', 'document'):
+            field = getattr(self, field_name, None)
+            if not field:
+                continue
+            try:
+                if field.name and os.path.isfile(field.path):
+                    os.remove(field.path)
+            except Exception:
+                pass
+            setattr(self, field_name, None)
+        self.file_name = None
+        self.file_size = None
+        self.file_type = None
+
     def get_attachment_url(self):
         """Lấy URL của tệp đính kèm"""
+        if self.is_deleted_for_everyone:
+            return None
         if self.image:
             return self.image.url
         elif self.video:
@@ -243,6 +285,8 @@ class ConversationMessage(models.Model):
 
     def get_reply_preview(self):
         """Nội dung rút gọn để hiển thị khi được trả lời / preview inbox."""
+        if getattr(self, 'is_deleted_for_everyone', False):
+            return 'Tin nhắn đã được thu hồi'
         if self.shared_post_id:
             from chat.message_utils import extract_shared_comment_id
             if extract_shared_comment_id(self.content):

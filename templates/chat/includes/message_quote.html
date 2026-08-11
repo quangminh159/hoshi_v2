@@ -11,25 +11,31 @@
     {% endif %}
   </div>
 
-  {% if parent.image %}
-    <div class="message-quote-media">
-      <img src="{{ parent.image.url }}" alt="Ảnh" loading="lazy">
+  {% if parent.is_deleted_for_everyone %}
+    <div class="message-replied-text message-replied-text--deleted">
+      <i class="fas fa-ban"></i> Tin nhắn đã được thu hồi
     </div>
-  {% elif parent.video %}
-    <div class="message-quote-media message-quote-media--video">
-      <video src="{{ parent.video.url }}" muted preload="metadata"></video>
-      <span class="message-quote-media-badge"><i class="fas fa-play"></i></span>
-    </div>
-  {% elif parent.document %}
-    <div class="message-quote-doc">
-      <i class="far fa-file-alt"></i>
-      <span>{{ parent.file_name|default:"Tài liệu" }}</span>
-    </div>
-  {% endif %}
+  {% else %}
+    {% if parent.image %}
+      <div class="message-quote-media">
+        <img src="{{ parent.image.url }}" alt="Ảnh" loading="lazy">
+      </div>
+    {% elif parent.video %}
+      <div class="message-quote-media message-quote-media--video">
+        <video src="{{ parent.video.url }}" muted preload="metadata"></video>
+        <span class="message-quote-media-badge"><i class="fas fa-play"></i></span>
+      </div>
+    {% elif parent.document %}
+      <div class="message-quote-doc">
+        <i class="far fa-file-alt"></i>
+        <span>{{ parent.file_name|default:"Tài liệu" }}</span>
+      </div>
+    {% endif %}
 
-  {% if parent.content %}
-    <div class="message-replied-text">{{ parent.content|truncatechars:120 }}</div>
-  {% elif not parent.image and not parent.video and not parent.document %}
-    <div class="message-replied-text">{{ parent.get_reply_preview|truncatechars:120 }}</div>
+    {% if parent.content %}
+      <div class="message-replied-text">{{ parent.content|truncatechars:120 }}</div>
+    {% elif not parent.image and not parent.video and not parent.document %}
+      <div class="message-replied-text">{{ parent.get_reply_preview|truncatechars:120 }}</div>
+    {% endif %}
   {% endif %}
 </div>

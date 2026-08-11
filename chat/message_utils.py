@@ -180,6 +180,20 @@ def serialize_reply_to(message):
     if not parent:
         return None
 
+    if getattr(parent, 'is_deleted_for_everyone', False):
+        return {
+            'id': parent.id,
+            'sender_id': parent.sender_id,
+            'sender_username': parent.sender.username if parent.sender_id else '',
+            'content': '',
+            'preview': 'Tin nhắn đã được thu hồi',
+            'has_attachment': False,
+            'attachment_type': None,
+            'attachment_url': None,
+            'file_name': None,
+            'is_deleted_for_everyone': True,
+        }
+
     has_attachment, attachment_type, attachment_url = _attachment_info(parent)
 
     return {
@@ -192,14 +206,40 @@ def serialize_reply_to(message):
         'attachment_type': attachment_type,
         'attachment_url': attachment_url,
         'file_name': parent.file_name,
+        'is_deleted_for_everyone': False,
     }
 
 
 def serialize_chat_message(message, user=None):
     sender = message.sender or user
+    is_system = bool(getattr(message, 'is_system', False))
+    is_deleted = bool(getattr(message, 'is_deleted_for_everyone', False))
+
+    if is_deleted:
+        return {
+            'id': message.id,
+            'content': '',
+            'raw_content': '',
+            'sender_id': sender.id if sender else None,
+            'sender_username': sender.username if sender else 'Hệ thống',
+            'sender_avatar': (
+                sender.get_avatar_url() if sender and hasattr(sender, 'get_avatar_url') else None
+            ),
+            'created_at': message.created_at.isoformat(),
+            'has_attachment': False,
+            'attachment_type': None,
+            'attachment_url': None,
+            'file_name': None,
+            'file_size': None,
+            'reply_to': None,
+            'shared_post': None,
+            'is_system': is_system,
+            'is_deleted_for_everyone': True,
+            'is_read': True,
+        }
+
     has_attachment, attachment_type, attachment_url = _attachment_info(message)
     shared_post = getattr(message, 'shared_post', None)
-    is_system = bool(getattr(message, 'is_system', False))
     comment_id = None if is_system else extract_shared_comment_id(message.content)
     raw_content = message.content or ''
     display_content = (
@@ -226,4 +266,6 @@ def serialize_chat_message(message, user=None):
         'reply_to': None if is_system else serialize_reply_to(message),
         'shared_post': None if is_system else serialize_shared_post(shared_post, comment_id=comment_id),
         'is_system': is_system,
+        'is_deleted_for_everyone': False,
+        'is_read': bool(getattr(message, 'is_read', False) or getattr(message, 'isread', False)),
     }

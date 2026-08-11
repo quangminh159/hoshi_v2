@@ -537,6 +537,7 @@
     border-radius: 24px;
     padding: 0.2rem 0.2rem 0.2rem 1rem;
     border: 1px solid #efefef;
+    align-items: flex-end;
 }
 
 .feed-page .comment-mention-suggestion-box .suggestion-dropdown,
@@ -561,6 +562,21 @@
     box-shadow: none;
     font-size: 0.875rem;
     padding: 0.5rem 0;
+}
+
+.feed-page .add-comment-form textarea.comment-input,
+.feed-page .add-comment-form textarea.form-control,
+.post-detail-page .add-comment-form textarea.comment-input,
+.post-detail-page .add-comment-form textarea.form-control,
+.add-comment-form textarea.comment-input {
+    resize: none;
+    overflow-y: hidden;
+    min-height: 24px;
+    max-height: 140px;
+    line-height: 1.4;
+    white-space: pre-wrap;
+    word-break: break-word;
+    field-sizing: content;
 }
 
 .feed-page .add-comment-form .form-control:focus {

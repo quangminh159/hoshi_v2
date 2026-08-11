@@ -100,6 +100,37 @@ function connectChatInboxSocket() {
             window.HoshiCall?.handleSignal(data);
             return;
         }
+        if (data.type === 'message_request_accepted') {
+            window.dispatchEvent(new CustomEvent('hoshi:message-request-accepted', {
+                detail: {
+                    conversation_id: data.conversation_id,
+                    accepted_by: data.accepted_by || null,
+                    other_user: data.other_user || null,
+                    conversation: data.conversation || null,
+                },
+            }));
+            return;
+        }
+        if (data.type === 'messages_read') {
+            window.dispatchEvent(new CustomEvent('hoshi:messages-read', {
+                detail: {
+                    conversation_id: data.conversation_id,
+                    message_ids: data.message_ids || [],
+                    read_by: data.read_by,
+                },
+            }));
+            return;
+        }
+        if (data.type === 'user_status') {
+            window.dispatchEvent(new CustomEvent('hoshi:user-status', {
+                detail: {
+                    user_id: data.user_id,
+                    status: data.status,
+                    last_seen: data.last_seen || null,
+                },
+            }));
+            return;
+        }
         if (data.type !== 'inbox_message' || !data.conversation_id || !data.message) return;
         handleChatInboxMessage(data);
     });

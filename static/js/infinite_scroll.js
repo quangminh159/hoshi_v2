@@ -335,8 +335,8 @@
                                 <i class="fas fa-microphone"></i>
                             </button>
                             <input type="file" class="d-none comment-image-input" id="comment-image-${post.id}" name="media" accept="image/*,video/mp4,video/webm,video/quicktime,audio/*">
-                            <input type="text" name="text" id="comment-input-${post.id}" class="form-control comment-input"
-                                   placeholder="Viết bình luận..." aria-label="Comment input" autocomplete="off">
+                            <textarea name="text" id="comment-input-${post.id}" class="form-control comment-input"
+                                   placeholder="Viết bình luận..." aria-label="Comment input" rows="1" autocomplete="off"></textarea>
                             <button class="btn btn-primary comment-btn comment-send-btn" type="submit" title="Gửi" aria-label="Gửi bình luận">
                                 <i class="fas fa-paper-plane btn-icon" aria-hidden="true"></i>
                                 <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
@@ -1921,6 +1921,9 @@
                 const input = document.getElementById(`comment-input-${postId}`);
                 if (input) {
                     input.value = '';
+                    if (typeof window.autosizeCommentInput === 'function') {
+                        window.autosizeCommentInput(input);
+                    }
                     input.dispatchEvent(new Event('input', { bubbles: true }));
                     if (typeof window.syncMentionInputHighlight === 'function') {
                         window.syncMentionInputHighlight(input);
@@ -2111,9 +2114,20 @@
                 addComment(postId, text, parentId, form, mediaFile);
             });
 
-            const commentInput = form.querySelector('.comment-input, input[name="text"]');
+            const commentInput = form.querySelector('.comment-input, textarea[name="text"], input[name="text"]');
+            if (commentInput && !commentInput.dataset.enterBound) {
+                commentInput.dataset.enterBound = '1';
+                commentInput.addEventListener('keydown', (e) => {
+                    if (e.key !== 'Enter' || e.shiftKey) return;
+                    e.preventDefault();
+                    form.requestSubmit ? form.requestSubmit() : form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+                });
+            }
             if (typeof window.initCommentMentionSuggestions === 'function') {
                 window.initCommentMentionSuggestions(commentInput);
+            }
+            if (typeof window.initCommentInputAutosize === 'function') {
+                window.initCommentInputAutosize(form);
             }
 
             form.setAttribute('data-initialized', 'true');

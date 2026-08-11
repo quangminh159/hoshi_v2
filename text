@@ -39,12 +39,12 @@ Stop-Process -Id <PID_LISTENING> -Force
    cd C:\hoshi_v2
    .\venv\Scripts\python.exe -m daphne -b 0.0.0.0 -p 8000 hoshi.asgi:application
 
-2. Terminal 2 — mở tunnel:
+2. Terminal 2 — mở tunnel (in link ra Terminal):
    cd C:\hoshi_v2
-   .\ngrok.exe http 8000
+   .\start_ngrok.ps1
 
-3. Copy URL https://....ngrok-free.app hiện trên màn hình ngrok
-   (hoặc xem http://127.0.0.1:4040 trên PC)
+3. Copy URL https://....ngrok-free.app script in ra Terminal
+   (đã tự copy clipboard; hoặc xem http://127.0.0.1:4040)
 
 4. Mở URL đó trên điện thoại → lần đầu bấm "Visit Site"
 

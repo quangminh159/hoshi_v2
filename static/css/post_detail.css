@@ -237,6 +237,21 @@
     position: relative;
 }
 
+.post-detail-comment-form .input-group {
+    align-items: flex-end;
+}
+
+.post-detail-comment-form textarea.comment-input,
+.post-detail-comment-form textarea.form-control {
+    resize: none;
+    overflow-y: hidden;
+    min-height: 38px;
+    max-height: 140px;
+    line-height: 1.4;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
 .comment-image-btn {
     display: flex;
     align-items: center;

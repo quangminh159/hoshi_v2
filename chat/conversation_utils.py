@@ -13,6 +13,9 @@ from chat.models import Conversation, ConversationMessage, ConversationParticipa
 
 User = get_user_model()
 
+# Người gửi tin chờ chỉ được nhắn tối đa N tin trước khi được chấp nhận.
+MESSAGE_REQUEST_MAX_MESSAGES = 3
+
 
 def users_are_blocked(user_a, user_b):
     if not user_a or not user_b:
@@ -22,6 +25,208 @@ def users_are_blocked(user_a, user_b):
     ).exists() or UserBlock.objects.filter(
         blocker=user_b, blocked=user_a
     ).exists()
+
+
+def should_create_as_message_request(sender, recipient):
+    """
+    Tin nhắn chờ khi người nhận chưa theo dõi người gửi (và không bị chặn cứng).
+    Nếu recipient.block_messages → vẫn hard-deny ở can_receive_message_from.
+    """
+    if not sender or not recipient or sender.id == recipient.id:
+        return False
+    if users_are_blocked(sender, recipient):
+        return False
+    # Đã follow người gửi → inbox chính
+    if recipient.is_following_user(sender):
+        return False
+    return True
+
+
+def is_pending_message_request_for(conversation, user):
+    if not conversation or not user:
+        return False
+    return bool(
+        conversation.is_message_request
+        and conversation.message_request_for_id == user.id
+    )
+
+
+def is_outgoing_message_request(conversation, user):
+    """User đang là người gửi tin chờ (chưa được người nhận chấp nhận)."""
+    if not conversation or not user or conversation.is_group:
+        return False
+    return bool(
+        conversation.is_message_request
+        and conversation.message_request_for_id
+        and conversation.message_request_for_id != user.id
+    )
+
+
+def message_request_sent_count(conversation, user):
+    """Số tin người gửi đã gửi trong cuộc tin chờ (không tính tin hệ thống)."""
+    if not conversation or not user:
+        return 0
+    return (
+        ConversationMessage.objects.filter(
+            conversation=conversation,
+            sender=user,
+            is_system=False,
+        ).count()
+    )
+
+
+def message_request_limit_info(conversation, user):
+    """
+    Thông tin hạn mức tin chờ cho user.
+    Trả về None nếu không phải người gửi tin chờ đang pending.
+    """
+    if not is_outgoing_message_request(conversation, user):
+        return None
+    sent = message_request_sent_count(conversation, user)
+    max_n = MESSAGE_REQUEST_MAX_MESSAGES
+    remaining = max(0, max_n - sent)
+    return {
+        'sent': sent,
+        'max': max_n,
+        'remaining': remaining,
+        'at_limit': remaining <= 0,
+    }
+
+
+def can_send_in_message_request(conversation, user):
+    """
+    Cho phép gửi tin trong tin chờ?
+    Returns (ok: bool, error_message: str|None)
+    """
+    info = message_request_limit_info(conversation, user)
+    if info is None:
+        return True, None
+    if info['at_limit']:
+        return False, (
+            f'Bạn chỉ có thể gửi tối đa {MESSAGE_REQUEST_MAX_MESSAGES} tin nhắn '
+            'trước khi người nhận chấp nhận.'
+        )
+    return True, None
+
+
+def accept_message_request(conversation, user):
+    """Chấp nhận tin nhắn chờ → chuyển vào hộp thư chính."""
+    if not is_pending_message_request_for(conversation, user):
+        return False
+    conversation.is_message_request = False
+    conversation.message_request_for = None
+    conversation.save(update_fields=['is_message_request', 'message_request_for'])
+    unhide_conversation_for_user(conversation, user)
+    broadcast_message_request_accepted(conversation, user)
+    return True
+
+
+def broadcast_message_request_accepted(conversation, accepted_by):
+    """Realtime: báo phòng chat + inbox rằng tin chờ đã được chấp nhận."""
+    if not conversation or not accepted_by:
+        return
+    channel_layer = get_channel_layer()
+    if not channel_layer:
+        return
+
+    accepted_payload = {
+        'id': accepted_by.id,
+        'username': accepted_by.username,
+    }
+    conversation_id = int(conversation.id)
+
+    try:
+        async_to_sync(channel_layer.group_send)(
+            f'chat_{conversation_id}',
+            {
+                'type': 'message_request_accepted',
+                'conversation_id': conversation_id,
+                'accepted_by': accepted_payload,
+            },
+        )
+    except Exception:
+        pass
+
+    try:
+        conversation = (
+            Conversation.objects.filter(id=conversation_id)
+            .prefetch_related('participants')
+            .select_related('created_by')
+            .first()
+        )
+        if not conversation:
+            return
+        participants = list(conversation.participants.all())
+        for participant in participants:
+            other = next((u for u in participants if u.id != participant.id), None)
+            other_payload = None
+            if other and not conversation.is_group:
+                other_payload = {
+                    'id': other.id,
+                    'username': other.username,
+                    'avatar_url': other.get_avatar_url(),
+                }
+            async_to_sync(channel_layer.group_send)(
+                f'chat_inbox_{participant.id}',
+                {
+                    'type': 'inbox_message_request_accepted',
+                    'conversation_id': conversation_id,
+                    'accepted_by': accepted_payload,
+                    'other_user': other_payload,
+                    'conversation': conversation_inbox_payload(conversation, participant),
+                },
+            )
+    except Exception:
+        pass
+
+
+def decline_message_request(conversation, user):
+    """Từ chối tin nhắn chờ — ẩn/xóa phía người nhận."""
+    if not is_pending_message_request_for(conversation, user):
+        return {'ok': False}
+    # Xóa trạng thái request rồi ẩn phía mình
+    conversation.is_message_request = False
+    conversation.message_request_for = None
+    conversation.save(update_fields=['is_message_request', 'message_request_for'])
+    return hide_conversation_for_user(conversation, user)
+
+
+def pending_message_request_qs(user):
+    """Các tin nhắn chờ dành cho user."""
+    if not user:
+        return Conversation.objects.none()
+    hidden_ids = hidden_conversation_ids_for_user(user)
+    return (
+        Conversation.objects.filter(
+            is_group=False,
+            is_message_request=True,
+            message_request_for=user,
+            participants=user,
+        )
+        .exclude(id__in=hidden_ids)
+        .select_related('created_by', 'message_request_for')
+        .prefetch_related('participants')
+        .order_by('-last_message_time')
+    )
+
+
+def pending_message_request_count(user):
+    return pending_message_request_qs(user).count()
+
+
+def inbox_conversations_qs(user):
+    """Inbox chính — loại tin nhắn chờ của chính user."""
+    if not user:
+        return Conversation.objects.none()
+    hidden_ids = hidden_conversation_ids_for_user(user)
+    return (
+        Conversation.objects.filter(participants=user)
+        .exclude(id__in=hidden_ids)
+        .exclude(is_message_request=True, message_request_for=user)
+        .select_related('created_by', 'message_request_for')
+        .prefetch_related('participants')
+        .order_by('-last_message_time')
+    )
 
 
 def _direct_conversation_qs(user, recipient):
@@ -155,6 +360,9 @@ def get_or_create_direct_conversation(user, recipient):
     conversation = find_direct_conversation(user, recipient)
     if conversation:
         unhide_conversation_for_user(conversation, user)
+        # Người nhận reply vào tin chờ → tự chấp nhận
+        if is_pending_message_request_for(conversation, user):
+            accept_message_request(conversation, user)
         return conversation
 
     # Khóa 2 user theo id tăng dần để 2 request song song không tạo 2 DM.
@@ -165,9 +373,17 @@ def get_or_create_direct_conversation(user, recipient):
         conversation = find_direct_conversation(user, recipient)
         if conversation:
             unhide_conversation_for_user(conversation, user)
+            if is_pending_message_request_for(conversation, user):
+                accept_message_request(conversation, user)
             return conversation
 
-        conversation = Conversation.objects.create(is_group=False, created_by=user)
+        as_request = should_create_as_message_request(user, recipient)
+        conversation = Conversation.objects.create(
+            is_group=False,
+            created_by=user,
+            is_message_request=as_request,
+            message_request_for=recipient if as_request else None,
+        )
         ConversationParticipant.objects.create(conversation=conversation, user=user)
         ConversationParticipant.objects.create(conversation=conversation, user=recipient)
         return conversation
@@ -378,9 +594,14 @@ def ensure_group_has_admin(conversation):
 
 def conversation_inbox_payload(conversation, viewer):
     """Metadata hiển thị trên danh sách inbox cho một viewer."""
+    is_request = bool(
+        conversation.is_message_request
+        and conversation.message_request_for_id == getattr(viewer, 'id', None)
+    )
     return {
         'id': conversation.id,
         'is_group': bool(conversation.is_group),
+        'is_message_request': is_request,
         'title': conversation.get_display_title(viewer),
         'avatar_url': conversation.get_display_avatar_url(viewer),
         'member_count': conversation.get_member_count() if conversation.is_group else 2,
@@ -389,6 +610,10 @@ def conversation_inbox_payload(conversation, viewer):
 
 def send_conversation_message(user, conversation, content='', shared_post=None):
     """Tạo tin nhắn, cập nhật conversation và broadcast qua WebSocket."""
+    ok, err = can_send_in_message_request(conversation, user)
+    if not ok:
+        raise ValueError(err or 'Không thể gửi thêm tin nhắn chờ.')
+
     unhide_conversation_participants(conversation)
 
     message = ConversationMessage.objects.create(
@@ -407,6 +632,54 @@ def send_conversation_message(user, conversation, content='', shared_post=None):
     payload = serialize_chat_message(message, user)
     broadcast_chat_message(conversation.id, payload)
     return message, payload
+
+
+def broadcast_messages_read(conversation_id, message_ids, read_by_id):
+    """Realtime: báo tin đã được xem (Đã xem) tới phòng chat + inbox."""
+    ids = [int(i) for i in (message_ids or []) if i is not None]
+    if not conversation_id or not ids or not read_by_id:
+        return
+    channel_layer = get_channel_layer()
+    if not channel_layer:
+        return
+
+    payload = {
+        'conversation_id': int(conversation_id),
+        'message_ids': ids,
+        'read_by': int(read_by_id),
+    }
+    try:
+        async_to_sync(channel_layer.group_send)(
+            f'chat_{conversation_id}',
+            {
+                'type': 'messages_read',
+                'message_ids': ids,
+                'read_by': int(read_by_id),
+            },
+        )
+    except Exception:
+        pass
+
+    try:
+        conversation = (
+            Conversation.objects.filter(id=conversation_id)
+            .prefetch_related('participants')
+            .first()
+        )
+        if not conversation:
+            return
+        for participant in conversation.participants.all():
+            if participant.id == read_by_id:
+                continue
+            async_to_sync(channel_layer.group_send)(
+                f'chat_inbox_{participant.id}',
+                {
+                    'type': 'inbox_messages_read',
+                    **payload,
+                },
+            )
+    except Exception:
+        pass
 
 
 def broadcast_chat_message(conversation_id, message_data):

@@ -16,20 +16,20 @@ Lưu ý:
 - Muốn chat / gọi thoại thì dùng Daphne, không dùng manage.py runserver
 
 ----------------------------------------
-BƯỚC 2 — MỞ NGROK
+BƯỚC 2 — MỞ NGROK (in link ra Terminal)
 ----------------------------------------
 Mở terminal thứ 2:
 
 cd C:\hoshi_v2
-.\ngrok.exe http 8000
+.\start_ngrok.ps1
 
-Copy URL dạng:
+Script sẽ in rõ link dạng:
 https://xxxx.ngrok-free.app
+và tự copy vào clipboard.
 
-Hoặc xem trên PC:
-http://127.0.0.1:4040
+Hoặc xem thêm trên PC: http://127.0.0.1:4040
 
-Giữ terminal ngrok chạy trong lúc test.
+Giữ ngrok chạy trong lúc test (cửa sổ ngrok có thể bị minimize).
 
 ----------------------------------------
 BƯỚC 3 — MỞ TRÊN ĐIỆN THOẠI

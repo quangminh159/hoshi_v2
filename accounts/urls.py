@@ -30,6 +30,7 @@ urlpatterns = [
     
     # API URLs
     path('suggestions/', views.get_suggestions, name='get_suggestions'),
+    path('api/check-username/', views.check_username_available, name='check_username'),
     path('api/<str:username>/posts/', views.api_load_profile_posts, name='api_load_profile_posts'),
     
     # Download data

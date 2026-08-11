@@ -7,8 +7,8 @@
 {% block body_class %} post-detail-layout{% endblock %}
 
 {% block extra_css %}
-<link href="{% static 'css/feed.css' %}?v=location-link-1" rel="stylesheet">
-<link href="{% static 'css/post_detail.css' %}?v=location-link-1" rel="stylesheet">
+<link href="{% static 'css/feed.css' %}?v=comment-autosize-1" rel="stylesheet">
+<link href="{% static 'css/post_detail.css' %}?v=comment-autosize-1" rel="stylesheet">
 <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
 <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
 <link href="https://unpkg.com/filepond-plugin-file-poster/dist/filepond-plugin-file-poster.css" rel="stylesheet">
@@ -985,7 +985,7 @@ document.addEventListener('DOMContentLoaded', function() {
         btn.replaceWith(btn.cloneNode(true));
     });
     
-    document.querySelectorAll('.add-comment-form input[name="text"]').forEach(input => {
+    document.querySelectorAll('.add-comment-form input[name="text"], .add-comment-form textarea[name="text"], .add-comment-form .comment-input').forEach(input => {
         input.replaceWith(input.cloneNode(true));
     });
 
@@ -1029,7 +1029,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const form = submitButton.closest('form');
         const postId = form.getAttribute('data-post-id');
-        const input = form.querySelector('input[name="text"]');
+        const input = form.querySelector('textarea[name="text"], input[name="text"], .comment-input');
         const text = input.value.trim();
         const imageInput = form.querySelector('.comment-image-input');
         const mediaFile = form._pendingCommentMedia
@@ -1116,6 +1116,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.comment) {
                     // Xóa nội dung input và ẩn thông tin trả lời
                     input.value = '';
+                    if (typeof window.autosizeCommentInput === 'function') {
+                        window.autosizeCommentInput(input);
+                    }
                     input.dispatchEvent(new Event('input', { bubbles: true }));
                     if (typeof window.syncMentionInputHighlight === 'function') {
                         window.syncMentionInputHighlight(input);
@@ -1153,10 +1156,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Xử lý nhấn Enter trong input
-    document.addEventListener('keypress', function(e) {
-        if (e.key !== 'Enter') return;
-        const input = e.target.closest('.add-comment-form input[name="text"]');
+    // Enter gửi bình luận; Shift+Enter xuống dòng
+    document.addEventListener('keydown', function(e) {
+        if (e.key !== 'Enter' || e.shiftKey) return;
+        const input = e.target.closest('.add-comment-form textarea[name="text"], .add-comment-form input[name="text"], .add-comment-form .comment-input');
         if (!input) return;
         
         e.preventDefault();
@@ -1212,7 +1215,7 @@ document.addEventListener('DOMContentLoaded', function() {
             form.setAttribute('data-parent-id', commentId);
         }
         
-        const input = form.querySelector('input[name="text"]');
+        const input = form.querySelector('textarea[name="text"], input[name="text"], .comment-input');
         input.focus();
     });
 });
@@ -1857,7 +1860,7 @@ function initializeNewComment(commentId, postId) {
             
             form.setAttribute('data-parent-id', commentId);
             
-            const input = form.querySelector('input[name="text"]');
+            const input = form.querySelector('textarea[name="text"], input[name="text"], .comment-input');
             input.focus();
         });
     });
@@ -2604,11 +2607,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Gợi ý @mention khi viết bình luận
-    document.querySelectorAll('.add-comment-form input[name="text"], .add-comment-form .comment-input').forEach((input) => {
+    document.querySelectorAll('.add-comment-form input[name="text"], .add-comment-form textarea[name="text"], .add-comment-form .comment-input').forEach((input) => {
         if (typeof initCommentMentionSuggestions === 'function') {
             initCommentMentionSuggestions(input);
         }
     });
+    if (typeof window.initCommentInputAutosize === 'function') {
+        window.initCommentInputAutosize();
+    }
 })();
 
 // Nút ← : về trang feed

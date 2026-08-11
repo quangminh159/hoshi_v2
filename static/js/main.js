@@ -5,6 +5,34 @@ window.Hoshi.processedRequests = new Set();
 window.Hoshi.processedComments = new Set(); // Lưu trữ ID của các comments đã hiển thị
 window.Hoshi.debug = true;
 
+/** Tự giãn chiều cao ô bình luận khi nội dung dài / xuống dòng. */
+window.autosizeCommentInput = function autosizeCommentInput(el) {
+    if (!el || el.tagName !== 'TEXTAREA') return;
+    el.style.height = 'auto';
+    const max = parseInt(getComputedStyle(el).maxHeight, 10) || 140;
+    const next = Math.min(el.scrollHeight, max);
+    el.style.height = `${next}px`;
+    el.style.overflowY = el.scrollHeight > max ? 'auto' : 'hidden';
+};
+
+window.initCommentInputAutosize = function initCommentInputAutosize(root) {
+    const scope = root || document;
+    scope.querySelectorAll(
+        '.add-comment-form textarea.comment-input, .add-comment-form textarea[name="text"], .comment-form textarea.comment-input'
+    ).forEach((ta) => {
+        if (ta.dataset.autosizeBound === '1') return;
+        ta.dataset.autosizeBound = '1';
+        const grow = () => window.autosizeCommentInput(ta);
+        ta.addEventListener('input', grow);
+        ta.addEventListener('focus', grow);
+        grow();
+    });
+};
+
+document.addEventListener('DOMContentLoaded', function () {
+    window.initCommentInputAutosize();
+});
+
 // Hàm debounce - chỉ xử lý sau một khoảng thời gian kể từ lần cuối cùng được gọi
 function debounce(func, wait) {
     let timeout;

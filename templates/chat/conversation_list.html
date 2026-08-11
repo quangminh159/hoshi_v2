@@ -8,7 +8,7 @@
 {% block body_class %} chat-layout{% endblock %}
 
 {% block extra_css %}
-<link href="{% static 'css/chat.css' %}?v=mobile-opt-1" rel="stylesheet">
+<link href="{% static 'css/chat.css' %}?v=msg-request-1" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -25,10 +25,37 @@
           {% endif %}
         </p>
       </div>
-      <a href="{% url 'chat:start_conversation' %}" class="chat-btn-icon chat-btn-primary" title="{% trans 'Trò chuyện mới' %}">
-        <i class="fas fa-edit"></i>
-      </a>
+      <div class="chat-list-header-actions">
+        <a href="{% url 'chat:message_requests' %}" class="chat-btn-icon chat-message-requests-btn{% if message_request_count %} has-badge{% endif %}" title="{% trans 'Tin nhắn chờ' %}">
+          <i class="fas fa-envelope-open-text"></i>
+          {% if message_request_count %}
+          <span class="chat-request-badge">{{ message_request_count }}</span>
+          {% endif %}
+        </a>
+        <a href="{% url 'chat:start_conversation' %}" class="chat-btn-icon chat-btn-primary" title="{% trans 'Trò chuyện mới' %}">
+          <i class="fas fa-edit"></i>
+        </a>
+      </div>
     </header>
+
+    <a href="{% url 'chat:message_requests' %}" class="chat-request-entry">
+      <span class="chat-request-entry-icon"><i class="fas fa-inbox"></i></span>
+      <span class="chat-request-entry-text">
+        <strong>{% trans "Tin nhắn chờ" %}</strong>
+        <small>
+          {% if message_request_count %}
+            {% blocktrans count counter=message_request_count %}{{ counter }} tin nhắn mới{% plural %}{{ counter }} tin nhắn mới{% endblocktrans %}
+          {% else %}
+            {% trans "Tin từ người bạn chưa theo dõi" %}
+          {% endif %}
+        </small>
+      </span>
+      {% if message_request_count %}
+      <span class="chat-request-entry-count">{{ message_request_count }}</span>
+      {% else %}
+      <i class="fas fa-chevron-right text-muted"></i>
+      {% endif %}
+    </a>
 
     {% if conversations %}
     <div class="chat-search-box">
@@ -72,9 +99,11 @@
                       <i class="fas fa-ban"></i> {% trans "Không thể nhắn tin (đã chặn)" %}
                     </span>
                   {% else %}
-                    {% with last_message=conversation.get_last_message %}
+                    {% with last_message=conversation.preview_message %}
                       {% if last_message %}
-                        {% if last_message.is_system %}
+                        {% if last_message.is_deleted_for_everyone %}
+                          <em>{% trans "Tin nhắn đã được thu hồi" %}</em>
+                        {% elif last_message.is_system %}
                           <em>{{ last_message.content|truncatechars:50 }}</em>
                         {% else %}
                         {% if last_message.sender == request.user %}
@@ -159,7 +188,7 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/chat_list.js' %}?v=share-preview-1"></script>
+<script src="{% static 'js/chat_list.js' %}?v=msg-request-2"></script>
 <script>
   document.querySelector('.mobile-bottom-nav__item[data-nav="messages"]')?.classList.add('is-active');
 

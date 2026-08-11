@@ -116,16 +116,10 @@ def conversation_list(request):
     # Lấy cuộc trò chuyện chưa bị user ẩn (xóa phía mình)
     from .conversation_utils import (
         dedupe_direct_conversations_for_user,
-        hidden_conversation_ids_for_user,
+        inbox_conversations_qs,
+        pending_message_request_count,
     )
-    hidden_ids = hidden_conversation_ids_for_user(user)
-    all_conversations = list(
-        Conversation.objects.filter(participants=user)
-        .exclude(id__in=hidden_ids)
-        .select_related('created_by')
-        .prefetch_related('participants')
-        .order_by('-last_message_time')
-    )
+    all_conversations = list(inbox_conversations_qs(user))
     unread_map = get_conversation_unread_counts(user, [c.id for c in all_conversations])
     
     # Đánh dấu các cuộc trò chuyện với người dùng bị chặn
@@ -141,14 +135,92 @@ def conversation_list(request):
                 other_participant.id in blocked_user_ids if other_participant else False
             )
         conversation.unread_count = unread_map.get(conversation.id, 0)
+        conversation.preview_message = conversation.get_last_message(user)
 
     # Gộp DM trùng (cùng 1 người nhưng nhiều hội thoại do race tạo cũ)
     all_conversations = dedupe_direct_conversations_for_user(user, all_conversations)
 
     context = {
-        'conversations': all_conversations
+        'conversations': all_conversations,
+        'message_request_count': pending_message_request_count(user),
     }
     return render(request, 'chat/conversation_list.html', context)
+
+
+@login_required
+def message_requests(request):
+    """Danh sách tin nhắn chờ (Message Requests)."""
+    from accounts.models import UserBlock
+    from .unread import get_conversation_unread_counts
+    from .conversation_utils import pending_message_request_qs
+
+    user = request.user
+    blocked_users = UserBlock.objects.filter(blocker=user).values_list('blocked_id', flat=True)
+    blocking_users = UserBlock.objects.filter(blocked=user).values_list('blocker_id', flat=True)
+    blocked_user_ids = list(blocked_users) + list(blocking_users)
+
+    requests_list = list(pending_message_request_qs(user))
+    unread_map = get_conversation_unread_counts(user, [c.id for c in requests_list])
+
+    for conversation in requests_list:
+        other = conversation.get_other_participant(user)
+        conversation.other_user = other
+        conversation.display_title = conversation.get_display_title(user)
+        conversation.display_avatar = conversation.get_display_avatar_url(user)
+        conversation.is_blocked = bool(other and other.id in blocked_user_ids)
+        conversation.unread_count = unread_map.get(conversation.id, 0)
+        conversation.preview_message = conversation.get_last_message(user)
+
+    return render(request, 'chat/message_requests.html', {
+        'conversations': requests_list,
+        'message_request_count': len(requests_list),
+    })
+
+
+@login_required
+@require_POST
+def accept_message_request_view(request, conversation_id):
+    from django.contrib import messages
+    from django.urls import reverse
+    from .conversation_utils import accept_message_request, is_pending_message_request_for
+
+    conversation = get_object_or_404(Conversation, id=conversation_id, participants=request.user)
+    if not is_pending_message_request_for(conversation, request.user):
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'ok': False, 'error': 'Không phải tin nhắn chờ.'}, status=400)
+        messages.error(request, 'Không phải tin nhắn chờ.')
+        return redirect('chat:message_requests')
+
+    accept_message_request(conversation, request.user)
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({
+            'ok': True,
+            'redirect_url': reverse('chat:conversation_detail', args=[conversation.id]),
+        })
+    messages.success(request, 'Đã chấp nhận tin nhắn. Cuộc trò chuyện chuyển vào hộp thư chính.')
+    return redirect('chat:conversation_detail', conversation_id=conversation.id)
+
+
+@login_required
+@require_POST
+def decline_message_request_view(request, conversation_id):
+    from django.contrib import messages
+    from django.urls import reverse
+    from .conversation_utils import decline_message_request, is_pending_message_request_for
+
+    conversation = get_object_or_404(Conversation, id=conversation_id, participants=request.user)
+    if not is_pending_message_request_for(conversation, request.user):
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'ok': False, 'error': 'Không phải tin nhắn chờ.'}, status=400)
+        messages.error(request, 'Không phải tin nhắn chờ.')
+        return redirect('chat:message_requests')
+
+    decline_message_request(conversation, request.user)
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({'ok': True, 'redirect_url': reverse('chat:message_requests')})
+    messages.info(request, 'Đã từ chối tin nhắn chờ.')
+    return redirect('chat:message_requests')
+
 
 @login_required
 def conversation_detail(request, conversation_id):
@@ -164,8 +236,14 @@ def conversation_detail(request, conversation_id):
         raise Http404("Không tìm thấy cuộc trò chuyện")
 
     # Mở lại hội thoại đã ẩn phía mình
-    from .conversation_utils import unhide_conversation_for_user
+    from .conversation_utils import (
+        is_pending_message_request_for,
+        message_request_limit_info,
+        unhide_conversation_for_user,
+    )
     unhide_conversation_for_user(conversation, user)
+    is_pending_request = is_pending_message_request_for(conversation, user)
+    request_limit = message_request_limit_info(conversation, user)
     
     # Lấy người dùng khác trong cuộc trò chuyện (DM)
     other_user = None if conversation.is_group else conversation.get_other_participant(user)
@@ -200,13 +278,18 @@ def conversation_detail(request, conversation_id):
     # Lấy tin nhắn
     chat_messages = ConversationMessage.objects.filter(
         conversation=conversation
+    ).exclude(
+        hidden_for=user
     ).select_related(
         'sender', 'reply_to', 'reply_to__sender',
         'shared_post', 'shared_post__author',
     ).prefetch_related('shared_post__media').order_by('created_at')
 
     from .unread import mark_conversation_messages_read
-    mark_conversation_messages_read(conversation, user)
+    from .conversation_utils import broadcast_messages_read
+    read_ids = mark_conversation_messages_read(conversation, user)
+    if read_ids:
+        broadcast_messages_read(conversation.id, read_ids, user.id)
 
     followable_users = []
     is_group_admin = False
@@ -221,12 +304,17 @@ def conversation_detail(request, conversation_id):
             User.objects.filter(id__in=following_ids).exclude(id__in=member_ids)
         )
     
+    if other_user and getattr(other_user, 'hide_activity', False):
+        other_presence = {'is_online': False, 'last_seen': None}
+    else:
+        other_presence = get_user_presence(other_user) if other_user else {}
+
     context = {
         'conversation': conversation,
         'chat_messages': chat_messages,
         'is_blocked': block_relationship_exists,
         'today': timezone.localdate(),
-        'other_presence': get_user_presence(other_user) if other_user else {},
+        'other_presence': other_presence,
         'members': members,
         'member_rows': member_rows,
         'is_group': conversation.is_group,
@@ -237,6 +325,8 @@ def conversation_detail(request, conversation_id):
             and conversation.created_by_id == user.id
         ),
         'followable_users': followable_users,
+        'is_pending_request': is_pending_request,
+        'message_request_limit': request_limit,
     }
     
     return render(request, 'chat/conversation_detail.html', context)
@@ -271,12 +361,26 @@ def send_message(request, conversation_id):
                 messages.error(request, f'Không thể gửi tin nhắn vì một trong hai người đã chặn người còn lại.')
                 return redirect('chat:conversation_detail', conversation_id=conversation_id)
 
-            if other_participant and not other_participant.can_receive_message_from(user):
+            from .conversation_utils import accept_message_request, can_send_in_message_request, is_pending_message_request_for
+            if is_pending_message_request_for(conversation, user):
+                accept_message_request(conversation, user)
+            elif other_participant and not other_participant.can_receive_message_from(user):
+                # Đã là tin chờ do mình gửi → vẫn cho nhắn tiếp (có hạn mức)
+                if not (
+                    conversation.is_message_request
+                    and conversation.created_by_id == user.id
+                ):
+                    from django.contrib import messages
+                    messages.error(
+                        request,
+                        f'{other_participant.username} chỉ nhận tin nhắn từ người họ đang theo dõi.'
+                    )
+                    return redirect('chat:conversation_detail', conversation_id=conversation_id)
+
+            ok, err = can_send_in_message_request(conversation, user)
+            if not ok:
                 from django.contrib import messages
-                messages.error(
-                    request,
-                    f'{other_participant.username} chỉ nhận tin nhắn từ người họ đang theo dõi.'
-                )
+                messages.error(request, err)
                 return redirect('chat:conversation_detail', conversation_id=conversation_id)
         
         message_content = request.POST.get('message', '').strip()
@@ -845,6 +949,8 @@ def api_search_messages(request, conversation_id):
 
     qs = (
         ConversationMessage.objects.filter(conversation=conversation)
+        .exclude(hidden_for=request.user)
+        .exclude(is_deleted_for_everyone=True)
         .filter(is_system=False)
         .filter(
             Q(content__icontains=q)
@@ -1037,6 +1143,11 @@ def upload_attachment(request, conversation_id):
             or UserBlock.objects.filter(blocker=user, blocked=other_participant).exists()
         ):
             return JsonResponse({'status': 'error', 'message': 'Không thể gửi tin nhắn do bị chặn'}, status=403)
+
+    from .conversation_utils import can_send_in_message_request
+    ok, err = can_send_in_message_request(conversation, user)
+    if not ok:
+        return JsonResponse({'status': 'error', 'message': err}, status=403)
 
     if not any(key in request.FILES for key in ('image', 'video', 'document', 'audio')):
         return JsonResponse({'status': 'error', 'message': 'Không có tệp đính kèm'}, status=400)

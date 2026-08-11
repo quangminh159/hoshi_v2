@@ -37,6 +37,24 @@ import mimetypes
 
 User = get_user_model()
 
+
+@require_http_methods(["GET"])
+def check_username_available(request):
+    """Kiểm tra tên đăng nhập đã được dùng chưa (dùng ở form đăng ký)."""
+    username = (request.GET.get('username') or '').strip()
+    if not username:
+        return JsonResponse({'available': False, 'message': 'Vui lòng nhập tên đăng nhập.'})
+    if len(username) < 3:
+        return JsonResponse({'available': False, 'message': 'Tên đăng nhập cần ít nhất 3 ký tự.'})
+    taken = User.objects.filter(username__iexact=username).exists()
+    if taken:
+        return JsonResponse({
+            'available': False,
+            'message': 'Đã có người sử dụng tên đăng nhập này rồi.',
+        })
+    return JsonResponse({'available': True, 'message': 'Tên đăng nhập này còn trống.'})
+
+
 def profile(request, username):
     user = get_object_or_404(User, username__iexact=username)
     # Chuẩn hóa URL nếu khác hoa/thường so với username thật

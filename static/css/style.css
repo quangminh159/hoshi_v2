@@ -1591,15 +1591,34 @@ a:hover {
         margin-top: 0 !important;
     }
 
-    /* Chỉ ẩn bottom nav trong khung chat chi tiết (có ô nhập tin) */
+    /* Chat chi tiết: ẩn topbar + bottom nav — dùng header chat (nút back) */
+    body.user-authenticated.chat-detail-layout .mobile-feed-topbar,
+    body.user-authenticated:has(.chat-shell--detail) .mobile-feed-topbar {
+        display: none !important;
+    }
+
     body.user-authenticated.chat-detail-layout .mobile-bottom-nav,
     body.user-authenticated:has(.chat-shell--detail) .mobile-bottom-nav {
         display: none !important;
     }
 
+    /* Full-screen fixed: tránh khoảng trắng do chuỗi flex height:auto trên Safari */
     body.user-authenticated.chat-detail-layout .site-main,
     body.user-authenticated:has(.chat-shell--detail) .site-main {
-        padding-bottom: 0 !important;
+        position: fixed !important;
+        inset: 0 !important;
+        width: 100% !important;
+        max-width: none !important;
+        height: 100% !important;
+        max-height: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+        display: flex !important;
+        flex-direction: column !important;
+        z-index: 1030;
+        background: #f3f4f7 !important;
     }
 
     /* Danh sách tin nhắn: hiện thanh task như các trang khác */

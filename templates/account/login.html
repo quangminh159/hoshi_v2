@@ -23,14 +23,19 @@
                             <p class="auth-subtitle">{% trans "Đăng nhập để tiếp tục với Moora" %}</p>
                         </div>
 
-                        {% if form.errors %}
-                            <div class="alert alert-danger d-flex align-items-center mb-4">
-                                <i class="fas fa-exclamation-circle me-2"></i>
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger d-flex align-items-start mb-4">
+                                <i class="fas fa-exclamation-circle me-2 mt-1"></i>
                                 <div>
                                     {% for error in form.non_field_errors %}
-                                        {{ error }}
+                                        <div>{{ error }}</div>
                                     {% endfor %}
                                 </div>
+                            </div>
+                        {% elif form.errors %}
+                            <div class="alert alert-danger d-flex align-items-center mb-4">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                <div>{% trans "Vui lòng kiểm tra lại các thông tin bên dưới." %}</div>
                             </div>
                         {% endif %}
 

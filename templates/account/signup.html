@@ -23,14 +23,19 @@
                             <p class="auth-subtitle">{% trans "Tham gia cộng đồng Moora ngay hôm nay" %}</p>
                         </div>
 
-                        {% if form.errors %}
-                            <div class="alert alert-danger d-flex align-items-center mb-4">
-                                <i class="fas fa-exclamation-circle me-2"></i>
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger d-flex align-items-start mb-4">
+                                <i class="fas fa-exclamation-circle me-2 mt-1"></i>
                                 <div>
                                     {% for error in form.non_field_errors %}
-                                        {{ error }}
+                                        <div>{{ error }}</div>
                                     {% endfor %}
                                 </div>
+                            </div>
+                        {% elif form.errors %}
+                            <div class="alert alert-danger d-flex align-items-center mb-4">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                <div>{% trans "Vui lòng kiểm tra lại các thông tin bên dưới." %}</div>
                             </div>
                         {% endif %}
 
@@ -56,14 +61,17 @@
                                            class="form-control {% if form.username.errors %}is-invalid{% endif %}" 
                                            id="id_username" 
                                            name="username" 
+                                           value="{{ form.username.value|default_if_none:'' }}"
                                            placeholder="{% trans 'Chọn tên người dùng của bạn' %}"
+                                           autocomplete="username"
                                            required>
+                                </div>
+                                <div id="username-feedback"
+                                     class="mt-1 small {% if form.username.errors %}text-danger{% else %}d-none{% endif %}"
+                                     role="status"
+                                     aria-live="polite">
                                     {% if form.username.errors %}
-                                        <div class="invalid-feedback">
-                                            {% for error in form.username.errors %}
-                                                {{ error }}
-                                            {% endfor %}
-                                        </div>
+                                        {% for error in form.username.errors %}{{ error }}{% endfor %}
                                     {% endif %}
                                 </div>
                             </div>
@@ -276,5 +284,74 @@ function setupPasswordToggle(buttonId, passwordId) {
 
 setupPasswordToggle('togglePassword1', 'id_password1');
 setupPasswordToggle('togglePassword2', 'id_password2');
+
+(function () {
+    const input = document.getElementById('id_username');
+    const feedback = document.getElementById('username-feedback');
+    if (!input || !feedback) return;
+
+    const checkUrl = "{% url 'accounts:check_username' %}";
+    let timer = null;
+    let lastChecked = '';
+
+    function setFeedback(message, state) {
+        feedback.textContent = message || '';
+        feedback.classList.remove('d-none', 'text-danger', 'text-success', 'text-muted');
+        if (!message) {
+            feedback.classList.add('d-none');
+            input.classList.remove('is-invalid', 'is-valid');
+            return;
+        }
+        if (state === 'taken') {
+            feedback.classList.add('text-danger');
+            input.classList.add('is-invalid');
+            input.classList.remove('is-valid');
+        } else if (state === 'ok') {
+            feedback.classList.add('text-success');
+            input.classList.add('is-valid');
+            input.classList.remove('is-invalid');
+        } else {
+            feedback.classList.add('text-muted');
+            input.classList.remove('is-invalid', 'is-valid');
+        }
+    }
+
+    function checkUsername() {
+        const username = (input.value || '').trim();
+        if (!username) {
+            setFeedback('', '');
+            lastChecked = '';
+            return;
+        }
+        if (username === lastChecked) return;
+        lastChecked = username;
+        setFeedback('Đang kiểm tra...', 'pending');
+
+        fetch(checkUrl + '?username=' + encodeURIComponent(username), {
+            headers: { 'Accept': 'application/json' },
+            credentials: 'same-origin'
+        })
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                if ((input.value || '').trim() !== username) return;
+                if (data.available) {
+                    setFeedback(data.message || 'Tên đăng nhập này còn trống.', 'ok');
+                } else {
+                    setFeedback(data.message || 'Đã có người sử dụng tên đăng nhập này rồi.', 'taken');
+                }
+            })
+            .catch(function () {
+                if ((input.value || '').trim() !== username) return;
+                setFeedback('', '');
+                lastChecked = '';
+            });
+    }
+
+    input.addEventListener('input', function () {
+        clearTimeout(timer);
+        timer = setTimeout(checkUsername, 400);
+    });
+    input.addEventListener('blur', checkUsername);
+})();
 </script>
 {% endblock %}

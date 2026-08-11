@@ -165,9 +165,82 @@
         return wrapper;
     }
 
+    function bumpMessageRequestBadge() {
+        const entryCount = document.querySelector('.chat-request-entry-count');
+        const entrySmall = document.querySelector('.chat-request-entry-text small');
+        const headerBtn = document.querySelector('.chat-message-requests-btn');
+        let n = 0;
+        if (entryCount) {
+            n = parseInt(entryCount.textContent, 10) || 0;
+            n += 1;
+            entryCount.textContent = String(n);
+        } else {
+            const entry = document.querySelector('.chat-request-entry');
+            if (entry) {
+                const span = document.createElement('span');
+                span.className = 'chat-request-entry-count';
+                span.textContent = '1';
+                const chevron = entry.querySelector('.fa-chevron-right');
+                if (chevron) chevron.replaceWith(span);
+                else entry.appendChild(span);
+                n = 1;
+            }
+        }
+        if (entrySmall && n) {
+            entrySmall.textContent = `${n} tin nhắn mới`;
+        }
+        if (headerBtn) {
+            headerBtn.classList.add('has-badge');
+            let badge = headerBtn.querySelector('.chat-request-badge');
+            if (!badge) {
+                badge = document.createElement('span');
+                badge.className = 'chat-request-badge';
+                headerBtn.appendChild(badge);
+            }
+            const cur = parseInt(badge.textContent, 10) || 0;
+            badge.textContent = String(cur + 1);
+        }
+    }
+
+    function decrementMessageRequestBadge() {
+        const entryCount = document.querySelector('.chat-request-entry-count');
+        const entrySmall = document.querySelector('.chat-request-entry-text small');
+        const headerBtn = document.querySelector('.chat-message-requests-btn');
+        if (entryCount) {
+            let n = Math.max(0, (parseInt(entryCount.textContent, 10) || 0) - 1);
+            if (n <= 0) {
+                const chevron = document.createElement('i');
+                chevron.className = 'fas fa-chevron-right text-muted';
+                entryCount.replaceWith(chevron);
+                if (entrySmall) entrySmall.textContent = 'Từ người bạn chưa theo dõi';
+            } else {
+                entryCount.textContent = String(n);
+                if (entrySmall) entrySmall.textContent = `${n} tin nhắn mới`;
+            }
+        }
+        if (headerBtn) {
+            const badge = headerBtn.querySelector('.chat-request-badge');
+            if (badge) {
+                const n = Math.max(0, (parseInt(badge.textContent, 10) || 0) - 1);
+                if (n <= 0) {
+                    badge.remove();
+                    headerBtn.classList.remove('has-badge');
+                } else {
+                    badge.textContent = String(n);
+                }
+            }
+        }
+    }
+
     function updateConversationList(conversationId, message, currentUserId, otherUser, conversationMeta) {
         const list = document.getElementById('conversationList');
         if (!list) return;
+
+        // Tin nhắn chờ của mình → không nhét vào inbox chính
+        if (conversationMeta && conversationMeta.is_message_request) {
+            bumpMessageRequestBadge();
+            return;
+        }
 
         const isGroup = !!(conversationMeta && conversationMeta.is_group)
             || document.getElementById(`conversation-${conversationId}`)?.dataset.isGroup === '1';
@@ -245,6 +318,36 @@
                     detail.other_user || null,
                     detail.conversation || null
                 );
+            });
+
+            window.addEventListener('hoshi:message-request-accepted', (event) => {
+                const detail = event.detail || {};
+                const conversationId = detail.conversation_id;
+                if (!conversationId) return;
+
+                // Trang tin chờ: gỡ item đã chấp nhận
+                const requestsPage = document.querySelector('.conversation-wrapper--request');
+                if (requestsPage) {
+                    const wrap = document.getElementById(`conversation-${conversationId}`);
+                    if (wrap) {
+                        wrap.remove();
+                        if (!document.querySelector('#conversationList .conversation-wrapper')) {
+                            const list = document.getElementById('conversationList');
+                            if (list && !list.querySelector('.no-conversations')) {
+                                list.innerHTML = `
+                                  <div class="no-conversations text-center py-5">
+                                    <i class="far fa-envelope-open fa-2x text-muted mb-2"></i>
+                                    <h5 class="text-dark">Không có tin nhắn chờ</h5>
+                                  </div>`;
+                            }
+                        }
+                    }
+                    decrementMessageRequestBadge();
+                    return;
+                }
+
+                // Inbox chính: giảm badge tin chờ
+                decrementMessageRequestBadge();
             });
         }
 

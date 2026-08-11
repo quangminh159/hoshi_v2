@@ -8,7 +8,7 @@
 {% block body_class %} chat-layout chat-detail-layout{% endblock %}
 
 {% block extra_css %}
-<link href="{% static 'css/chat.css' %}?v=mobile-opt-1" rel="stylesheet">
+<link href="{% static 'css/chat.css' %}?v=mobile-fixed-chat-2" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -16,7 +16,7 @@
   <div class="chat-shell chat-shell--detail">
     <div class="chat-container">
       <div class="chat-header">
-        <a href="{% url 'chat:conversation_list' %}" class="btn-back chat-header-back" title="{% trans 'Quay lại' %}" aria-label="{% trans 'Quay lại' %}">
+        <a href="{% if is_pending_request %}{% url 'chat:message_requests' %}{% else %}{% url 'chat:conversation_list' %}{% endif %}" class="btn-back chat-header-back" title="{% trans 'Quay lại' %}" aria-label="{% trans 'Quay lại' %}">
           <i class="fas fa-arrow-left"></i>
           <span class="chat-header-back-label d-none d-md-inline">{% trans "Quay lại" %}</span>
         </a>
@@ -124,12 +124,37 @@
             <div class="message message-system" data-message-id="{{ message.id }}" data-system="1">
               <span>{{ message.content }}</span>
             </div>
+            {% elif message.is_deleted_for_everyone %}
+            <div class="message {% if message.sender == request.user %}sent{% else %}received{% endif %} message-deleted"
+                 data-message-id="{{ message.id }}"
+                 data-sender-id="{{ message.sender_id }}"
+                 data-deleted="1">
+              <div class="message-content">
+                {% if is_group and message.sender != request.user and message.sender %}
+                  <div class="message-sender-name">{{ message.sender.username }}</div>
+                {% endif %}
+                <div class="message-text message-text--deleted">
+                  <i class="fas fa-ban"></i> {% trans "Tin nhắn đã được thu hồi" %}
+                </div>
+                <div class="message-meta">
+                  <span class="message-time">{{ message.created_at|date:"H:i" }}</span>
+                </div>
+              </div>
+              {% if message.sender == request.user %}
+              <div class="message-options">
+                <button type="button" class="message-option-btn delete" title="{% trans 'Xóa' %}" onclick="deleteMessage({{ message.id }})">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </div>
+              {% endif %}
+            </div>
             {% else %}
             <div class="message {% if message.sender == request.user %}sent{% else %}received{% endif %}"
                  data-message-id="{{ message.id }}"
                  data-sender-id="{{ message.sender.id }}"
                  data-sender-name="{{ message.sender.username|escapejs }}"
                  data-reply-preview="{{ message.get_reply_preview|escapejs }}"
+                 {% if message.sender == request.user %}data-is-read="{% if message.is_read %}1{% else %}0{% endif %}"{% endif %}
                  {% if message.image %}data-attachment-type="image" data-attachment-url="{{ message.image.url }}"{% elif message.video %}data-attachment-type="video" data-attachment-url="{{ message.video.url }}"{% elif message.audio %}data-attachment-type="audio" data-attachment-url="{{ message.audio.url }}"{% elif message.document %}data-attachment-type="document" data-attachment-url="{{ message.document.url }}"{% endif %}
                  {% if message.file_name %}data-file-name="{{ message.file_name|escapejs }}"{% endif %}
                  {% if message.shared_post %}data-shared-post="1"{% endif %}>
@@ -216,6 +241,15 @@
 
                 <div class="message-meta">
                   <span class="message-time">{{ message.created_at|date:"H:i" }}</span>
+                  {% if message.sender == request.user %}
+                    <span class="message-ticks" aria-hidden="true">
+                      {% if message.is_read %}
+                        <i class="fas fa-check-double message-ticks--seen"></i>
+                      {% else %}
+                        <i class="fas fa-check message-ticks--sent"></i>
+                      {% endif %}
+                    </span>
+                  {% endif %}
                 </div>
               </div>
 
@@ -229,6 +263,9 @@
                   </button>
                 {% endif %}
               </div>
+              {% if message.sender == request.user %}
+              <div class="message-receipt" hidden></div>
+              {% endif %}
             </div>
             {% endif %}
           {% endfor %}
@@ -247,6 +284,43 @@
         <span id="typingUsername"></span> {% trans "đang nhập..." %}
       </div>
 
+      {% if is_pending_request %}
+      <div class="chat-request-banner" id="chatRequestBanner" data-role="pending-accept">
+        <div class="chat-request-banner-text">
+          <strong>{% trans "Tin nhắn chờ" %}</strong>
+          <span>{% trans "Người này bạn chưa theo dõi. Chấp nhận để trả lời trong hộp thư chính, hoặc từ chối." %}</span>
+        </div>
+        <div class="chat-request-banner-actions">
+          <form method="post" action="{% url 'chat:accept_message_request' conversation.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-primary">{% trans "Chấp nhận" %}</button>
+          </form>
+          <form method="post" action="{% url 'chat:decline_message_request' conversation.id %}"
+                onsubmit="return confirm('{% trans "Từ chối tin nhắn này?" %}');">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-outline-secondary">{% trans "Từ chối" %}</button>
+          </form>
+        </div>
+      </div>
+      {% elif message_request_limit %}
+      <div class="chat-request-banner chat-request-limit-banner" id="chatRequestBanner" data-role="outgoing-limit"
+           data-sent="{{ message_request_limit.sent }}"
+           data-max="{{ message_request_limit.max }}"
+           data-remaining="{{ message_request_limit.remaining }}"
+           data-at-limit="{% if message_request_limit.at_limit %}1{% else %}0{% endif %}">
+        <div class="chat-request-banner-text">
+          <strong>{% trans "Tin nhắn chờ" %}</strong>
+          <span id="chatRequestLimitText">
+          {% if message_request_limit.at_limit %}
+            {% blocktrans with max=message_request_limit.max %}Bạn đã gửi đủ {{ max }} tin. Chờ người nhận chấp nhận để nhắn tiếp.{% endblocktrans %}
+          {% else %}
+            {% blocktrans with remaining=message_request_limit.remaining max=message_request_limit.max %}Còn {{ remaining }}/{{ max }} tin nhắn trước khi người nhận chấp nhận.{% endblocktrans %}
+          {% endif %}
+          </span>
+        </div>
+      </div>
+      {% endif %}
+
       <div class="chat-input">
       {% if is_blocked %}
         <div class="block-alert">
@@ -254,6 +328,12 @@
           <div>{% trans "Không thể gửi tin nhắn vì một trong hai người đã chặn người còn lại." %}</div>
         </div>
       {% else %}
+        <div id="messageRequestLimitLock"
+             class="block-alert {% if not message_request_limit or not message_request_limit.at_limit %}d-none{% endif %}">
+          <i class="fas fa-hourglass-half"></i>
+          <div>{% trans "Đã đạt giới hạn 3 tin nhắn chờ. Người nhận cần chấp nhận trước khi bạn gửi thêm." %}</div>
+        </div>
+        <div id="chatComposerWrap" class="{% if message_request_limit and message_request_limit.at_limit %}d-none{% endif %}">
         <form id="messageForm" class="message-form chat-composer" enctype="multipart/form-data">
           {% csrf_token %}
           <div class="attachment-preview" id="attachmentPreview"></div>
@@ -318,6 +398,7 @@
           <input type="file" id="videoFile" name="video" accept="video/*" class="file-input">
           <input type="file" id="documentFile" name="document" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.zip,.rar" class="file-input">
         </form>
+        </div>
       {% endif %}
       </div>
     </div>
@@ -340,6 +421,29 @@
           <i class="fas fa-download me-1"></i> {% trans "Tải xuống" %}
         </a>
         <button type="button" class="btn btn-light rounded-pill" data-bs-dismiss="modal">{% trans "Đóng" %}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal xóa tin nhắn -->
+<div class="modal fade" id="deleteMessageModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content chat-delete-modal">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-semibold">{% trans "Xóa tin nhắn" %}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Đóng' %}"></button>
+      </div>
+      <div class="modal-body pt-2">
+        <p class="text-muted small mb-3">{% trans "Xóa tin nhắn này." %}</p>
+        <div class="d-grid gap-2">
+          <button type="button" class="btn btn-outline-secondary chat-delete-opt" id="deleteMessageForMeBtn">
+            <i class="fas fa-user me-2"></i>{% trans "Xóa phía mình" %}
+          </button>
+          <button type="button" class="btn btn-danger chat-delete-opt" id="deleteMessageForEveryoneBtn">
+            <i class="fas fa-users me-2"></i>{% trans "Xóa phía người nhận" %}
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -638,6 +742,93 @@
     messageInput = document.getElementById('messageInput');
     const typingIndicator = document.getElementById('typingIndicator');
     const typingUsername = document.getElementById('typingUsername');
+    const conversationListUrl = "{% url 'chat:conversation_list' %}";
+    let messageRequestLimitState = {% if message_request_limit %}{
+      active: true,
+      sent: {{ message_request_limit.sent|default:0 }},
+      max: {{ message_request_limit.max|default:3 }},
+      remaining: {{ message_request_limit.remaining|default:0 }},
+      atLimit: {% if message_request_limit.at_limit %}true{% else %}false{% endif %}
+    }{% else %}null{% endif %};
+
+    function applyMessageRequestLimitUI() {
+      if (!messageRequestLimitState || !messageRequestLimitState.active) return;
+
+      const banner = document.getElementById('chatRequestBanner');
+      const textEl = document.getElementById('chatRequestLimitText');
+      const lock = document.getElementById('messageRequestLimitLock');
+      const wrap = document.getElementById('chatComposerWrap');
+      const max = messageRequestLimitState.max || 3;
+      const remaining = Math.max(0, messageRequestLimitState.remaining);
+      const atLimit = !!messageRequestLimitState.atLimit || remaining <= 0;
+
+      messageRequestLimitState.atLimit = atLimit;
+      messageRequestLimitState.remaining = remaining;
+
+      if (banner) {
+        banner.dataset.sent = String(messageRequestLimitState.sent);
+        banner.dataset.remaining = String(remaining);
+        banner.dataset.atLimit = atLimit ? '1' : '0';
+      }
+      if (textEl) {
+        textEl.textContent = atLimit
+          ? `Bạn đã gửi đủ ${max} tin. Chờ người nhận chấp nhận để nhắn tiếp.`
+          : `Còn ${remaining}/${max} tin nhắn trước khi người nhận chấp nhận.`;
+      }
+      if (lock) lock.classList.toggle('d-none', !atLimit);
+      if (wrap) wrap.classList.toggle('d-none', atLimit);
+      if (atLimit && messageInput) {
+        messageInput.blur();
+      }
+    }
+
+    function onOutgoingMessageRequestSent(messageId) {
+      if (!messageRequestLimitState || !messageRequestLimitState.active) return;
+      if (messageId != null) {
+        const id = String(messageId);
+        messageRequestLimitState._counted = messageRequestLimitState._counted || {};
+        if (messageRequestLimitState._counted[id]) return;
+        messageRequestLimitState._counted[id] = true;
+      }
+      if (messageRequestLimitState.atLimit) {
+        applyMessageRequestLimitUI();
+        return;
+      }
+      messageRequestLimitState.sent += 1;
+      messageRequestLimitState.remaining = Math.max(
+        0,
+        (messageRequestLimitState.max || 3) - messageRequestLimitState.sent
+      );
+      messageRequestLimitState.atLimit = messageRequestLimitState.remaining <= 0;
+      applyMessageRequestLimitUI();
+    }
+
+    function handleMessageRequestAccepted(data) {
+      const cid = data && data.conversation_id != null ? Number(data.conversation_id) : null;
+      if (cid != null && cid !== Number(conversationId)) return;
+
+      messageRequestLimitState = null;
+
+      document.getElementById('chatRequestBanner')?.remove();
+      document.querySelectorAll('.chat-request-banner').forEach((el) => el.remove());
+
+      const lock = document.getElementById('messageRequestLimitLock');
+      if (lock) lock.classList.add('d-none');
+
+      const wrap = document.getElementById('chatComposerWrap');
+      if (wrap) wrap.classList.remove('d-none');
+
+      const backBtn = document.querySelector('.chat-header-back');
+      if (backBtn) backBtn.setAttribute('href', conversationListUrl);
+
+      if (messageInput) {
+        try { messageInput.focus(); } catch (e) { /* ignore */ }
+      }
+    }
+
+    window.addEventListener('hoshi:message-request-accepted', function (event) {
+      handleMessageRequestAccepted(event.detail || {});
+    });
 
     hydrateLinkPreviews(chatMessages);
 
@@ -685,26 +876,52 @@
       }
       
       // Xử lý các loại tin nhắn khác nhau
-      if (data.type === 'message') {
+      if (data.type === 'error') {
+        resetSubmitButton();
+        if (data.message) {
+          alert(data.message);
+        }
+        if (
+          messageRequestLimitState
+          && messageRequestLimitState.active
+          && data.message
+          && /tối đa|giới hạn/i.test(String(data.message))
+        ) {
+          messageRequestLimitState.atLimit = true;
+          messageRequestLimitState.remaining = 0;
+          applyMessageRequestLimitUI();
+        }
+      }
+      else if (data.type === 'message_request_accepted') {
+        handleMessageRequestAccepted(data);
+      }
+      else if (data.type === 'message') {
         // Hiển thị tin nhắn mới
-        displayMessage(data.message);
-        
-        // Cuộn xuống tin nhắn mới nhất
+        const added = displayMessage(data.message);
         chatMessages.scrollTop = chatMessages.scrollHeight;
-        
-        // Nếu tin nhắn không phải của người dùng hiện tại, đánh dấu là đã đọc
         if (data.message.sender_id !== currentUserId && !data.message.is_system) {
           markMessageAsRead(data.message.id);
+          markOtherUserActiveNow();
         }
-        
-        // Đảm bảo nút gửi được kích hoạt lại sau khi hiển thị tin nhắn
+
+        // Tin chờ: gửi đủ 3 tin → khóa ô nhập realtime
+        if (
+          added
+          && data.message.sender_id === currentUserId
+          && !data.message.is_system
+          && messageRequestLimitState
+          && messageRequestLimitState.active
+        ) {
+          onOutgoingMessageRequestSent(data.message.id);
+        }
         resetSubmitButton();
+        refreshOutgoingReceipts();
       } 
       else if (data.type === 'typing') {
-        // Hiển thị trạng thái đang nhập
         if (data.user_id !== currentUserId && data.is_typing) {
           typingUsername.textContent = data.username;
           typingIndicator.style.display = 'block';
+          markOtherUserActiveNow();
         } else {
           typingIndicator.style.display = 'none';
         }
@@ -713,18 +930,22 @@
         updateUserStatus(data.user_id, data.status, data.last_seen);
       } 
       else if (data.type === 'message_read') {
-        // Cập nhật trạng thái đã đọc cho tin nhắn
         updateMessageReadStatus(data.message_id, data.read_by);
       }
+      else if (data.type === 'messages_read') {
+        applyMessagesRead(data.message_ids || [], data.read_by);
+      }
       else if (data.type === 'message_deleted') {
-        // Xóa tin nhắn khỏi giao diện nếu đã bị xóa bởi người dùng
         const messageElement = document.querySelector(`.message[data-message-id="${data.message_id}"]`);
-        if (messageElement) {
+        if (!messageElement) return;
+        const scope = data.scope || 'everyone';
+        if (scope === 'me') {
           messageElement.remove();
+        } else {
+          markMessageAsRecalled(messageElement);
         }
       }
       else if (data.type === 'history') {
-        // Không xóa tin đã hiện (tránh race: gửi tin trước khi history về sẽ bị mất)
         const existingIds = new Set(
           Array.from(chatMessages.querySelectorAll('.message[data-message-id]'))
             .map((el) => String(el.dataset.messageId))
@@ -742,11 +963,8 @@
             }
           });
         }
-        
-        // Cuộn xuống tin nhắn mới nhất
         chatMessages.scrollTop = chatMessages.scrollHeight;
-        
-        // Đánh dấu tất cả tin nhắn là đã đọc
+        refreshOutgoingReceipts();
         data.messages.forEach(message => {
           if (message.sender_id !== currentUserId && !message.is_read) {
             markMessageAsRead(message.id);
@@ -758,17 +976,13 @@
     // Xử lý khi WebSocket đóng kết nối
     chatSocket.onclose = function(e) {
       console.error('WebSocket connection closed unexpectedly');
-      // Kích hoạt lại nút gửi nếu WebSocket bị đóng
       const submitButton = messageForm ? messageForm.querySelector('button[type="submit"]') : null;
       if (submitButton) {
         submitButton.disabled = false;
       }
     };
-    
-    // Xử lý khi có lỗi WebSocket
     chatSocket.onerror = function(e) {
       console.error('WebSocket error:', e);
-      // Kích hoạt lại nút gửi nếu có lỗi WebSocket
       const submitButton = messageForm ? messageForm.querySelector('button[type="submit"]') : null;
       if (submitButton) {
         submitButton.disabled = false;
@@ -783,29 +997,22 @@
         const messageText = messageInput.value.trim();
         const hasAttachments = document.getElementById('attachmentPreview').children.length > 0;
         const submitButton = this.querySelector('button[type="submit"]');
-        
-        // Disable nút gửi để tránh gửi nhiều lần
         if (submitButton) {
           submitButton.disabled = true;
-          // Thêm hiệu ứng "đang gửi"
           originalButtonContent = submitButton.innerHTML;
           submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
         }
         
         if (!messageText && !hasAttachments) {
-          // Kích hoạt lại nút nếu không có tin nhắn
           if (submitButton) {
             resetSubmitButton();
           }
           return;
         }
-        
-        // Nếu có đính kèm, upload từng file
         if (hasAttachments) {
           uploadPendingAttachments(messageText, submitButton);
           return;
         }
-        // Gửi tin nhắn qua WebSocket
         const replyToId = document.getElementById('replyToId').value;
         let messageData = {
           type: 'message',
@@ -833,10 +1040,7 @@
         if (submitButton) resetSubmitButton();
       });
     }
-    
-    // Xử lý sự kiện input để gửi trạng thái đang nhập
     if (messageInput) {
-      // Tự động điều chỉnh chiều cao của textarea khi nhập
       messageInput.addEventListener('input', function() {
         clearTimeout(typingTimeout);
         sendTypingStatus(true);
@@ -851,11 +1055,9 @@
         }
       });
       
-      // Xử lý sự kiện keydown cho Shift+Enter
       messageInput.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
           if (e.shiftKey) {
-            // Shift+Enter: Cho phép xuống dòng
           } else {
             e.preventDefault();
             messageForm.dispatchEvent(new Event('submit'));
@@ -863,7 +1065,6 @@
         }
       });
       
-      // Desktop: focus sẵn. Mobile: không auto-focus để tránh bung bàn phím
       if (window.matchMedia('(min-width: 992px)').matches) {
         messageInput.focus();
       }
@@ -907,6 +1108,7 @@
         file_name: serverMessage.file_name,
         file_size: serverMessage.file_size,
         shared_post: serverMessage.shared_post || null,
+        is_read: !!serverMessage.is_read,
       };
     }
 
@@ -1010,7 +1212,14 @@
           }
 
           if (data.message) {
-            displayMessage(normalizeUploadedMessage(data.message));
+            const added = displayMessage(normalizeUploadedMessage(data.message));
+            if (
+              added
+              && messageRequestLimitState
+              && messageRequestLimitState.active
+            ) {
+              onOutgoingMessageRequestSent(data.message.id);
+            }
           }
         }
 
@@ -1047,6 +1256,13 @@
       quote.appendChild(replyInfo);
 
       const hasAttachment = replyTo.has_attachment && replyTo.attachment_url;
+      if (replyTo.is_deleted_for_everyone) {
+        const deleted = document.createElement('div');
+        deleted.className = 'message-replied-text message-replied-text--deleted';
+        deleted.innerHTML = '<i class="fas fa-ban"></i> Tin nhắn đã được thu hồi';
+        quote.appendChild(deleted);
+        return quote;
+      }
       if (hasAttachment) {
         if (replyTo.attachment_type === 'image') {
           const media = document.createElement('div');
@@ -1101,7 +1317,7 @@
 
     function displayMessage(message) {
       if (message.id && document.querySelector(`.message[data-message-id="${message.id}"]`)) {
-        return;
+        return false;
       }
 
       if (message.is_system) {
@@ -1113,7 +1329,50 @@
         span.textContent = message.content || '';
         systemEl.appendChild(span);
         chatMessages.appendChild(systemEl);
-        return;
+        return true;
+      }
+
+      if (message.is_deleted_for_everyone) {
+        const messageElement = document.createElement('div');
+        messageElement.className = `message message-deleted ${message.sender_id == currentUserId ? 'sent' : 'received'}`;
+        messageElement.dataset.messageId = message.id;
+        messageElement.dataset.deleted = '1';
+        if (message.sender_id) messageElement.dataset.senderId = message.sender_id;
+        const messageContent = document.createElement('div');
+        messageContent.className = 'message-content';
+        if (isGroupChat && message.sender_id != currentUserId && message.sender_username) {
+          const senderLabel = document.createElement('div');
+          senderLabel.className = 'message-sender-name';
+          senderLabel.textContent = message.sender_username;
+          messageContent.appendChild(senderLabel);
+        }
+        const deletedText = document.createElement('div');
+        deletedText.className = 'message-text message-text--deleted';
+        deletedText.innerHTML = '<i class="fas fa-ban"></i> Tin nhắn đã được thu hồi';
+        messageContent.appendChild(deletedText);
+        const messageMeta = document.createElement('div');
+        messageMeta.className = 'message-meta';
+        const messageTime = document.createElement('span');
+        messageTime.className = 'message-time';
+        const createdDate = new Date(message.created_at);
+        messageTime.textContent = `${String(createdDate.getHours()).padStart(2, '0')}:${String(createdDate.getMinutes()).padStart(2, '0')}`;
+        messageMeta.appendChild(messageTime);
+        messageContent.appendChild(messageMeta);
+        messageElement.appendChild(messageContent);
+        if (message.sender_id == currentUserId) {
+          const messageOptions = document.createElement('div');
+          messageOptions.className = 'message-options';
+          const deleteBtn = document.createElement('button');
+          deleteBtn.type = 'button';
+          deleteBtn.className = 'message-option-btn delete';
+          deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+          deleteBtn.title = 'Xóa';
+          deleteBtn.onclick = () => deleteMessage(message.id);
+          messageOptions.appendChild(deleteBtn);
+          messageElement.appendChild(messageOptions);
+        }
+        chatMessages.appendChild(messageElement);
+        return true;
       }
 
       const messageElement = document.createElement('div');
@@ -1121,6 +1380,9 @@
       messageElement.dataset.messageId = message.id;
       if (message.sender_id) messageElement.dataset.senderId = message.sender_id;
       if (message.sender_username) messageElement.dataset.senderName = message.sender_username;
+      if (message.sender_id == currentUserId) {
+        messageElement.dataset.isRead = message.is_read ? '1' : '0';
+      }
       messageElement.dataset.replyPreview = message.content
         || (message.attachment_type === 'audio' ? '[Tin nhắn thoại]' : '')
         || message.shared_post?.caption
@@ -1225,6 +1487,15 @@
       const createdDate = new Date(message.created_at);
       messageTime.textContent = `${String(createdDate.getHours()).padStart(2, '0')}:${String(createdDate.getMinutes()).padStart(2, '0')}`;
       messageMeta.appendChild(messageTime);
+      if (message.sender_id == currentUserId) {
+        const ticks = document.createElement('span');
+        ticks.className = 'message-ticks';
+        ticks.setAttribute('aria-hidden', 'true');
+        ticks.innerHTML = message.is_read
+          ? '<i class="fas fa-check-double message-ticks--seen"></i>'
+          : '<i class="fas fa-check message-ticks--sent"></i>';
+        messageMeta.appendChild(ticks);
+      }
       messageContent.appendChild(messageMeta);
 
       const messageOptions = document.createElement('div');
@@ -1262,7 +1533,15 @@
 
       messageElement.appendChild(messageContent);
       messageElement.appendChild(messageOptions);
+      if (message.sender_id == currentUserId) {
+        const receipt = document.createElement('div');
+        receipt.className = 'message-receipt';
+        receipt.hidden = true;
+        messageElement.appendChild(receipt);
+      }
       chatMessages.appendChild(messageElement);
+      refreshOutgoingReceipts();
+      return true;
     }
 
     function formatFileSize(bytes) {
@@ -1279,14 +1558,20 @@
       const then = new Date(isoString);
       if (Number.isNaN(then.getTime())) return 'Offline';
 
-      const diffMs = Date.now() - then.getTime();
-      const mins = Math.floor(diffMs / 60000);
-      if (mins < 1) return 'Hoạt động vừa xong';
+      const diffMs = Math.max(0, Date.now() - then.getTime());
+      const secs = Math.floor(diffMs / 1000);
+      if (secs < 45) return 'Hoạt động vừa xong';
+      const mins = Math.floor(secs / 60);
       if (mins < 60) return `Hoạt động ${mins} phút trước`;
       const hours = Math.floor(mins / 60);
       if (hours < 24) return `Hoạt động ${hours} giờ trước`;
       const days = Math.floor(hours / 24);
-      return `Hoạt động ${days} ngày trước`;
+      if (days < 7) return `Hoạt động ${days} ngày trước`;
+      try {
+        return `Hoạt động ${then.toLocaleDateString('vi-VN')}`;
+      } catch (e) {
+        return 'Offline';
+      }
     }
 
     function renderOtherUserStatus(isOnline, lastSeenIso) {
@@ -1295,6 +1580,7 @@
       if (!statusEl || statusEl.dataset.hideActivity === 'true') return;
 
       if (isOnline) {
+        statusEl.dataset.isOnline = 'true';
         statusEl.classList.add('user-status--online');
         statusEl.innerHTML = '<span class="status-dot status-dot--online"></span>Đang hoạt động';
         if (onlineDot) onlineDot.style.display = '';
@@ -1305,6 +1591,7 @@
         return;
       }
 
+      statusEl.dataset.isOnline = 'false';
       statusEl.classList.remove('user-status--online');
       if (onlineDot) onlineDot.style.display = 'none';
 
@@ -1317,16 +1604,15 @@
 
       if (lastSeenRefreshTimer) clearInterval(lastSeenRefreshTimer);
       lastSeenRefreshTimer = setInterval(() => {
+        if (statusEl.dataset.isOnline === 'true') return;
         const currentIso = statusEl.dataset.lastSeen;
-        if (currentIso && statusEl.dataset.isOnline !== 'true') {
-          statusEl.textContent = formatLastSeen(currentIso);
-        }
-      }, 60000);
+        statusEl.textContent = formatLastSeen(currentIso);
+      }, 15000);
     }
 
     // Hàm cập nhật trạng thái online/offline của người dùng
     function updateUserStatus(userId, status, lastSeen) {
-      if (otherUserId == null || parseInt(userId, 10) !== otherUserId) return;
+      if (otherUserId == null || parseInt(userId, 10) !== parseInt(otherUserId, 10)) return;
 
       const statusEl = document.getElementById('otherUserStatus');
       if (!statusEl || statusEl.dataset.hideActivity === 'true') return;
@@ -1336,26 +1622,124 @@
 
       if (lastSeen) {
         statusEl.dataset.lastSeen = lastSeen;
-      } else if (!isOnline && !statusEl.dataset.lastSeen) {
-        statusEl.dataset.lastSeen = new Date().toISOString();
+      } else if (!isOnline) {
+        statusEl.dataset.lastSeen = statusEl.dataset.lastSeen || new Date().toISOString();
       }
 
       renderOtherUserStatus(isOnline, statusEl.dataset.lastSeen);
+    }
+
+    function markOtherUserActiveNow() {
+      if (otherUserId == null) return;
+      const statusEl = document.getElementById('otherUserStatus');
+      if (!statusEl || statusEl.dataset.hideActivity === 'true') return;
+      statusEl.dataset.lastSeen = new Date().toISOString();
+      updateUserStatus(otherUserId, 'online', statusEl.dataset.lastSeen);
     }
 
     if (document.getElementById('otherUserStatus')?.dataset.hideActivity !== 'true') {
       const statusEl = document.getElementById('otherUserStatus');
       const initiallyOnline = statusEl?.classList.contains('user-status--online');
       statusEl.dataset.isOnline = initiallyOnline ? 'true' : 'false';
-      if (!initiallyOnline && statusEl?.dataset.lastSeen) {
-        renderOtherUserStatus(false, statusEl.dataset.lastSeen);
-      }
+      renderOtherUserStatus(initiallyOnline, statusEl?.dataset.lastSeen || null);
     }
+
+    window.addEventListener('hoshi:user-status', function (event) {
+      const detail = event.detail || {};
+      updateUserStatus(detail.user_id, detail.status, detail.last_seen);
+    });
     
     // Hàm cập nhật trạng thái đã đọc cho tin nhắn
     function updateMessageReadStatus(messageId, readBy) {
-      // TODO: Implement read status indicator if needed
+      if (readBy && Number(readBy) === Number(currentUserId)) return;
+      const targetId = String(messageId);
+      const outgoing = getOutgoingMessages();
+      let hit = false;
+      // Facebook-style: tin được xem → mọi tin mình gửi trước đó cũng coi như đã xem
+      for (let i = outgoing.length - 1; i >= 0; i--) {
+        const el = outgoing[i];
+        if (String(el.dataset.messageId) === targetId) {
+          hit = true;
+        }
+        if (!hit) continue;
+        el.dataset.isRead = '1';
+        const ticks = el.querySelector('.message-ticks');
+        if (ticks) {
+          ticks.innerHTML = '<i class="fas fa-check-double message-ticks--seen"></i>';
+        }
+      }
+      if (!hit) {
+        const el = document.querySelector(`.message.sent[data-message-id="${targetId}"]`);
+        if (el) {
+          el.dataset.isRead = '1';
+          const ticks = el.querySelector('.message-ticks');
+          if (ticks) {
+            ticks.innerHTML = '<i class="fas fa-check-double message-ticks--seen"></i>';
+          }
+        }
+      }
+      refreshOutgoingReceipts();
     }
+
+    function applyMessagesRead(messageIds, readBy) {
+      if (readBy && Number(readBy) === Number(currentUserId)) return;
+      const ids = (messageIds || []).map(String);
+      if (!ids.length) return;
+      // Đánh dấu tất cả id nhận được; với id mới nhất thì kéo theo các tin cũ hơn
+      let newestIdx = -1;
+      const outgoing = getOutgoingMessages();
+      ids.forEach((id) => {
+        const idx = outgoing.findIndex((el) => String(el.dataset.messageId) === id);
+        if (idx > newestIdx) newestIdx = idx;
+      });
+      if (newestIdx >= 0) {
+        updateMessageReadStatus(outgoing[newestIdx].dataset.messageId, readBy);
+      } else {
+        ids.forEach((id) => updateMessageReadStatus(id, readBy));
+      }
+    }
+
+    function getOutgoingMessages() {
+      return Array.from(
+        document.querySelectorAll('#chat-messages .message.sent:not([data-system="1"])')
+      );
+    }
+
+    function refreshOutgoingReceipts() {
+      const outgoing = getOutgoingMessages();
+      outgoing.forEach((el) => {
+        const receipt = el.querySelector('.message-receipt');
+        if (receipt) {
+          receipt.hidden = true;
+          receipt.textContent = '';
+          receipt.classList.remove('is-seen', 'is-sent');
+        }
+      });
+      if (!outgoing.length) return;
+      const last = outgoing[outgoing.length - 1];
+      let receipt = last.querySelector('.message-receipt');
+      if (!receipt) {
+        receipt = document.createElement('div');
+        receipt.className = 'message-receipt';
+        last.appendChild(receipt);
+      }
+      const seen = last.dataset.isRead === '1';
+      receipt.hidden = false;
+      receipt.classList.toggle('is-seen', seen);
+      receipt.classList.toggle('is-sent', !seen);
+      receipt.textContent = seen ? 'Đã xem' : 'Đã gửi';
+    }
+
+    // Khởi tạo trạng thái đã gửi / đã xem
+    refreshOutgoingReceipts();
+
+    window.addEventListener('hoshi:messages-read', function (event) {
+      const detail = event.detail || {};
+      if (detail.conversation_id != null && Number(detail.conversation_id) !== Number(conversationId)) {
+        return;
+      }
+      applyMessagesRead(detail.message_ids || [], detail.read_by);
+    });
     
     // Xử lý đính kèm tệp
     const attachmentBtn = document.getElementById('attachmentBtn');
@@ -1658,7 +2042,14 @@
           throw new Error(data.message || "{% filter escapejs %}{% trans 'Không gửi được tin nhắn thoại' %}{% endfilter %}");
         }
         if (data.message) {
-          displayMessage(normalizeUploadedMessage(data.message));
+          const added = displayMessage(normalizeUploadedMessage(data.message));
+          if (
+            added
+            && messageRequestLimitState
+            && messageRequestLimitState.active
+          ) {
+            onOutgoingMessageRequestSent(data.message.id);
+          }
         }
         cancelReply();
         chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -1798,20 +2189,83 @@
   }
   
   // Hàm xử lý xóa tin nhắn
-  function deleteMessage(messageId) {
-    if (confirm("{% filter escapejs %}{% trans 'Bạn có chắc chắn muốn xóa tin nhắn này không?' %}{% endfilter %}")) {
-      // Gửi yêu cầu xóa qua WebSocket
-      chatSocket.send(JSON.stringify({
-        'type': 'delete_message',
-        'message_id': messageId,
-      }));
-      
-      // Xóa tin nhắn khỏi giao diện
-      const messageElement = document.querySelector(`.message[data-message-id="${messageId}"]`);
-      if (messageElement) {
-        messageElement.remove();
-      }
+  let pendingDeleteMessageId = null;
+  let deleteMessageModalInstance = null;
+
+  function markMessageAsRecalled(messageElement) {
+    if (!messageElement) return;
+    messageElement.classList.add('message-deleted');
+    messageElement.dataset.deleted = '1';
+    const content = messageElement.querySelector('.message-content');
+    if (!content) return;
+    const timeEl = content.querySelector('.message-time');
+    const timeHtml = timeEl ? timeEl.outerHTML : '';
+    const senderName = content.querySelector('.message-sender-name');
+    const senderHtml = senderName ? senderName.outerHTML : '';
+    content.innerHTML = `
+      ${senderHtml}
+      <div class="message-text message-text--deleted">
+        <i class="fas fa-ban"></i> Tin nhắn đã được thu hồi
+      </div>
+      <div class="message-meta">${timeHtml}</div>
+    `;
+    // Chỉ còn nút xóa phía mình (nếu là tin của mình)
+    const options = messageElement.querySelector('.message-options');
+    if (options) {
+      const replyBtn = options.querySelector('.reply');
+      if (replyBtn) replyBtn.remove();
     }
+  }
+
+  function confirmDeleteMessage(mode) {
+    if (!pendingDeleteMessageId || !chatSocket || chatSocket.readyState !== WebSocket.OPEN) {
+      return;
+    }
+    const messageId = pendingDeleteMessageId;
+    chatSocket.send(JSON.stringify({
+      type: 'delete_message',
+      message_id: messageId,
+      mode: mode,
+    }));
+    if (mode === 'me') {
+      document.querySelector(`.message[data-message-id="${messageId}"]`)?.remove();
+    } else {
+      const el = document.querySelector(`.message[data-message-id="${messageId}"]`);
+      markMessageAsRecalled(el);
+    }
+    pendingDeleteMessageId = null;
+    if (deleteMessageModalInstance) {
+      deleteMessageModalInstance.hide();
+    }
+  }
+
+  function deleteMessage(messageId) {
+    pendingDeleteMessageId = messageId;
+    const modalEl = document.getElementById('deleteMessageModal');
+    if (!modalEl || typeof bootstrap === 'undefined') {
+      // Fallback nếu không có Bootstrap modal
+      if (confirm("{% filter escapejs %}{% trans 'Xóa chỉ bên mình? (OK = chỉ mình, Cancel rồi thử lại để chọn khác)' %}{% endfilter %}")) {
+        confirmDeleteMessage('me');
+      }
+      return;
+    }
+    if (!deleteMessageModalInstance) {
+      deleteMessageModalInstance = new bootstrap.Modal(modalEl);
+      document.getElementById('deleteMessageForMeBtn')?.addEventListener('click', function () {
+        confirmDeleteMessage('me');
+      });
+      document.getElementById('deleteMessageForEveryoneBtn')?.addEventListener('click', function () {
+        confirmDeleteMessage('everyone');
+      });
+    }
+    // Nếu tin đã thu hồi: chỉ còn xóa bên mình
+    const msgEl = document.querySelector(`.message[data-message-id="${messageId}"]`);
+    const everyoneBtn = document.getElementById('deleteMessageForEveryoneBtn');
+    if (everyoneBtn) {
+      const alreadyDeleted = msgEl && msgEl.dataset.deleted === '1';
+      everyoneBtn.classList.toggle('d-none', !!alreadyDeleted);
+    }
+    deleteMessageModalInstance.show();
   }
 
   // ---- Menu ... và tìm kiếm tin nhắn ----
@@ -2009,7 +2463,7 @@
   // Mobile: ban phim ao + long-press hien thao tac tin nhan
   (function initMobileChatUX() {
     const root = document.documentElement;
-    const messagesEl = document.getElementById('chatMessages') || document.querySelector('.chat-messages');
+    const messagesEl = document.getElementById('chat-messages') || document.querySelector('.chat-messages');
     const isTouch = window.matchMedia('(hover: none), (pointer: coarse)').matches;
 
     function updateKeyboardOffset() {
@@ -2017,6 +2471,19 @@
       const vv = window.visualViewport;
       const keyboard = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
       root.style.setProperty('--chat-keyboard-offset', Math.round(keyboard) + 'px');
+      // Khi bàn phím mở: thu main theo visualViewport để ô nhập không bị đẩy ra ngoài
+      const mainEl = document.querySelector('main.site-main');
+      if (mainEl && window.matchMedia('(max-width: 991.98px)').matches) {
+        if (keyboard > 40) {
+          mainEl.style.height = Math.round(vv.height) + 'px';
+          mainEl.style.top = Math.round(vv.offsetTop) + 'px';
+          mainEl.style.bottom = 'auto';
+        } else {
+          mainEl.style.height = '';
+          mainEl.style.top = '';
+          mainEl.style.bottom = '';
+        }
+      }
       if (messagesEl && keyboard > 40) {
         messagesEl.scrollTop = messagesEl.scrollHeight;
       }

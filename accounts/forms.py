@@ -116,9 +116,9 @@ class CustomSignupForm(AllAuthSignupForm):
     )
 
     def clean_username(self):
-        username = self.cleaned_data['username']
-        if User.objects.filter(username=username).exists():
-            raise ValidationError('Tên người dùng này đã được sử dụng.')
+        username = (self.cleaned_data.get('username') or '').strip()
+        if User.objects.filter(username__iexact=username).exists():
+            raise ValidationError('Đã có người sử dụng tên đăng nhập này rồi.')
         return username
 
     def clean_email(self):

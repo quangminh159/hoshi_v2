@@ -34,14 +34,18 @@ def get_conversation_unread_counts(user, conversation_ids=None):
 
 
 def mark_conversation_messages_read(conversation, user):
-    """Đánh dấu đã đọc mọi tin nhắn từ người khác trong cuộc trò chuyện."""
+    """
+    Đánh dấu đã đọc mọi tin nhắn từ người khác trong cuộc trò chuyện.
+    Trả về list id tin vừa được đánh dấu (để broadcast realtime).
+    """
     if not user or not user.is_authenticated:
-        return 0
-    return (
-        ConversationMessage.objects.filter(
-            conversation=conversation,
-            is_read=False,
-        )
-        .exclude(sender=user)
-        .update(is_read=True, isread=True)
-    )
+        return []
+    qs = ConversationMessage.objects.filter(
+        conversation=conversation,
+        is_read=False,
+    ).exclude(sender=user)
+    ids = list(qs.values_list('id', flat=True))
+    if not ids:
+        return []
+    qs.update(is_read=True, isread=True)
+    return ids

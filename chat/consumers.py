@@ -34,11 +34,21 @@ class ChatConsumer(AsyncWebsocketConsumer):
         
         # Chấp nhận kết nối WebSocket
         await self.accept()
-        
-        # Cập nhật trạng thái online
-        await self.set_user_online(True)
-        
-        # Thông báo cho tất cả người dùng trong cuộc trò chuyện biết người này online
+
+        other_id = await self.get_dm_other_user_id()
+        self._presence_other_id = other_id
+
+        # Theo dõi presence của đối phương (DM)
+        if other_id:
+            await self.channel_layer.group_add(
+                f'user_presence_{other_id}',
+                self.channel_name,
+            )
+
+        # Cập nhật trạng thái online + báo realtime
+        await self.mark_self_online(notify_inbox_ids=[other_id] if other_id else None)
+
+        # Thông báo trong phòng chat
         await self.channel_layer.group_send(
             self.room_group_name,
             {
@@ -55,8 +65,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'messages': messages
         }))
 
+        # Mở chat → đánh dấu đã đọc + báo realtime cho người gửi (Đã xem)
+        read_ids = await self.mark_conversation_as_read()
+        if read_ids:
+            await self.broadcast_messages_read(read_ids)
+
         other_presence = await self.get_other_participant_presence()
-        if other_presence:
+        if other_presence and other_presence.get('user_id'):
             await self.send(text_data=json.dumps({
                 'type': 'user_status',
                 'user_id': other_presence['user_id'],
@@ -65,25 +80,36 @@ class ChatConsumer(AsyncWebsocketConsumer):
             }))
     
     async def disconnect(self, close_code):
+        other_id = getattr(self, '_presence_other_id', None)
+
         # Rời khỏi nhóm room
-        await self.channel_layer.group_discard(
-            self.room_group_name,
-            self.channel_name
-        )
-        
-        # Cập nhật trạng thái offline
-        last_seen = await self.set_user_online(False)
-        
-        # Thông báo cho tất cả người dùng trong cuộc trò chuyện biết người này offline
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                'type': 'user_status',
-                'user_id': self.user.id,
-                'status': 'offline',
-                'last_seen': last_seen,
-            }
-        )
+        if hasattr(self, 'room_group_name'):
+            await self.channel_layer.group_discard(
+                self.room_group_name,
+                self.channel_name
+            )
+
+        if other_id:
+            await self.channel_layer.group_discard(
+                f'user_presence_{other_id}',
+                self.channel_name,
+            )
+
+        # Offline chỉ khi không còn socket khác (inbox/chat)
+        info = await self.mark_self_offline(notify_inbox_ids=[other_id] if other_id else None)
+        last_seen = (info or {}).get('last_seen')
+        still_online = bool((info or {}).get('is_online'))
+
+        if hasattr(self, 'room_group_name'):
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'user_status',
+                    'user_id': self.user.id,
+                    'status': 'online' if still_online else 'offline',
+                    'last_seen': last_seen,
+                }
+            )
     
     async def receive(self, text_data):
         data = json.loads(text_data)
@@ -101,6 +127,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     await self.send(text_data=json.dumps({
                         'type': 'error',
                         'message': 'Không thể gửi tin nhắn tới người nhận này.',
+                    }))
+                    return
+                if message.get('error'):
+                    await self.send(text_data=json.dumps({
+                        'type': 'error',
+                        'message': message['error'],
                     }))
                     return
                 payload = message['payload']
@@ -132,30 +164,39 @@ class ChatConsumer(AsyncWebsocketConsumer):
             message_id = data.get('message_id')
             
             if message_id:
-                await self.mark_message_as_read(message_id)
+                ok = await self.mark_message_as_read(message_id)
                 
-                # Thông báo cho tất cả người dùng rằng tin nhắn đã được đọc
-                await self.channel_layer.group_send(
-                    self.room_group_name,
-                    {
-                        'type': 'message_read',
-                        'message_id': message_id,
-                        'read_by': self.user.id
-                    }
-                )
+                if ok:
+                    await self.broadcast_messages_read([message_id])
         elif message_type == 'delete_message':
             message_id = data.get('message_id')
-            
+            mode = (data.get('mode') or 'me').strip().lower()
+            if mode not in ('me', 'everyone'):
+                mode = 'me'
+
             if message_id:
-                deleted = await self.delete_message(message_id)
-                
-                if deleted:
+                result = await self.delete_message(message_id, mode=mode)
+
+                if not result or not result.get('ok'):
+                    await self.send(text_data=json.dumps({
+                        'type': 'error',
+                        'message': (result or {}).get('error') or 'Không thể xóa tin nhắn.',
+                    }))
+                elif result.get('scope') == 'me':
+                    await self.send(text_data=json.dumps({
+                        'type': 'message_deleted',
+                        'message_id': message_id,
+                        'deleted_by': self.user.id,
+                        'scope': 'me',
+                    }))
+                else:
                     await self.channel_layer.group_send(
                         self.room_group_name,
                         {
                             'type': 'message_deleted',
                             'message_id': message_id,
-                            'deleted_by': self.user.id
+                            'deleted_by': self.user.id,
+                            'scope': 'everyone',
                         }
                     )
         elif message_type in (
@@ -298,6 +339,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'type': 'message',
             'message': message
         }))
+
+    async def message_request_accepted(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'message_request_accepted',
+            'conversation_id': event.get('conversation_id'),
+            'accepted_by': event.get('accepted_by') or {},
+        }))
     
     # Xử lý sự kiện user đang nhập
     async def user_typing(self, event):
@@ -319,23 +367,38 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if event.get('last_seen'):
             payload['last_seen'] = event['last_seen']
         await self.send(text_data=json.dumps(payload))
+
+    async def user_presence(self, event):
+        """Presence từ group user_presence_{id} (đối phương online/offline ngoài phòng)."""
+        await self.send(text_data=json.dumps({
+            'type': 'user_status',
+            'user_id': event.get('user_id'),
+            'status': event.get('status'),
+            'last_seen': event.get('last_seen'),
+        }))
     
     # Xử lý sự kiện tin nhắn đã đọc
     async def message_read(self, event):
-        # Gửi thông báo đến WebSocket
         await self.send(text_data=json.dumps({
             'type': 'message_read',
             'message_id': event['message_id'],
-            'read_by': event['read_by']
+            'read_by': event['read_by'],
+        }))
+
+    async def messages_read(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'messages_read',
+            'message_ids': event.get('message_ids') or [],
+            'read_by': event.get('read_by'),
         }))
     
     # Xử lý sự kiện tin nhắn đã bị xóa
     async def message_deleted(self, event):
-        # Gửi thông báo đến WebSocket
         await self.send(text_data=json.dumps({
             'type': 'message_deleted',
             'message_id': event['message_id'],
-            'deleted_by': event['deleted_by']
+            'deleted_by': event['deleted_by'],
+            'scope': event.get('scope') or 'everyone',
         }))
     
     # Database helper methods
@@ -405,18 +468,35 @@ class ChatConsumer(AsyncWebsocketConsumer):
         return conversation.participants.filter(id=self.user.id).exists()
     
     @database_sync_to_async
+    def get_dm_other_user_id(self):
+        try:
+            conversation = Conversation.objects.get(id=self.conversation_id)
+        except Conversation.DoesNotExist:
+            return None
+        if conversation.is_group:
+            return None
+        other = conversation.participants.exclude(id=self.user.id).first()
+        return other.id if other else None
+
+    @database_sync_to_async
+    def mark_self_online(self, notify_inbox_ids=None):
+        from chat.presence import mark_user_online
+        return mark_user_online(self.user, notify_inbox_ids=notify_inbox_ids or [])
+
+    @database_sync_to_async
+    def mark_self_offline(self, notify_inbox_ids=None):
+        from chat.presence import mark_user_offline
+        return mark_user_offline(self.user, notify_inbox_ids=notify_inbox_ids or [])
+
+    @database_sync_to_async
     def set_user_online(self, is_online):
-        user_setting, _ = UserSetting.objects.get_or_create(
-            user=self.user,
-            defaults={'username': self.user.username or ''},
-        )
-        user_setting.is_online = is_online
-        if not is_online:
-            user_setting.last_seen = timezone.now()
-            user_setting.save(update_fields=['is_online', 'last_seen'])
-            return user_setting.last_seen.isoformat()
-        user_setting.save(update_fields=['is_online'])
-        return None
+        """Giữ tương thích cũ — ưu tiên dùng mark_self_online/offline."""
+        from chat.presence import mark_user_offline, mark_user_online
+        if is_online:
+            info = mark_user_online(self.user)
+            return (info or {}).get('last_seen')
+        info = mark_user_offline(self.user, force=True)
+        return (info or {}).get('last_seen')
 
     @database_sync_to_async
     def get_other_participant_presence(self):
@@ -436,16 +516,24 @@ class ChatConsumer(AsyncWebsocketConsumer):
             return None
 
         presence = get_user_presence(other)
+        if getattr(other, 'hide_activity', False):
+            presence = {
+                'is_online': False,
+                'last_seen': None,
+                'hidden': True,
+            }
         presence['user_id'] = other.id
-        if presence['last_seen']:
+        if presence.get('last_seen'):
             presence['last_seen'] = presence['last_seen'].isoformat()
         return presence
     
     @database_sync_to_async
     def get_conversation_messages(self):
-        # Lấy 50 tin nhắn gần đây nhất
+        # Lấy 50 tin nhắn gần đây nhất (bỏ tin đã xóa phía mình)
         messages = ConversationMessage.objects.filter(
             conversation_id=self.conversation_id
+        ).exclude(
+            hidden_for=self.user
         ).select_related(
             'sender', 'reply_to', 'reply_to__sender',
             'shared_post', 'shared_post__author',
@@ -458,14 +546,30 @@ class ChatConsumer(AsyncWebsocketConsumer):
     
     @database_sync_to_async
     def save_message(self, content, reply_to=None):
-        from chat.conversation_utils import unhide_conversation_participants
+        from chat.conversation_utils import (
+            accept_message_request,
+            can_send_in_message_request,
+            is_pending_message_request_for,
+            unhide_conversation_participants,
+        )
 
         conversation = Conversation.objects.get(id=self.conversation_id)
 
         if not conversation.is_group:
             other = conversation.get_other_participant(self.user)
-            if other and not other.can_receive_message_from(self.user):
-                return None
+            if is_pending_message_request_for(conversation, self.user):
+                accept_message_request(conversation, self.user)
+                conversation.refresh_from_db()
+            elif other and not other.can_receive_message_from(self.user):
+                if not (
+                    conversation.is_message_request
+                    and conversation.created_by_id == self.user.id
+                ):
+                    return None
+
+        ok, err = can_send_in_message_request(conversation, self.user)
+        if not ok:
+            return {'error': err}
 
         reply_parent = None
         if reply_to and reply_to.get('id'):
@@ -502,48 +606,84 @@ class ChatConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def mark_message_as_read(self, message_id):
         try:
-            message = ConversationMessage.objects.get(id=message_id)
-            if self.user != message.sender:
+            message = ConversationMessage.objects.get(
+                id=message_id,
+                conversation_id=self.conversation_id,
+            )
+            if self.user != message.sender and not message.is_read:
                 message.is_read = True
                 message.isread = True
-                message.save()
-            return True
+                message.save(update_fields=['is_read', 'isread'])
+                return True
+            return False
         except ConversationMessage.DoesNotExist:
             return False
 
     @database_sync_to_async
-    def delete_message(self, message_id):
-        """Xóa tin nhắn nếu người dùng là người gửi"""
+    def mark_conversation_as_read(self):
+        from chat.unread import mark_conversation_messages_read
         try:
-            # Lấy tin nhắn từ ID
-            message = ConversationMessage.objects.get(id=message_id)
-            
-            # Chỉ cho phép xóa nếu người dùng hiện tại là người gửi tin nhắn
-            if message.sender and message.sender.id == self.user.id:
-                # Xóa các tệp đính kèm nếu có
-                if message.image:
-                    if os.path.isfile(message.image.path):
-                        os.remove(message.image.path)
-                if message.video:
-                    if os.path.isfile(message.video.path):
-                        os.remove(message.video.path)
-                if message.audio:
-                    if os.path.isfile(message.audio.path):
-                        os.remove(message.audio.path)
-                if message.document:
-                    if os.path.isfile(message.document.path):
-                        os.remove(message.document.path)
-                
-                # Xóa tin nhắn
-                message.delete()
-                return True
-            
-            return False
+            conversation = Conversation.objects.get(id=self.conversation_id)
+        except Conversation.DoesNotExist:
+            return []
+        return mark_conversation_messages_read(conversation, self.user)
+
+    async def broadcast_messages_read(self, message_ids):
+        from asgiref.sync import sync_to_async
+        from chat.conversation_utils import broadcast_messages_read
+
+        await sync_to_async(broadcast_messages_read)(
+            self.conversation_id,
+            message_ids,
+            self.user.id,
+        )
+
+    @database_sync_to_async
+    def delete_message(self, message_id, mode='me'):
+        """
+        Xóa tin nhắn.
+        mode='me' — chỉ ẩn phía người gửi yêu cầu.
+        mode='everyone' — thu hồi cả hai bên (chỉ người gửi tin).
+        """
+        try:
+            message = ConversationMessage.objects.select_related('sender', 'conversation').get(
+                id=message_id,
+                conversation_id=self.conversation_id,
+            )
         except ConversationMessage.DoesNotExist:
-            return False
-        except Exception as e:
-            console.print(f"Lỗi khi xóa tin nhắn: {e}", style="bold red")
-            return False
+            return {'ok': False, 'error': 'Không tìm thấy tin nhắn.'}
+
+        if not message.conversation.participants.filter(id=self.user.id).exists():
+            return {'ok': False, 'error': 'Không có quyền.'}
+
+        if message.is_system:
+            return {'ok': False, 'error': 'Không thể xóa tin hệ thống.'}
+
+        if message.is_deleted_for_everyone:
+            # Đã thu hồi — vẫn cho xóa phía mình
+            if mode == 'me':
+                message.hidden_for.add(self.user)
+                return {'ok': True, 'scope': 'me'}
+            return {'ok': False, 'error': 'Tin nhắn đã được thu hồi.'}
+
+        if mode == 'everyone':
+            if not message.sender_id or message.sender_id != self.user.id:
+                return {'ok': False, 'error': 'Chỉ người gửi mới thu hồi được tin nhắn.'}
+            message.clear_attachments()
+            message.content = ''
+            message.text = ''
+            message.shared_post = None
+            message.reply_to = None
+            message.is_deleted_for_everyone = True
+            message.deleted_for_everyone_at = timezone.now()
+            message.save()
+            return {'ok': True, 'scope': 'everyone'}
+
+        # Xóa chỉ phía mình — cho phép với tin mình gửi (UI hiện tại)
+        if not message.sender_id or message.sender_id != self.user.id:
+            return {'ok': False, 'error': 'Chỉ có thể xóa tin nhắn của bạn.'}
+        message.hidden_for.add(self.user)
+        return {'ok': True, 'scope': 'me'}
 
 
 class WebConsumer(AsyncConsumer):
@@ -730,7 +870,7 @@ class WebConsumer(AsyncConsumer):
         )
 
 class ChatInboxConsumer(AsyncWebsocketConsumer):
-    """Realtime inbox socket for conversation list page."""
+    """Realtime inbox socket for conversation list page + global presence."""
 
     async def connect(self):
         self.user = self.scope.get('user')
@@ -742,9 +882,24 @@ class ChatInboxConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_add(self.group_name, self.channel_name)
         await self.accept()
 
+        # Presence toàn site: mở app → online
+        await self.mark_inbox_online()
+
     async def disconnect(self, close_code):
         if hasattr(self, 'group_name'):
             await self.channel_layer.group_discard(self.group_name, self.channel_name)
+        if getattr(self, 'user', None) and self.user.is_authenticated:
+            await self.mark_inbox_offline()
+
+    @database_sync_to_async
+    def mark_inbox_online(self):
+        from chat.presence import mark_user_online
+        return mark_user_online(self.user)
+
+    @database_sync_to_async
+    def mark_inbox_offline(self):
+        from chat.presence import mark_user_offline
+        return mark_user_offline(self.user)
 
     async def inbox_message(self, event):
         await self.send(text_data=json.dumps({
@@ -753,6 +908,31 @@ class ChatInboxConsumer(AsyncWebsocketConsumer):
             'message': event.get('message'),
             'other_user': event.get('other_user'),
             'conversation': event.get('conversation'),
+        }))
+
+    async def inbox_message_request_accepted(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'message_request_accepted',
+            'conversation_id': event.get('conversation_id'),
+            'accepted_by': event.get('accepted_by') or {},
+            'other_user': event.get('other_user'),
+            'conversation': event.get('conversation'),
+        }))
+
+    async def inbox_messages_read(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'messages_read',
+            'conversation_id': event.get('conversation_id'),
+            'message_ids': event.get('message_ids') or [],
+            'read_by': event.get('read_by'),
+        }))
+
+    async def inbox_user_presence(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'user_status',
+            'user_id': event.get('user_id'),
+            'status': event.get('status'),
+            'last_seen': event.get('last_seen'),
         }))
 
     async def inbox_call(self, event):

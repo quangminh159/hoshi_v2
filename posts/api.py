@@ -1530,12 +1530,16 @@ def share_post_via_message(request):
             recipient,
             conversation_id=conversation_id,
         )
-        _, payload = send_conversation_message(
-            request.user,
-            conversation,
-            content=content,
-            shared_post=post,
-        )
+        try:
+            _, payload = send_conversation_message(
+                request.user,
+                conversation,
+                content=content,
+                shared_post=post,
+            )
+        except ValueError:
+            skipped += 1
+            continue
         sent.append({
             'recipient_id': recipient.id,
             'recipient_username': recipient.username,
