@@ -257,7 +257,8 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'quangminh159159@gmail.com'
 EMAIL_HOST_PASSWORD = 'vjmioramcpgxfesp'
-DEFAULT_FROM_EMAIL = 'Hoshi <noreply@hoshi.vn>'
+SITE_NAME = 'Moora'
+DEFAULT_FROM_EMAIL = 'Moora <noreply@moora.vn>'
 
 # Phone numbers
 PHONENUMBER_DB_FORMAT = 'E164'

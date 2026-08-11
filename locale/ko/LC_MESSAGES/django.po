@@ -290,8 +290,8 @@ msgstr "일일 요약 보내기"
 msgid "Home"
 msgstr "집"
 
-msgid "Hoshi - Mạng xã hội chia sẻ khoảnh khắc"
-msgstr "Hoshi - 순간을 공유하는 소셜 네트워크"
+msgid "Moora - Mạng xã hội chia sẻ khoảnh khắc"
+msgstr "Moora - 순간을 공유하는 소셜 네트워크"
 
 msgid "Hoạt động %(time)s trước"
 msgstr "%(time)s 전 작업"
@@ -519,8 +519,8 @@ msgid ""
 msgstr "계정의 보안 설정을 관리하세요. 보안을 강화하려면 2단계 인증을 활성화하세요."
 
 msgid ""
-"Quản lý các tài khoản mạng xã hội được liên kết với tài khoản Hoshi của bạn"
-msgstr "Hoshi 계정에 연결된 소셜 미디어 계정을 관리하세요"
+"Quản lý các tài khoản mạng xã hội được liên kết với tài khoản Moora của bạn"
+msgstr "Moora 계정에 연결된 소셜 미디어 계정을 관리하세요"
 
 msgid "Quản lý danh sách người dùng mà bạn đã chặn"
 msgstr "차단한 사용자 목록 관리"
@@ -534,8 +534,8 @@ msgstr "다운로드 준비 완료"
 msgid "Số điện thoại"
 msgstr "전화 번호"
 
-msgid "Tham gia cộng đồng Hoshi ngay hôm nay"
-msgstr "지금 Hoshi 커뮤니티에 가입하세요"
+msgid "Tham gia cộng đồng Moora ngay hôm nay"
+msgstr "지금 Moora 커뮤니티에 가입하세요"
 
 msgid "Theo dõi"
 msgstr "감시 장치"
@@ -637,8 +637,8 @@ msgstr "30일 후에는 계정이 영구적으로 삭제되며 복원할 수 없
 msgid "Tôi đồng ý với"
 msgstr "나는 동의한다"
 
-msgid "Tùy chỉnh cách bạn nhận thông báo từ Hoshi"
-msgstr "Hoshi로부터 알림을 받는 방법을 맞춤설정하세요."
+msgid "Tùy chỉnh cách bạn nhận thông báo từ Moora"
+msgstr "Moora로부터 알림을 받는 방법을 맞춤설정하세요."
 
 msgid "Tùy chỉnh thời gian đình chỉ"
 msgstr "정지 시간 맞춤설정"
@@ -740,7 +740,7 @@ msgstr "다운로드 필요"
 msgid "bài viết"
 msgstr "기사"
 
-msgid "của Hoshi"
+msgid "của Moora"
 msgstr "호시로"
 
 msgid "hoặc tiếp tục với"
@@ -881,8 +881,8 @@ msgstr "지금 로그인하세요"
 msgid "Đăng nhập với Google"
 msgstr "Google로 로그인"
 
-msgid "Đăng nhập để tiếp tục với Hoshi"
-msgstr "Hoshi를 계속하려면 로그인하세요."
+msgid "Đăng nhập để tiếp tục với Moora"
+msgstr "Moora를 계속하려면 로그인하세요."
 
 msgid "Đăng xuất"
 msgstr "로그아웃"

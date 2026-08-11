@@ -1,11 +1,11 @@
 @echo off
-rem Tool tạo bài viết tự động cho Hoshi
+rem Tool tạo bài viết tự động cho Moora
 rem Tác giả: Claude AI 3.7 Sonnet
 
-title Tool tạo bài viết tự động cho Hoshi
+title Tool tạo bài viết tự động cho Moora
 
 echo ================================================
-echo         Tool tạo bài viết tự động cho Hoshi
+echo         Tool tạo bài viết tự động cho Moora
 echo ================================================
 echo.
 

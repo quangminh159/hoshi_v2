@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link href="{% static 'css/logout.css' %}?v=dark-1" rel="stylesheet">
+<link href="{% static 'css/logout.css' %}?v=moora-font-1" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -20,9 +20,11 @@
     </div>
 
     <main class="logout-shell">
-        <a href="{% url 'home' %}" class="logout-brand" aria-label="{% trans 'Trang chủ Hoshi' %}">
-            <img src="{% static 'images/logo-mark.svg' %}" alt="M" class="logout-brand__mark">
-            <span class="logout-brand__name">Hoshi</span>
+        <a href="{% url 'home' %}" class="logout-brand" aria-label="{% trans 'Trang chủ Moora' %}">
+            <img src="{% static 'images/logo-mark.svg' %}?v=moora-sprout-1" alt="Moora" class="logout-brand__mark">
+            <span class="logout-brand__name" aria-label="Moora">
+                <span class="brand-logo__char" style="--i:0">M</span><span class="brand-logo__char" style="--i:1">o</span><span class="brand-logo__char" style="--i:2">o</span><span class="brand-logo__char" style="--i:3">r</span><span class="brand-logo__char" style="--i:4">a</span>
+            </span>
         </a>
 
         <section class="logout-panel">
@@ -30,7 +32,7 @@
             <h1 class="logout-title">{% trans "Đăng xuất?" %}</h1>
             <p class="logout-copy">
                 {% if user.is_authenticated %}
-                    {% blocktrans with name=user.username %}Bạn đang đăng nhập với <strong>@{{ name }}</strong>. Bạn có chắc muốn rời khỏi Hoshi trên thiết bị này?{% endblocktrans %}
+                    {% blocktrans with name=user.username %}Bạn đang đăng nhập với <strong>@{{ name }}</strong>. Bạn có chắc muốn rời khỏi Moora trên thiết bị này?{% endblocktrans %}
                 {% else %}
                     {% trans "Bạn có chắc muốn đăng xuất khỏi tài khoản trên thiết bị này?" %}
                 {% endif %}
@@ -46,7 +48,7 @@
                     <span>{% trans "Đăng xuất" %}</span>
                 </button>
                 <a href="{% url 'home' %}" class="logout-btn logout-btn--ghost">
-                    {% trans "Ở lại Hoshi" %}
+                    {% trans "Ở lại Moora" %}
                 </a>
             </form>
         </section>

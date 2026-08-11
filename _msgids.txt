@@ -90,7 +90,7 @@ Gửi lời chào để bắt đầu cuộc trò chuyện
 Gửi tin nhắn
 Gửi tóm tắt hàng ngày
 Home
-Hoshi - Mạng xã hội chia sẻ khoảnh khắc
+Moora - Mạng xã hội chia sẻ khoảnh khắc
 Hoạt động %(time)s trước
 Hình ảnh
 Hôm nay
@@ -163,12 +163,12 @@ Quay lại
 Quyền riêng tư
 Quên mật khẩu?
 Quản lý cài đặt bảo mật cho tài khoản của bạn. Bật xác thực hai yếu tố để tăng cường bảo mật.
-Quản lý các tài khoản mạng xã hội được liên kết với tài khoản Hoshi của bạn
+Quản lý các tài khoản mạng xã hội được liên kết với tài khoản Moora của bạn
 Quản lý danh sách người dùng mà bạn đã chặn
 Quấy rối
 Sẵn sàng tải xuống
 Số điện thoại
-Tham gia cộng đồng Hoshi ngay hôm nay
+Tham gia cộng đồng Moora ngay hôm nay
 Theo dõi
 Thiết bị của bạn đã đăng nhập. Bạn có thể đăng xuất khỏi các thiết bị khác từ đây.
 Thiết bị hiện tại
@@ -201,7 +201,7 @@ Tìm kiếm cuộc trò chuyện...
 Tìm kiếm...
 Tôi hiểu rằng sau 30 ngày tài khoản sẽ bị xóa vĩnh viễn và không thể khôi phục
 Tôi đồng ý với
-Tùy chỉnh cách bạn nhận thông báo từ Hoshi
+Tùy chỉnh cách bạn nhận thông báo từ Moora
 Tùy chỉnh thời gian đình chỉ
 Tùy chỉnh thời gian đình chỉ người dùng bị báo cáo
 Tùy chọn thông báo khác
@@ -235,7 +235,7 @@ Yêu cầu của bạn đã được ghi nhận.
 Yêu cầu gần đây
 Yêu cầu tải xuống
 bài viết
-của Hoshi
+của Moora
 hoặc tiếp tục với
 hoặc đăng ký với
 lượt thích
@@ -282,7 +282,7 @@ và
 Đăng nhập bằng mạng xã hội
 Đăng nhập ngay
 Đăng nhập với Google
-Đăng nhập để tiếp tục với Hoshi
+Đăng nhập để tiếp tục với Moora
 Đăng xuất
 Đảm bảo sử dụng mật khẩu mạnh và không sử dụng lại ở các trang web khác
 Địa điểm

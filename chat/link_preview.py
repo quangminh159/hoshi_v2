@@ -23,7 +23,7 @@ CACHE_TTL = 60 * 60 * 12  # 12 giờ
 REQUEST_TIMEOUT = 4
 MAX_HTML_BYTES = 350_000
 USER_AGENT = (
-    'Mozilla/5.0 (compatible; HoshiLinkPreview/1.0; +https://hoshi.local)'
+    'Mozilla/5.0 (compatible; MooraLinkPreview/1.0; +https://moora.local)'
 )
 
 

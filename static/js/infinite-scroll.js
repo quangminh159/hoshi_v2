@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Hoshi - Mạng xã hội chia sẻ khoảnh khắc{% endblock %}</title>
+    <title>{% block title %}Moora - Mạng xã hội chia sẻ khoảnh khắc{% endblock %}</title>
     
     <!-- Favicon -->
     <link rel="shortcut icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
@@ -33,7 +33,7 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom fixed-top">
         <div class="container">
             <a class="navbar-brand" href="{% url 'home' %}">
-                <img src="{% static 'img/logo.png' %}" alt="Hoshi" height="30">
+                <img src="{% static 'img/logo.png' %}" alt="Moora" height="30">
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">

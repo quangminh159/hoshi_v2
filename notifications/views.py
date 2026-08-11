@@ -75,7 +75,7 @@ def _attach_follow_back_flags(user, notifications):
         n.is_following_sender = n.sender_id in following_ids
         n.follow_request_pending = n.sender_id in pending_ids
         n.show_follow_back = not n.is_following_sender and not n.follow_request_pending
-        # Tránh hiển thị trùng "Hoshi Hoshi đã theo dõi bạn"
+        # Tránh hiển thị trùng "Moora Moora đã theo dõi bạn"
         raw = (n.text or '').strip()
         uname = n.sender.username if n.sender else ''
         if uname and raw.lower().startswith(uname.lower()):

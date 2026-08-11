@@ -36,7 +36,7 @@ BƯỚC 3 — MỞ TRÊN ĐIỆN THOẠI
 ----------------------------------------
 1. Dán URL https://....ngrok-free.app vào trình duyệt điện thoại
 2. Lần đầu ngrok hiện cảnh báo → bấm "Visit Site"
-3. Đăng nhập Hoshi và test (dùng được cả 4G)
+3. Đăng nhập Moora và test (dùng được cả 4G)
 
 ----------------------------------------
 TẮT / BẬT LẠI

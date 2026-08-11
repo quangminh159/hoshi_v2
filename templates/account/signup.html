@@ -13,9 +13,14 @@
                 <div class="auth-card">
                     <div class="card-body">
                         <div class="text-center mb-4">
-                            <img src="{% static 'images/logo-mark.svg' %}" alt="M" class="auth-logo">
+                            <div class="auth-brand">
+                                <img src="{% static 'images/logo-mark.svg' %}?v=moora-sprout-1" alt="" class="auth-logo" aria-hidden="true">
+                                <span class="auth-brand__name" aria-label="Moora">
+                                    <span class="brand-logo__char" style="--i:0">M</span><span class="brand-logo__char" style="--i:1">o</span><span class="brand-logo__char" style="--i:2">o</span><span class="brand-logo__char" style="--i:3">r</span><span class="brand-logo__char" style="--i:4">a</span>
+                                </span>
+                            </div>
                             <h1 class="auth-title">{% trans "Tạo tài khoản mới" %}</h1>
-                            <p class="auth-subtitle">{% trans "Tham gia cộng đồng Hoshi ngay hôm nay" %}</p>
+                            <p class="auth-subtitle">{% trans "Tham gia cộng đồng Moora ngay hôm nay" %}</p>
                         </div>
 
                         {% if form.errors %}
@@ -217,7 +222,7 @@
                                         <a href="{% url 'terms' %}" target="_blank" rel="noopener">{% trans "Điều khoản sử dụng" %}</a>
                                         {% trans "và" %}
                                         <a href="{% url 'privacy' %}" target="_blank" rel="noopener">{% trans "Chính sách bảo mật" %}</a>
-                                        {% trans "của Hoshi" %}
+                                        {% trans "của Moora" %}
                                     </label>
                                     {% if form.agree_terms.errors %}
                                         <div class="invalid-feedback d-block">

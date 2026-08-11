@@ -17,10 +17,10 @@
         } catch (e) {}
     })();
     </script>
-    <title>{% block title %}{% trans "Hoshi - Mạng xã hội chia sẻ khoảnh khắc" %}{% endblock %}</title>
+    <title>{% block title %}{% trans "Moora - Mạng xã hội chia sẻ khoảnh khắc" %}{% endblock %}</title>
     
     <!-- Favicon -->
-    <link rel="shortcut icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+    <link rel="shortcut icon" href="{% static 'img/favicon.ico' %}?v=moora-sprout-1" type="image/x-icon">
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -28,10 +28,15 @@
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
+    <!-- Brand font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+
     <!-- Custom CSS -->
     <link href="{% static 'css/cross_browser.css' %}?v=2" rel="stylesheet">
-    <link href="{% static 'css/style.css' %}?v=logo-motion-1" rel="stylesheet">
-    <link href="{% static 'css/theme.css' %}?v=comment-actions-1" rel="stylesheet">
+    <link href="{% static 'css/style.css' %}?v=moora-font-1" rel="stylesheet">
+    <link href="{% static 'css/theme.css' %}?v=moora-font-1" rel="stylesheet">
     <link href="{% static 'css/notification_dropdown.css' %}" rel="stylesheet">
     <link href="{% static 'css/media_lightbox.css' %}?v=5" rel="stylesheet">
     <link href="{% static 'css/webrtc_call.css' %}?v=13" rel="stylesheet">
@@ -48,8 +53,11 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom fixed-top site-navbar">
         <div class="container">
-            <a class="navbar-brand brand-logo" href="{% url 'home' %}" aria-label="{% trans 'Trang chủ' %}">
-                <img src="{% static 'images/logo-mark.svg' %}" alt="M" class="brand-logo__mark">
+            <a class="navbar-brand brand-logo" href="{% url 'home' %}" aria-label="{% trans 'Trang chủ Moora' %}">
+                <img src="{% static 'images/logo-mark.svg' %}?v=moora-sprout-1" alt="" class="brand-logo__mark" aria-hidden="true">
+                <span class="brand-logo__text" aria-label="Moora">
+                    <span class="brand-logo__char" style="--i:0">M</span><span class="brand-logo__char" style="--i:1">o</span><span class="brand-logo__char" style="--i:2">o</span><span class="brand-logo__char" style="--i:3">r</span><span class="brand-logo__char" style="--i:4">a</span>
+                </span>
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="{% trans 'Menu' %}">
@@ -213,8 +221,11 @@
         <button type="button" class="mobile-feed-icon-btn" data-bs-toggle="offcanvas" data-bs-target="#mobileFeedMenu" aria-label="Menu">
             <i class="fas fa-bars"></i>
         </button>
-        <a href="{% url 'home' %}" class="mobile-feed-logo brand-logo" aria-label="Trang chủ">
-            <img src="{% static 'images/logo-mark.svg' %}" alt="M" class="brand-logo__mark">
+        <a href="{% url 'home' %}" class="mobile-feed-logo brand-logo" aria-label="Trang chủ Moora">
+            <img src="{% static 'images/logo-mark.svg' %}?v=moora-sprout-1" alt="" class="brand-logo__mark" aria-hidden="true">
+            <span class="brand-logo__text" aria-label="Moora">
+                    <span class="brand-logo__char" style="--i:0">M</span><span class="brand-logo__char" style="--i:1">o</span><span class="brand-logo__char" style="--i:2">o</span><span class="brand-logo__char" style="--i:3">r</span><span class="brand-logo__char" style="--i:4">a</span>
+                </span>
         </a>
         <div class="d-flex align-items-center gap-1">
             <button type="button" class="mobile-feed-icon-btn" data-theme-toggle aria-label="{% trans 'Đổi giao diện sáng/tối' %}">
@@ -298,7 +309,7 @@
     
     <!-- Custom JS -->
     <script src="{% static 'js/theme.js' %}?v=1"></script>
-    <script src="{% static 'js/main.js' %}?v=logo-motion-1"></script>
+    <script src="{% static 'js/main.js' %}?v=moora-home-anim-3"></script>
     <script src="{% static 'js/hoshi_audio_player.js' %}?v=8"></script>
     <script src="{% static 'js/like_effects.js' %}?v=4"></script>
     <script src="{% static 'js/debug_feed.js' %}"></script>

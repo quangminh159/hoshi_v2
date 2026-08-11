@@ -290,8 +290,8 @@ msgstr "发送每日摘要"
 msgid "Home"
 msgstr "家"
 
-msgid "Hoshi - Mạng xã hội chia sẻ khoảnh khắc"
-msgstr "Hoshi - 分享时刻的社交网络"
+msgid "Moora - Mạng xã hội chia sẻ khoảnh khắc"
+msgstr "Moora - 分享时刻的社交网络"
 
 msgid "Hoạt động %(time)s trước"
 msgstr "%(time)s 前操作"
@@ -516,8 +516,8 @@ msgid ""
 msgstr "管理您帐户的安全设置。启用双因素身份验证以提高安全性。"
 
 msgid ""
-"Quản lý các tài khoản mạng xã hội được liên kết với tài khoản Hoshi của bạn"
-msgstr "管理与您的 Hoshi 帐户关联的社交媒体帐户"
+"Quản lý các tài khoản mạng xã hội được liên kết với tài khoản Moora của bạn"
+msgstr "管理与您的 Moora 帐户关联的社交媒体帐户"
 
 msgid "Quản lý danh sách người dùng mà bạn đã chặn"
 msgstr "管理您已阻止的用户列表"
@@ -531,8 +531,8 @@ msgstr "准备下载"
 msgid "Số điện thoại"
 msgstr "电话号码"
 
-msgid "Tham gia cộng đồng Hoshi ngay hôm nay"
-msgstr "立即加入 Hoshi 社区"
+msgid "Tham gia cộng đồng Moora ngay hôm nay"
+msgstr "立即加入 Moora 社区"
 
 msgid "Theo dõi"
 msgstr "监视器"
@@ -634,8 +634,8 @@ msgstr "我了解 30 天后该帐户将被永久删除且无法恢复"
 msgid "Tôi đồng ý với"
 msgstr "我同意"
 
-msgid "Tùy chỉnh cách bạn nhận thông báo từ Hoshi"
-msgstr "自定义您接收 Hoshi 通知的方式"
+msgid "Tùy chỉnh cách bạn nhận thông báo từ Moora"
+msgstr "自定义您接收 Moora 通知的方式"
 
 msgid "Tùy chỉnh thời gian đình chỉ"
 msgstr "自定义暂停时间"
@@ -737,7 +737,7 @@ msgstr "需要下载"
 msgid "bài viết"
 msgstr "文章"
 
-msgid "của Hoshi"
+msgid "của Moora"
 msgstr "通过 星"
 
 msgid "hoặc tiếp tục với"
@@ -878,8 +878,8 @@ msgstr "立即登录"
 msgid "Đăng nhập với Google"
 msgstr "使用 Google 登录"
 
-msgid "Đăng nhập để tiếp tục với Hoshi"
-msgstr "登录并继续使用 Hoshi"
+msgid "Đăng nhập để tiếp tục với Moora"
+msgstr "登录并继续使用 Moora"
 
 msgid "Đăng xuất"
 msgstr "登出"

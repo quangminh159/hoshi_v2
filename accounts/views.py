@@ -308,7 +308,7 @@ def setup_two_factor(request):
     totp = pyotp.TOTP(secret_key)
     provisioning_uri = totp.provisioning_uri(
         name=request.user.email or request.user.username,
-        issuer_name="Hoshi"
+        issuer_name="Moora"
     )
     qr_img = qrcode.make(provisioning_uri)
     buffer = io.BytesIO()

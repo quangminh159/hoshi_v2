@@ -1,3 +1,74 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" role="img" aria-label="M">
-  <path fill="#111" d="M2 62V6c0-2.4 1.7-4 4.2-4 1.8 0 3.3.9 4.2 2.5L32 42.5 53.6 4.5C54.5 2.9 56 2 57.8 2 60.3 2 62 3.6 62 6v56c0 2.2-1.5 3.8-3.6 3.8S54.8 64.2 54.8 62V28.5L36.6 58.2c-1 1.8-2.5 2.8-4.6 2.8s-3.6-1-4.6-2.8L9.2 28.5V62c0 2.2-1.5 3.8-3.6 3.8S2 64.2 2 62Z"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none" role="img" aria-label="Moora">
+  <defs>
+    <linearGradient id="mStroke" x1="20" y1="28" x2="20" y2="108" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#3d7a3a"/>
+      <stop offset="55%" stop-color="#2a5c2a"/>
+      <stop offset="100%" stop-color="#1a3f1c"/>
+    </linearGradient>
+    <linearGradient id="leafL" x1="52" y1="18" x2="64" y2="48" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#b6e34a"/>
+      <stop offset="100%" stop-color="#5faf2a"/>
+    </linearGradient>
+    <linearGradient id="leafR" x1="76" y1="16" x2="64" y2="48" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#9fd63a"/>
+      <stop offset="100%" stop-color="#4e9a22"/>
+    </linearGradient>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="1.2" stdDeviation="1.2" flood-color="#0a1f0c" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+
+  <!-- stylized m (two rounded hills) -->
+  <path
+    filter="url(#soft)"
+    d="M18 104
+       C18 70 28 52 44 52
+       C54 52 60 64 64 78
+       C68 64 74 52 84 52
+       C100 52 110 70 110 104"
+    stroke="url(#mStroke)"
+    stroke-width="16"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="none"/>
+
+  <!-- highlight on m -->
+  <path
+    d="M26 96
+       C26 72 34 60 44 60
+       C52 60 57 70 61 82
+       C65 70 70 60 84 60
+       C94 60 102 72 102 96"
+    stroke="#4f8f48"
+    stroke-opacity="0.35"
+    stroke-width="4"
+    stroke-linecap="round"
+    fill="none"/>
+
+  <!-- stem -->
+  <path d="M64 78 C64 66 64 56 64 46" stroke="#3f7a32" stroke-width="3.2" stroke-linecap="round"/>
+
+  <!-- left leaf -->
+  <path
+    d="M64 52
+       C54 48 46 38 48 28
+       C56 26 64 36 64 48
+       Z"
+    fill="url(#leafL)"
+    stroke="#3d6e28"
+    stroke-width="1.2"
+    stroke-linejoin="round"/>
+  <!-- right leaf -->
+  <path
+    d="M64 52
+       C74 47 82 36 80 26
+       C72 24 64 35 64 48
+       Z"
+    fill="url(#leafR)"
+    stroke="#3d6e28"
+    stroke-width="1.2"
+    stroke-linejoin="round"/>
+  <!-- veins -->
+  <path d="M58 44 C54 38 52 32 51 30" stroke="#2f6a24" stroke-width="1" stroke-linecap="round" opacity="0.55"/>
+  <path d="M70 44 C74 38 76 32 77 29" stroke="#2f6a24" stroke-width="1" stroke-linecap="round" opacity="0.55"/>
 </svg>

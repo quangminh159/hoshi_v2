@@ -1099,7 +1099,7 @@ def _fetch_nominatim_search(query, limit=6):
         f'q={quote(query)}&format=json&limit={limit}'
         '&accept-language=vi,en'
     )
-    request = Request(url, headers={'User-Agent': 'HoshiSocial/1.0'})
+    request = Request(url, headers={'User-Agent': 'MooraSocial/1.0'})
     with urlopen(request, timeout=5) as response:
         data = json.loads(response.read().decode('utf-8'))
 
@@ -1127,7 +1127,7 @@ def _fetch_nominatim_reverse(lat, lon):
         'accept-language': 'vi',
     })
     url = f'https://nominatim.openstreetmap.org/reverse?{params}'
-    request = Request(url, headers={'User-Agent': 'HoshiSocial/1.0'})
+    request = Request(url, headers={'User-Agent': 'MooraSocial/1.0'})
     with urlopen(request, timeout=5) as response:
         data = json.loads(response.read().decode('utf-8'))
 

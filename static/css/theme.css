@@ -39,7 +39,7 @@
     --input-bg: #1c1c20;
     --hover-bg: #26262b;
     --shadow-color: rgba(0, 0, 0, 0.55);
-    --logo-filter: invert(1);
+    --logo-filter: none;
     --feed-bg: #0b0b0d;
     --bottom-nav-bg: #121214;
     --link-color: #9eb4ff;
@@ -101,16 +101,16 @@ body.bg-light {
 .auth-logo,
 .auth-flow__mark,
 .logout-brand__mark {
-    filter: var(--logo-filter);
+    filter: none;
 }
 
-/* Logo chữ M đen → đảo sáng trên nền tối */
+/* Logo Moora (xanh) giữ nguyên màu ở cả light/dark */
 [data-bs-theme="dark"] .brand-logo__mark,
 [data-bs-theme="dark"] .auth-logo,
 [data-bs-theme="dark"] .auth-flow__mark,
 [data-bs-theme="dark"] .logout-brand__mark,
 [data-bs-theme="dark"] .mobile-feed-logo .brand-logo__mark {
-    filter: invert(1) brightness(1.08);
+    filter: none;
 }
 
 /* Cards / surfaces */

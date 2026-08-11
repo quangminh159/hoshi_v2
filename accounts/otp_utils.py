@@ -20,7 +20,7 @@ OTP_IP_RESEND_LIMIT = 10
 OTP_IP_RESEND_WINDOW = 15 * 60
 
 PASSWORD_RESET_NEUTRAL_MESSAGE = (
-    'Nếu số điện thoại này có trên Hoshi, bạn sẽ nhận được mã xác thực trong vài phút.'
+    'Nếu số điện thoại này có trên Moora, bạn sẽ nhận được mã xác thực trong vài phút.'
 )
 
 
@@ -159,7 +159,7 @@ def client_ip(request):
 
 
 def send_email_otp(to_email, code, purpose_label):
-    subject = f'[Hoshi] Mã xác thực {purpose_label}'
+    subject = f'[Moora] Mã xác thực {purpose_label}'
     message = (
         f'Mã xác thực {purpose_label} của bạn là: {code}\n\n'
         f'Mã có hiệu lực trong 10 phút. Nếu bạn không yêu cầu, hãy bỏ qua email này.'
@@ -201,7 +201,7 @@ def send_sms_otp(phone, code, purpose_label):
         .strip()
         or 'OTP'
     )
-    body = f'Hoshi: Ma xac thuc {purpose_ascii} la {code}. Hieu luc 10 phut.'
+    body = f'Moora: Ma xac thuc {purpose_ascii} la {code}. Hieu luc 10 phut.'
 
     if account_sid and auth_token and from_number:
         try:

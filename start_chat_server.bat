@@ -1,6 +1,6 @@
 @echo off
 echo ====================================
-echo Hoshi Chat Server Starter
+echo Moora Chat Server Starter
 echo ====================================
 
 :: Kiểm tra xem venv có tồn tại không

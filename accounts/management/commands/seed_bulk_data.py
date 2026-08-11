@@ -25,7 +25,7 @@ from posts.models import Comment, Like, Post, PostMedia
 User = get_user_model()
 
 CAPTIONS = [
-    'Xin chào Hoshi! #{tag}',
+    'Xin chào Moora! #{tag}',
     'Ngày mới năng lượng #{tag}',
     'Check-in nhanh #{tag}',
     'Chia sẻ khoảnh khắc #{tag}',

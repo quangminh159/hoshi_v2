@@ -15,7 +15,7 @@
                         <div class="text-center mb-4">
                             <img src="{% static 'images/logo.svg' %}" alt="Logo" class="auth-logo">
                             <h1 class="auth-title">Chào mừng trở lại!</h1>
-                            <p class="auth-subtitle">Đăng nhập để tiếp tục với Hoshi</p>
+                            <p class="auth-subtitle">Đăng nhập để tiếp tục với Moora</p>
                         </div>
 
                         {% if form.errors %}

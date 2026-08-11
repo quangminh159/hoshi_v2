@@ -13,9 +13,14 @@
                 <div class="auth-card">
                     <div class="card-body">
                         <div class="text-center mb-4">
-                            <img src="{% static 'images/logo-mark.svg' %}" alt="M" class="auth-logo">
+                            <div class="auth-brand">
+                                <img src="{% static 'images/logo-mark.svg' %}?v=moora-sprout-1" alt="" class="auth-logo" aria-hidden="true">
+                                <span class="auth-brand__name" aria-label="Moora">
+                                    <span class="brand-logo__char" style="--i:0">M</span><span class="brand-logo__char" style="--i:1">o</span><span class="brand-logo__char" style="--i:2">o</span><span class="brand-logo__char" style="--i:3">r</span><span class="brand-logo__char" style="--i:4">a</span>
+                                </span>
+                            </div>
                             <h1 class="auth-title">{% trans "Chào mừng trở lại!" %}</h1>
-                            <p class="auth-subtitle">{% trans "Đăng nhập để tiếp tục với Hoshi" %}</p>
+                            <p class="auth-subtitle">{% trans "Đăng nhập để tiếp tục với Moora" %}</p>
                         </div>
 
                         {% if form.errors %}

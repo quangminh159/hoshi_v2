@@ -1,6 +1,6 @@
-# Hoshi - Mạng xã hội chia sẻ khoảnh khắc
+# Moora - Mạng xã hội chia sẻ khoảnh khắc
 
-Hoshi là một mạng xã hội được xây dựng bằng Django, cho phép người dùng chia sẻ những khoảnh khắc trong cuộc sống thông qua hình ảnh và video.
+Moora là một mạng xã hội được xây dựng bằng Django, cho phép người dùng chia sẻ những khoảnh khắc trong cuộc sống thông qua hình ảnh và video.
 
 ## Tính năng
 
@@ -99,7 +99,7 @@ celery -A hoshi beat -l info
 
 ## Triển khai lên Render
 
-Render là nền tảng cloud đơn giản và mạnh mẽ để triển khai các ứng dụng web. Dưới đây là hướng dẫn triển khai Hoshi lên Render:
+Render là nền tảng cloud đơn giản và mạnh mẽ để triển khai các ứng dụng web. Dưới đây là hướng dẫn triển khai Moora lên Render:
 
 ### 1. Chuẩn bị
 
@@ -227,7 +227,7 @@ Dự án này được phân phối dưới giấy phép MIT. Xem file [LICENSE]
 - Facebook: 
 - Twitter:  
 
-# Hoshi - Hướng dẫn sử dụng Ngrok
+# Moora - Hướng dẫn sử dụng Ngrok
 
 ## Giới thiệu
 

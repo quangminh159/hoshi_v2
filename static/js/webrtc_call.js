@@ -1114,7 +1114,7 @@
         window.alert(
             'Trình duyệt đang chặn cửa sổ gọi.\n\n'
             + 'Cuộc gọi sẽ chạy trên trang này.\n'
-            + 'Muốn gọi cửa sổ riêng: cho phép popup cho trang Hoshi (biểu tượng bị chặn trên thanh địa chỉ).'
+            + 'Muốn gọi cửa sổ riêng: cho phép popup cho trang Moora (biểu tượng bị chặn trên thanh địa chỉ).'
         );
     }
 

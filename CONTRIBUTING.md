@@ -1,6 +1,6 @@
 # Hướng dẫn đóng góp
 
-Cảm ơn bạn đã quan tâm đến việc đóng góp cho Hoshi! Chúng tôi rất hoan nghênh mọi đóng góp từ cộng đồng.
+Cảm ơn bạn đã quan tâm đến việc đóng góp cho Moora! Chúng tôi rất hoan nghênh mọi đóng góp từ cộng đồng.
 
 ## Quy trình đóng góp
 
@@ -77,4 +77,4 @@ Nếu bạn có bất kỳ câu hỏi nào, vui lòng:
 
 ## License
 
-Bằng cách đóng góp cho Hoshi, bạn đồng ý rằng các đóng góp của bạn sẽ được cấp phép theo giấy phép MIT. 
+Bằng cách đóng góp cho Moora, bạn đồng ý rằng các đóng góp của bạn sẽ được cấp phép theo giấy phép MIT. 

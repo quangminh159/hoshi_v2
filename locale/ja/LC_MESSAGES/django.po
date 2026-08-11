@@ -290,7 +290,7 @@ msgstr "毎日の概要を送信する"
 msgid "Home"
 msgstr "家"
 
-msgid "Hoshi - Mạng xã hội chia sẻ khoảnh khắc"
+msgid "Moora - Mạng xã hội chia sẻ khoảnh khắc"
 msgstr "Houshi - 瞬間を共有するためのソーシャル ネットワーク"
 
 msgid "Hoạt động %(time)s trước"
@@ -520,8 +520,8 @@ msgid ""
 msgstr "アカウントのセキュリティ設定を管理します。セキュリティを強化するために 2 要素認証を有効にします。"
 
 msgid ""
-"Quản lý các tài khoản mạng xã hội được liên kết với tài khoản Hoshi của bạn"
-msgstr "あなたのHoshiアカウントにリンクされたソーシャルメディアアカウントを管理します"
+"Quản lý các tài khoản mạng xã hội được liên kết với tài khoản Moora của bạn"
+msgstr "あなたのMooraアカウントにリンクされたソーシャルメディアアカウントを管理します"
 
 msgid "Quản lý danh sách người dùng mà bạn đã chặn"
 msgstr "ブロックしたユーザーのリストを管理する"
@@ -535,8 +535,8 @@ msgstr "ダウンロードの準備ができました"
 msgid "Số điện thoại"
 msgstr "電話番号"
 
-msgid "Tham gia cộng đồng Hoshi ngay hôm nay"
-msgstr "今すぐHoshiコミュニティに参加してください"
+msgid "Tham gia cộng đồng Moora ngay hôm nay"
+msgstr "今すぐMooraコミュニティに参加してください"
 
 msgid "Theo dõi"
 msgstr "モニター"
@@ -638,7 +638,7 @@ msgstr "30 日後にアカウントは完全に削除され、復元できない
 msgid "Tôi đồng ý với"
 msgstr "同意します"
 
-msgid "Tùy chỉnh cách bạn nhận thông báo từ Hoshi"
+msgid "Tùy chỉnh cách bạn nhận thông báo từ Moora"
 msgstr "ホシからの通知の受け取り方法をカスタマイズする"
 
 msgid "Tùy chỉnh thời gian đình chỉ"
@@ -741,7 +741,7 @@ msgstr "ダウンロードが必要です"
 msgid "bài viết"
 msgstr "記事"
 
-msgid "của Hoshi"
+msgid "của Moora"
 msgstr "by ホシ"
 
 msgid "hoặc tiếp tục với"
@@ -882,8 +882,8 @@ msgstr "今すぐサインイン"
 msgid "Đăng nhập với Google"
 msgstr "Googleでサインイン"
 
-msgid "Đăng nhập để tiếp tục với Hoshi"
-msgstr "ログインしてHoshiを続ける"
+msgid "Đăng nhập để tiếp tục với Moora"
+msgstr "ログインしてMooraを続ける"
 
 msgid "Đăng xuất"
 msgstr "サインアウト"

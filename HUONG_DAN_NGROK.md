@@ -1,4 +1,4 @@
-# Hướng dẫn chạy Hoshi + ngrok (test điện thoại / 4G)
+# Hướng dẫn chạy Moora + ngrok (test điện thoại / 4G)
 
 Cần **2 terminal** mở cùng lúc trong thư mục `C:\hoshi_v2`.
 
@@ -48,7 +48,7 @@ Hoặc trên máy PC mở: http://127.0.0.1:4040 để xem / copy link.
 
 1. Dán URL `https://....ngrok-free.app` vào trình duyệt điện thoại
 2. Lần đầu ngrok free hiện trang cảnh báo → bấm **Visit Site**
-3. Đăng nhập Hoshi và test như bình thường (kể cả trên 4G)
+3. Đăng nhập Moora và test như bình thường (kể cả trên 4G)
 
 ---
 

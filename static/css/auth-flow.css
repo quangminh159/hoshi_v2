@@ -97,10 +97,13 @@
 }
 
 .auth-flow__name {
-    font-family: inherit;
+    display: inline-flex;
+    align-items: baseline;
+    font-family: "Outfit", "Segoe UI", sans-serif;
     font-size: 1.65rem;
-    font-weight: 700;
-    letter-spacing: -0.03em;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
     line-height: 1;
 }
 

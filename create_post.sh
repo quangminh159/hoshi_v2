@@ -1,9 +1,9 @@
 #!/bin/bash
-# Tool tạo bài viết tự động cho Hoshi
+# Tool tạo bài viết tự động cho Moora
 # Tác giả: Claude AI 3.7 Sonnet
 
 echo "================================================"
-echo "         Tool tạo bài viết tự động cho Hoshi         "
+echo "         Tool tạo bài viết tự động cho Moora         "
 echo "================================================"
 echo
 

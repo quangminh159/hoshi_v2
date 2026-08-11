@@ -28,34 +28,77 @@ function throttle(func, limit) {
     };
 }
 
-/** Logo: hover có CSS; click logo / trang chủ thì xoay + nảy. */
+/** Logo + chữ Moora: hover có CSS; click logo / trang chủ thì xoay + nảy từng chữ. */
+const BRAND_ANIM_KEY = 'mooraBrandAnim';
+const BRAND_ANIM_MS = 900;
+
 function playBrandLogoAnimation() {
-    document.querySelectorAll('a.brand-logo').forEach((logo) => {
+    document.querySelectorAll('a.brand-logo, .auth-brand').forEach((logo) => {
         logo.classList.remove('is-animating');
         void logo.offsetWidth;
         logo.classList.add('is-animating');
-        const onEnd = () => {
+        window.clearTimeout(logo._brandAnimTimer);
+        logo._brandAnimTimer = window.setTimeout(() => {
             logo.classList.remove('is-animating');
-            logo.removeEventListener('animationend', onEnd);
-        };
-        logo.addEventListener('animationend', onEnd);
+        }, BRAND_ANIM_MS);
+    });
+}
+
+function isHomePath(pathname) {
+    const path = (pathname || '').replace(/\/+$/, '') || '/';
+    return path === '/' || path === '' || /\/home\/?$/.test(path);
+}
+
+function requestBrandAnimOnNextHome() {
+    try {
+        sessionStorage.setItem(BRAND_ANIM_KEY, '1');
+    } catch (err) { /* ignore */ }
+}
+
+function maybePlayBrandAnimFromNavigation() {
+    try {
+        if (sessionStorage.getItem(BRAND_ANIM_KEY) !== '1') return;
+        sessionStorage.removeItem(BRAND_ANIM_KEY);
+    } catch (err) {
+        return;
+    }
+    // Chờ paint xong rồi chạy để thấy rõ hiệu ứng
+    window.requestAnimationFrame(() => {
+        window.setTimeout(playBrandLogoAnimation, 40);
     });
 }
 
 document.addEventListener('click', (e) => {
     const logoLink = e.target.closest('a.brand-logo');
     if (logoLink) {
+        requestBrandAnimOnNextHome();
         playBrandLogoAnimation();
+        // Cùng URL trang chủ: ép reload để refresh feed
+        if (isHomePath(logoLink.pathname) && isHomePath(window.location.pathname)) {
+            e.preventDefault();
+            window.location.reload();
+        }
         return;
     }
+
     const homeNav = e.target.closest('a.nav-link, a.mobile-bottom-nav__item');
     if (!homeNav) return;
+
     const isHomeIcon = !!homeNav.querySelector('.fa-home');
     const navHome = homeNav.getAttribute('data-nav') === 'home';
-    if (isHomeIcon || navHome) {
-        playBrandLogoAnimation();
+    const hrefIsHome = homeNav.pathname ? isHomePath(homeNav.pathname) : false;
+    if (!(isHomeIcon || navHome || hrefIsHome)) return;
+
+    requestBrandAnimOnNextHome();
+    playBrandLogoAnimation();
+    if (isHomePath(window.location.pathname) && (hrefIsHome || isHomeIcon || navHome)) {
+        e.preventDefault();
+        window.location.reload();
     }
 }, true);
+
+document.addEventListener('DOMContentLoaded', maybePlayBrandAnimFromNavigation);
+
 
 // Hàm bọc để tránh đăng ký trùng lặp event listeners
 function safeAddEventListener(element, eventType, handler, handlerId) {

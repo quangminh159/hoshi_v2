@@ -177,7 +177,8 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'quangminh159159@gmail.com'  # Điền email của bạn
 EMAIL_HOST_PASSWORD = 'vjmioramcpgxfesp'  # Cần tạo app password trong tài khoản Google
-DEFAULT_FROM_EMAIL = 'Hoshi <noreply@hoshi.vn>'  # Tên hiển thị và email gửi
+SITE_NAME = 'Moora'
+DEFAULT_FROM_EMAIL = 'Moora <noreply@moora.vn>'  # Tên hiển thị và email gửi
 
 # Twilio SMS (OTP)
 TWILIO_ACCOUNT_SID = env('TWILIO_ACCOUNT_SID', default='')

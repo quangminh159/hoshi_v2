@@ -1,4 +1,4 @@
-"""Generate django.po / django.mo locale catalogs for Hoshi UI strings."""
+"""Generate django.po / django.mo locale catalogs for Moora UI strings."""
 from pathlib import Path
 
 import polib
@@ -7,7 +7,7 @@ from django.conf import settings
 # msgid is Vietnamese (source language of the templates)
 TRANSLATIONS = {
     'en': {
-        'Hoshi - Mạng xã hội chia sẻ khoảnh khắc': 'Hoshi - Share your moments',
+        'Moora - Mạng xã hội chia sẻ khoảnh khắc': 'Moora - Share your moments',
         'Trang chủ': 'Home',
         'Menu': 'Menu',
         'Tìm kiếm...': 'Search...',
@@ -45,7 +45,7 @@ TRANSLATIONS = {
         'Đã cập nhật ngôn ngữ hiển thị.': 'Display language updated.',
     },
     'ja': {
-        'Hoshi - Mạng xã hội chia sẻ khoảnh khắc': 'Hoshi - 瞬間をシェア',
+        'Moora - Mạng xã hội chia sẻ khoảnh khắc': 'Moora - 瞬間をシェア',
         'Trang chủ': 'ホーム',
         'Menu': 'メニュー',
         'Tìm kiếm...': '検索...',
@@ -83,7 +83,7 @@ TRANSLATIONS = {
         'Đã cập nhật ngôn ngữ hiển thị.': '表示言語を更新しました。',
     },
     'ko': {
-        'Hoshi - Mạng xã hội chia sẻ khoảnh khắc': 'Hoshi - 순간을 공유하세요',
+        'Moora - Mạng xã hội chia sẻ khoảnh khắc': 'Moora - 순간을 공유하세요',
         'Trang chủ': '홈',
         'Menu': '메뉴',
         'Tìm kiếm...': '검색...',
@@ -121,7 +121,7 @@ TRANSLATIONS = {
         'Đã cập nhật ngôn ngữ hiển thị.': '표시 언어가 업데이트되었습니다.',
     },
     'zh_Hans': {
-        'Hoshi - Mạng xã hội chia sẻ khoảnh khắc': 'Hoshi - 分享你的瞬间',
+        'Moora - Mạng xã hội chia sẻ khoảnh khắc': 'Moora - 分享你的瞬间',
         'Trang chủ': '首页',
         'Menu': '菜单',
         'Tìm kiếm...': '搜索...',

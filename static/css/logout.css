@@ -90,11 +90,20 @@
 }
 
 .logout-brand__name {
-    font-family: "Fraunces", serif;
-    font-size: 1.65rem;
-    font-weight: 700;
-    letter-spacing: -0.03em;
+    display: inline-flex;
+    align-items: baseline;
+    font-family: "Outfit", "Segoe UI", sans-serif;
+    font-size: 1.7rem;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
     line-height: 1;
+}
+
+.logout-brand:hover .brand-logo__char,
+.logout-brand:focus-visible .brand-logo__char {
+    animation: brand-text-wave 0.7s ease-in-out infinite;
+    animation-delay: calc(var(--i, 0) * 0.07s);
 }
 
 .logout-panel {
@@ -320,5 +329,5 @@
 }
 
 [data-bs-theme="dark"] .logout-brand__mark {
-    filter: invert(1) brightness(1.08);
+    filter: none;
 }

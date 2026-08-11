@@ -1,3 +1,47 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" role="img" aria-label="M">
-  <path fill="#111" d="M2 62V6c0-2.4 1.7-4 4.2-4 1.8 0 3.3.9 4.2 2.5L32 42.5 53.6 4.5C54.5 2.9 56 2 57.8 2 60.3 2 62 3.6 62 6v56c0 2.2-1.5 3.8-3.6 3.8S54.8 64.2 54.8 62V28.5L36.6 58.2c-1 1.8-2.5 2.8-4.6 2.8s-3.6-1-4.6-2.8L9.2 28.5V62c0 2.2-1.5 3.8-3.6 3.8S2 64.2 2 62Z"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 220" fill="none" role="img" aria-label="Moora">
+  <defs>
+    <linearGradient id="mStroke" x1="40" y1="40" x2="40" y2="150" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#3d7a3a"/>
+      <stop offset="55%" stop-color="#2a5c2a"/>
+      <stop offset="100%" stop-color="#1a3f1c"/>
+    </linearGradient>
+    <linearGradient id="leafL" x1="118" y1="28" x2="140" y2="70" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#b6e34a"/>
+      <stop offset="100%" stop-color="#5faf2a"/>
+    </linearGradient>
+    <linearGradient id="leafR" x1="162" y1="26" x2="140" y2="70" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#9fd63a"/>
+      <stop offset="100%" stop-color="#4e9a22"/>
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(76, 8)">
+    <path
+      d="M18 104
+         C18 70 28 52 44 52
+         C54 52 60 64 64 78
+         C68 64 74 52 84 52
+         C100 52 110 70 110 104"
+      stroke="url(#mStroke)"
+      stroke-width="16"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      fill="none"/>
+    <path d="M64 78 C64 66 64 56 64 46" stroke="#3f7a32" stroke-width="3.2" stroke-linecap="round"/>
+    <path
+      d="M64 52 C54 48 46 38 48 28 C56 26 64 36 64 48 Z"
+      fill="url(#leafL)" stroke="#3d6e28" stroke-width="1.2" stroke-linejoin="round"/>
+    <path
+      d="M64 52 C74 47 82 36 80 26 C72 24 64 35 64 48 Z"
+      fill="url(#leafR)" stroke="#3d6e28" stroke-width="1.2" stroke-linejoin="round"/>
+  </g>
+
+  <text
+    x="140" y="198"
+    text-anchor="middle"
+    fill="#ffffff"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="42"
+    font-weight="700"
+    letter-spacing="10">MOORA</text>
 </svg>

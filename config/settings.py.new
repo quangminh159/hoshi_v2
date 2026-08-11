@@ -160,7 +160,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # EMAIL_USE_TLS = True
 # EMAIL_HOST_USER = 'your-email@gmail.com'  # Điền email của bạn
 # EMAIL_HOST_PASSWORD = 'your-app-password'  # Cần tạo app password trong tài khoản Google
-DEFAULT_FROM_EMAIL = 'Hoshi <noreply@hoshi.vn>'  # Tên hiển thị và email gửi
+DEFAULT_FROM_EMAIL = 'Moora <noreply@moora.vn>'  # Tên hiển thị và email gửi
 
 # Crispy Forms
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
