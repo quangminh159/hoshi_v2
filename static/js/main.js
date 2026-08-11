@@ -28,9 +28,10 @@ function throttle(func, limit) {
     };
 }
 
-/** Logo + chữ Moora: hover có CSS; click logo / trang chủ thì xoay + nảy từng chữ. */
+/** Logo + chữ Moora: hover có CSS; click logo / trang chủ thì animate rồi mới reload. */
 const BRAND_ANIM_KEY = 'mooraBrandAnim';
-const BRAND_ANIM_MS = 900;
+const BRAND_ANIM_MS = 980;
+const BRAND_NAV_DELAY_MS = 720;
 
 function playBrandLogoAnimation() {
     document.querySelectorAll('a.brand-logo, .auth-brand').forEach((logo) => {
@@ -49,6 +50,10 @@ function isHomePath(pathname) {
     return path === '/' || path === '' || /\/home\/?$/.test(path);
 }
 
+function preferReducedMotion() {
+    return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
 function requestBrandAnimOnNextHome() {
     try {
         sessionStorage.setItem(BRAND_ANIM_KEY, '1');
@@ -62,21 +67,32 @@ function maybePlayBrandAnimFromNavigation() {
     } catch (err) {
         return;
     }
-    // Chờ paint xong rồi chạy để thấy rõ hiệu ứng
     window.requestAnimationFrame(() => {
-        window.setTimeout(playBrandLogoAnimation, 40);
+        window.setTimeout(playBrandLogoAnimation, 60);
     });
+}
+
+function navigateHomeWithBrandAnim(url) {
+    requestBrandAnimOnNextHome();
+    playBrandLogoAnimation();
+    const delay = preferReducedMotion() ? 0 : BRAND_NAV_DELAY_MS;
+    window.setTimeout(() => {
+        if (!url || isHomePath(new URL(url, window.location.origin).pathname) && isHomePath(window.location.pathname)) {
+            window.location.reload();
+            return;
+        }
+        window.location.href = url;
+    }, delay);
 }
 
 document.addEventListener('click', (e) => {
     const logoLink = e.target.closest('a.brand-logo');
     if (logoLink) {
-        requestBrandAnimOnNextHome();
-        playBrandLogoAnimation();
-        // Cùng URL trang chủ: ép reload để refresh feed
-        if (isHomePath(logoLink.pathname) && isHomePath(window.location.pathname)) {
+        if (isHomePath(logoLink.pathname)) {
             e.preventDefault();
-            window.location.reload();
+            navigateHomeWithBrandAnim(logoLink.href);
+        } else {
+            playBrandLogoAnimation();
         }
         return;
     }
@@ -89,12 +105,8 @@ document.addEventListener('click', (e) => {
     const hrefIsHome = homeNav.pathname ? isHomePath(homeNav.pathname) : false;
     if (!(isHomeIcon || navHome || hrefIsHome)) return;
 
-    requestBrandAnimOnNextHome();
-    playBrandLogoAnimation();
-    if (isHomePath(window.location.pathname) && (hrefIsHome || isHomeIcon || navHome)) {
-        e.preventDefault();
-        window.location.reload();
-    }
+    e.preventDefault();
+    navigateHomeWithBrandAnim(homeNav.href || '/');
 }, true);
 
 document.addEventListener('DOMContentLoaded', maybePlayBrandAnimFromNavigation);
