@@ -82,3 +82,7 @@ class AccountAdapter(DefaultAccountAdapter):
         if request.session.get('pending_2fa_user_id'):
             return reverse('accounts:verify_two_factor_login')
         return super().get_login_redirect_url(request)
+
+    def is_open_for_signup(self, request):
+        """Closed beta: vẫn mở form, nhưng bắt buộc mã mời (INVITE_ONLY)."""
+        return True

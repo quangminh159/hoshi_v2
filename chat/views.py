@@ -14,6 +14,7 @@ import re
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_protect
 from django.utils import timezone
+from hoshi.spam import ratelimit
 
 User = get_user_model()
 
@@ -332,6 +333,7 @@ def conversation_detail(request, conversation_id):
     return render(request, 'chat/conversation_detail.html', context)
 
 @login_required
+@ratelimit(rate='60/m', key='user')
 def send_message(request, conversation_id):
     """Xử lý gửi tin nhắn trong cuộc trò chuyện"""
     if request.method == 'POST':

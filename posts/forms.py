@@ -25,7 +25,25 @@ class PostForm(forms.ModelForm):
     
     class Meta:
         model = Post
-        fields = ['caption', 'location']
+        fields = ['caption', 'location', 'visibility']
+        widgets = {
+            'visibility': forms.Select(attrs={
+                'class': 'form-select form-select-sm post-visibility-select',
+            }),
+        }
+        labels = {
+            'visibility': 'Chế độ xem',
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['visibility'].choices = [
+            (Post.VISIBILITY_PUBLIC, 'Công khai'),
+            (Post.VISIBILITY_ONLY_ME, 'Chỉ mình tôi'),
+        ]
+        self.fields['visibility'].initial = (
+            getattr(self.instance, 'visibility', None) or Post.VISIBILITY_PUBLIC
+        )
 
 class CommentForm(forms.ModelForm):
     """Form cho việc thêm bình luận"""

@@ -14,7 +14,7 @@
     }
 
     .settings-sidebar {
-        width: 240px;
+        width: 100%;
         position: sticky;
         top: 1rem;
     }
@@ -25,10 +25,57 @@
         color: var(--text-color);
     }
 
+    /* Chỉ hiện 1 mục cài đặt tại một thời điểm */
+    .settings-section {
+        display: none;
+        animation: settingsFadeIn 0.22s ease;
+    }
+
+    .settings-section.is-active {
+        display: block;
+    }
+
+    @keyframes settingsFadeIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .settings-nav {
+        gap: 0.35rem;
+        background: var(--surface-muted);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        padding: 0.55rem;
+    }
+
     .settings-nav .nav-link {
         color: var(--text-color);
-        border-radius: 0.5rem;
-        padding: 0.75rem 1rem;
+        border-radius: 0.7rem;
+        padding: 0.8rem 0.95rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        text-decoration: none;
+        transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .settings-nav .nav-link .nav-link-left {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        min-width: 0;
+    }
+
+    .settings-nav .nav-link .nav-link-left i {
+        width: 1.25rem;
+        text-align: center;
+        opacity: 0.85;
+    }
+
+    .settings-nav .nav-link .nav-chevron {
+        color: var(--light-text-color);
+        font-size: 0.75rem;
+        opacity: 0.7;
     }
 
     .settings-nav .nav-link:hover {
@@ -39,15 +86,102 @@
     .settings-nav .nav-link.active {
         background: rgba(64, 93, 230, 0.12);
         color: var(--primary-color);
-        font-weight: 500;
+        font-weight: 600;
     }
 
-    .settings-nav .nav-link i {
-        width: 1.5rem;
+    .settings-nav .nav-link.active .nav-chevron {
+        color: var(--primary-color);
+        opacity: 1;
     }
 
-    .settings-section:not(:last-child) {
-        margin-bottom: 3rem;
+    .settings-nav .nav-link.text-danger.active {
+        background: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+    }
+
+    .settings-detail-header {
+        display: none;
+        align-items: center;
+        gap: 0.65rem;
+        margin-bottom: 1rem;
+    }
+
+    .settings-detail-header .btn-back {
+        border: 1px solid var(--border-color);
+        background: var(--card-bg);
+        color: var(--text-color);
+        border-radius: 999px;
+        width: 2.25rem;
+        height: 2.25rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+    }
+
+    .settings-detail-header .detail-title {
+        font-weight: 700;
+        margin: 0;
+        font-size: 1.05rem;
+        color: var(--text-color);
+    }
+
+    .settings-empty-hint {
+        display: none;
+        text-align: center;
+        padding: 2.5rem 1rem;
+        color: var(--light-text-color);
+        border: 1px dashed var(--border-color);
+        border-radius: 1rem;
+        background: var(--surface-muted);
+    }
+
+    @media (max-width: 767.98px) {
+        .settings-container {
+            padding: 1rem 0.75rem 2rem;
+        }
+
+        .settings-sidebar {
+            position: static;
+        }
+
+        /* Mobile: mặc định chỉ hiện danh mục */
+        .settings-shell:not(.is-detail) .settings-col-detail {
+            display: none !important;
+        }
+
+        .settings-shell.is-detail .settings-col-menu {
+            display: none !important;
+        }
+
+        .settings-shell.is-detail .settings-detail-header {
+            display: flex;
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            background: var(--background-color, var(--card-bg, #fff));
+            padding: 0.35rem 0 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .settings-nav {
+            padding: 0.4rem;
+        }
+
+        .settings-nav .nav-link {
+            padding: 0.95rem 1rem;
+            font-size: 0.98rem;
+        }
+
+        .settings-empty-hint {
+            display: none !important;
+        }
+    }
+
+    @media (min-width: 768px) {
+        .settings-empty-hint.is-visible {
+            display: block;
+        }
     }
 
     .notification-section,
@@ -117,9 +251,26 @@
 
     .avatar-upload {
         position: relative;
-        width: 150px;
-        height: 150px;
-        margin: 0 auto;
+        width: 120px;
+        height: 120px;
+        flex-shrink: 0;
+        overflow: hidden;
+    }
+
+    /* Ẩn mọi chrome mặc định của input file (nếu còn sót) */
+    .avatar-upload input[type="file"],
+    .avatar-upload a,
+    .avatar-upload .form-check,
+    .avatar-upload label:not(.upload-button) {
+        position: absolute !important;
+        width: 1px !important;
+        height: 1px !important;
+        padding: 0 !important;
+        margin: -1px !important;
+        overflow: hidden !important;
+        clip: rect(0, 0, 0, 0) !important;
+        border: 0 !important;
+        white-space: nowrap !important;
     }
 
     .avatar-upload img {
@@ -127,15 +278,16 @@
         height: 100%;
         border-radius: 50%;
         object-fit: cover;
-        border: 2px solid var(--border-color);
+        border: 3px solid var(--border-color);
+        background: var(--surface-muted);
     }
 
     .avatar-upload .upload-button {
         position: absolute;
-        bottom: 0;
-        right: 0;
-        width: 40px;
-        height: 40px;
+        bottom: 2px;
+        right: 2px;
+        width: 36px;
+        height: 36px;
         border-radius: 50%;
         background: var(--primary-color);
         color: #fff;
@@ -143,11 +295,186 @@
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        transition: background-color 0.2s;
+        border: 2px solid var(--card-bg, #fff);
+        transition: filter 0.15s ease;
     }
 
     .avatar-upload .upload-button:hover {
         filter: brightness(0.92);
+    }
+
+    .profile-edit-panel {
+        background: var(--surface-muted);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        padding: 1.25rem 1.25rem 1.5rem;
+        box-shadow: 0 0.125rem 0.25rem var(--shadow-color);
+    }
+
+    .profile-edit-hero {
+        display: flex;
+        gap: 1.25rem;
+        align-items: center;
+        padding-bottom: 1.25rem;
+        margin-bottom: 1.25rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .profile-edit-hero-meta h5 {
+        margin: 0 0 0.2rem;
+        font-weight: 700;
+        color: var(--text-color);
+    }
+
+    .profile-edit-hero-meta .username-preview {
+        color: var(--text-muted, #6c757d);
+        font-size: 0.95rem;
+    }
+
+    .profile-edit-hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.75rem;
+    }
+
+    .profile-section-card {
+        background: var(--card-bg, #fff);
+        border: 1px solid var(--border-color);
+        border-radius: 0.85rem;
+        padding: 1.1rem 1.15rem;
+        margin-bottom: 1rem;
+    }
+
+    .profile-section-card h6 {
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+        color: var(--text-color);
+    }
+
+    .profile-section-card .section-desc {
+        color: var(--text-muted, #6c757d);
+        font-size: 0.85rem;
+        margin-bottom: 1rem;
+    }
+
+    .profile-social-row .input-group-text {
+        min-width: 2.75rem;
+        justify-content: center;
+        background: var(--surface-muted);
+        border-color: var(--border-color);
+        color: var(--text-color);
+    }
+
+    .profile-save-bar {
+        position: sticky;
+        bottom: 0.75rem;
+        z-index: 5;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        margin-top: 1rem;
+        padding: 0.85rem 1rem;
+        border-radius: 0.85rem;
+        background: var(--card-bg, #fff);
+        border: 1px solid var(--border-color);
+        box-shadow: 0 0.35rem 1rem var(--shadow-color);
+    }
+
+    .bio-counter {
+        font-size: 0.8rem;
+        color: var(--text-muted, #6c757d);
+        text-align: right;
+    }
+
+    .bio-counter.warn { color: #d97706; }
+    .bio-counter.over { color: #dc2626; }
+
+    .username-status {
+        font-size: 0.8rem;
+        margin-top: 0.35rem;
+        min-height: 1.1em;
+    }
+    .username-status.ok { color: #16a34a; }
+    .username-status.bad { color: #dc2626; }
+
+    .legal-doc-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .legal-doc-card {
+        display: flex;
+        align-items: center;
+        gap: 0.9rem;
+        padding: 1rem 1.1rem;
+        border-radius: 0.85rem;
+        border: 1px solid var(--border-color);
+        background: var(--card-bg, #fff);
+        color: var(--text-color);
+        text-decoration: none;
+        transition: background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .legal-doc-card:hover {
+        background: var(--hover-bg);
+        border-color: var(--primary-color);
+        color: var(--text-color);
+    }
+
+    .legal-doc-icon {
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 0.7rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(64, 93, 230, 0.12);
+        color: var(--primary-color);
+        flex-shrink: 0;
+    }
+
+    .legal-doc-body {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+    }
+
+    .legal-doc-title {
+        font-weight: 650;
+        font-size: 0.98rem;
+    }
+
+    .legal-doc-desc {
+        font-size: 0.82rem;
+        color: var(--light-text-color, #6c757d);
+        line-height: 1.4;
+    }
+
+    .legal-doc-arrow {
+        color: var(--light-text-color, #6c757d);
+        font-size: 0.8rem;
+        flex-shrink: 0;
+    }
+
+    .contact-readonly .form-control[readonly] {
+        background: var(--surface-muted);
+        color: var(--text-color);
+    }
+
+    @media (max-width: 576px) {
+        .profile-edit-hero {
+            flex-direction: column;
+            text-align: center;
+        }
+        .profile-edit-hero-actions {
+            justify-content: center;
+        }
     }
 
     .device-item {
@@ -441,214 +768,284 @@
 
 {% block content %}
 <div class="settings-container">
-    <div class="row g-4">
-        <!-- Sidebar -->
-        <div class="col-md-4 col-lg-3">
+    <div class="row g-4 settings-shell" id="settings-shell"
+         data-active-tab="{{ active_tab|default:'' }}"
+         data-force-detail="{% if request.method == 'POST' %}1{% else %}0{% endif %}">
+        <!-- Sidebar / danh mục -->
+        <div class="col-md-4 col-lg-3 settings-col-menu">
             <div class="settings-sidebar">
-                <nav class="settings-nav nav flex-column">
-                    <a class="nav-link {% if active_tab == 'profile' %}active{% endif %}" 
-                       href="#profile" data-tab="profile">
-                        <i class="fas fa-user me-2"></i>{% trans "Chỉnh sửa hồ sơ" %}
+                <h1 class="h5 mb-3 fw-bold">{% trans "Cài đặt" %}</h1>
+                <p class="small text-muted mb-3 d-md-none">{% trans "Chọn một mục để mở chi tiết." %}</p>
+                <nav class="settings-nav nav flex-column" aria-label="{% trans 'Mục cài đặt' %}">
+                    <a class="nav-link {% if active_tab == 'profile' %}active{% endif %}" href="#profile" data-tab="profile" data-title="{% trans 'Chỉnh sửa hồ sơ' %}">
+                        <span class="nav-link-left"><i class="fas fa-user"></i><span>{% trans "Chỉnh sửa hồ sơ" %}</span></span>
+                        <i class="fas fa-chevron-right nav-chevron" aria-hidden="true"></i>
                     </a>
-                    <a class="nav-link {% if active_tab == 'password' %}active{% endif %}" 
-                       href="#password" data-tab="password">
-                        <i class="fas fa-lock me-2"></i>{% trans "Đổi mật khẩu" %}
+                    <a class="nav-link {% if active_tab == 'password' %}active{% endif %}" href="#password" data-tab="password" data-title="{% trans 'Đổi mật khẩu' %}">
+                        <span class="nav-link-left"><i class="fas fa-lock"></i><span>{% trans "Đổi mật khẩu" %}</span></span>
+                        <i class="fas fa-chevron-right nav-chevron" aria-hidden="true"></i>
                     </a>
-                    <a class="nav-link {% if active_tab == 'notifications' %}active{% endif %}" 
-                       href="#notifications" data-tab="notifications">
-                        <i class="fas fa-bell me-2"></i>{% trans "Thông báo" %}
+                    <a class="nav-link {% if active_tab == 'notifications' %}active{% endif %}" href="#notifications" data-tab="notifications" data-title="{% trans 'Thông báo' %}">
+                        <span class="nav-link-left"><i class="fas fa-bell"></i><span>{% trans "Thông báo" %}</span></span>
+                        <i class="fas fa-chevron-right nav-chevron" aria-hidden="true"></i>
                     </a>
-                    <a class="nav-link {% if active_tab == 'privacy' %}active{% endif %}" 
-                       href="#privacy" data-tab="privacy">
-                        <i class="fas fa-shield-alt me-2"></i>{% trans "Quyền riêng tư" %}
+                    <a class="nav-link {% if active_tab == 'privacy' %}active{% endif %}" href="#privacy" data-tab="privacy" data-title="{% trans 'Quyền riêng tư' %}">
+                        <span class="nav-link-left"><i class="fas fa-shield-alt"></i><span>{% trans "Quyền riêng tư" %}</span></span>
+                        <i class="fas fa-chevron-right nav-chevron" aria-hidden="true"></i>
                     </a>
-                    <a class="nav-link {% if active_tab == 'language' %}active{% endif %}"
-                       href="#language" data-tab="language">
-                        <i class="fas fa-globe me-2"></i>{% trans "Ngôn ngữ" %}
+                    <a class="nav-link {% if active_tab == 'language' %}active{% endif %}" href="#language" data-tab="language" data-title="{% trans 'Ngôn ngữ' %}">
+                        <span class="nav-link-left"><i class="fas fa-globe"></i><span>{% trans "Ngôn ngữ" %}</span></span>
+                        <i class="fas fa-chevron-right nav-chevron" aria-hidden="true"></i>
                     </a>
-                    <a class="nav-link {% if active_tab == 'appearance' %}active{% endif %}"
-                       href="#appearance" data-tab="appearance">
-                        <i class="fas fa-moon me-2"></i>{% trans "Giao diện" %}
+                    <a class="nav-link {% if active_tab == 'appearance' %}active{% endif %}" href="#appearance" data-tab="appearance" data-title="{% trans 'Giao diện' %}">
+                        <span class="nav-link-left"><i class="fas fa-moon"></i><span>{% trans "Giao diện" %}</span></span>
+                        <i class="fas fa-chevron-right nav-chevron" aria-hidden="true"></i>
                     </a>
-                    <a class="nav-link {% if active_tab == 'security' %}active{% endif %}" 
-                       href="#security" data-tab="security">
-                        <i class="fas fa-fingerprint me-2"></i>{% trans "Bảo mật" %}
+                    <a class="nav-link {% if active_tab == 'security' %}active{% endif %}" href="#security" data-tab="security" data-title="{% trans 'Bảo mật' %}">
+                        <span class="nav-link-left"><i class="fas fa-fingerprint"></i><span>{% trans "Bảo mật" %}</span></span>
+                        <i class="fas fa-chevron-right nav-chevron" aria-hidden="true"></i>
                     </a>
-                    <a class="nav-link {% if active_tab == 'devices' %}active{% endif %}" 
-                       href="#devices" data-tab="devices">
-                        <i class="fas fa-mobile-alt me-2"></i>{% trans "Thiết bị đăng nhập" %}
+                    <a class="nav-link {% if active_tab == 'devices' %}active{% endif %}" href="#devices" data-tab="devices" data-title="{% trans 'Thiết bị đăng nhập' %}">
+                        <span class="nav-link-left"><i class="fas fa-mobile-alt"></i><span>{% trans "Thiết bị đăng nhập" %}</span></span>
+                        <i class="fas fa-chevron-right nav-chevron" aria-hidden="true"></i>
                     </a>
-                    <a class="nav-link {% if active_tab == 'data' %}active{% endif %}" 
-                       href="#data" data-tab="data">
-                        <i class="fas fa-download me-2"></i>{% trans "Tải xuống dữ liệu" %}
+                    <a class="nav-link {% if active_tab == 'data' %}active{% endif %}" href="#data" data-tab="data" data-title="{% trans 'Tải xuống dữ liệu' %}">
+                        <span class="nav-link-left"><i class="fas fa-download"></i><span>{% trans "Tải xuống dữ liệu" %}</span></span>
+                        <i class="fas fa-chevron-right nav-chevron" aria-hidden="true"></i>
                     </a>
-                    <a class="nav-link text-danger {% if active_tab == 'delete' %}active{% endif %}" 
-                       href="#delete" data-tab="delete">
-                        <i class="fas fa-trash-alt me-2"></i>{% trans "Xóa tài khoản" %}
+                    <a class="nav-link {% if active_tab == 'legal' %}active{% endif %}" href="#legal" data-tab="legal" data-title="{% trans 'Pháp lý & cộng đồng' %}">
+                        <span class="nav-link-left"><i class="fas fa-balance-scale"></i><span>{% trans "Pháp lý & cộng đồng" %}</span></span>
+                        <i class="fas fa-chevron-right nav-chevron" aria-hidden="true"></i>
+                    </a>
+                    <a class="nav-link {% if active_tab == 'help' %}active{% endif %}" href="#help" data-tab="help" data-title="{% trans 'Trung tâm trợ giúp' %}">
+                        <span class="nav-link-left"><i class="fas fa-life-ring"></i><span>{% trans "Trung tâm trợ giúp" %}</span></span>
+                        <i class="fas fa-chevron-right nav-chevron" aria-hidden="true"></i>
+                    </a>
+                    <a class="nav-link text-danger {% if active_tab == 'delete' %}active{% endif %}" href="#delete" data-tab="delete" data-title="{% trans 'Xóa tài khoản' %}">
+                        <span class="nav-link-left"><i class="fas fa-trash-alt"></i><span>{% trans "Xóa tài khoản" %}</span></span>
+                        <i class="fas fa-chevron-right nav-chevron" aria-hidden="true"></i>
                     </a>
                 </nav>
             </div>
         </div>
-        
-        <!-- Main Content -->
-        <div class="col-md-8 col-lg-9">
+
+        <!-- Chi tiết -->
+        <div class="col-md-8 col-lg-9 settings-col-detail">
+            <div class="settings-detail-header" id="settings-detail-header">
+                <button type="button" class="btn-back" id="settings-back-btn" aria-label="{% trans 'Quay lại danh mục' %}">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h2 class="detail-title" id="settings-detail-title">{% trans "Cài đặt" %}</h2>
+            </div>
             <div class="settings-main">
+                <div class="settings-empty-hint" id="settings-empty-hint">
+                    <i class="fas fa-sliders-h mb-2 d-block" style="font-size:1.5rem;opacity:.55"></i>
+                    {% trans "Chọn một mục bên trái để xem và chỉnh cài đặt." %}
+                </div>
                 <!-- Profile Section -->
                 <div class="settings-section" id="profile">
-                    <h4 class="mb-4">{% trans "Chỉnh sửa hồ sơ" %}</h4>
-                    
-                    <form method="post" enctype="multipart/form-data">
+                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+                        <div>
+                            <h4 class="mb-1 text-primary">{% trans "Chỉnh sửa hồ sơ" %}</h4>
+                            <p class="text-muted mb-0 small">{% trans "Thông tin này hiện trên trang hồ sơ công khai của bạn." %}</p>
+                        </div>
+                        <a href="{% url 'accounts:profile' user.username %}" class="btn btn-outline-secondary btn-sm" target="_blank" rel="noopener">
+                            <i class="fas fa-external-link-alt me-1"></i>{% trans "Xem hồ sơ" %}
+                        </a>
+                    </div>
+
+                    {% if profile_form.errors %}
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-1"></i>
+                        {% trans "Vui lòng kiểm tra lại các trường bị lỗi bên dưới." %}
+                        {% if profile_form.non_field_errors %}
+                            <ul class="mb-0 mt-2">
+                                {% for err in profile_form.non_field_errors %}<li>{{ err }}</li>{% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    <form method="post" enctype="multipart/form-data" id="profile-edit-form" class="profile-edit-panel" novalidate>
                         {% csrf_token %}
                         <input type="hidden" name="update_profile" value="1">
-                        
-                        <div class="mb-4">
+
+                        <div class="profile-edit-hero">
                             <div class="avatar-upload">
-                                {% if user.get_avatar_url %}
-                                    <img src="{{ user.get_avatar_url }}" alt="{{ user.username }}">
-                                {% else %}
-                                    <img src="{% static 'img/default-avatar.png' %}" alt="{{ user.username }}">
-                                {% endif %}
-                                <label class="upload-button" for="avatar">
+                                <img id="profile-avatar-preview"
+                                     src="{% if user.get_avatar_url %}{{ user.get_avatar_url }}{% else %}{% static 'img/default-avatar.png' %}{% endif %}"
+                                     alt="{{ user.username }}">
+                                <label class="upload-button" for="{{ profile_form.avatar.id_for_label }}" title="{% trans 'Đổi ảnh đại diện' %}">
                                     <i class="fas fa-camera"></i>
                                 </label>
-                                <input type="file" 
-                                       id="avatar" 
-                                       name="avatar" 
-                                       class="d-none"
-                                       accept="image/*">
+                                {{ profile_form.avatar }}
                             </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <div class="form-check">
-                                {{ profile_form.remove_avatar }}
-                                <label class="form-check-label" for="id_remove_avatar">
-                                    {% trans "Xóa ảnh đại diện hiện tại" %}
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                {{ profile_form.first_name|as_crispy_field }}
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                {{ profile_form.last_name|as_crispy_field }}
-                            </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            {{ profile_form.username|as_crispy_field }}
-                        </div>
-
-                        <div class="card mb-4 border-0 bg-light">
-                            <div class="card-body">
-                                <h6 class="mb-3">{% trans "Thông tin liên hệ " %}</h6>
-                                <div class="mb-3">
-                                    <label class="form-label">{% trans "Email / Gmail" %}</label>
-                                    <div class="input-group">
-                                        <input type="email" class="form-control" value="{{ user.email }}" readonly>
-                                        <a href="{% url 'accounts:change_email' %}" class="btn btn-outline-primary">
-                                            <i class="fas fa-pen me-1"></i>{% trans "Đổi" %}
-                                        </a>
+                            <div class="profile-edit-hero-meta flex-grow-1">
+                                <h5 id="profile-display-name">
+                                    {% if user.get_full_name %}{{ user.get_full_name }}{% else %}{{ user.username }}{% endif %}
+                                </h5>
+                                <div class="username-preview">@<span id="profile-username-preview">{{ user.username }}</span></div>
+                                <div class="profile-edit-hero-actions">
+                                    <label class="btn btn-sm btn-outline-primary mb-0" for="{{ profile_form.avatar.id_for_label }}">
+                                        <i class="fas fa-image me-1"></i>{% trans "Tải ảnh lên" %}
+                                    </label>
+                                    <div class="form-check mb-0 align-self-center">
+                                        {{ profile_form.remove_avatar }}
+                                        <label class="form-check-label small" for="{{ profile_form.remove_avatar.id_for_label }}">
+                                            {% trans "Xóa ảnh hiện tại" %}
+                                        </label>
                                     </div>
-                                    <div class="form-text">{% trans "Đổi email sẽ gửi mã xác thực về email hiện tại." %}</div>
                                 </div>
-                                <div class="mb-0">
-                                    <label class="form-label">{% trans "Số điện thoại" %}</label>
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" value="{% if user.phone_number %}{{ user.phone_number }}{% else %}{% trans 'Chưa cập nhật' %}{% endif %}" readonly>
-                                        <a href="{% url 'accounts:change_phone' %}" class="btn btn-outline-primary">
-                                            <i class="fas fa-pen me-1"></i>{% trans "Đổi" %}
-                                        </a>
-                                    </div>
-                                    <div class="form-text">{% trans "Đổi SĐT sẽ gửi mã xác thực về số hiện tại (hoặc email nếu SMS không khả dụng)." %}</div>
-                                </div>
+                                {% if profile_form.avatar.errors %}
+                                    <div class="text-danger small mt-2">{{ profile_form.avatar.errors|striptags }}</div>
+                                {% else %}
+                                    <div class="form-text mt-2">{% trans "JPEG/PNG/WebP/GIF · tối đa 5MB · khuyến nghị ảnh vuông." %}</div>
+                                {% endif %}
                             </div>
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                {{ profile_form.birth_date|as_crispy_field }}
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                {{ profile_form.gender|as_crispy_field }}
-                            </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            {{ profile_form.bio|as_crispy_field }}
-                        </div>
-                        
-                        <h5 class="mb-3 mt-4">{% trans "Liên kết mạng xã hội" %}</h5>
-                        
-                        <div class="card mb-4">
-                            <div class="card-body">
-                                <div class="mb-3">
-                                    {{ profile_form.website|as_crispy_field }}
+                        <div class="profile-section-card">
+                            <h6><i class="fas fa-id-card me-2 text-primary"></i>{% trans "Thông tin cơ bản" %}</h6>
+                            <p class="section-desc">{% trans "Họ tên và tên người dùng dùng để mọi người tìm thấy bạn." %}</p>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label" for="{{ profile_form.last_name.id_for_label }}">{% trans "Họ" %}</label>
+                                    {{ profile_form.last_name }}
+                                    {% if profile_form.last_name.errors %}<div class="invalid-feedback d-block">{{ profile_form.last_name.errors|striptags }}</div>{% endif %}
                                 </div>
-                                
-                                <div class="input-group mb-3">
-                                    <span class="input-group-text bg-light">
-                                        <i class="fas fa-link"></i>
-                                    </span>
-                                    <input type="text" class="form-control" id="socialLink" placeholder="{% trans 'Thêm bất kỳ liên kết mạng xã hội nào của bạn' %}">
-                                    <button class="btn btn-outline-primary" type="button" id="addSocialBtn">
-                                        <i class="fas fa-plus"></i>
-                                    </button>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="{{ profile_form.first_name.id_for_label }}">{% trans "Tên" %}</label>
+                                    {{ profile_form.first_name }}
+                                    {% if profile_form.first_name.errors %}<div class="invalid-feedback d-block">{{ profile_form.first_name.errors|striptags }}</div>{% endif %}
                                 </div>
-                                
-                                <div id="socialLinks" class="mb-3">
-                                    <!-- Các liên kết sẽ được hiển thị ở đây -->
-                                    <input type="hidden" name="facebook" id="id_facebook" value="{{ profile_form.facebook.value|default_if_none:'' }}">
-                                    <input type="hidden" name="twitter" id="id_twitter" value="{{ profile_form.twitter.value|default_if_none:'' }}">
-                                    <input type="hidden" name="instagram" id="id_instagram" value="{{ profile_form.instagram.value|default_if_none:'' }}">
-                                    <input type="hidden" name="linkedin" id="id_linkedin" value="{{ profile_form.linkedin.value|default_if_none:'' }}">
-                                </div>
-                                
-                                <div id="socialLinksDisplay" class="mb-3">
-                                    {% if profile_form.facebook.value %}
-                                    <div class="social-link-item mb-2" data-type="facebook" data-url="{{ profile_form.facebook.value }}">
-                                        <span class="badge bg-primary rounded-pill">
-                                            <i class="fab fa-facebook me-1"></i>Facebook
-                                            <button type="button" class="btn-close btn-close-white ms-2 remove-social" aria-label="Close"></button>
-                                        </span>
+                                <div class="col-12">
+                                    <label class="form-label" for="{{ profile_form.username.id_for_label }}">{% trans "Tên người dùng" %}</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">@</span>
+                                        {{ profile_form.username }}
                                     </div>
-                                    {% endif %}
-                                    
-                                    {% if profile_form.twitter.value %}
-                                    <div class="social-link-item mb-2" data-type="twitter" data-url="{{ profile_form.twitter.value }}">
-                                        <span class="badge bg-info rounded-pill">
-                                            <i class="fab fa-twitter me-1"></i>Twitter
-                                            <button type="button" class="btn-close btn-close-white ms-2 remove-social" aria-label="Close"></button>
-                                        </span>
-                                    </div>
-                                    {% endif %}
-                                    
-                                    {% if profile_form.instagram.value %}
-                                    <div class="social-link-item mb-2" data-type="instagram" data-url="{{ profile_form.instagram.value }}">
-                                        <span class="badge bg-danger rounded-pill">
-                                            <i class="fab fa-instagram me-1"></i>Instagram
-                                            <button type="button" class="btn-close btn-close-white ms-2 remove-social" aria-label="Close"></button>
-                                        </span>
-                                    </div>
-                                    {% endif %}
-                                    
-                                    {% if profile_form.linkedin.value %}
-                                    <div class="social-link-item mb-2" data-type="linkedin" data-url="{{ profile_form.linkedin.value }}">
-                                        <span class="badge bg-primary rounded-pill">
-                                            <i class="fab fa-linkedin me-1"></i>LinkedIn
-                                            <button type="button" class="btn-close btn-close-white ms-2 remove-social" aria-label="Close"></button>
-                                        </span>
-                                    </div>
+                                    <div class="username-status" id="username-status" aria-live="polite"></div>
+                                    {% if profile_form.username.errors %}
+                                        <div class="invalid-feedback d-block">{{ profile_form.username.errors|striptags }}</div>
+                                    {% else %}
+                                        <div class="form-text">{{ profile_form.username.help_text }}</div>
                                     {% endif %}
                                 </div>
                             </div>
                         </div>
-                        
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save me-2"></i>{% trans "Lưu thay đổi" %}
-                        </button>
+
+                        <div class="profile-section-card contact-readonly">
+                            <h6><i class="fas fa-envelope me-2 text-primary"></i>{% trans "Thông tin liên hệ" %}</h6>
+                            <p class="section-desc">{% trans "Email và SĐT dùng để bảo mật / khôi phục tài khoản. Đổi qua xác thực OTP." %}</p>
+                            <div class="mb-3">
+                                <label class="form-label">{% trans "Email" %}</label>
+                                <div class="input-group">
+                                    <input type="email" class="form-control" value="{{ user.email }}" readonly>
+                                    <a href="{% url 'accounts:change_email' %}" class="btn btn-outline-primary">
+                                        <i class="fas fa-pen me-1"></i>{% trans "Đổi" %}
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="mb-0">
+                                <label class="form-label">{% trans "Số điện thoại" %}</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" value="{% if user.phone_number %}{{ user.phone_number }}{% else %}{% trans 'Chưa cập nhật' %}{% endif %}" readonly>
+                                    <a href="{% url 'accounts:change_phone' %}" class="btn btn-outline-primary">
+                                        <i class="fas fa-pen me-1"></i>{% trans "Đổi" %}
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="profile-section-card">
+                            <h6><i class="fas fa-user me-2 text-primary"></i>{% trans "Cá nhân" %}</h6>
+                            <p class="section-desc">{% trans "Không bắt buộc. Bật chia sẻ nếu muốn hiện trên trang cá nhân." %}</p>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label" for="{{ profile_form.birth_date.id_for_label }}">{% trans "Ngày sinh" %}</label>
+                                    {{ profile_form.birth_date }}
+                                    {% if profile_form.birth_date.errors %}<div class="invalid-feedback d-block">{{ profile_form.birth_date.errors|striptags }}</div>{% endif %}
+                                    <div class="form-check mt-2">
+                                        {{ profile_form.show_birth_date }}
+                                        <label class="form-check-label small" for="{{ profile_form.show_birth_date.id_for_label }}">
+                                            {% trans "Chia sẻ ngày sinh trên trang cá nhân" %}
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="{{ profile_form.gender.id_for_label }}">{% trans "Giới tính" %}</label>
+                                    {{ profile_form.gender }}
+                                    {% if profile_form.gender.errors %}<div class="invalid-feedback d-block">{{ profile_form.gender.errors|striptags }}</div>{% endif %}
+                                    <div class="form-check mt-2">
+                                        {{ profile_form.show_gender }}
+                                        <label class="form-check-label small" for="{{ profile_form.show_gender.id_for_label }}">
+                                            {% trans "Chia sẻ giới tính trên trang cá nhân" %}
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label" for="{{ profile_form.bio.id_for_label }}">{% trans "Giới thiệu" %}</label>
+                                    {{ profile_form.bio }}
+                                    <div class="d-flex justify-content-between mt-1">
+                                        <div class="form-text mb-0">{{ profile_form.bio.help_text }}</div>
+                                        <div class="bio-counter" id="bio-counter">0/500</div>
+                                    </div>
+                                    {% if profile_form.bio.errors %}<div class="invalid-feedback d-block">{{ profile_form.bio.errors|striptags }}</div>{% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="profile-section-card">
+                            <h6><i class="fas fa-link me-2 text-primary"></i>{% trans "Liên kết & mạng xã hội" %}</h6>
+                            <p class="section-desc">{% trans "Dán URL đầy đủ. Để trống nếu không dùng." %}</p>
+                            <div class="mb-3">
+                                <label class="form-label" for="{{ profile_form.website.id_for_label }}">{% trans "Website" %}</label>
+                                <div class="input-group profile-social-row">
+                                    <span class="input-group-text"><i class="fas fa-globe"></i></span>
+                                    {{ profile_form.website }}
+                                </div>
+                                {% if profile_form.website.errors %}<div class="invalid-feedback d-block">{{ profile_form.website.errors|striptags }}</div>{% endif %}
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="{{ profile_form.facebook.id_for_label }}">Facebook</label>
+                                <div class="input-group profile-social-row">
+                                    <span class="input-group-text"><i class="fab fa-facebook-f"></i></span>
+                                    {{ profile_form.facebook }}
+                                </div>
+                                {% if profile_form.facebook.errors %}<div class="invalid-feedback d-block">{{ profile_form.facebook.errors|striptags }}</div>{% endif %}
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="{{ profile_form.twitter.id_for_label }}">X (Twitter)</label>
+                                <div class="input-group profile-social-row">
+                                    <span class="input-group-text"><i class="fab fa-twitter"></i></span>
+                                    {{ profile_form.twitter }}
+                                </div>
+                                {% if profile_form.twitter.errors %}<div class="invalid-feedback d-block">{{ profile_form.twitter.errors|striptags }}</div>{% endif %}
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="{{ profile_form.instagram.id_for_label }}">Instagram</label>
+                                <div class="input-group profile-social-row">
+                                    <span class="input-group-text"><i class="fab fa-instagram"></i></span>
+                                    {{ profile_form.instagram }}
+                                </div>
+                                {% if profile_form.instagram.errors %}<div class="invalid-feedback d-block">{{ profile_form.instagram.errors|striptags }}</div>{% endif %}
+                            </div>
+                            <div class="mb-0">
+                                <label class="form-label" for="{{ profile_form.linkedin.id_for_label }}">LinkedIn</label>
+                                <div class="input-group profile-social-row">
+                                    <span class="input-group-text"><i class="fab fa-linkedin-in"></i></span>
+                                    {{ profile_form.linkedin }}
+                                </div>
+                                {% if profile_form.linkedin.errors %}<div class="invalid-feedback d-block">{{ profile_form.linkedin.errors|striptags }}</div>{% endif %}
+                            </div>
+                        </div>
+
+                        <div class="profile-save-bar">
+                            <span class="small text-muted">{% trans "Thay đổi chỉ lưu khi bạn nhấn nút bên phải." %}</span>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>{% trans "Lưu hồ sơ" %}
+                            </button>
+                        </div>
                     </form>
                 </div>
                 
@@ -1092,7 +1489,14 @@
                     
                     <div class="alert alert-info mb-4">
                         <i class="fas fa-info-circle me-2"></i>
-                        {% trans "Thiết bị của bạn đã đăng nhập. Bạn có thể đăng xuất khỏi các thiết bị khác từ đây." %}
+                        {% trans "Moora lưu thiết bị + vị trí để bảo vệ tài khoản. Vị trí chính xác nhất lấy từ GPS trình duyệt (cần bạn cho phép); nếu không sẽ dùng vị trí theo IP (độ chính xác thành phố)." %}
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <button type="button" class="btn btn-primary btn-sm" id="btn-refresh-device-location">
+                            <i class="fas fa-location-crosshairs me-1"></i>{% trans "Cập nhật vị trí chính xác (GPS)" %}
+                        </button>
+                        <span class="small text-muted align-self-center" id="device-location-status"></span>
                     </div>
                     
                     {% if devices %}
@@ -1103,22 +1507,49 @@
                             <div class="card-body">
                                 {% for device in devices %}
                                     {% if device.is_current %}
-                                    <div class="d-flex align-items-center">
+                                    <div class="d-flex align-items-center" data-current-device="1">
                                         <div class="device-icon me-3 bg-primary text-white">
-                                            <i class="fas {% if device.device_type == 'mobile' %}fa-mobile-alt{% else %}fa-laptop{% endif %} fa-lg"></i>
+                                            <i class="fas {% if device.device_type == 'mobile' %}fa-mobile-alt{% elif device.device_type == 'tablet' %}fa-tablet-alt{% else %}fa-laptop{% endif %} fa-lg"></i>
                                         </div>
-                                        <div>
+                                        <div class="flex-grow-1">
                                             <h5 class="mb-1">{{ device.device_name }}</h5>
-                                            <p class="text-muted mb-0">
+                                            <p class="text-muted mb-1">
+                                                <small>{{ device.browser }} · {{ device.os }}</small>
+                                            </p>
+                                            <p class="text-muted mb-0" id="current-device-location-line">
                                                 <small>
-                                                    <i class="fas fa-map-marker-alt me-1"></i>{{ device.ip_address }}
-                                                    <span class="mx-2">•</span>
+                                                    <i class="fas fa-map-marker-alt me-1"></i>
+                                                    <strong id="current-device-location-text">{{ device.location_display }}</strong>
+                                                    {% if device.location_source == 'gps' %}
+                                                        <span class="badge bg-success ms-1">{% trans "GPS" %}</span>
+                                                    {% elif device.location_source == 'ip' %}
+                                                        <span class="badge bg-secondary ms-1">{% trans "Theo IP" %}</span>
+                                                    {% endif %}
+                                                    {% if device.location_accuracy_m %}
+                                                        <span class="text-muted ms-1">(~{% if device.location_accuracy_m < 1000 %}{{ device.location_accuracy_m|floatformat:0 }} m{% else %}{{ device.location_accuracy_m|floatformat:0 }} m / IP{% endif %})</span>
+                                                    {% endif %}
+                                                    <span class="mx-2">·</span>
+                                                    IP {{ device.ip_address }}
+                                                    <span class="mx-2">·</span>
                                                     <i class="fas fa-clock me-1"></i>{% blocktrans with time=device.last_active|timesince %}{{ time }} trước{% endblocktrans %}
                                                 </small>
                                             </p>
+                                            {% if device.latitude and device.longitude %}
+                                            <a class="small" id="current-device-maps-link"
+                                               href="https://www.google.com/maps?q={{ device.latitude }},{{ device.longitude }}"
+                                               target="_blank" rel="noopener">
+                                                {% trans "Xem trên bản đồ" %}
+                                            </a>
+                                            {% else %}
+                                            <a class="small d-none" id="current-device-maps-link" href="#" target="_blank" rel="noopener">
+                                                {% trans "Xem trên bản đồ" %}
+                                            </a>
+                                            {% endif %}
+                                            <div>
                                             <span class="badge bg-success mt-2">
                                                 <i class="fas fa-circle me-1"></i>{% trans "Thiết bị hiện tại" %}
                                             </span>
+                                            </div>
                                         </div>
                                     </div>
                                     {% endif %}
@@ -1146,11 +1577,21 @@
                                                 </small>
                                                 <div class="mt-1">
                                                     <small class="text-muted">
-                                                        <i class="fas fa-map-marker-alt me-1"></i>{{ device.ip_address }}
+                                                        <i class="fas fa-map-marker-alt me-1"></i>{{ device.location_display }}
+                                                        {% if device.location_source == 'gps' %}
+                                                            <span class="badge bg-success">{% trans "GPS" %}</span>
+                                                        {% elif device.location_source == 'ip' %}
+                                                            <span class="badge bg-secondary">{% trans "IP" %}</span>
+                                                        {% endif %}
+                                                        <span class="mx-2">•</span>
+                                                        IP {{ device.ip_address }}
                                                         <span class="mx-2">•</span>
                                                         <i class="fas fa-clock me-1"></i>{% blocktrans with time=device.last_active|timesince %}{{ time }} trước{% endblocktrans %}
                                                     </small>
                                                 </div>
+                                                {% if device.latitude and device.longitude %}
+                                                <a class="small" href="https://www.google.com/maps?q={{ device.latitude }},{{ device.longitude }}" target="_blank" rel="noopener">{% trans "Bản đồ" %}</a>
+                                                {% endif %}
                                             </div>
                                         </div>
                                         <button type="button" 
@@ -1244,6 +1685,88 @@
                         {% endif %}
                     </form>
                 </div>
+
+                <!-- Legal / community -->
+                <div class="settings-section" id="legal">
+                    <h4 class="mb-2 text-primary">{% trans "Pháp lý & cộng đồng" %}</h4>
+                    <p class="text-muted mb-4">
+                        {% trans "Đọc các tài liệu quan trọng về cách dùng Moora và cách chúng tôi bảo vệ bạn." %}
+                    </p>
+
+                    <div class="legal-doc-list">
+                        <a class="legal-doc-card" href="{% url 'help' %}" target="_blank" rel="noopener">
+                            <span class="legal-doc-icon"><i class="fas fa-life-ring"></i></span>
+                            <span class="legal-doc-body">
+                                <span class="legal-doc-title">{% trans "Trung tâm trợ giúp" %}</span>
+                                <span class="legal-doc-desc">{% trans "Câu hỏi thường gặp và hướng dẫn dùng Moora." %}</span>
+                            </span>
+                            <i class="fas fa-external-link-alt legal-doc-arrow" aria-hidden="true"></i>
+                        </a>
+                        <a class="legal-doc-card" href="{% url 'community' %}" target="_blank" rel="noopener">
+                            <span class="legal-doc-icon"><i class="fas fa-users"></i></span>
+                            <span class="legal-doc-body">
+                                <span class="legal-doc-title">{% trans "Nguyên tắc cộng đồng" %}</span>
+                                <span class="legal-doc-desc">{% trans "Quy tắc ứng xử để cộng đồng an toàn và tôn trọng." %}</span>
+                            </span>
+                            <i class="fas fa-external-link-alt legal-doc-arrow" aria-hidden="true"></i>
+                        </a>
+                        <a class="legal-doc-card" href="{% url 'terms' %}" target="_blank" rel="noopener">
+                            <span class="legal-doc-icon"><i class="fas fa-file-contract"></i></span>
+                            <span class="legal-doc-body">
+                                <span class="legal-doc-title">{% trans "Điều khoản dịch vụ" %}</span>
+                                <span class="legal-doc-desc">{% trans "Điều kiện sử dụng tài khoản và dịch vụ Moora." %}</span>
+                            </span>
+                            <i class="fas fa-external-link-alt legal-doc-arrow" aria-hidden="true"></i>
+                        </a>
+                        <a class="legal-doc-card" href="{% url 'privacy' %}" target="_blank" rel="noopener">
+                            <span class="legal-doc-icon"><i class="fas fa-user-shield"></i></span>
+                            <span class="legal-doc-body">
+                                <span class="legal-doc-title">{% trans "Chính sách quyền riêng tư" %}</span>
+                                <span class="legal-doc-desc">{% trans "Cách chúng tôi thu thập, dùng và bảo vệ dữ liệu của bạn." %}</span>
+                            </span>
+                            <i class="fas fa-external-link-alt legal-doc-arrow" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Help center -->
+                <div class="settings-section" id="help">
+                    <h4 class="mb-2 text-primary">{% trans "Trung tâm trợ giúp" %}</h4>
+                    <p class="text-muted mb-4">
+                        {% trans "Hướng dẫn nhanh. Bấm từng chủ đề hoặc mở trang trợ giúp đầy đủ." %}
+                    </p>
+
+                    <div class="legal-doc-list mb-3">
+                        <a class="legal-doc-card" href="{% url 'help' %}#account" target="_blank" rel="noopener">
+                            <span class="legal-doc-icon"><i class="fas fa-user-cog"></i></span>
+                            <span class="legal-doc-body">
+                                <span class="legal-doc-title">{% trans "Tài khoản & hồ sơ" %}</span>
+                                <span class="legal-doc-desc">{% trans "Chỉnh hồ sơ, mật khẩu, xóa / khôi phục tài khoản." %}</span>
+                            </span>
+                            <i class="fas fa-chevron-right legal-doc-arrow" aria-hidden="true"></i>
+                        </a>
+                        <a class="legal-doc-card" href="{% url 'help' %}#privacy" target="_blank" rel="noopener">
+                            <span class="legal-doc-icon"><i class="fas fa-shield-alt"></i></span>
+                            <span class="legal-doc-body">
+                                <span class="legal-doc-title">{% trans "Quyền riêng tư & an toàn" %}</span>
+                                <span class="legal-doc-desc">{% trans "Tài khoản riêng tư, chặn/báo cáo, thiết bị đăng nhập." %}</span>
+                            </span>
+                            <i class="fas fa-chevron-right legal-doc-arrow" aria-hidden="true"></i>
+                        </a>
+                        <a class="legal-doc-card" href="{% url 'help' %}#content" target="_blank" rel="noopener">
+                            <span class="legal-doc-icon"><i class="fas fa-comments"></i></span>
+                            <span class="legal-doc-body">
+                                <span class="legal-doc-title">{% trans "Nội dung & cộng đồng" %}</span>
+                                <span class="legal-doc-desc">{% trans "Quy tắc đăng bài và tải dữ liệu cá nhân." %}</span>
+                            </span>
+                            <i class="fas fa-chevron-right legal-doc-arrow" aria-hidden="true"></i>
+                        </a>
+                    </div>
+
+                    <a href="{% url 'help' %}" class="btn btn-primary" target="_blank" rel="noopener">
+                        <i class="fas fa-external-link-alt me-2"></i>{% trans "Mở Trung tâm trợ giúp" %}
+                    </a>
+                </div>
                 
                 <!-- Delete Account Section -->
                 <div class="settings-section" id="delete">
@@ -1314,103 +1837,109 @@
 
 {% block extra_js %}
 <script>
-    // Xử lý upload avatar
-    document.getElementById('avatar').addEventListener('change', function(event) {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const avatarImg = document.querySelector('.avatar-upload img');
-                avatarImg.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-    
-    // Xử lý thêm và xóa các liên kết mạng xã hội
-    document.addEventListener('DOMContentLoaded', function() {
-        const socialLinkInput = document.getElementById('socialLink');
-        const addSocialBtn = document.getElementById('addSocialBtn');
-        const socialLinksDisplay = document.getElementById('socialLinksDisplay');
-        const websiteInput = document.getElementById('id_website');
-        const supportedTypes = {
-            facebook: { icon: 'fab fa-facebook', bgClass: 'bg-primary', label: 'Facebook' },
-            twitter: { icon: 'fab fa-twitter', bgClass: 'bg-info', label: 'Twitter' },
-            instagram: { icon: 'fab fa-instagram', bgClass: 'bg-danger', label: 'Instagram' },
-            linkedin: { icon: 'fab fa-linkedin', bgClass: 'bg-primary', label: 'LinkedIn' },
-        };
+    // Chỉnh sửa hồ sơ — avatar preview, bio counter, username live check
+    (function initProfileEdit() {
+        const avatarInput = document.getElementById('id_avatar');
+        const preview = document.getElementById('profile-avatar-preview');
+        const removeAvatar = document.getElementById('id_remove_avatar');
+        const bio = document.getElementById('id_bio');
+        const bioCounter = document.getElementById('bio-counter');
+        const usernameInput = document.getElementById('id_username');
+        const usernamePreview = document.getElementById('profile-username-preview');
+        const usernameStatus = document.getElementById('username-status');
+        const firstName = document.getElementById('id_first_name');
+        const lastName = document.getElementById('id_last_name');
+        const displayName = document.getElementById('profile-display-name');
+        const originalUsername = (usernameInput && usernameInput.value) || '';
 
-        function detectSocialType(url) {
-            if (url.includes('facebook.com') || url.includes('fb.com')) return 'facebook';
-            if (url.includes('twitter.com') || url.includes('x.com')) return 'twitter';
-            if (url.includes('instagram.com')) return 'instagram';
-            if (url.includes('linkedin.com')) return 'linkedin';
-            return null;
-        }
-
-        function bindRemove(button) {
-            button.addEventListener('click', function() {
-                const linkItem = this.closest('.social-link-item');
-                const linkType = linkItem.dataset.type;
-                const hiddenInput = document.getElementById('id_' + linkType);
-                if (hiddenInput) {
-                    hiddenInput.value = '';
-                }
-                linkItem.remove();
-            });
-        }
-
-        document.querySelectorAll('.remove-social').forEach(bindRemove);
-
-        if (addSocialBtn && socialLinkInput) {
-            addSocialBtn.addEventListener('click', function() {
-                const url = socialLinkInput.value.trim();
-                if (!url) return;
-
-                const type = detectSocialType(url);
-                if (!type) {
-                    if (websiteInput) {
-                        websiteInput.value = url;
-                        alert("{% filter escapejs %}{% trans 'Liên kết đã được lưu vào Website. Chỉ hỗ trợ Facebook, Twitter/X, Instagram và LinkedIn trong danh sách mạng xã hội.' %}{% endfilter %}");
-                    } else {
-                        alert("{% filter escapejs %}{% trans 'Chỉ hỗ trợ Facebook, Twitter/X, Instagram và LinkedIn.' %}{% endfilter %}");
-                    }
-                    socialLinkInput.value = '';
+        if (avatarInput && preview) {
+            avatarInput.addEventListener('change', function () {
+                const file = this.files && this.files[0];
+                if (!file) return;
+                if (file.size > 5 * 1024 * 1024) {
+                    alert("{% filter escapejs %}{% trans 'Ảnh tối đa 5MB.' %}{% endfilter %}");
+                    this.value = '';
                     return;
                 }
-
-                const meta = supportedTypes[type];
-                const existingLink = document.querySelector(`.social-link-item[data-type="${type}"]`);
-                if (existingLink) {
-                    existingLink.remove();
-                }
-
-                const hiddenInput = document.getElementById('id_' + type);
-                if (hiddenInput) {
-                    hiddenInput.value = url;
-                }
-
-                const linkHtml = `
-                    <div class="social-link-item mb-2" data-type="${type}" data-url="${url}">
-                        <span class="badge ${meta.bgClass} rounded-pill">
-                            <i class="${meta.icon} me-1"></i>${meta.label}
-                            <button type="button" class="btn-close btn-close-white ms-2 remove-social" aria-label="Close"></button>
-                        </span>
-                    </div>
-                `;
-                socialLinksDisplay.insertAdjacentHTML('beforeend', linkHtml);
-                socialLinkInput.value = '';
-                bindRemove(socialLinksDisplay.querySelector(`.social-link-item[data-type="${type}"] .remove-social`));
+                const reader = new FileReader();
+                reader.onload = (e) => { preview.src = e.target.result; };
+                reader.readAsDataURL(file);
+                if (removeAvatar) removeAvatar.checked = false;
             });
+        }
 
-            socialLinkInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    addSocialBtn.click();
+        if (removeAvatar && preview) {
+            removeAvatar.addEventListener('change', function () {
+                if (this.checked) {
+                    preview.src = "{% static 'img/default-avatar.png' %}";
+                    if (avatarInput) avatarInput.value = '';
                 }
             });
         }
-    });
+
+        function updateBioCounter() {
+            if (!bio || !bioCounter) return;
+            const n = (bio.value || '').length;
+            bioCounter.textContent = n + '/500';
+            bioCounter.classList.toggle('warn', n >= 450 && n <= 500);
+            bioCounter.classList.toggle('over', n > 500);
+        }
+        if (bio) {
+            bio.addEventListener('input', updateBioCounter);
+            updateBioCounter();
+        }
+
+        function updateDisplayName() {
+            if (!displayName) return;
+            const full = [lastName && lastName.value, firstName && firstName.value]
+                .map((v) => (v || '').trim())
+                .filter(Boolean)
+                .join(' ');
+            displayName.textContent = full || (usernameInput && usernameInput.value) || '—';
+        }
+        firstName && firstName.addEventListener('input', updateDisplayName);
+        lastName && lastName.addEventListener('input', updateDisplayName);
+
+        let usernameTimer = null;
+        function checkUsername() {
+            if (!usernameInput || !usernameStatus) return;
+            const value = (usernameInput.value || '').trim();
+            if (usernamePreview) usernamePreview.textContent = value || '—';
+            updateDisplayName();
+            if (value.length < 3) {
+                usernameStatus.className = 'username-status bad';
+                usernameStatus.textContent = "{% filter escapejs %}{% trans 'Cần ít nhất 3 ký tự' %}{% endfilter %}";
+                return;
+            }
+            if (value.toLowerCase() === originalUsername.toLowerCase()) {
+                usernameStatus.className = 'username-status ok';
+                usernameStatus.textContent = "{% filter escapejs %}{% trans 'Đây là tên hiện tại của bạn' %}{% endfilter %}";
+                return;
+            }
+            usernameStatus.className = 'username-status';
+            usernameStatus.textContent = "{% filter escapejs %}{% trans 'Đang kiểm tra…' %}{% endfilter %}";
+            fetch(`{% url 'accounts:check_username' %}?username=${encodeURIComponent(value)}`, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                credentials: 'same-origin',
+            })
+                .then((r) => r.json())
+                .then((data) => {
+                    usernameStatus.className = 'username-status ' + (data.available ? 'ok' : 'bad');
+                    usernameStatus.textContent = data.message || '';
+                })
+                .catch(() => {
+                    usernameStatus.className = 'username-status';
+                    usernameStatus.textContent = '';
+                });
+        }
+        if (usernameInput) {
+            usernameInput.addEventListener('input', () => {
+                clearTimeout(usernameTimer);
+                usernameTimer = setTimeout(checkUsername, 350);
+            });
+            checkUsername();
+        }
+    })();
     
     // Xử lý xóa thiết bị
     function revokeDevice(deviceId) {
@@ -1418,26 +1947,116 @@
             fetch(`/users/settings/revoke-device/${deviceId}/`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}'
-                }
+                    'X-CSRFToken': (document.cookie.match(/csrftoken=([^;]+)/)||[])[1] || '',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                credentials: 'same-origin',
             })
-            .then(response => response.json())
-            .then(data => {
+            .then((r) => r.json())
+            .then((data) => {
                 if (data.status === 'success') {
-                    const deviceElement = document.querySelector(`[data-device-id="${deviceId}"]`);
-                    if (deviceElement) {
-                        deviceElement.remove();
-                    }
+                    const row = document.querySelector(`[data-device-id="${deviceId}"]`);
+                    if (row) row.remove();
                 } else {
                     alert(data.message || "{% filter escapejs %}{% trans 'Đã xảy ra lỗi khi đăng xuất thiết bị.' %}{% endfilter %}");
                 }
             })
-            .catch(error => {
-                console.error('Error:', error);
+            .catch(() => {
                 alert("{% filter escapejs %}{% trans 'Đã xảy ra lỗi khi đăng xuất thiết bị.' %}{% endfilter %}");
             });
         }
+    }
+
+    function getCsrf() {
+        const m = document.cookie.match(/csrftoken=([^;]+)/);
+        return m ? decodeURIComponent(m[1]) : '';
+    }
+
+    function postDeviceGps(coords, force) {
+        const statusEl = document.getElementById('device-location-status');
+        if (statusEl) statusEl.textContent = "{% filter escapejs %}{% trans 'Đang lưu vị trí…' %}{% endfilter %}";
+        return fetch("{% url 'accounts:update_device_location' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrf(),
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({
+                latitude: coords.latitude,
+                longitude: coords.longitude,
+                accuracy: coords.accuracy,
+                force: !!force,
+            }),
+        })
+        .then((r) => r.json())
+        .then((data) => {
+            if (data.status === 'ok' || data.status === 'success') {
+                const text = document.getElementById('current-device-location-text');
+                if (text && data.location) text.textContent = data.location;
+                const link = document.getElementById('current-device-maps-link');
+                if (link && data.maps_url) {
+                    link.href = data.maps_url;
+                    link.classList.remove('d-none');
+                }
+                if (statusEl) {
+                    const acc = data.accuracy_m != null ? ` (±${Math.round(data.accuracy_m)}m)` : '';
+                    statusEl.textContent = (data.skipped
+                        ? "{% filter escapejs %}{% trans 'Giữ vị trí GPS cũ (chính xác hơn).' %}{% endfilter %}"
+                        : "{% filter escapejs %}{% trans 'Đã cập nhật GPS' %}{% endfilter %}") + acc;
+                }
+            } else if (statusEl) {
+                statusEl.textContent = data.message || "{% filter escapejs %}{% trans 'Không lưu được vị trí.' %}{% endfilter %}";
+            }
+        })
+        .catch(() => {
+            if (statusEl) statusEl.textContent = "{% filter escapejs %}{% trans 'Lỗi mạng khi lưu vị trí.' %}{% endfilter %}";
+        });
+    }
+
+    function requestPreciseDeviceLocation(force) {
+        const statusEl = document.getElementById('device-location-status');
+        if (!navigator.geolocation) {
+            if (statusEl) statusEl.textContent = "{% filter escapejs %}{% trans 'Trình duyệt không hỗ trợ GPS.' %}{% endfilter %}";
+            return;
+        }
+        if (statusEl) statusEl.textContent = "{% filter escapejs %}{% trans 'Đang lấy GPS chính xác…' %}{% endfilter %}";
+        navigator.geolocation.getCurrentPosition(
+            (pos) => postDeviceGps(pos.coords, force),
+            (err) => {
+                if (statusEl) {
+                    statusEl.textContent = err.code === 1
+                        ? "{% filter escapejs %}{% trans 'Bạn đã từ chối quyền vị trí. Chỉ dùng vị trí theo IP.' %}{% endfilter %}"
+                        : "{% filter escapejs %}{% trans 'Không lấy được GPS. Thử lại hoặc kiểm tra quyền vị trí.' %}{% endfilter %}";
+                }
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 20000,
+                maximumAge: 0,
+            }
+        );
+    }
+
+    document.getElementById('btn-refresh-device-location')?.addEventListener('click', () => {
+        requestPreciseDeviceLocation(true);
+    });
+
+    // Tự xin GPS khi mở tab thiết bị (1 lần / phiên)
+    function maybeAutoGpsOnDevicesTab() {
+        if (sessionStorage.getItem('mooraDeviceGpsAsked') === '1') return;
+        const section = document.getElementById('devices');
+        if (!section || !section.classList.contains('is-active')) return;
+        sessionStorage.setItem('mooraDeviceGpsAsked', '1');
+        requestPreciseDeviceLocation(false);
+    }
+
+    document.querySelectorAll('[data-tab="devices"], a[href="#devices"]').forEach((el) => {
+        el.addEventListener('click', () => setTimeout(maybeAutoGpsOnDevicesTab, 200));
+    });
+    if (window.location.hash === '#devices') {
+        setTimeout(maybeAutoGpsOnDevicesTab, 400);
     }
     
     // Xử lý yêu cầu tải xuống dữ liệu
@@ -1545,45 +2164,134 @@
         }
     }
     
-    // Xử lý tab bằng hash / query tab
+    // Cài đặt: chỉ mở chi tiết khi chọn mục (mobile: list → detail + back)
     document.addEventListener('DOMContentLoaded', function() {
+        const shell = document.getElementById('settings-shell');
         const navLinks = document.querySelectorAll('.settings-nav .nav-link');
         const settingsSections = document.querySelectorAll('.settings-section');
-        const serverTab = '{{ active_tab|default:"profile" }}';
+        const emptyHint = document.getElementById('settings-empty-hint');
+        const detailTitle = document.getElementById('settings-detail-title');
+        const backBtn = document.getElementById('settings-back-btn');
+        const serverTab = (shell && shell.dataset.activeTab) || '';
+        const forceDetail = shell && shell.dataset.forceDetail === '1';
 
-        function resolveTab() {
-            if (window.location.hash) {
-                return window.location.hash.substring(1);
-            }
-            const params = new URLSearchParams(window.location.search);
-            return params.get('tab') || serverTab || 'profile';
+        function isMobile() {
+            return window.matchMedia('(max-width: 767.98px)').matches;
         }
 
-        function showSectionByHash() {
-            const hash = resolveTab();
-            if (!window.location.hash) {
-                history.replaceState(null, '', '#' + hash);
-            }
-            settingsSections.forEach(section => {
-                section.style.display = (section.id === hash) ? 'block' : 'none';
+        function titleForTab(tab) {
+            const link = document.querySelector('.settings-nav .nav-link[data-tab="' + tab + '"]');
+            if (!link) return tab;
+            return link.getAttribute('data-title') || link.textContent.trim();
+        }
+
+        function openTab(tab, options) {
+            const opts = options || {};
+            const enterDetail = opts.enterDetail !== false;
+            const syncHash = opts.syncHash !== false;
+
+            settingsSections.forEach(function(section) {
+                section.classList.toggle('is-active', !!tab && section.id === tab);
             });
-            navLinks.forEach(link => {
-                if (link.getAttribute('href') === '#' + hash) {
-                    link.classList.add('active');
-                } else {
-                    link.classList.remove('active');
+
+            navLinks.forEach(function(link) {
+                link.classList.toggle('active', !!tab && link.getAttribute('data-tab') === tab);
+            });
+
+            if (emptyHint) {
+                emptyHint.classList.toggle('is-visible', !tab);
+            }
+
+            if (detailTitle && tab) {
+                detailTitle.textContent = titleForTab(tab);
+            }
+
+            if (shell) {
+                if (tab && enterDetail && isMobile()) {
+                    shell.classList.add('is-detail');
+                } else if (!tab || opts.closeDetail) {
+                    shell.classList.remove('is-detail');
                 }
-            });
+            }
+
+            if (tab && syncHash && window.location.hash !== '#' + tab) {
+                history.replaceState(null, '', '#' + tab);
+            }
+            if (!tab && syncHash && window.location.hash) {
+                history.replaceState(null, '', window.location.pathname + window.location.search);
+            }
         }
 
-        showSectionByHash();
-        window.addEventListener('hashchange', showSectionByHash);
+        function resolveInitialTab() {
+            const hash = window.location.hash ? window.location.hash.substring(1) : '';
+            const params = new URLSearchParams(window.location.search);
+            const queryTab = params.get('tab');
 
-        navLinks.forEach(link => {
+            if (hash) return { tab: hash, detail: true };
+            if (queryTab) return { tab: queryTab, detail: true };
+            if (forceDetail && serverTab) return { tab: serverTab, detail: true };
+            if (!isMobile()) return { tab: serverTab || 'profile', detail: false };
+            // Mobile lần đầu: chỉ hiện danh mục
+            return { tab: null, detail: false };
+        }
+
+        function showFromLocation() {
+            const hash = window.location.hash ? window.location.hash.substring(1) : '';
+            if (hash) {
+                openTab(hash, { enterDetail: true, syncHash: false });
+                return;
+            }
+            if (!isMobile()) {
+                openTab(serverTab || 'profile', { enterDetail: false, syncHash: true });
+            } else {
+                openTab(null, { closeDetail: true, syncHash: false });
+            }
+        }
+
+        const initial = resolveInitialTab();
+        if (initial.tab) {
+            openTab(initial.tab, { enterDetail: initial.detail, syncHash: !window.location.hash });
+        } else {
+            openTab(null, { closeDetail: true, syncHash: false });
+        }
+
+        window.addEventListener('hashchange', showFromLocation);
+
+        navLinks.forEach(function(link) {
             link.addEventListener('click', function(e) {
                 e.preventDefault();
-                window.location.hash = this.getAttribute('href');
+                const tab = this.getAttribute('data-tab');
+                if (!tab) return;
+                openTab(tab, { enterDetail: true, syncHash: true });
             });
+        });
+
+        if (backBtn) {
+            backBtn.addEventListener('click', function() {
+                openTab(null, { closeDetail: true, syncHash: true });
+                navLinks.forEach(function(link) { link.classList.remove('active'); });
+            });
+        }
+
+        // Liên kết nội bộ trong panel (vd. Bảo mật → Đổi mật khẩu)
+        document.querySelectorAll('.settings-main [data-tab]').forEach(function(el) {
+            if (el.closest('.settings-nav')) return;
+            el.addEventListener('click', function(e) {
+                const tab = this.getAttribute('data-tab');
+                if (!tab) return;
+                e.preventDefault();
+                openTab(tab, { enterDetail: true, syncHash: true });
+            });
+        });
+
+        window.addEventListener('resize', function() {
+            if (!isMobile()) {
+                if (shell) shell.classList.remove('is-detail');
+                const active = document.querySelector('.settings-section.is-active');
+                if (!active) {
+                    openTab(serverTab || 'profile', { enterDetail: false, syncHash: true });
+                }
+            }
         });
     });
 </script>

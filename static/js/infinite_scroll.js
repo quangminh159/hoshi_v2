@@ -164,6 +164,8 @@
         const postDiv = document.createElement('div');
         postDiv.className = 'card feed-post-card';
         postDiv.id = `post-${post.id}`;
+        postDiv.setAttribute('data-post-id', String(post.id));
+        if (post.is_trending) postDiv.classList.add('is-trending');
         if (post.author?.id) postDiv.setAttribute('data-author-id', post.author.id);
 
         function mediaUrlWithCache(media, cacheVersion) {
@@ -268,7 +270,9 @@
                             <a href="${profileUrl(post.author.username)}"
                                class="text-dark text-decoration-none fw-bold feed-post-username"
                                onclick="event.stopPropagation();">${post.author.username}</a>
+                            ${post.visibility === 'only_me' ? '<span class="badge bg-secondary-subtle text-secondary border ms-1 align-middle" title="Chỉ mình bạn xem được"><i class="fas fa-lock"></i> Chỉ mình tôi</span>' : (post.author?.is_private && post.visibility !== 'only_me' ? '<span class="badge bg-primary-subtle text-primary border ms-1 align-middle" title="Chỉ người theo dõi đã duyệt mới xem được"><i class="fas fa-user-friends"></i> Người theo dõi</span>' : '')}
                             <span class="text-muted small feed-post-time">${timeAgo(new Date(post.created_at))}</span>
+                            ${post.is_trending ? '<span class="feed-trending-badge" title="Đang thịnh hành"><i class="fas fa-fire" aria-hidden="true"></i> Đang thịnh hành</span>' : ''}
                             ${post.shared_from ? `<span class="text-muted small"><i class="fas fa-retweet me-1"></i>đã chia sẻ</span>` : ''}
                             ${post.location ? `<div class="text-muted small feed-post-location">${locationLinkHtml(post.location)}</div>` : ''}
                         </div>
@@ -930,6 +934,11 @@
         return '<span class="comment-edited-label text-muted ms-1">· Đã chỉnh sửa</span>';
     }
 
+    function commentAuthorBadgeHtml(comment) {
+        if (!comment.is_post_author) return '';
+        return '<span class="comment-author-badge" title="Tác giả bài viết"><i class="fas fa-pen" aria-hidden="true"></i>Tác giả</span>';
+    }
+
     function commentTextSpanHtml(text) {
         if (!text) return '';
         return `<div class="comment-text mt-1" data-raw-text="${escapeHtml(text)}">${formatCommentText(text)}</div>`;
@@ -1434,7 +1443,10 @@
         return `
             <div class="comment-body-main">
                 <div class="d-flex justify-content-between align-items-start gap-2 comment-header-row">
-                    <a href="${profileUrl(username)}" class="text-dark text-decoration-none fw-bold">${escapeHtml(username)}</a>
+                    <div class="d-flex align-items-center flex-wrap gap-1 min-w-0">
+                        <a href="${profileUrl(username)}" class="text-dark text-decoration-none fw-bold">${escapeHtml(username)}</a>
+                        ${commentAuthorBadgeHtml(comment)}
+                    </div>
                     ${commentActionsMenuHtml(comment, postId, username)}
                 </div>
                 ${commentTextSpanHtml(comment.text)}
@@ -1455,7 +1467,10 @@
             <div class="comment reply-comment mb-2" id="comment-${commentId}" data-comment-id="${commentId}">
                 <div class="comment-body-main">
                     <div class="d-flex justify-content-between align-items-start gap-2 comment-header-row">
-                        <a href="${profileUrl(username)}" class="text-dark text-decoration-none fw-bold">${escapeHtml(username)}</a>
+                        <div class="d-flex align-items-center flex-wrap gap-1 min-w-0">
+                            <a href="${profileUrl(username)}" class="text-dark text-decoration-none fw-bold">${escapeHtml(username)}</a>
+                            ${commentAuthorBadgeHtml(comment)}
+                        </div>
                         ${commentActionsMenuHtml(comment, postId, username)}
                     </div>
                     ${commentTextSpanHtml(comment.text)}
@@ -2257,6 +2272,7 @@
                 const el = createPostElement(post);
                 postsContainer.appendChild(el);
                 initPostInteractions(el);
+                observePostImpression(el);
             });
             markPostsSeen(newPosts.map((p) => p.id));
 
@@ -2318,6 +2334,59 @@
     }, { rootMargin: '600px', threshold: 0 });
 
     scrollObserver.observe(sentinel);
+
+    // Viral: ghi nhận impression khi bài vào viewport (~40% nhìn thấy)
+    const impressedPostIds = new Set();
+    let impressionQueue = [];
+    let impressionTimer = null;
+
+    function flushImpressions() {
+        impressionTimer = null;
+        if (!impressionQueue.length) return;
+        const batch = impressionQueue.splice(0, impressionQueue.length);
+        fetch('/posts/api/posts/impressions/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCsrfToken(),
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({ post_ids: batch }),
+        }).catch(() => { /* ignore network errors */ });
+    }
+
+    function queueImpression(postId) {
+        const id = String(postId);
+        if (!id || impressedPostIds.has(id)) return;
+        impressedPostIds.add(id);
+        impressionQueue.push(Number(id) || id);
+        if (!impressionTimer) {
+            impressionTimer = setTimeout(flushImpressions, 700);
+        }
+    }
+
+    const impressionObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+            if (!entry.isIntersecting || entry.intersectionRatio < 0.35) return;
+            const postId = entry.target.getAttribute('data-post-id');
+            if (postId) {
+                queueImpression(postId);
+                impressionObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: [0.35, 0.5], rootMargin: '0px' });
+
+    function observePostImpression(el) {
+        if (!el || el.getAttribute('data-imp-observed') === '1') return;
+        el.setAttribute('data-imp-observed', '1');
+        impressionObserver.observe(el);
+    }
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') flushImpressions();
+    });
+    window.addEventListener('pagehide', flushImpressions);
 
     if (sessionStorage.getItem('postsFeedStale') === '1') {
         sessionStorage.removeItem('postsFeedStale');

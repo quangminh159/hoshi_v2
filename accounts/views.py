@@ -90,6 +90,10 @@ def profile(request, username):
 
     can_view_posts = user.posts_visible_to(request.user)
 
+    posts_qs = Post.objects.filter(author=user, is_archived=False)
+    if not is_own_profile:
+        posts_qs = posts_qs.filter(visibility=Post.VISIBILITY_PUBLIC)
+
     context = {
         'profile_user': user,
         'is_own_profile': is_own_profile,
@@ -97,7 +101,7 @@ def profile(request, username):
         'is_shared_posts': is_shared_posts,
         'followers_count': user.get_followers_count(),
         'following_count': user.get_following_count(),
-        'posts_count': Post.objects.filter(author=user).count(),
+        'posts_count': posts_qs.count(),
         'is_following': is_following,
         'follow_request_sent': follow_request_sent,
         'can_view_posts': can_view_posts,
@@ -303,6 +307,112 @@ def revoke_device(request, device_id):
         return JsonResponse({'status': 'error', 'message': 'Không thể đăng xuất khỏi thiết bị hiện tại'})
     except Device.DoesNotExist:
         return JsonResponse({'status': 'error', 'message': 'Thiết bị không tồn tại'})
+
+
+@login_required
+@require_POST
+def update_device_location(request):
+    """
+    Nhận toạ độ GPS từ trình duyệt (Geolocation API) — độ chính xác cao nhất.
+    Body JSON: { latitude, longitude, accuracy }
+    """
+    import json
+    from .geo import reverse_geocode
+    from hoshi.spam import hit_rate_limit
+
+    if hit_rate_limit(f'device-gps:u:{request.user.pk}', '20/h'):
+        return JsonResponse({'status': 'error', 'message': 'Cập nhật vị trí quá thường xuyên.'}, status=429)
+
+    try:
+        payload = json.loads(request.body.decode('utf-8') or '{}')
+    except Exception:
+        payload = request.POST
+
+    try:
+        lat = float(payload.get('latitude'))
+        lon = float(payload.get('longitude'))
+    except (TypeError, ValueError, AttributeError):
+        return JsonResponse({'status': 'error', 'message': 'Thiếu toạ độ hợp lệ.'}, status=400)
+
+    if not (-90 <= lat <= 90 and -180 <= lon <= 180):
+        return JsonResponse({'status': 'error', 'message': 'Toạ độ ngoài phạm vi.'}, status=400)
+
+    accuracy = payload.get('accuracy')
+    try:
+        accuracy_m = float(accuracy) if accuracy is not None else None
+    except (TypeError, ValueError):
+        accuracy_m = None
+
+    device_id = request.session.get('device_id')
+    device = None
+    if device_id:
+        device = Device.objects.filter(device_id=device_id, user=request.user).first()
+    if device is None:
+        device = Device.objects.filter(user=request.user, is_current=True).first()
+    if device is None:
+        return JsonResponse({'status': 'error', 'message': 'Không tìm thấy thiết bị hiện tại.'}, status=404)
+
+    # GPS kém hơn vị trí GPS cũ đã có (ví dụ accuracy xấu hơn nhiều) → vẫn cập nhật nếu force
+    force = str(payload.get('force', '')).lower() in ('1', 'true', 'yes')
+    if (
+        not force
+        and device.location_source == 'gps'
+        and device.location_accuracy_m
+        and accuracy_m
+        and accuracy_m > float(device.location_accuracy_m) * 3
+        and accuracy_m > 500
+    ):
+        return JsonResponse({
+            'status': 'ok',
+            'skipped': True,
+            'message': 'Độ chính xác GPS lần này kém hơn bản đã lưu.',
+            'location': device.location_display,
+            'accuracy_m': device.location_accuracy_m,
+            'source': device.location_source,
+        })
+
+    place = reverse_geocode(lat, lon) or {}
+    device.apply_location(
+        label=place.get('label') or f'{lat:.5f}, {lon:.5f}',
+        city=place.get('city') or '',
+        region=place.get('region') or '',
+        country=place.get('country') or '',
+        country_code=place.get('country_code') or '',
+        latitude=lat,
+        longitude=lon,
+        accuracy_m=accuracy_m,
+        source='gps',
+        force=True,
+    )
+    device.save(
+        update_fields=[
+            'location_label',
+            'city',
+            'region',
+            'country',
+            'country_code',
+            'latitude',
+            'longitude',
+            'location_accuracy_m',
+            'location_source',
+            'location_updated_at',
+            'last_active',
+        ]
+    )
+
+    return JsonResponse({
+        'status': 'ok',
+        'location': device.location_display,
+        'latitude': device.latitude,
+        'longitude': device.longitude,
+        'accuracy_m': device.location_accuracy_m,
+        'source': device.location_source,
+        'maps_url': (
+            f'https://www.google.com/maps?q={device.latitude},{device.longitude}'
+            if device.latitude is not None and device.longitude is not None
+            else ''
+        ),
+    })
 
 @login_required
 @require_POST
@@ -654,6 +764,9 @@ def api_load_profile_posts(request, username):
         ).order_by('-created_at')
     else:
         posts = user.posts.all().order_by('-created_at')
+
+    from posts.visibility import filter_visible_posts
+    posts = filter_visible_posts(posts, request.user)
 
     posts = posts.select_related(
         'author', 'shared_from', 'shared_from__author'

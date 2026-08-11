@@ -7,8 +7,8 @@
 {% block body_class %} post-detail-layout{% endblock %}
 
 {% block extra_css %}
-<link href="{% static 'css/feed.css' %}?v=comment-autosize-1" rel="stylesheet">
-<link href="{% static 'css/post_detail.css' %}?v=comment-autosize-1" rel="stylesheet">
+<link href="{% static 'css/feed.css' %}?v=comment-author-italic-1" rel="stylesheet">
+<link href="{% static 'css/post_detail.css' %}?v=comment-author-italic-1" rel="stylesheet">
 <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
 <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
 <link href="https://unpkg.com/filepond-plugin-file-poster/dist/filepond-plugin-file-poster.css" rel="stylesheet">
@@ -71,6 +71,22 @@
                         </div>
                         <div id="edit-location-suggestions"></div>
                         <div class="form-text">Gõ để tìm địa điểm, hoặc dùng nút định vị hiện tại.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="edit-visibility" class="form-label">Chế độ xem</label>
+                        <select class="form-select" id="edit-visibility" name="visibility">
+                            {% if request.user.is_account_private %}
+                            <option value="public" {% if post.visibility != 'only_me' %}selected{% endif %}>Người theo dõi</option>
+                            <option value="only_me" {% if post.visibility == 'only_me' %}selected{% endif %}>Chỉ mình tôi</option>
+                            {% else %}
+                            <option value="public" {% if post.visibility != 'only_me' %}selected{% endif %}>Công khai</option>
+                            <option value="only_me" {% if post.visibility == 'only_me' %}selected{% endif %}>Chỉ mình tôi</option>
+                            {% endif %}
+                        </select>
+                        {% if request.user.is_account_private %}
+                        <div class="form-text">Tài khoản riêng tư: chọn “Người theo dõi” thì chỉ follower đã duyệt mới xem được.</div>
+                        {% endif %}
                     </div>
                     
                     <!-- Media hiện tại + thêm mới -->
@@ -1679,6 +1695,7 @@ function addCommentToDOM(comment, postId, parentId) {
                                class="text-dark text-decoration-none fw-bold">
                                 ${comment.author_username || comment.author.username}
                             </a>
+                            ${comment.is_post_author ? '<span class="comment-author-badge" title="Tác giả bài viết"><i class="fas fa-pen" aria-hidden="true"></i>Tác giả</span>' : ''}
                             <span class="text-muted small me-1">đã trả lời</span>
                             <a href="#comment-${parentId}" class="text-dark fw-bold small">@${document.querySelector(`#comment-${parentId} a.text-dark.text-decoration-none.fw-bold`).textContent}</a>
                         </div>
@@ -1762,7 +1779,8 @@ function addCommentToDOM(comment, postId, parentId) {
                        class="text-dark text-decoration-none fw-bold">
                         ${comment.author_username || comment.author.username}
                     </a>
-                    <div class="dropdown flex-shrink-0">
+                    ${comment.is_post_author ? '<span class="comment-author-badge" title="Tác giả bài viết"><i class="fas fa-pen" aria-hidden="true"></i>Tác giả</span>' : ''}
+                    <div class="dropdown flex-shrink-0 ms-auto">
                         <button class="btn btn-link btn-sm p-0 text-muted" 
                                 type="button" 
                                 data-bs-toggle="dropdown" 
@@ -2472,6 +2490,10 @@ function initializeNewComment(commentId, postId) {
 
             document.getElementById('edit-caption').value = this.dataset.caption || '';
             document.getElementById('edit-location').value = this.dataset.location || '';
+            const visibilityEl = document.getElementById('edit-visibility');
+            if (visibilityEl) {
+                visibilityEl.value = this.dataset.visibility || 'public';
+            }
             clearLocationSuggestions();
             document.getElementById('edit-disable-comments').checked = this.dataset.disableComments === 'true';
             document.getElementById('edit-hide-likes').checked = this.dataset.hideLikes === 'true';
@@ -2493,6 +2515,8 @@ function initializeNewComment(commentId, postId) {
                 const formData = new FormData();
                 formData.append('caption', document.getElementById('edit-caption').value);
                 formData.append('location', document.getElementById('edit-location').value);
+                const visibilitySelect = document.getElementById('edit-visibility');
+                formData.append('visibility', visibilitySelect ? visibilitySelect.value : 'public');
                 formData.append(
                     'disable_comments',
                     document.getElementById('edit-disable-comments').checked ? 'true' : 'false'

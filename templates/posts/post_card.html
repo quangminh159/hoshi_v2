@@ -17,6 +17,15 @@
                        class="text-dark text-decoration-none fw-bold">
                         {{ post.author.username }}
                     </a>
+                    {% if post.visibility == 'only_me' and request.user == post.author %}
+                    <span class="badge bg-secondary-subtle text-secondary border ms-1 align-middle" title="{% trans 'Chỉ mình bạn xem được' %}">
+                        <i class="fas fa-lock"></i> {% trans "Chỉ mình tôi" %}
+                    </span>
+                    {% elif post.visibility != 'only_me' and post.author.is_account_private and request.user == post.author %}
+                    <span class="badge bg-primary-subtle text-primary border ms-1 align-middle" title="{% trans 'Chỉ người theo dõi đã duyệt mới xem được' %}">
+                        <i class="fas fa-user-friends"></i> {% trans "Người theo dõi" %}
+                    </span>
+                    {% endif %}
                     {% if post.location %}
                     <div class="text-muted small">
                         {{ post.location|location_link }}
@@ -476,12 +485,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const location = document.getElementById(`edit-location-${postId}`).value;
             const disableComments = document.getElementById(`edit-disable-comments-${postId}`).checked;
             const hideLikes = document.getElementById(`edit-hide-likes-${postId}`).checked;
+            const visibilityEl = document.getElementById(`edit-visibility-${postId}`);
+            const visibility = visibilityEl ? visibilityEl.value : 'public';
             
             formData.append('caption', caption);
             formData.append('location', location);
             formData.append('disable_comments', disableComments ? 'true' : 'false');
             formData.append('hide_likes', hideLikes ? 'true' : 'false');
-            
+            formData.append('visibility', visibility);
             // Thêm danh sách media cần xóa
             const deletedMedia = [];
             document.querySelectorAll(`#editPostModal-${postId} .media-item[data-deleted="true"]`).forEach(item => {
@@ -835,6 +846,18 @@ function getCookie(name) {
                         <p class="upload-hint mb-0">{% trans "Kéo thả hoặc chọn ảnh/video mới · tối đa 1GB/file" %}</p>
                     </div>
                     
+                    <div class="mb-3">
+                        <label class="form-label" for="edit-visibility-{{ post.id }}">{% trans "Chế độ xem" %}</label>
+                        <select class="form-select" id="edit-visibility-{{ post.id }}" name="visibility">
+                            {% if request.user.is_account_private %}
+                            <option value="public" {% if post.visibility != 'only_me' %}selected{% endif %}>{% trans "Người theo dõi" %}</option>
+                            <option value="only_me" {% if post.visibility == 'only_me' %}selected{% endif %}>{% trans "Chỉ mình tôi" %}</option>
+                            {% else %}
+                            <option value="public" {% if post.visibility != 'only_me' %}selected{% endif %}>{% trans "Công khai" %}</option>
+                            <option value="only_me" {% if post.visibility == 'only_me' %}selected{% endif %}>{% trans "Chỉ mình tôi" %}</option>
+                            {% endif %}
+                        </select>
+                    </div>
                     <div class="mb-3">
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" id="edit-disable-comments-{{ post.id }}" {% if post.disable_comments %}checked{% endif %}>

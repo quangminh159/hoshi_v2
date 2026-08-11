@@ -1,0 +1,74 @@
+# Moora — trình tự chạy local (Postgres + Redis + app)
+
+## 0. Mỗi lần mở máy
+1. Bật **Docker Desktop** — đợi icon Docker sẵn sàng (Running).
+
+## 1. Bật database + Redis
+Mở PowerShell tại thư mục project `c:\hoshi_v2`:
+
+```powershell
+cd c:\hoshi_v2
+docker compose up -d
+docker compose ps
+```
+
+Thấy `moora-postgres` và `moora-redis` đều **Up (healthy)** là OK.
+
+## 2. (Tuỳ chọn) Migrate nếu vừa pull code mới
+```powershell
+.\venv\Scripts\python.exe manage.py migrate
+```
+
+## 3. Chạy app Django
+**Cách A — chỉ web / admin / feed** (đơn giản):
+```powershell
+.\venv\Scripts\python.exe manage.py runserver
+```
+Mở: http://127.0.0.1:8000/
+
+**Cách B — có chat realtime / WebSocket** (khuyến nghị khi test chat):
+```powershell
+# Tắt runserver trước nếu đang chạy (Ctrl+C)
+.\venv\Scripts\python.exe -m daphne -b 127.0.0.1 -p 8000 hoshi.asgi:application
+```
+
+**Lưu ý:** đừng chạy đồng thời runserver + daphne cùng cổng 8000.
+
+## 4. (Tuỳ chọn) Ngrok — test máy khác / điện thoại
+Terminal riêng, sau khi app đã chạy:
+```powershell
+.\start_ngrok.ps1
+```
+(xem thêm `huong_dan_ngrok.txt`)
+
+## Tắt khi xong
+1. App: `Ctrl+C` trong terminal runserver/daphne  
+2. Infra (giữ data):
+```powershell
+docker compose down
+```
+
+## Kiểm tra nhanh nếu lỗi
+```powershell
+docker compose ps
+# .env phải có:
+# DATABASE_URL=postgres://hoshi:hoshipassword@127.0.0.1:5432/hoshi
+# REDIS_URL=redis://127.0.0.1:6379/0
+# ALLOWED_HOSTS=localhost,127.0.0.1
+# DEBUG=True   (local) | False (production — bắt buộc Postgres+Redis)
+```
+
+## Backup Postgres
+```powershell
+powershell -File .\scripts\backup_postgres.ps1
+```
+
+## Smoke test
+```powershell
+.\venv\Scripts\python.exe manage.py test hoshi.tests_smoke
+```
+
+Admin: http://127.0.0.1:8000/admin/  
+Superuser hiện có: Hoshi
+
+**Bảo mật:** không hardcode EMAIL_HOST_PASSWORD trong code. Đặt trong `.env` và **đổi app password Gmail** nếu từng lộ trên git.

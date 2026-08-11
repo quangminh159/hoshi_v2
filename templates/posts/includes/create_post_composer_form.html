@@ -59,6 +59,23 @@
         <p class="upload-hint">Ảnh, video, nhạc hoặc ghi âm (tùy chọn) · hoặc chỉ đăng chữ · tối đa 1GB/file</p>
 
         <div class="extra-fields">
+            <div class="visibility-field">
+                <label class="form-label small mb-1" for="post-visibility">
+                    <i class="fas fa-eye me-1"></i>Chế độ xem
+                </label>
+                <select id="post-visibility" name="visibility" class="form-select form-select-sm post-visibility-select">
+                    {% if request.user.is_account_private %}
+                    <option value="public" selected>Người theo dõi — ai đã được bạn duyệt theo dõi</option>
+                    <option value="only_me">Chỉ mình tôi</option>
+                    {% else %}
+                    <option value="public" selected>Công khai — mọi người có thể xem</option>
+                    <option value="only_me">Chỉ mình tôi</option>
+                    {% endif %}
+                </select>
+                {% if request.user.is_account_private %}
+                <div class="form-text mt-1">Tài khoản đang riêng tư: bài “Người theo dõi” không hiện với người lạ / chưa theo dõi.</div>
+                {% endif %}
+            </div>
             <div class="location-field">
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>

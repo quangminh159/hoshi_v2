@@ -23,11 +23,19 @@ def get_root_comments_qs(post):
     )
 
 
-def serialize_comment(comment, post_id=None, is_duplicate=False, parent_data=None, can_delete=True, can_edit=True):
+def serialize_comment(comment, post_id=None, is_duplicate=False, parent_data=None, can_delete=True, can_edit=True, is_post_author=None):
     """JSON payload for comment create/list responses."""
     is_edited = False
     if comment.updated_at and comment.created_at:
         is_edited = (comment.updated_at - comment.created_at).total_seconds() > 2
+    if is_post_author is None:
+        post_author_id = getattr(getattr(comment, 'post', None), 'author_id', None)
+        if post_author_id is None and hasattr(comment, 'post_id'):
+            try:
+                post_author_id = comment.post.author_id
+            except Exception:
+                post_author_id = None
+        is_post_author = bool(post_author_id and comment.author_id == post_author_id)
     return {
         'id': comment.id,
         'text': comment.text or '',
@@ -52,6 +60,7 @@ def serialize_comment(comment, post_id=None, is_duplicate=False, parent_data=Non
         'can_delete': can_delete,
         'can_edit': can_edit,
         'is_edited': is_edited,
+        'is_post_author': bool(is_post_author),
     }
 
 

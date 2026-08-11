@@ -63,6 +63,8 @@ class PostViewSet(viewsets.ModelViewSet):
     search_fields = ['caption', 'location', 'author__username']
     
     def get_queryset(self):
+        from posts.visibility import filter_visible_posts
+
         queryset = Post.objects.all()
         
         # Filter by hashtag
@@ -79,8 +81,8 @@ class PostViewSet(viewsets.ModelViewSet):
         saved = self.request.query_params.get('saved', None)
         if saved:
             queryset = queryset.filter(saved_by__user=self.request.user)
-        
-        return queryset
+
+        return filter_visible_posts(queryset, self.request.user)
     
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
@@ -97,6 +99,8 @@ class PostViewSet(viewsets.ModelViewSet):
         if created:
             post.likes_count = post.post_likes.count()
             post.save(update_fields=['likes_count'])
+            from posts.viral import on_engagement_changed
+            on_engagement_changed(post.id)
             broadcast_post_engagement(
                 post.id,
                 likes_count=post.likes_count,
@@ -109,6 +113,8 @@ class PostViewSet(viewsets.ModelViewSet):
         like.delete()
         post.likes_count = post.post_likes.count()
         post.save(update_fields=['likes_count'])
+        from posts.viral import on_engagement_changed
+        on_engagement_changed(post.id)
         broadcast_post_engagement(
             post.id,
             likes_count=post.likes_count,
@@ -185,7 +191,8 @@ class HashtagViewSet(viewsets.ReadOnlyModelViewSet):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def post_list(request):
-    posts = Post.objects.all().order_by('-created_at')
+    from posts.visibility import filter_visible_posts
+    posts = filter_visible_posts(Post.objects.all(), request.user).order_by('-created_at')
     
     # Lọc theo username nếu có
     username = request.GET.get('username')
@@ -278,8 +285,12 @@ def save_post(request, pk):
     
     if not created:
         saved.delete()
+        from posts.viral import bump_save_count
+        bump_save_count(post.id, -1)
         return Response({'status': 'unsaved'})
-    
+
+    from posts.viral import bump_save_count
+    bump_save_count(post.id, 1)
     return Response({'status': 'saved'})
 
 @api_view(['GET'])
@@ -417,6 +428,7 @@ def add_comment(request):
                 post_id=post.id,
                 is_duplicate=is_duplicate,
                 parent_data=parent_data,
+                is_post_author=(comment.author_id == post.author_id),
             )
 
         # Chống duplicate theo request_id
@@ -720,6 +732,7 @@ def edit_comment(request, pk):
             parent_data=parent_data,
             can_delete=True,
             can_edit=True,
+            is_post_author=(comment.author_id == comment.post.author_id),
         ),
     })
 
@@ -803,6 +816,10 @@ def edit_post(request, post_id):
         
         if 'hide_likes' in request.data:
             post.hide_likes = _parse_bool(request.data['hide_likes'])
+
+        if 'visibility' in request.data:
+            from posts.visibility import normalize_visibility
+            post.visibility = normalize_visibility(request.data.get('visibility'))
 
         # Xóa phương tiện trước khi thêm mới
         if 'deleted_media' in request.data:
@@ -1303,6 +1320,18 @@ def share_post(request):
                 'message': 'Không thể chia sẻ bài viết này'
             }, status=403)
 
+        from posts.visibility import can_view_post
+        if not can_view_post(original_post, request.user):
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Không thể chia sẻ bài viết này'
+            }, status=403)
+        if original_post.visibility == Post.VISIBILITY_ONLY_ME:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Không thể chia sẻ bài viết chỉ mình bạn xem'
+            }, status=403)
+
         if as_new_post:
             try:
                 new_post = Post.objects.create(
@@ -1329,6 +1358,8 @@ def share_post(request):
                     post=original_post,
                     interaction_type='share',
                 )
+                from posts.viral import bump_share_count
+                bump_share_count(original_post.id, 1)
 
                 if not wants_json:
                     from django.shortcuts import redirect
@@ -1552,6 +1583,9 @@ def share_post_via_message(request):
             'status': 'error',
             'message': 'Không thể gửi tin nhắn tới người nhận đã chọn',
         }, status=400)
+
+    from posts.viral import bump_share_count
+    bump_share_count(post.id, 1)
 
     return JsonResponse({
         'status': 'success',

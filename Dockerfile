@@ -2,7 +2,6 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Cài đặt các thư viện phụ thuộc hệ thống
 RUN apt-get update && apt-get install -y \
     build-essential \
     libpq-dev \
@@ -13,36 +12,34 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Tạo thư mục static và media
 RUN mkdir -p /app/staticfiles /app/media /app/static /app/logs
 
-# Sao chép requirements.txt trước để tận dụng cache
 COPY requirements.txt /app/
 
-# Cài đặt các thư viện Python
 RUN python -m pip install --upgrade pip && \
     pip install -r requirements.txt
 
-# Tạo tệp .env rỗng mặc định để tránh lỗi khi collectstatic
-RUN echo "DEBUG=False" > /app/.env && \
-    echo "SECRET_KEY=django-insecure-key-for-build-only" >> /app/.env && \
-    echo "ALLOWED_HOSTS=localhost,127.0.0.1" >> /app/.env
+# Build-time .env (chỉ để collectstatic — runtime ghi đè bằng env thật)
+RUN printf '%s\n' \
+    'DEBUG=True' \
+    'SECRET_KEY=django-insecure-key-for-build-only' \
+    'ALLOWED_HOSTS=localhost,127.0.0.1' \
+    'DATABASE_URL=' \
+    'REDIS_URL=' \
+    > /app/.env
 
-# Sao chép toàn bộ code
 COPY . /app/
 
-# Thiết lập biến môi trường
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-ENV DEBUG=False
-ENV SECRET_KEY=django-insecure-key-for-build-only
-ENV DATABASE_URL=""
+ENV DJANGO_SETTINGS_MODULE=hoshi.settings
 
-# Thu thập static files
-RUN python manage.py collectstatic --noinput
+# collectstatic với DEBUG=True (không bắt buộc Postgres/Redis lúc build)
+RUN DEBUG=True SECRET_KEY=django-insecure-key-for-build-only \
+    DATABASE_URL= REDIS_URL= \
+    python manage.py collectstatic --noinput
 
-# Cổng mặc định
 EXPOSE 8000
 
-# Lệnh chạy
-CMD ["gunicorn", "wsgi_railway:application", "--bind", "0.0.0.0:8000"]
+# ASGI + WebSocket (chat). Runtime cần DATABASE_URL + REDIS_URL + DEBUG=False
+CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "hoshi.asgi:application"]

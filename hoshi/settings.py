@@ -12,11 +12,11 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 import os
-
-# Load .env (nếu có) trước khi đọc config
+from django.core.exceptions import ImproperlyConfigured
+# Load .env (ưu tiên hơn biến môi trường shell tạm — tránh kẹt SQLite khi dump)
 try:
     from dotenv import load_dotenv
-    load_dotenv(Path(__file__).resolve().parent.parent / '.env')
+    load_dotenv(Path(__file__).resolve().parent.parent / '.env', override=True)
 except ImportError:
     pass
 
@@ -37,22 +37,43 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('SECRET_KEY', default='your-secret-key-here')
+SECRET_KEY = (
+    config('SECRET_KEY', default='')
+    or config('DJANGO_SECRET_KEY', default='')
+    or 'dev-only-insecure-key-change-me'
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=True, cast=bool)
+DEBUG = config('DEBUG', default=None)
+if DEBUG is None:
+    DEBUG = config('DJANGO_DEBUG', default=True, cast=bool)
+else:
+    DEBUG = str(DEBUG).lower() in ('true', 'yes', '1')
 
-ALLOWED_HOSTS = ['*']
+_raw_hosts = (
+    config('ALLOWED_HOSTS', default='')
+    or config('DJANGO_ALLOWED_HOSTS', default='localhost,127.0.0.1')
+)
+ALLOWED_HOSTS = [h.strip() for h in str(_raw_hosts).split(',') if h.strip()]
+if not ALLOWED_HOSTS:
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
-# CSRF settings
-CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:8000',
-    'http://127.0.0.1:8000',
-    'https://e4ee-113-23-104-186.ngrok-free.app',
-    'https://e217-113-23-104-186.ngrok-free.app',
-    'https://*.ngrok-free.app'
-]
-
+# CSRF — cấu hình qua env; local + ngrok khi DEBUG
+_raw_csrf = (
+    config('CSRF_TRUSTED_ORIGINS', default='')
+    or config('DJANGO_CSRF_TRUSTED_ORIGINS', default='')
+)
+CSRF_TRUSTED_ORIGINS = [o.strip() for o in str(_raw_csrf).split(',') if o.strip()]
+if DEBUG:
+    for origin in (
+        'http://localhost:8000',
+        'http://127.0.0.1:8000',
+        'https://*.ngrok-free.app',
+        'https://*.ngrok-free.dev',
+        'https://*.ngrok.io',
+    ):
+        if origin not in CSRF_TRUSTED_ORIGINS:
+            CSRF_TRUSTED_ORIGINS.append(origin)
 
 # Application definition
 
@@ -113,6 +134,7 @@ MIDDLEWARE = [
     'allauth.account.middleware.AccountMiddleware',
     'accounts.middleware.AccountStatusMiddleware',
     'accounts.middleware.TwoFactorPendingMiddleware',
+    'accounts.middleware.DeviceTrackingMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -144,16 +166,46 @@ ASGI_APPLICATION = 'hoshi.asgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
+# Ưu tiên DATABASE_URL (Postgres). Không có / sqlite → dùng db.sqlite3.
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+DATABASE_URL = (config('DATABASE_URL', default='') or '').strip()
+
+
+def _database_from_url(url: str):
+    """Parse postgres:// hoặc postgresql:// thành dict Django DATABASES."""
+    from urllib.parse import urlparse, unquote
+
+    parsed = urlparse(url)
+    scheme = (parsed.scheme or '').lower()
+    if scheme not in ('postgres', 'postgresql'):
+        return None
+    return {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': unquote((parsed.path or '/').lstrip('/') or 'hoshi'),
+        'USER': unquote(parsed.username or ''),
+        'PASSWORD': unquote(parsed.password or ''),
+        'HOST': parsed.hostname or 'localhost',
+        'PORT': str(parsed.port or 5432),
+        'CONN_MAX_AGE': 60,
         'OPTIONS': {
-            'timeout': 30,
+            'connect_timeout': 10,
         },
     }
-}
+
+
+_pg = _database_from_url(DATABASE_URL) if DATABASE_URL else None
+if _pg:
+    DATABASES = {'default': _pg}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+            'OPTIONS': {
+                'timeout': 30,
+            },
+        }
+    }
 
 
 # Password validation
@@ -255,16 +307,19 @@ ACCOUNT_FORMS = {
     "signup": "accounts.forms.CustomSignupForm",
 }
 
-# Email settings
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'quangminh159159@gmail.com'
-EMAIL_HOST_PASSWORD = 'vjmioramcpgxfesp'
-SITE_NAME = 'Moora'
-DEFAULT_FROM_EMAIL = 'Moora <noreply@moora.vn>'
-
+# Email settings — chỉ lấy từ env (không hardcode mật khẩu)
+EMAIL_BACKEND = config(
+    'EMAIL_BACKEND',
+    default='django.core.mail.backends.console.EmailBackend',
+)
+EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
+EMAIL_PORT = int(config('EMAIL_PORT', default='587') or 587)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+SITE_NAME = config('SITE_NAME', default='Moora')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='Moora <noreply@moora.vn>')
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
 # Phone numbers
 PHONENUMBER_DB_FORMAT = 'E164'
 PHONENUMBER_DEFAULT_REGION = None
@@ -289,7 +344,22 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': config('DRF_THROTTLE_ANON', default='60/min'),
+        'user': config('DRF_THROTTLE_USER', default='300/min'),
+    },
 }
+
+# Closed beta: bắt buộc mã mời khi đăng ký (mặc định bật nếu không DEBUG)
+_invite = config('INVITE_ONLY', default=None)
+if _invite is None:
+    INVITE_ONLY = not DEBUG
+else:
+    INVITE_ONLY = str(_invite).lower() in ('true', 'yes', '1')
 
 # Channels / cache — dùng Redis nếu có và đang chạy; không thì InMemory (dev local)
 REDIS_URL = config('REDIS_URL', default='').strip()
@@ -308,6 +378,26 @@ def _redis_reachable(url: str) -> bool:
 
 
 USE_REDIS = bool(REDIS_URL) and _redis_reachable(REDIS_URL)
+
+if not DEBUG:
+    # Production: bắt buộc Postgres + Redis
+    if 'sqlite' in DATABASES['default']['ENGINE']:
+        raise ImproperlyConfigured(
+            'Production (DEBUG=False) yêu cầu PostgreSQL. Đặt DATABASE_URL=postgres://...'
+        )
+    if not REDIS_URL:
+        raise ImproperlyConfigured(
+            'Production (DEBUG=False) yêu cầu REDIS_URL (cache + Channels).'
+        )
+    if not USE_REDIS:
+        raise ImproperlyConfigured(
+            f'Không kết nối được Redis tại {REDIS_URL}. Bật Redis trước khi chạy production.'
+        )
+    if SECRET_KEY.startswith('dev-only') or SECRET_KEY in (
+        'your-secret-key-here',
+        'django-insecure-key-for-build-only',
+    ):
+        raise ImproperlyConfigured('Production cần SECRET_KEY / DJANGO_SECRET_KEY mạnh.')
 
 if REDIS_URL and not USE_REDIS:
     import logging
@@ -488,14 +578,79 @@ ACCOUNT_EMAIL_CONFIRMATION_COOLDOWN = 180
 # Vô hiệu hóa những cảnh báo không cần thiết
 SILENCED_SYSTEM_CHECKS = ['allauth.socialaccount.W002']
 
-# File upload settings
-MAX_UPLOAD_SIZE = 1073741824  # 1GB in bytes (1024*1024*1024)
-DATA_UPLOAD_MAX_MEMORY_SIZE = MAX_UPLOAD_SIZE
-FILE_UPLOAD_MAX_MEMORY_SIZE = MAX_UPLOAD_SIZE
+# File upload settings (mặc định 50MB — chỉnh bằng MAX_UPLOAD_MB trong .env)
+_MAX_UPLOAD_MB = int(config('MAX_UPLOAD_MB', default='50') or 50)
+MAX_UPLOAD_SIZE = max(_MAX_UPLOAD_MB, 1) * 1024 * 1024
+DATA_UPLOAD_MAX_MEMORY_SIZE = min(MAX_UPLOAD_SIZE, 10 * 1024 * 1024)  # giữ body nhỏ trong RAM
+FILE_UPLOAD_MAX_MEMORY_SIZE = min(MAX_UPLOAD_SIZE, 10 * 1024 * 1024)
 CONTENT_TYPES = [
     'image/jpeg', 'image/png', 'image/gif', 'image/webp',
     'video/mp4', 'video/quicktime', 'video/x-matroska', 'video/webm', 'video/avi',
 ]
+
+# Media: S3/R2 khi có credentials THẬT (bỏ qua placeholder your-*)
+def _aws_looks_real(value: str) -> bool:
+    v = (value or '').strip()
+    if not v:
+        return False
+    low = v.lower()
+    if low.startswith('your-') or low in {
+        'changeme',
+        'todo',
+        'xxx',
+        'your-aws-access-key',
+        'your-aws-secret-key',
+        'your-bucket-name',
+        'your-region',
+    }:
+        return False
+    return True
+
+
+AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID', default='').strip()
+AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY', default='').strip()
+AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME', default='').strip()
+AWS_S3_REGION_NAME = config('AWS_S3_REGION_NAME', default='ap-southeast-1').strip()
+AWS_S3_ENDPOINT_URL = config('AWS_S3_ENDPOINT_URL', default='').strip() or None
+AWS_S3_CUSTOM_DOMAIN = config('AWS_S3_CUSTOM_DOMAIN', default='').strip() or None
+AWS_DEFAULT_ACL = None  # bucket policy quyết định, tránh public-read mặc định
+AWS_QUERYSTRING_AUTH = config('AWS_QUERYSTRING_AUTH', default=True, cast=bool)
+AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
+AWS_S3_FILE_OVERWRITE = False
+
+USE_S3_MEDIA = all(
+    _aws_looks_real(x)
+    for x in (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_STORAGE_BUCKET_NAME)
+)
+
+if USE_S3_MEDIA:
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    if AWS_S3_CUSTOM_DOMAIN:
+        MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/'
+    elif AWS_S3_ENDPOINT_URL:
+        MEDIA_URL = f'{AWS_S3_ENDPOINT_URL.rstrip("/")}/{AWS_STORAGE_BUCKET_NAME}/'
+elif not DEBUG:
+    import logging
+    logging.getLogger(__name__).warning(
+        'DEBUG=False nhưng chưa cấu hình S3/R2 thật — media vẫn lưu local disk.'
+    )
+
+# Sentry (optional)
+SENTRY_DSN = config('SENTRY_DSN', default='').strip()
+if SENTRY_DSN:
+    try:
+        import sentry_sdk
+        from sentry_sdk.integrations.django import DjangoIntegration
+
+        sentry_sdk.init(
+            dsn=SENTRY_DSN,
+            integrations=[DjangoIntegration()],
+            traces_sample_rate=float(config('SENTRY_TRACES_SAMPLE_RATE', default='0.1') or 0.1),
+            send_default_pii=False,
+            environment='production' if not DEBUG else 'development',
+        )
+    except ImportError:
+        pass
 
 # Custom settings
 POSTS_PER_PAGE = 20

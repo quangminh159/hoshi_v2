@@ -238,6 +238,22 @@
                             <div id="locationSuggestionBox"></div>
                             <div class="form-text">Gõ để tìm địa điểm, hoặc dùng nút định vị hiện tại.</div>
                         </div>
+
+                        <div class="mb-3">
+                            <label for="visibility" class="form-label">Chế độ xem</label>
+                            <select id="visibility" name="visibility" class="form-select">
+                                {% if request.user.is_account_private %}
+                                <option value="public" {% if post.visibility != 'only_me' %}selected{% endif %}>Người theo dõi — ai đã được bạn duyệt theo dõi</option>
+                                <option value="only_me" {% if post.visibility == 'only_me' %}selected{% endif %}>Chỉ mình tôi</option>
+                                {% else %}
+                                <option value="public" {% if post.visibility != 'only_me' %}selected{% endif %}>Công khai — mọi người có thể xem</option>
+                                <option value="only_me" {% if post.visibility == 'only_me' %}selected{% endif %}>Chỉ mình tôi</option>
+                                {% endif %}
+                            </select>
+                            {% if request.user.is_account_private %}
+                            <div class="form-text">Tài khoản riêng tư: bài “Người theo dõi” không hiện với người chưa theo dõi bạn.</div>
+                            {% endif %}
+                        </div>
                         
                         <!-- Submit Button -->
                         <div class="d-flex justify-content-between">

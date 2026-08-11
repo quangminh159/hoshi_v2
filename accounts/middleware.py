@@ -161,79 +161,163 @@ class TwoFactorPendingMiddleware(MiddlewareMixin):
 
 class DeviceTrackingMiddleware(MiddlewareMixin):
     """
-    Middleware theo dõi thiết bị đăng nhập của người dùng.
-    Mỗi khi người dùng đăng nhập, middleware sẽ tạo một bản ghi thiết bị mới hoặc cập nhật bản ghi hiện có.
+    Theo dõi thiết bị đăng nhập + vị trí theo IP (GPS cập nhật riêng từ client).
+    Chỉ sync DB khi IP/UA đổi hoặc mỗi vài phút để tránh ghi liên tục.
     """
-    
+
+    SKIP_PREFIXES = (
+        '/static/',
+        '/media/',
+        '/admin/jsi18n/',
+        '/favicon',
+    )
+
     def process_request(self, request):
-        # Chỉ xử lý cho người dùng đã đăng nhập
-        if not request.user.is_authenticated:
+        if not getattr(request.user, 'is_authenticated', False):
             return None
-            
-        # Lấy User-Agent và IP
-        user_agent_string = request.META.get('HTTP_USER_AGENT', '')
-        client_ip = request.META.get('REMOTE_ADDR', '')
-        
-        # Bỏ qua bots và crawlers
-        if not user_agent_string or 'bot' in user_agent_string.lower() or 'crawl' in user_agent_string.lower():
+
+        path = request.path or ''
+        for prefix in self.SKIP_PREFIXES:
+            if path.startswith(prefix):
+                return None
+
+        user_agent_string = request.META.get('HTTP_USER_AGENT', '') or ''
+        ua_l = user_agent_string.lower()
+        if not user_agent_string or 'bot' in ua_l or 'crawl' in ua_l or 'spider' in ua_l:
             return None
-            
+
         try:
-            # Parse User-Agent
+            client_ip, _routable = get_client_ip(request)
+            if not client_ip:
+                client_ip = request.META.get('REMOTE_ADDR') or '0.0.0.0'
+
             user_agent = parse(user_agent_string)
-            
-            # Xác định loại thiết bị
             if user_agent.is_mobile:
                 device_type = 'mobile'
             elif user_agent.is_tablet:
                 device_type = 'tablet'
             else:
                 device_type = 'desktop'
-                
-            # Tạo device ID duy nhất hoặc lấy từ session
+
             device_id = request.session.get('device_id')
             if not device_id:
                 device_id = str(uuid.uuid4())
                 request.session['device_id'] = device_id
-                
-            # Tạo tên thiết bị
+
             browser_family = user_agent.browser.family
             os_family = user_agent.os.family
             device_family = user_agent.device.family
-            
-            device_name = f"{device_family}"
-            if device_family == "Other" or device_family == "Generic Smartphone":
-                device_name = f"{os_family} Device"
-                
-            # Lấy thông tin trình duyệt và hệ điều hành
-            browser = f"{browser_family} {user_agent.browser.version_string}"
-            os = f"{os_family} {user_agent.os.version_string}"
-            
-            # Cập nhật hoặc tạo bản ghi thiết bị
-            try:
-                device = Device.objects.get(device_id=device_id)
-                # Cập nhật thông tin thiết bị nếu có thay đổi
-                device.ip_address = client_ip
-                device.browser = browser
-                device.os = os
-                device.save(update_fields=['ip_address', 'browser', 'os', 'last_active'])
-            except Device.DoesNotExist:
-                # Đánh dấu tất cả thiết bị hiện tại là không phải hiện tại
+            device_name = device_family
+            if device_family in ('Other', 'Generic Smartphone', 'Generic Feature Phone'):
+                device_name = f'{os_family} Device' if os_family else 'Thiết bị'
+
+            browser = f'{browser_family} {user_agent.browser.version_string}'.strip()
+            os_name = f'{os_family} {user_agent.os.version_string}'.strip()
+
+            device = Device.objects.filter(device_id=device_id).first()
+            created = False
+            ip_changed = False
+            if device is None:
                 Device.objects.filter(user=request.user, is_current=True).update(is_current=False)
-                
-                # Tạo bản ghi thiết bị mới
-                Device.objects.create(
+                device = Device.objects.create(
                     user=request.user,
                     device_id=device_id,
                     device_type=device_type,
-                    device_name=device_name,
-                    browser=browser,
-                    os=os,
+                    device_name=device_name[:255],
+                    browser=browser[:100],
+                    os=os_name[:100],
                     ip_address=client_ip,
-                    is_current=True
+                    is_current=True,
                 )
+                created = True
+                ip_changed = True
+            else:
+                if device.user_id != request.user.id:
+                    Device.objects.filter(user=request.user, is_current=True).update(is_current=False)
+                    device.user = request.user
+                    device.is_current = True
+                    created = True
+
+                ip_changed = device.ip_address != client_ip
+                changed = (
+                    created
+                    or ip_changed
+                    or device.browser != browser[:100]
+                    or device.os != os_name[:100]
+                    or not device.is_current
+                )
+                if changed:
+                    Device.objects.filter(user=request.user, is_current=True).exclude(pk=device.pk).update(
+                        is_current=False
+                    )
+                    device.ip_address = client_ip
+                    device.browser = browser[:100]
+                    device.os = os_name[:100]
+                    device.device_type = device_type
+                    device.device_name = device_name[:255]
+                    device.is_current = True
+                    device.save(
+                        update_fields=[
+                            'user',
+                            'ip_address',
+                            'browser',
+                            'os',
+                            'device_type',
+                            'device_name',
+                            'is_current',
+                            'last_active',
+                        ]
+                    )
+                else:
+                    from django.core.cache import cache
+
+                    touch_key = f'device:touch:{device.pk}'
+                    if not cache.get(touch_key):
+                        device.save(update_fields=['last_active'])
+                        cache.set(touch_key, 1, timeout=180)
+
+            # Geo theo IP (không ghi đè GPS còn mới)
+            from django.core.cache import cache
+            from .geo import lookup_ip_location
+
+            geo_key = f'device:geodone:{device.pk}:{client_ip}'
+            need_geo = (
+                not cache.get(geo_key)
+                and device.location_source != 'gps'
+                and (created or ip_changed or not device.location_label)
+            )
+            if need_geo:
+                geo = lookup_ip_location(client_ip)
+                if geo:
+                    device.apply_location(
+                        label=geo.get('label') or '',
+                        city=geo.get('city') or '',
+                        region=geo.get('region') or '',
+                        country=geo.get('country') or '',
+                        country_code=geo.get('country_code') or '',
+                        latitude=geo.get('lat'),
+                        longitude=geo.get('lon'),
+                        accuracy_m=geo.get('accuracy_m'),
+                        source='ip',
+                    )
+                    device.save(
+                        update_fields=[
+                            'location_label',
+                            'city',
+                            'region',
+                            'country',
+                            'country_code',
+                            'latitude',
+                            'longitude',
+                            'location_accuracy_m',
+                            'location_source',
+                            'location_updated_at',
+                        ]
+                    )
+                cache.set(geo_key, 1, timeout=6 * 60 * 60)
+
+            request.current_device = device
         except Exception:
-            # Lỗi khi phân tích User-Agent hoặc lưu thiết bị, bỏ qua
             pass
-            
-        return None 
+
+        return None

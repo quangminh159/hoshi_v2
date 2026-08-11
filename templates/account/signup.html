@@ -217,6 +217,26 @@
                                 </div>
                             </div>
 
+                            {% if form.invite_code and not form.invite_code.is_hidden %}
+                            <div class="mb-3">
+                                <label for="id_invite_code" class="form-label">{% trans "Mã mời beta" %}</label>
+                                <input type="text"
+                                       class="form-control {% if form.invite_code.errors %}is-invalid{% endif %}"
+                                       id="id_invite_code"
+                                       name="invite_code"
+                                       value="{{ form.invite_code.value|default_if_none:'' }}"
+                                       autocomplete="off"
+                                       placeholder="{% trans 'Nhập mã mời' %}">
+                                {% if form.invite_code.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.invite_code.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% else %}
+                                    <div class="form-text">{% trans "Moora đang closed beta — cần mã mời để đăng ký." %}</div>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+
                             <div class="mb-4">
                                 <div class="form-check">
                                     <input class="form-check-input {% if form.agree_terms.errors %}is-invalid{% endif %}"

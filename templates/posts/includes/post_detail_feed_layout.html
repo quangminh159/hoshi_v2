@@ -17,6 +17,15 @@
                        class="text-dark text-decoration-none fw-bold feed-post-username">
                         {{ post.author.username }}
                     </a>
+                    {% if post.visibility == 'only_me' and request.user == post.author %}
+                    <span class="badge bg-secondary-subtle text-secondary border ms-1 align-middle" title="Chỉ mình bạn xem được">
+                        <i class="fas fa-lock"></i> Chỉ mình tôi
+                    </span>
+                    {% elif post.visibility != 'only_me' and post.author.is_account_private and request.user == post.author %}
+                    <span class="badge bg-primary-subtle text-primary border ms-1 align-middle" title="Chỉ người theo dõi đã duyệt mới xem được">
+                        <i class="fas fa-user-friends"></i> Người theo dõi
+                    </span>
+                    {% endif %}
                     <span class="text-muted small feed-post-time">{{ post.created_at|timesince }} trước</span>
                     {% if post.shared_from %}
                     <span class="text-muted small"><i class="fas fa-retweet me-1"></i>đã chia sẻ</span>
@@ -40,6 +49,7 @@
                                         data-post-id="{{ post.id }}"
                                         data-caption="{{ post.caption|escapejs }}"
                                         data-location="{{ post.location|default:''|escapejs }}"
+                                        data-visibility="{{ post.visibility|default:'public' }}"
                                         data-disable-comments="{{ post.disable_comments|yesno:'true,false' }}"
                                         data-hide-likes="{{ post.hide_likes|yesno:'true,false' }}"
                                         type="button">
@@ -169,7 +179,10 @@
                            class="text-dark text-decoration-none fw-bold">
                             {{ comment.author.username }}
                         </a>
-                        <div class="dropdown flex-shrink-0">
+                        {% if comment.author_id == post.author_id %}
+                        <span class="comment-author-badge" title="Tác giả bài viết"><i class="fas fa-pen" aria-hidden="true"></i>Tác giả</span>
+                        {% endif %}
+                        <div class="dropdown flex-shrink-0 ms-auto">
                             <button class="btn btn-link btn-sm p-0 text-muted" type="button" data-bs-toggle="dropdown">
                                 <i class="fas fa-ellipsis-h"></i>
                             </button>
@@ -254,6 +267,9 @@
                                            class="text-dark text-decoration-none fw-bold">
                                             {{ reply.reply.author.username }}
                                         </a>
+                                        {% if reply.reply.author_id == post.author_id %}
+                                        <span class="comment-author-badge" title="Tác giả bài viết"><i class="fas fa-pen" aria-hidden="true"></i>Tác giả</span>
+                                        {% endif %}
                                         <span class="text-muted small me-1">đã trả lời</span>
                                         <a href="#comment-{{ comment.id }}" class="text-dark fw-bold small">@{{ comment.author.username }}</a>
                                     </div>

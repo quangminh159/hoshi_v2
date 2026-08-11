@@ -21,11 +21,21 @@ def privacy_policy(request):
     return render(request, 'legal/privacy.html')
 
 
+def community_guidelines(request):
+    return render(request, 'legal/community.html')
+
+
+def help_center(request):
+    return render(request, 'help/center.html')
+
+
 urlpatterns = [
     path('', home, name='home'),
     path('admin/', admin.site.urls),
     path('legal/terms/', terms_of_service, name='terms'),
     path('legal/privacy/', privacy_policy, name='privacy'),
+    path('legal/community/', community_guidelines, name='community'),
+    path('help/', help_center, name='help'),
     
     # App URLs
     path('posts/', include('posts.urls')),

@@ -25,11 +25,40 @@ class Post(models.Model):
     # Engagement metrics
     likes_count = models.PositiveIntegerField(default=0)
     comments_count = models.PositiveIntegerField(default=0)
-    
+    views_count = models.PositiveIntegerField(default=0, db_index=True)
+    shares_count = models.PositiveIntegerField(default=0)
+    saves_count = models.PositiveIntegerField(default=0)
+    # Điểm viral cache (velocity + recency − report penalty)
+    viral_score = models.FloatField(default=0.0, db_index=True)
+    viral_score_updated_at = models.DateTimeField(null=True, blank=True)
+    # Admin: ép trending / sàn điểm (không bị thuật toán hạ xuống)
+    admin_promoted = models.BooleanField(
+        default=False,
+        db_index=True,
+        help_text='Admin đẩy viral — hiện badge & ưu tiên feed trending',
+    )
+    admin_viral_boost = models.FloatField(
+        default=0.0,
+        help_text='Sàn điểm viral khi được admin promote (0 = dùng mặc định ~80)',
+    )
+
     # Settings
     disable_comments = models.BooleanField(default=False)
     hide_likes = models.BooleanField(default=False)
     is_archived = models.BooleanField(default=False)
+    VISIBILITY_PUBLIC = 'public'
+    VISIBILITY_ONLY_ME = 'only_me'
+    VISIBILITY_CHOICES = [
+        (VISIBILITY_PUBLIC, _('Public')),
+        (VISIBILITY_ONLY_ME, _('Only me')),
+    ]
+    visibility = models.CharField(
+        max_length=16,
+        choices=VISIBILITY_CHOICES,
+        default=VISIBILITY_PUBLIC,
+        db_index=True,
+        help_text=_('Who can see this post'),
+    )
     
     # Chia sẻ bài viết
     shared_from = models.ForeignKey('self', 
@@ -46,6 +75,7 @@ class Post(models.Model):
         indexes = [
             models.Index(fields=['-created_at']),
             models.Index(fields=['author', '-created_at']),
+            models.Index(fields=['-viral_score', '-created_at']),
         ]
     
     def __str__(self):

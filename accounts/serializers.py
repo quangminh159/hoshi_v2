@@ -43,13 +43,23 @@ class UserSerializer(serializers.ModelSerializer):
         return obj.get_full_name()
 
 class DeviceSerializer(serializers.ModelSerializer):
+    location_display = serializers.CharField(read_only=True)
+
     class Meta:
         model = Device
         fields = [
             'id', 'device_type', 'device_name', 'browser', 'os',
-            'ip_address', 'last_active', 'created_at', 'is_current'
+            'ip_address', 'location_label', 'location_display',
+            'city', 'region', 'country', 'country_code',
+            'latitude', 'longitude', 'location_accuracy_m', 'location_source',
+            'location_updated_at', 'last_active', 'created_at', 'is_current',
         ]
-        read_only_fields = ['user', 'device_id', 'ip_address', 'last_active']
+        read_only_fields = [
+            'user', 'device_id', 'ip_address', 'last_active',
+            'location_label', 'city', 'region', 'country', 'country_code',
+            'latitude', 'longitude', 'location_accuracy_m', 'location_source',
+            'location_updated_at',
+        ]
 
 class DataDownloadRequestSerializer(serializers.ModelSerializer):
     status_display = serializers.CharField(source='get_status_display', read_only=True)

@@ -22,6 +22,7 @@ from datetime import timedelta
 from .forms import PostForm, CommentForm, PostReportForm
 from .feed_algorithms import get_diverse_feed, get_followed_feed
 from django.db import IntegrityError
+from hoshi.spam import ratelimit
 from .comment_utils import (
     get_root_comment,
     get_root_comments_qs,
@@ -44,7 +45,8 @@ def home(request):
 @login_required
 def feed(request):
     # Lấy tất cả bài viết, sắp xếp theo thời gian tạo mới nhất
-    posts = Post.objects.all().order_by('-created_at')
+    from posts.visibility import filter_visible_posts
+    posts = filter_visible_posts(Post.objects.all(), request.user).order_by('-created_at')
     
     # Lấy danh sách người đã chặn người dùng hiện tại
     blocked_by_users = UserBlock.objects.filter(blocked=request.user).values_list('blocker_id', flat=True)
@@ -199,7 +201,16 @@ def feed(request):
     return render(request, 'posts/feed.html', context)
 
 def _deny_private_post_access(request, post, as_json=False):
-    """Chặn tương tác với bài của tài khoản riêng tư nếu chưa theo dõi."""
+    """Chặn xem bài only_me hoặc tài khoản riêng tư khi chưa đủ quyền."""
+    from posts.visibility import can_view_post
+
+    if not can_view_post(post, request.user):
+        message = 'Bài viết này chỉ hiện với tác giả.'
+        if as_json:
+            return JsonResponse({'status': 'error', 'message': message}, status=403)
+        messages.error(request, message)
+        return redirect('posts:index')
+
     if post.author.posts_visible_to(request.user):
         return None
     message = 'Bài viết này thuộc tài khoản riêng tư. Hãy theo dõi để xem.'
@@ -311,6 +322,7 @@ def _is_ajax_request(request):
 
 
 @login_required
+@ratelimit(rate='10/m', key='user')
 def create(request):
     """Create a new post"""
     if request.method == 'POST':
@@ -329,6 +341,10 @@ def create(request):
             post = form.save(commit=False)
             post.author = request.user
             post.caption = caption
+            from posts.visibility import normalize_visibility
+            post.visibility = normalize_visibility(
+                form.cleaned_data.get('visibility') or request.POST.get('visibility')
+            )
             post.save()
 
             saved_media_count = 0
@@ -409,7 +425,10 @@ def edit_post(request, post_id):
             old_caption = post.caption
             post.caption = request.POST.get('caption', '').strip()
             post.location = request.POST.get('location', '').strip()
-            
+            from posts.visibility import normalize_visibility
+            if 'visibility' in request.POST:
+                post.visibility = normalize_visibility(request.POST.get('visibility'))
+
             # Xử lý media mới (nếu có)
             new_media_files = _get_uploaded_media_files(request)
             max_upload_size = getattr(settings, 'MAX_UPLOAD_SIZE', 10 * 1024 * 1024)
@@ -541,6 +560,7 @@ def delete_post(request, post_id):
 
 @login_required
 @require_POST
+@ratelimit(rate='60/m', key='user')
 def like_post(request, post_id):
     """Thích hoặc bỏ thích bài viết"""
     try:
@@ -577,6 +597,8 @@ def like_post(request, post_id):
         likes_count = post.post_likes.count()
         post.likes_count = likes_count
         post.save(update_fields=['likes_count'])
+        from posts.viral import on_engagement_changed
+        on_engagement_changed(post.id)
 
         from posts.realtime import broadcast_post_engagement
         broadcast_post_engagement(
@@ -615,13 +637,33 @@ def save_post(request, post_id):
     if not created:
         saved.delete()
         action = 'unsaved'
+        from posts.viral import bump_save_count
+        bump_save_count(post.id, -1)
     else:
         action = 'saved'
+        from posts.viral import bump_save_count
+        bump_save_count(post.id, 1)
     
     return JsonResponse({'status': action})
 
+
 @login_required
 @require_POST
+def track_impressions(request):
+    """Ghi nhận bài viết hiện trong viewport (viral / views)."""
+    import json
+    try:
+        payload = json.loads(request.body.decode('utf-8') or '{}')
+    except Exception:
+        payload = {}
+    post_ids = payload.get('post_ids') or request.POST.getlist('post_ids')
+    from posts.viral import record_impressions
+    counted = record_impressions(request.user, post_ids)
+    return JsonResponse({'status': 'ok', 'counted': counted})
+
+@login_required
+@require_POST
+@ratelimit(rate='20/m', key='user')
 def add_comment(request, post_id):
     """Thêm bình luận vào bài viết (text và/hoặc ảnh/video ngắn/ghi âm)."""
     from .comment_media import validate_comment_image, validate_comment_video, validate_comment_audio
@@ -726,6 +768,8 @@ def add_comment(request, post_id):
     # Tăng comment_count
     post.comments_count = post.comments.count()
     post.save(update_fields=['comments_count'])
+    from posts.viral import on_engagement_changed
+    on_engagement_changed(post.id)
 
     from posts.realtime import broadcast_post_engagement
     replies_count = None
@@ -861,6 +905,8 @@ def report_post(request, post_id):
             
             try:
                 report.save()
+                from posts.viral import on_engagement_changed
+                on_engagement_changed(post.id)
                 messages.success(request, 'Cảm ơn bạn đã báo cáo bài viết này. Chúng tôi sẽ xem xét báo cáo của bạn.')
                 return redirect('posts:post_detail', post_id=post.id)
             except IntegrityError:
@@ -916,6 +962,8 @@ def report_post_ajax(request, post_id):
         
         try:
             report.save()
+            from posts.viral import on_engagement_changed
+            on_engagement_changed(post.id)
             return JsonResponse({'success': 'Cảm ơn bạn đã báo cáo bài viết này. Chúng tôi sẽ xem xét báo cáo của bạn.'})
         except IntegrityError:
             return JsonResponse({'error': 'Bạn đã báo cáo bài viết này trước đó.'}, status=400)
@@ -1071,6 +1119,8 @@ def search(request):
         & ~Q(author_id__in=following_ids)
         & ~Q(author=request.user)
     )
+    from posts.visibility import filter_visible_posts
+    posts = filter_visible_posts(posts, request.user)
 
     users = (
         User.objects.filter(username__icontains=query)
@@ -1095,10 +1145,13 @@ def search(request):
 
 
 def _visible_posts_qs(user):
-    """Bài viết người dùng hiện tại được phép xem (block + private)."""
+    """Bài viết người dùng hiện tại được phép xem (block + private + visibility)."""
+    from posts.visibility import filter_visible_posts
+
     posts = Post.objects.select_related('author').prefetch_related('media')
     if not getattr(user, 'is_authenticated', False):
-        return posts.filter(author__private_account=False)
+        posts = posts.filter(author__private_account=False)
+        return filter_visible_posts(posts, user)
 
     blocked_by_users = UserBlock.objects.filter(blocked=user).values_list('blocker_id', flat=True)
     posts = posts.exclude(author_id__in=blocked_by_users)
@@ -1108,7 +1161,7 @@ def _visible_posts_qs(user):
         & ~Q(author_id__in=following_ids)
         & ~Q(author=user)
     )
-    return posts
+    return filter_visible_posts(posts, user)
 
 
 @login_required
@@ -1237,6 +1290,9 @@ def _comment_payload(comment_obj, liked_comment_ids, parent_id=None, user=None, 
         'can_delete': can_delete,
         'can_edit': can_edit,
         'is_edited': is_edited,
+        'is_post_author': bool(
+            post_author_id is not None and comment_obj.author_id == post_author_id
+        ),
     }
     if parent_id is not None:
         data['parent_id'] = parent_id
@@ -1362,6 +1418,7 @@ def feed_comment_replies_json(request, comment_id):
 
 def prepare_posts_json(posts, user, include_comments=False):
     """Helper để chuẩn bị dữ liệu posts cho JSON responses."""
+    from posts.viral import is_post_trending
     post_list = list(posts)
     if not post_list:
         return []
@@ -1399,6 +1456,7 @@ def prepare_posts_json(posts, user, include_comments=False):
                 'id': post.author.id,
                 'username': post.author.username,
                 'avatar': post.author.get_avatar_url(),
+                'is_private': post.author.is_account_private(),
             },
             'caption': post.caption,
             'location': post.location,
@@ -1406,10 +1464,15 @@ def prepare_posts_json(posts, user, include_comments=False):
             'updated_at': post.updated_at.isoformat(),
             'likes_count': post.likes_count,
             'comments_count': post.comments_count,
+            'views_count': int(getattr(post, 'views_count', 0) or 0),
+            'shares_count': int(getattr(post, 'shares_count', 0) or 0),
+            'viral_score': float(getattr(post, 'viral_score', 0) or 0),
+            'is_trending': is_post_trending(post),
             'is_liked': post.id in liked_ids,
             'is_saved': post.id in saved_ids,
             'disable_comments': post.disable_comments,
             'hide_likes': post.hide_likes,
+            'visibility': getattr(post, 'visibility', 'public') or 'public',
             'media': media_files,
             'shared_from': (
                 {

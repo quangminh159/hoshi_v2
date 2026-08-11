@@ -7,8 +7,11 @@
 {% block body_class %} profile-layout{% endblock %}
 
 {% block extra_css %}
-<link href="{% static 'css/feed.css' %}?v=location-link-1" rel="stylesheet">
-<link href="{% static 'css/profile.css' %}?v=profile-posts-bigger-1" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560;9..144,700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="{% static 'css/feed.css' %}?v=comment-author-italic-1" rel="stylesheet">
+<link href="{% static 'css/profile.css' %}?v=moora-profile-v2" rel="stylesheet">
 <link href="{% static 'css/share_post_modal.css' %}" rel="stylesheet">
 {% endblock %}
 
@@ -22,93 +25,124 @@
 
 <div class="profile-shell">
     <section class="profile-hero" aria-label="{% trans 'Hồ sơ' %}">
-        <div class="profile-hero__top">
-            <div class="profile-hero__avatar-wrap">
-                <button type="button"
-                        class="profile-hero__avatar-btn"
-                        data-bs-toggle="modal"
-                        data-bs-target="#avatarPreviewModal"
-                        aria-label="{% trans 'Xem ảnh đại diện' %}">
-                    <img src="{{ profile_user.get_avatar_url }}"
-                         alt="{{ profile_user.username }}"
-                         class="profile-hero__avatar"
-                         width="110"
-                         height="110">
-                </button>
-            </div>
+        <div class="profile-hero__glow" aria-hidden="true"></div>
 
-            <div class="profile-hero__main">
-                <div class="profile-hero__name-row">
-                    <h1 class="profile-hero__username">{{ profile_user.username }}</h1>
+        <div class="profile-hero__identity">
+            <button type="button"
+                    class="profile-hero__avatar-btn"
+                    data-bs-toggle="modal"
+                    data-bs-target="#avatarPreviewModal"
+                    aria-label="{% trans 'Xem ảnh đại diện' %}">
+                <img src="{{ profile_user.get_avatar_url }}"
+                     alt="{{ profile_user.username }}"
+                     class="profile-hero__avatar"
+                     width="128"
+                     height="128">
+            </button>
+
+            <div class="profile-hero__titles">
+                {% if profile_user.first_name or profile_user.last_name %}
+                <h1 class="profile-hero__displayname">
+                    {{ profile_user.first_name }} {{ profile_user.last_name }}
+                </h1>
+                <p class="profile-hero__handle">
+                    <span>@{{ profile_user.username }}</span>
                     {% if is_private_account %}
                     <span class="profile-private-badge" title="{% trans 'Tài khoản riêng tư' %}">
                         <i class="fas fa-lock" aria-hidden="true"></i>
+                        <span>{% trans "Riêng tư" %}</span>
                     </span>
                     {% endif %}
-                </div>
-
-                {% if profile_user.first_name or profile_user.last_name %}
-                <p class="profile-hero__fullname">{{ profile_user.first_name }} {{ profile_user.last_name }}</p>
-                {% endif %}
-
-                {% if profile_user.bio %}
-                <p class="profile-hero__bio">{{ profile_user.bio }}</p>
-                {% endif %}
-
-                <div class="profile-hero__actions">
-                    {% if user.is_authenticated and user != profile_user %}
-                        {% if is_following %}
-                            <button type="button"
-                                    class="profile-btn profile-btn--muted unfollow-button"
-                                    data-username="{{ profile_user.username }}">
-                                {% trans "Đang theo dõi" %}
-                            </button>
-                        {% elif follow_request_sent %}
-                            <button type="button"
-                                    class="profile-btn profile-btn--muted cancel-follow-request-button"
-                                    data-username="{{ profile_user.username }}">
-                                {% trans "Đã yêu cầu" %}
-                            </button>
-                        {% else %}
-                            <button type="button"
-                                    class="profile-btn profile-btn--primary follow-button"
-                                    data-username="{{ profile_user.username }}">
-                                {% trans "Theo dõi" %}
-                            </button>
-                        {% endif %}
-                        <a href="{% url 'chat:direct_chat' username=profile_user.username %}"
-                           class="profile-btn profile-btn--muted"
-                           aria-label="{% trans 'Nhắn tin' %}">
-                            <i class="far fa-paper-plane"></i>
-                            <span>{% trans "Nhắn tin" %}</span>
-                        </a>
-                        <div class="dropdown">
-                            <button class="profile-btn profile-btn--ghost dropdown-toggle"
-                                    type="button"
-                                    id="profileDropdown"
-                                    data-bs-toggle="dropdown"
-                                    aria-expanded="false"
-                                    aria-label="{% trans 'Thêm' %}">
-                                <i class="fas fa-ellipsis-h"></i>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
-                                <li><a class="dropdown-item" href="#" id="report-user-btn">{% trans "Báo cáo" %}</a></li>
-                                <li><a class="dropdown-item" href="#" id="block-user-btn">{% trans "Chặn" %}</a></li>
-                            </ul>
-                        </div>
-                    {% elif user == profile_user %}
-                        <a href="{% url 'accounts:settings' %}" class="profile-btn profile-btn--muted">
-                            {% trans "Chỉnh sửa hồ sơ" %}
-                        </a>
+                </p>
+                {% else %}
+                <h1 class="profile-hero__displayname">{{ profile_user.username }}</h1>
+                <p class="profile-hero__handle">
+                    <span>@{{ profile_user.username }}</span>
+                    {% if is_private_account %}
+                    <span class="profile-private-badge" title="{% trans 'Tài khoản riêng tư' %}">
+                        <i class="fas fa-lock" aria-hidden="true"></i>
+                        <span>{% trans "Riêng tư" %}</span>
+                    </span>
                     {% endif %}
-                </div>
+                </p>
+                {% endif %}
+            </div>
+
+            {% if profile_user.bio %}
+            <p class="profile-hero__bio">{{ profile_user.bio }}</p>
+            {% endif %}
+
+            {% if profile_user.show_birth_date and profile_user.birth_date or profile_user.show_gender and profile_user.gender %}
+            <ul class="profile-hero__meta">
+                {% if profile_user.show_birth_date and profile_user.birth_date %}
+                <li>
+                    <i class="fas fa-birthday-cake" aria-hidden="true"></i>
+                    <span>{{ profile_user.birth_date|date:"d/m/Y" }}</span>
+                </li>
+                {% endif %}
+                {% if profile_user.show_gender and profile_user.gender %}
+                <li>
+                    <i class="fas fa-venus-mars" aria-hidden="true"></i>
+                    <span>{{ profile_user.get_gender_display }}</span>
+                </li>
+                {% endif %}
+            </ul>
+            {% endif %}
+
+            <div class="profile-hero__actions">
+                {% if user.is_authenticated and user != profile_user %}
+                    {% if is_following %}
+                        <button type="button"
+                                class="profile-btn profile-btn--muted unfollow-button"
+                                data-username="{{ profile_user.username }}">
+                            {% trans "Đang theo dõi" %}
+                        </button>
+                    {% elif follow_request_sent %}
+                        <button type="button"
+                                class="profile-btn profile-btn--muted cancel-follow-request-button"
+                                data-username="{{ profile_user.username }}">
+                            {% trans "Đã yêu cầu" %}
+                        </button>
+                    {% else %}
+                        <button type="button"
+                                class="profile-btn profile-btn--primary follow-button"
+                                data-username="{{ profile_user.username }}">
+                            {% trans "Theo dõi" %}
+                        </button>
+                    {% endif %}
+                    <a href="{% url 'chat:direct_chat' username=profile_user.username %}"
+                       class="profile-btn profile-btn--muted"
+                       aria-label="{% trans 'Nhắn tin' %}">
+                        <i class="far fa-paper-plane"></i>
+                        <span>{% trans "Nhắn tin" %}</span>
+                    </a>
+                    <div class="dropdown">
+                        <button class="profile-btn profile-btn--ghost dropdown-toggle"
+                                type="button"
+                                id="profileDropdown"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false"
+                                aria-label="{% trans 'Thêm' %}">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+                            <li><a class="dropdown-item" href="#" id="report-user-btn">{% trans "Báo cáo" %}</a></li>
+                            <li><a class="dropdown-item" href="#" id="block-user-btn">{% trans "Chặn" %}</a></li>
+                        </ul>
+                    </div>
+                {% elif user == profile_user %}
+                    <a href="{% url 'accounts:settings' %}" class="profile-btn profile-btn--primary">
+                        <i class="fas fa-pen" aria-hidden="true"></i>
+                        {% trans "Chỉnh sửa hồ sơ" %}
+                    </a>
+                {% endif %}
             </div>
         </div>
 
-        <div class="profile-stats">
+        <div class="profile-stats" role="group" aria-label="{% trans 'Thống kê hồ sơ' %}">
             <div class="profile-stat">
                 <span class="profile-stat__value">{{ posts_count }}</span>
-                <span class="profile-stat__label">{% trans "bài viết" %}</span>
+                <span class="profile-stat__label">{% trans "Bài viết" %}</span>
             </div>
             {% if can_view_posts %}
             <button type="button"
@@ -116,25 +150,25 @@
                     data-bs-toggle="modal"
                     data-bs-target="#followersModal">
                 <span class="profile-stat__value" id="followers-count">{{ followers_count }}</span>
-                <span class="profile-stat__label">{% trans "người theo dõi" %}</span>
+                <span class="profile-stat__label">{% trans "Người theo dõi" %}</span>
             </button>
             <button type="button"
                     class="profile-stat"
                     data-bs-toggle="modal"
                     data-bs-target="#followingModal">
                 <span class="profile-stat__value" id="following-count">{{ following_count }}</span>
-                <span class="profile-stat__label">{% trans "đang theo dõi" %}</span>
+                <span class="profile-stat__label">{% trans "Đang theo dõi" %}</span>
             </button>
             {% else %}
             <div class="profile-stat profile-stat--locked"
                  title="{% trans 'Theo dõi để xem danh sách' %}">
                 <span class="profile-stat__value" id="followers-count">{{ followers_count }}</span>
-                <span class="profile-stat__label">{% trans "người theo dõi" %}</span>
+                <span class="profile-stat__label">{% trans "Người theo dõi" %}</span>
             </div>
             <div class="profile-stat profile-stat--locked"
                  title="{% trans 'Theo dõi để xem danh sách' %}">
                 <span class="profile-stat__value" id="following-count">{{ following_count }}</span>
-                <span class="profile-stat__label">{% trans "đang theo dõi" %}</span>
+                <span class="profile-stat__label">{% trans "Đang theo dõi" %}</span>
             </div>
             {% endif %}
         </div>
@@ -325,7 +359,7 @@
 window.HOSHI_USER_SUGGESTIONS_URL = '{% url "posts:user_suggestions" %}';
 </script>
 <script src="{% static 'js/edit_caption_suggestions.js' %}?v=mention-clear-1"></script>
-<script src="{% static 'js/infinite_scroll.js' %}?v=location-link-1"></script>
+<script src="{% static 'js/infinite_scroll.js' %}?v=comment-author-italic-1"></script>
 <script src="{% static 'js/share_post_modal.js' %}?v=no-as-new-1"></script>
 <script>
 window.currentUserId = '{{ request.user.id }}';

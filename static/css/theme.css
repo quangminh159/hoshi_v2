@@ -750,6 +750,11 @@ body.post-detail-layout {
     color: var(--light-text-color) !important;
 }
 
+[data-bs-theme="dark"] .comment-author-badge {
+    background: transparent;
+    color: var(--light-text-color, #a1a1aa);
+}
+
 [data-bs-theme="dark"] .comment-meta-row .comment-action-btn {
     color: var(--light-text-color) !important;
 }

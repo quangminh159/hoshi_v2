@@ -76,6 +76,16 @@ class User(AbstractUser):
     private_account = models.BooleanField(_('private account'), default=False)
     hide_activity = models.BooleanField(_('hide activity status'), default=False)
     block_messages = models.BooleanField(_('block messages from non-followers'), default=False)
+    show_birth_date = models.BooleanField(
+        _('show birth date on profile'),
+        default=False,
+        help_text=_('If enabled, birth date is visible on your public profile.'),
+    )
+    show_gender = models.BooleanField(
+        _('show gender on profile'),
+        default=False,
+        help_text=_('If enabled, gender is visible on your public profile.'),
+    )
     
     # Security settings
     two_factor_auth = models.BooleanField(_('two-factor authentication'), default=False)
@@ -457,6 +467,12 @@ class UserBlock(models.Model):
         return f"{self.blocker} blocked {self.blocked}"
 
 class Device(models.Model):
+    LOCATION_SOURCE_CHOICES = (
+        ('gps', 'GPS / trình duyệt'),
+        ('ip', 'Địa chỉ IP'),
+        ('manual', 'Thủ công'),
+    )
+
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     device_id = models.CharField(max_length=255, unique=True)
     device_type = models.CharField(max_length=50)  # mobile, tablet, desktop
@@ -464,15 +480,88 @@ class Device(models.Model):
     browser = models.CharField(max_length=100)
     os = models.CharField(max_length=100)
     ip_address = models.GenericIPAddressField()
+    # Vị trí
+    location_label = models.CharField(max_length=255, blank=True, default='')
+    city = models.CharField(max_length=120, blank=True, default='')
+    region = models.CharField(max_length=120, blank=True, default='')
+    country = models.CharField(max_length=120, blank=True, default='')
+    country_code = models.CharField(max_length=8, blank=True, default='')
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
+    location_accuracy_m = models.FloatField(null=True, blank=True, help_text='Độ lệch ước tính (mét)')
+    location_source = models.CharField(
+        max_length=16,
+        choices=LOCATION_SOURCE_CHOICES,
+        blank=True,
+        default='',
+    )
+    location_updated_at = models.DateTimeField(null=True, blank=True)
     last_active = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
     is_current = models.BooleanField(default=False)
-    
+
     class Meta:
         ordering = ['-last_active']
-        
+
     def __str__(self):
         return f"{self.device_name} ({self.device_type})"
+
+    @property
+    def location_display(self) -> str:
+        if self.location_label:
+            return self.location_label
+        parts = [p for p in (self.city, self.region, self.country) if p]
+        if parts:
+            return ', '.join(parts)
+        return self.ip_address or 'Không rõ'
+
+    def apply_location(
+        self,
+        *,
+        label='',
+        city='',
+        region='',
+        country='',
+        country_code='',
+        latitude=None,
+        longitude=None,
+        accuracy_m=None,
+        source='ip',
+        force=False,
+    ):
+        """
+        Cập nhật vị trí. GPS ưu tiên hơn IP trừ khi force.
+        Không ghi đè GPS bằng IP trừ khi IP mới và chưa có GPS gần đây.
+        """
+        source = source or 'ip'
+        # Không hạ cấp GPS → IP nếu GPS còn mới (< 7 ngày) trừ force
+        if (
+            not force
+            and self.location_source == 'gps'
+            and source == 'ip'
+            and self.location_updated_at
+            and (timezone.now() - self.location_updated_at).total_seconds() < 7 * 24 * 3600
+        ):
+            return False
+
+        self.location_label = (label or self.location_label or '')[:255]
+        if city:
+            self.city = city[:120]
+        if region:
+            self.region = region[:120]
+        if country:
+            self.country = country[:120]
+        if country_code:
+            self.country_code = country_code[:8]
+        if latitude is not None:
+            self.latitude = float(latitude)
+        if longitude is not None:
+            self.longitude = float(longitude)
+        if accuracy_m is not None:
+            self.location_accuracy_m = float(accuracy_m)
+        self.location_source = source
+        self.location_updated_at = timezone.now()
+        return True
 
 class DataDownloadRequest(models.Model):
     STATUS_CHOICES = (
@@ -561,4 +650,54 @@ class UserReport(models.Model):
             user.save(update_fields=['is_suspended', 'suspension_reason', 'suspension_end_date'])
             return True
         
+        return False
+
+
+class InviteCode(models.Model):
+    """Mã mời closed beta."""
+    code = models.CharField(max_length=32, unique=True, db_index=True)
+    max_uses = models.PositiveIntegerField(default=1)
+    uses_count = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True, db_index=True)
+    note = models.CharField(max_length=200, blank=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='invite_codes_created',
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Mã mời beta'
+        verbose_name_plural = 'Mã mời beta'
+
+    def __str__(self):
+        return self.code
+
+    @property
+    def remaining(self) -> int:
+        return max(int(self.max_uses) - int(self.uses_count), 0)
+
+    def is_usable(self) -> bool:
+        if not self.is_active:
+            return False
+        if self.expires_at and timezone.now() >= self.expires_at:
+            return False
+        return self.remaining > 0
+
+    def redeem(self) -> bool:
+        if not self.is_usable():
+            return False
+        updated = InviteCode.objects.filter(
+            pk=self.pk,
+            uses_count__lt=models.F('max_uses'),
+            is_active=True,
+        ).update(uses_count=models.F('uses_count') + 1)
+        if updated:
+            self.refresh_from_db(fields=['uses_count'])
+            return True
         return False

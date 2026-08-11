@@ -7,7 +7,7 @@ from django.urls import path
 from django.template.response import TemplateResponse
 from django.shortcuts import render
 from django import forms
-from .models import User, UserFollowing, UserBlock, Device, DataDownloadRequest, UserReport, FollowRequest
+from .models import User, UserFollowing, UserBlock, Device, DataDownloadRequest, UserReport, FollowRequest, InviteCode
 
 # Register your models here.
 
@@ -47,7 +47,10 @@ class UserAdmin(BaseUserAdmin):
             'message_notifications', 'summary_notifications',
             'inactive_notifications',
         )}),
-        ('Cài đặt quyền riêng tư', {'fields': ('private_account', 'is_private', 'hide_activity', 'block_messages')}),
+        ('Cài đặt quyền riêng tư', {'fields': (
+            'private_account', 'is_private', 'hide_activity', 'block_messages',
+            'show_birth_date', 'show_gender',
+        )}),
         ('Ngôn ngữ', {'fields': ('language',)}),
         ('Cài đặt bảo mật', {'fields': ('two_factor_auth', 'two_factor_secret', '_is_verified')}),
         ('Đình chỉ tài khoản', {'fields': ('is_suspended', 'suspension_reason', 'suspension_end_date')}),
@@ -521,12 +524,37 @@ class UserBlockAdmin(admin.ModelAdmin):
 
 @admin.register(Device)
 class DeviceAdmin(admin.ModelAdmin):
-    list_display = ('user', 'device_name', 'device_type', 'ip_address', 'last_active', 'is_current')
-    list_filter = ('device_type', 'is_current')
-    search_fields = ('user__username', 'device_name', 'ip_address')
+    list_display = (
+        'user', 'device_name', 'device_type', 'ip_address',
+        'location_label', 'location_source', 'last_active', 'is_current',
+    )
+    list_filter = ('device_type', 'is_current', 'location_source')
+    search_fields = ('user__username', 'device_name', 'ip_address', 'location_label', 'city')
+    readonly_fields = (
+        'device_id', 'created_at', 'last_active', 'location_updated_at',
+        'latitude', 'longitude', 'location_accuracy_m',
+    )
 
 @admin.register(DataDownloadRequest)
 class DataDownloadRequestAdmin(admin.ModelAdmin):
     list_display = ('user', 'status', 'created_at', 'expires_at')
     list_filter = ('status', 'created_at')
     search_fields = ('user__username', 'file_path')
+
+
+@admin.register(InviteCode)
+class InviteCodeAdmin(admin.ModelAdmin):
+    list_display = ('code', 'uses_count', 'max_uses', 'remaining_display', 'is_active', 'expires_at', 'created_at', 'note')
+    list_filter = ('is_active', 'created_at')
+    search_fields = ('code', 'note')
+    readonly_fields = ('uses_count', 'created_at')
+    actions = ['deactivate_codes']
+
+    @admin.display(description='Còn')
+    def remaining_display(self, obj):
+        return obj.remaining
+
+    @admin.action(description='Vô hiệu hoá mã đã chọn')
+    def deactivate_codes(self, request, queryset):
+        n = queryset.update(is_active=False)
+        self.message_user(request, f'Đã tắt {n} mã mời.')

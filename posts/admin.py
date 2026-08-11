@@ -4,63 +4,184 @@ from django.db.models import Count
 from django.shortcuts import render
 from django.urls import path
 from django.contrib.auth import get_user_model
+from django.utils.html import format_html
 from .models import Post, Media, PostMedia, Like, Comment, SavedPost, Hashtag, Mention, CommentLike, Story, StoryView, PostReport, UserInteraction
+from .viral import (
+    promote_post_viral,
+    demote_post_viral,
+    refresh_viral_score,
+    ADMIN_PROMOTE_SCORE,
+    is_post_trending,
+)
 
 User = get_user_model()
 
-# Register your models here.
+
+class PostMediaInline(admin.TabularInline):
+    model = PostMedia
+    extra = 0
+    fields = ('file', 'media_type', 'order', 'created_at')
+    readonly_fields = ('created_at',)
+
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
-    list_display = ('id', 'author', 'short_caption', 'created_at', 'likes_count', 'comments_count', 'is_archived', 'disable_comments')
-    list_filter = ('is_archived', 'disable_comments', 'created_at')
-    search_fields = ('author__username', 'caption', 'location')
-    readonly_fields = ('created_at', 'updated_at', 'likes_count', 'comments_count')
+    list_display = (
+        'id',
+        'author',
+        'short_caption',
+        'created_at',
+        'likes_count',
+        'comments_count',
+        'views_count',
+        'viral_score',
+        'promoted_badge',
+        'trending_badge',
+        'is_archived',
+        'visibility',
+        'disable_comments',
+    )
+    list_filter = ('admin_promoted', 'visibility', 'is_archived', 'disable_comments', 'created_at')
+    search_fields = ('author__username', 'caption', 'location', 'id')
+    readonly_fields = (
+        'created_at',
+        'updated_at',
+        'likes_count',
+        'comments_count',
+        'views_count',
+        'shares_count',
+        'saves_count',
+        'viral_score_updated_at',
+        'trending_status',
+    )
     date_hierarchy = 'created_at'
     autocomplete_fields = ('author', 'shared_from')
     list_per_page = 40
+    ordering = ('-admin_promoted', '-viral_score', '-created_at')
+    list_editable = ('viral_score',)
+    inlines = [PostMediaInline]
+    actions = [
+        'promote_viral',
+        'demote_viral',
+        'recalculate_viral',
+        'archive_posts',
+        'unarchive_posts',
+        'disable_comments_action',
+        'enable_comments',
+    ]
 
     @admin.display(description='Caption')
     def short_caption(self, obj):
         text = (obj.caption or '').strip()
         return (text[:60] + '…') if len(text) > 60 else (text or '—')
-    
+
+    @admin.display(description='Admin viral', boolean=True)
+    def promoted_badge(self, obj):
+        return bool(obj.admin_promoted)
+
+    @admin.display(description='Trending')
+    def trending_badge(self, obj):
+        if is_post_trending(obj):
+            return format_html('<span style="color:#c2410c;font-weight:700;">🔥 Viral</span>')
+        return '—'
+
+    @admin.display(description='Trạng thái trending')
+    def trending_status(self, obj):
+        if is_post_trending(obj):
+            reason = 'admin đẩy' if obj.admin_promoted else 'thuật toán'
+            return f'Đang thịnh hành ({reason}) — điểm {obj.viral_score:.1f}'
+        return f'Không trending — điểm {obj.viral_score:.1f}'
+
     fieldsets = (
         ('Thông tin bài viết', {
-            'fields': ('author', 'caption', 'location', 'created_at', 'updated_at')
+            'fields': ('author', 'caption', 'location', 'created_at', 'updated_at'),
+            'description': 'Admin có thể sửa caption / location / tác giả của mọi bài.',
         }),
         ('Thống kê', {
-            'fields': ('likes_count', 'comments_count')
+            'fields': (
+                'likes_count',
+                'comments_count',
+                'views_count',
+                'shares_count',
+                'saves_count',
+            ),
+        }),
+        ('Viral / Trending (admin)', {
+            'fields': (
+                'admin_promoted',
+                'admin_viral_boost',
+                'viral_score',
+                'viral_score_updated_at',
+                'trending_status',
+            ),
+            'description': (
+                'Bật "Admin đẩy viral" hoặc dùng action danh sách. '
+                f'Sàn điểm mặc định ≈ {ADMIN_PROMOTE_SCORE:.0f}. '
+                'Điểm tự nhiên không hạ xuống dưới sàn khi đang promote.'
+            ),
         }),
         ('Cài đặt', {
-            'fields': ('disable_comments', 'hide_likes', 'is_archived')
+            'fields': ('disable_comments', 'hide_likes', 'visibility', 'is_archived'),
         }),
         ('Chia sẻ', {
-            'fields': ('shared_from',)
+            'fields': ('shared_from',),
         }),
     )
-    
-    actions = ['archive_posts', 'unarchive_posts', 'disable_comments', 'enable_comments']
-    
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        # Đồng bộ sàn điểm khi admin tick promote hoặc sửa boost
+        if obj.admin_promoted:
+            floor = float(obj.admin_viral_boost or 0) or ADMIN_PROMOTE_SCORE
+            if float(obj.viral_score or 0) < floor or not obj.admin_viral_boost:
+                promote_post_viral(obj.id, score=floor)
+        elif 'admin_promoted' in getattr(form, 'changed_data', []):
+            demote_post_viral(obj.id)
+
+    @admin.action(description='🔥 Đẩy viral / trending bài đã chọn')
+    def promote_viral(self, request, queryset):
+        n = 0
+        for post in queryset:
+            promote_post_viral(post.id)
+            n += 1
+        self.message_user(request, f'Đã đẩy viral {n} bài viết (điểm ≥ {ADMIN_PROMOTE_SCORE:.0f}).')
+
+    @admin.action(description='Gỡ ép viral — tính lại điểm tự nhiên')
+    def demote_viral(self, request, queryset):
+        n = 0
+        for post in queryset:
+            demote_post_viral(post.id)
+            n += 1
+        self.message_user(request, f'Đã gỡ ép viral {n} bài viết.')
+
+    @admin.action(description='Tính lại điểm viral (giữ sàn nếu đang promote)')
+    def recalculate_viral(self, request, queryset):
+        n = 0
+        for post in queryset:
+            refresh_viral_score(post.id, force=True)
+            n += 1
+        self.message_user(request, f'Đã tính lại viral_score cho {n} bài.')
+
+    @admin.action(description='Lưu trữ bài viết được chọn')
     def archive_posts(self, request, queryset):
         updated = queryset.update(is_archived=True)
         self.message_user(request, f'Đã lưu trữ {updated} bài viết.')
-    archive_posts.short_description = "Lưu trữ bài viết được chọn"
-    
+
+    @admin.action(description='Bỏ lưu trữ bài viết được chọn')
     def unarchive_posts(self, request, queryset):
         updated = queryset.update(is_archived=False)
         self.message_user(request, f'Đã bỏ lưu trữ {updated} bài viết.')
-    unarchive_posts.short_description = "Bỏ lưu trữ bài viết được chọn"
-    
-    def disable_comments(self, request, queryset):
+
+    @admin.action(description='Tắt bình luận bài viết được chọn')
+    def disable_comments_action(self, request, queryset):
         updated = queryset.update(disable_comments=True)
         self.message_user(request, f'Đã tắt bình luận cho {updated} bài viết.')
-    disable_comments.short_description = "Tắt bình luận bài viết được chọn"
-    
+
+    @admin.action(description='Bật bình luận bài viết được chọn')
     def enable_comments(self, request, queryset):
         updated = queryset.update(disable_comments=False)
         self.message_user(request, f'Đã bật bình luận cho {updated} bài viết.')
-    enable_comments.short_description = "Bật bình luận bài viết được chọn"
+
 
 @admin.register(PostReport)
 class PostReportAdmin(admin.ModelAdmin):
@@ -75,11 +196,10 @@ class PostReportAdmin(admin.ModelAdmin):
 
     @admin.display(description='Hàng đợi')
     def pending_badge(self, obj):
-        from django.utils.html import format_html
         if obj.is_resolved:
             return format_html('<span style="color:#16a34a;">Đã xử lý</span>')
         return format_html('<span style="color:#dc2626;font-weight:700;">Chờ duyệt</span>')
-    
+
     fieldsets = (
         ('Thông tin báo cáo', {
             'fields': ('user', 'post', 'reason', 'details', 'created_at')
@@ -88,41 +208,35 @@ class PostReportAdmin(admin.ModelAdmin):
             'fields': ('is_resolved', 'is_valid', 'admin_notes', 'resolved_at', 'resolved_by')
         }),
     )
-    
+
     actions = ['mark_as_valid', 'mark_as_invalid', 'delete_reported_posts']
-    
+
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
             path('report-statistics/', self.admin_site.admin_view(self.report_statistics_view), name='report_statistics'),
         ]
         return custom_urls + urls
-    
+
     def report_statistics_view(self, request):
-        # Thống kê bài viết bị báo cáo nhiều nhất
         most_reported_posts = Post.objects.annotate(
             report_count=Count('reports')
         ).filter(report_count__gt=0).order_by('-report_count')[:10]
-        
-        # Thống kê người dùng có bài viết bị báo cáo nhiều nhất
+
         most_reported_authors = User.objects.annotate(
             post_report_count=Count('posts__reports')
         ).filter(post_report_count__gt=0).order_by('-post_report_count')[:10]
-        
-        # Thống kê người hay báo cáo nhất
+
         most_reporting_users = User.objects.annotate(
             report_count=Count('post_reports')
         ).filter(report_count__gt=0).order_by('-report_count')[:10]
-        
-        # Thống kê theo lý do báo cáo
+
         report_reasons = PostReport.objects.values('reason').annotate(
             count=Count('id')
         ).order_by('-count')
-        
-        # Thống kê báo cáo theo thời gian
+
         recent_reports = PostReport.objects.all().order_by('-created_at')[:20]
-        
-        # Thống kê trạng thái báo cáo
+
         report_status = {
             'total': PostReport.objects.count(),
             'resolved': PostReport.objects.filter(is_resolved=True).count(),
@@ -130,7 +244,7 @@ class PostReportAdmin(admin.ModelAdmin):
             'invalid': PostReport.objects.filter(is_valid=False).count(),
             'pending': PostReport.objects.filter(is_resolved=False).count(),
         }
-        
+
         context = {
             'title': 'Thống kê báo cáo',
             'most_reported_posts': most_reported_posts,
@@ -141,47 +255,42 @@ class PostReportAdmin(admin.ModelAdmin):
             'report_status': report_status,
             'opts': self.model._meta,
         }
-        
+
         return render(request, 'admin/posts/postreport/report_statistics.html', context)
-    
+
     def changelist_view(self, request, extra_context=None):
         extra_context = extra_context or {}
         extra_context['show_statistics_link'] = True
         return super().changelist_view(request, extra_context=extra_context)
-    
+
     def mark_as_valid(self, request, queryset):
-        """Đánh dấu báo cáo là hợp lệ"""
         for report in queryset.filter(is_resolved=False):
             report.resolve(request.user)
             report.is_valid = True
             report.admin_notes = report.admin_notes or 'Báo cáo được xác nhận là hợp lệ'
             report.save()
-        
+
         self.message_user(request, f'Đã đánh dấu {queryset.filter(is_resolved=True).count()} báo cáo là hợp lệ.')
     mark_as_valid.short_description = "Đánh dấu báo cáo được chọn là hợp lệ"
-    
+
     def mark_as_invalid(self, request, queryset):
-        """Đánh dấu báo cáo là không hợp lệ"""
         for report in queryset.filter(is_resolved=False):
             report.resolve(request.user)
             report.is_valid = False
             report.admin_notes = report.admin_notes or 'Báo cáo được xác nhận là không hợp lệ'
             report.save()
-        
+
         self.message_user(request, f'Đã đánh dấu {queryset.filter(is_resolved=True).count()} báo cáo là không hợp lệ.')
     mark_as_invalid.short_description = "Đánh dấu báo cáo được chọn là không hợp lệ"
-    
+
     def delete_reported_posts(self, request, queryset):
-        """Xóa bài viết bị báo cáo"""
         posts_to_delete = set()
         reports_to_update = []
-        
-        # Thu thập thông tin về các báo cáo và bài viết
+
         for report in queryset:
             posts_to_delete.add(report.post)
             reports_to_update.append(report)
-        
-        # Đánh dấu báo cáo là đã xử lý trước khi xóa bài viết
+
         for report in reports_to_update:
             report.is_resolved = True
             report.resolved_by = request.user
@@ -189,24 +298,21 @@ class PostReportAdmin(admin.ModelAdmin):
             report.is_valid = True
             report.admin_notes = 'Bài viết đã bị xóa do vi phạm quy định'
             report.save()
-        
-        # Xóa bài viết sau khi đã xử lý báo cáo
+
         posts_count = len(posts_to_delete)
         for post in posts_to_delete:
             post.delete()
-        
+
         self.message_user(request, f'Đã xóa {posts_count} bài viết bị báo cáo.')
     delete_reported_posts.short_description = "Xóa bài viết bị báo cáo được chọn"
-    
+
     def save_model(self, request, obj, form, change):
-        """Xử lý khi lưu model"""
-        # Nếu báo cáo được đánh dấu là đã xem xét
         if 'is_resolved' in form.changed_data and obj.is_resolved:
-            # Cập nhật thông tin người xem xét
             obj.resolved_by = request.user
             obj.resolved_at = timezone.now()
-        
+
         super().save_model(request, obj, form, change)
+
 
 @admin.register(Media)
 class MediaAdmin(admin.ModelAdmin):
@@ -214,11 +320,13 @@ class MediaAdmin(admin.ModelAdmin):
     list_filter = ('media_type',)
     search_fields = ('post__caption', 'post__author__username')
 
+
 @admin.register(PostMedia)
 class PostMediaAdmin(admin.ModelAdmin):
     list_display = ('id', 'post', 'media_type', 'order', 'created_at')
     list_filter = ('media_type', 'created_at')
     search_fields = ('post__caption', 'post__author__username')
+
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
@@ -231,12 +339,14 @@ class CommentAdmin(admin.ModelAdmin):
     def has_image(self, obj):
         return bool(obj.image)
 
+
 @admin.register(Like)
 class LikeAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'post', 'created_at')
     list_filter = ('created_at',)
     search_fields = ('user__username', 'post__caption')
     readonly_fields = ('created_at',)
+
 
 @admin.register(CommentLike)
 class CommentLikeAdmin(admin.ModelAdmin):
@@ -245,12 +355,14 @@ class CommentLikeAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'comment__text')
     readonly_fields = ('created_at',)
 
+
 @admin.register(SavedPost)
 class SavedPostAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'post', 'created_at')
     list_filter = ('created_at',)
     search_fields = ('user__username', 'post__caption')
     readonly_fields = ('created_at',)
+
 
 @admin.register(Hashtag)
 class HashtagAdmin(admin.ModelAdmin):
@@ -260,12 +372,14 @@ class HashtagAdmin(admin.ModelAdmin):
     readonly_fields = ('posts_count', 'created_at')
     prepopulated_fields = {'slug': ('name',)}
 
+
 @admin.register(Mention)
 class MentionAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'post', 'comment', 'created_at')
     list_filter = ('created_at',)
     search_fields = ('user__username', 'post__caption')
     readonly_fields = ('created_at',)
+
 
 @admin.register(Story)
 class StoryAdmin(admin.ModelAdmin):
@@ -274,12 +388,14 @@ class StoryAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'caption', 'location')
     readonly_fields = ('created_at',)
 
+
 @admin.register(StoryView)
 class StoryViewAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'story', 'created_at')
     list_filter = ('created_at',)
     search_fields = ('user__username', 'story__caption')
     readonly_fields = ('created_at',)
+
 
 @admin.register(UserInteraction)
 class UserInteractionAdmin(admin.ModelAdmin):

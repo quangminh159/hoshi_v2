@@ -1,0 +1,58 @@
+# Moora — Sentry + Media S3/R2 + Deploy + Invite beta
+
+## 1) Sentry (error tracking)
+1. Tạo project Django tại https://sentry.io
+2. Copy DSN vào `.env`:
+```
+SENTRY_DSN=https://xxxx@o0.ingest.sentry.io/0
+SENTRY_TRACES_SAMPLE_RATE=0.1
+```
+3. Restart app. Lỗi 500 sẽ hiện trên Sentry.
+
+## 2) Media S3 / Cloudflare R2
+Điền credentials THẬT (không để `your-...`):
+```
+AWS_ACCESS_KEY_ID=...
+AWS_SECRET_ACCESS_KEY=...
+AWS_STORAGE_BUCKET_NAME=moora-media
+AWS_S3_REGION_NAME=auto
+# R2 example:
+AWS_S3_ENDPOINT_URL=https://<ACCOUNT_ID>.r2.cloudflarestorage.com
+AWS_S3_CUSTOM_DOMAIN=media.yourdomain.com
+AWS_QUERYSTRING_AUTH=True
+```
+Local: để trống / placeholder → lưu `media/` trên disk.
+
+## 3) Deploy public (gợi ý)
+Tối thiểu cần:
+- Host: Railway / Render / VPS + Docker
+- Env: `DEBUG=False`, `SECRET_KEY` mạnh, `ALLOWED_HOSTS=your.domain`
+- `DATABASE_URL` Postgres, `REDIS_URL` Redis
+- Process: **Daphne** (ASGI) — xem Dockerfile
+- Domain + HTTPS (Cloudflare / platform SSL)
+- Backup: `scripts/backup_postgres.ps1` (hoặc cron tương đương)
+
+Ví dụ chạy container:
+```
+docker compose up -d
+# app image (khi đã build):
+# docker run -p 8000:8000 --env-file .env moora-web
+```
+
+## 4) Invite-only beta
+`.env`:
+```
+INVITE_ONLY=True
+```
+(Local `DEBUG=True` mặc định tắt invite; production `DEBUG=False` mặc định bật.)
+
+Tạo mã:
+```
+.\venv\Scripts\python.exe manage.py create_invite -n 10 --uses 1 --note friends
+```
+Hoặc Admin → Mã mời beta.
+
+## 5) Rate-limit / chống spam
+Đã bật:
+- Like 60/phút, comment 20/phút, tạo bài 10/phút, chat 60/phút (theo user, Redis cache)
+- DRF throttle anon 60/min, user 300/min

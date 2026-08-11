@@ -1,7 +1,7 @@
 {% extends 'base/auth_base.html' %}
 {% load static %}
 
-{% block title %}Chính sách bảo mật - Moora{% endblock %}
+{% block title %}Chính sách quyền riêng tư - Moora{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -49,11 +49,17 @@
             <div class="col-lg-8">
                 <div class="legal-card">
                     <div class="mb-3">
+                        {% if user.is_authenticated %}
+                        <a href="{% url 'accounts:settings' %}?tab=legal#legal" class="text-decoration-none">
+                            <i class="fas fa-arrow-left me-1"></i>Quay lại Cài đặt
+                        </a>
+                        {% else %}
                         <a href="{% url 'account_signup' %}" class="text-decoration-none">
                             <i class="fas fa-arrow-left me-1"></i>Quay lại đăng ký
                         </a>
+                        {% endif %}
                     </div>
-                    <h1>Chính sách bảo mật</h1>
+                    <h1>Chính sách quyền riêng tư</h1>
                     <p class="updated">Cập nhật lần cuối: 04/08/2026</p>
 
                     <p>
@@ -112,8 +118,11 @@
                     </p>
 
                     <div class="mt-4 d-flex gap-2 flex-wrap">
-                        <a href="{% url 'terms' %}" class="btn btn-outline-primary">Xem Điều khoản sử dụng</a>
+                        <a href="{% url 'community' %}" class="btn btn-outline-primary">Nguyên tắc cộng đồng</a>
+                        <a href="{% url 'terms' %}" class="btn btn-outline-primary">Điều khoản dịch vụ</a>
+                        {% if not user.is_authenticated %}
                         <a href="{% url 'account_signup' %}" class="btn btn-primary">Tiếp tục đăng ký</a>
+                        {% endif %}
                     </div>
                 </div>
             </div>

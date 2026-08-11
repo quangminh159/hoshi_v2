@@ -10,6 +10,7 @@ urlpatterns = [
     # Settings URLs
     path('settings/', views.settings, name='settings'),
     path('settings/revoke-device/<int:device_id>/', views.revoke_device, name='revoke_device'),
+    path('settings/update-device-location/', views.update_device_location, name='update_device_location'),
     path('settings/unlink-social/<str:provider>/', views.unlink_social, name='unlink_social'),
     path('settings/setup-2fa/', views.setup_two_factor, name='setup_two_factor'),
     path('settings/verify-2fa/', views.verify_two_factor, name='verify_two_factor'),

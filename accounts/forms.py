@@ -8,6 +8,7 @@ from allauth.account.forms import ResetPasswordKeyForm as AllAuthResetPasswordKe
 from .models import User
 from phonenumber_field.formfields import PhoneNumberField
 from phonenumber_field.widgets import PhoneNumberPrefixWidget
+import re
 
 User = get_user_model()
 
@@ -114,6 +115,26 @@ class CustomSignupForm(AllAuthSignupForm):
             'id': 'id_agree_terms'
         })
     )
+    invite_code = forms.CharField(
+        label='Mã mời beta',
+        required=False,
+        max_length=32,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Mã mời (nếu đang closed beta)',
+            'class': 'form-control',
+            'autocomplete': 'off',
+        }),
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        from django.conf import settings as dj_settings
+        if getattr(dj_settings, 'INVITE_ONLY', False):
+            self.fields['invite_code'].required = True
+            self.fields['invite_code'].widget.attrs['placeholder'] = 'Bắt buộc — mã mời beta'
+        else:
+            # Ẩn nếu không bật invite-only
+            self.fields['invite_code'].widget = forms.HiddenInput()
 
     def clean_username(self):
         username = (self.cleaned_data.get('username') or '').strip()
@@ -140,6 +161,21 @@ class CustomSignupForm(AllAuthSignupForm):
                 'Bạn cần đồng ý với Điều khoản sử dụng và Chính sách bảo mật để tiếp tục.'
             )
         return agreed
+
+    def clean_invite_code(self):
+        from django.conf import settings as dj_settings
+        from .models import InviteCode
+
+        raw = (self.cleaned_data.get('invite_code') or '').strip().upper()
+        if not getattr(dj_settings, 'INVITE_ONLY', False):
+            return raw
+        if not raw:
+            raise ValidationError('Cần mã mời để đăng ký (closed beta).')
+        invite = InviteCode.objects.filter(code__iexact=raw).first()
+        if not invite or not invite.is_usable():
+            raise ValidationError('Mã mời không hợp lệ hoặc đã hết lượt.')
+        self._invite_obj = invite
+        return invite.code
 
     def clean(self):
         cleaned_data = super().clean()
@@ -184,7 +220,11 @@ class CustomSignupForm(AllAuthSignupForm):
         user.inactive_notifications = True
         
         user.save()
-        
+
+        invite = getattr(self, '_invite_obj', None)
+        if invite is not None:
+            invite.redeem()
+
         return user
 
 class ProfileForm(forms.ModelForm):
@@ -192,87 +232,195 @@ class ProfileForm(forms.ModelForm):
         label='Xóa ảnh đại diện',
         required=False,
         widget=forms.CheckboxInput(attrs={
-            'class': 'form-check-input'
-        })
+            'class': 'form-check-input',
+            'id': 'id_remove_avatar',
+        }),
     )
 
     class Meta:
         model = User
-        # email / phone đổi qua luồng OTP riêng
         fields = [
             'first_name', 'last_name', 'username',
             'birth_date', 'gender',
+            'show_birth_date', 'show_gender',
             'bio', 'website', 'facebook', 'twitter', 'instagram', 'linkedin',
-            'avatar'
+            'avatar',
         ]
+        labels = {
+            'first_name': 'Tên',
+            'last_name': 'Họ',
+            'username': 'Tên người dùng',
+            'birth_date': 'Ngày sinh',
+            'gender': 'Giới tính',
+            'show_birth_date': 'Hiển thị ngày sinh trên trang cá nhân',
+            'show_gender': 'Hiển thị giới tính trên trang cá nhân',
+            'bio': 'Giới thiệu',
+            'website': 'Website',
+            'facebook': 'Facebook',
+            'twitter': 'X (Twitter)',
+            'instagram': 'Instagram',
+            'linkedin': 'LinkedIn',
+            'avatar': 'Ảnh đại diện',
+        }
+        help_texts = {
+            'username': '3–30 ký tự: chữ, số, dấu chấm hoặc gạch dưới.',
+            'bio': 'Tối đa 500 ký tự. Hiện trên trang hồ sơ công khai.',
+            'website': 'Ví dụ: https://moora.vn',
+        }
         widgets = {
             'birth_date': forms.DateInput(attrs={
                 'type': 'date',
-                'class': 'form-control'
+                'class': 'form-control',
             }),
             'gender': forms.Select(attrs={
-                'class': 'form-select'
+                'class': 'form-select',
+            }),
+            'show_birth_date': forms.CheckboxInput(attrs={
+                'class': 'form-check-input',
+                'id': 'id_show_birth_date',
+            }),
+            'show_gender': forms.CheckboxInput(attrs={
+                'class': 'form-check-input',
+                'id': 'id_show_gender',
+            }),
+            'bio': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'maxlength': 500,
             }),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['first_name'].widget.attrs.update({
-            'placeholder': 'Tên',
-            'class': 'form-control'
+            'placeholder': 'Tên của bạn',
+            'class': 'form-control',
+            'autocomplete': 'given-name',
         })
         self.fields['last_name'].widget.attrs.update({
-            'placeholder': 'Họ',
-            'class': 'form-control'
+            'placeholder': 'Họ của bạn',
+            'class': 'form-control',
+            'autocomplete': 'family-name',
         })
         self.fields['username'].widget.attrs.update({
-            'placeholder': 'Tên người dùng',
-            'class': 'form-control'
+            'placeholder': 'tennguoidung',
+            'class': 'form-control',
+            'autocomplete': 'username',
+            'spellcheck': 'false',
         })
         self.fields['bio'].widget.attrs.update({
-            'placeholder': 'Giới thiệu về bạn',
-            'rows': 3,
-            'class': 'form-control'
+            'placeholder': 'Viết vài dòng về bạn, sở thích, công việc…',
+            'class': 'form-control',
         })
         self.fields['website'].widget.attrs.update({
-            'placeholder': 'Website của bạn',
-            'class': 'form-control'
+            'placeholder': 'https://',
+            'class': 'form-control',
+            'inputmode': 'url',
         })
-        self.fields['facebook'].widget.attrs.update({
-            'placeholder': 'Link Facebook của bạn',
-            'class': 'form-control'
+        for name, ph in (
+            ('facebook', 'https://facebook.com/username'),
+            ('twitter', 'https://x.com/username'),
+            ('instagram', 'https://instagram.com/username'),
+            ('linkedin', 'https://linkedin.com/in/username'),
+        ):
+            self.fields[name].widget.attrs.update({
+                'placeholder': ph,
+                'class': 'form-control',
+                'inputmode': 'url',
+            })
+            self.fields[name].required = False
+        # FileInput thường — tránh ClearableFileInput ("Hiện nay/Xóa/Thay đổi")
+        # vì UI đã có nút tải ảnh + checkbox remove_avatar riêng.
+        self.fields['avatar'].widget = forms.FileInput(attrs={
+            'class': 'visually-hidden',
+            'accept': 'image/jpeg,image/png,image/webp,image/gif',
+            'id': 'id_avatar',
         })
-        self.fields['twitter'].widget.attrs.update({
-            'placeholder': 'Link Twitter của bạn',
-            'class': 'form-control'
-        })
-        self.fields['instagram'].widget.attrs.update({
-            'placeholder': 'Link Instagram của bạn',
-            'class': 'form-control'
-        })
-        self.fields['linkedin'].widget.attrs.update({
-            'placeholder': 'Link LinkedIn của bạn',
-            'class': 'form-control'
-        })
-        self.fields['avatar'].widget.attrs.update({
-            'class': 'd-none',
-            'accept': 'image/*'
-        })
+        self.fields['avatar'].required = False
         self.fields['gender'].required = False
-        self.fields['gender'].label = 'Giới tính'
-        self.fields['birth_date'].label = 'Ngày sinh'
         self.fields['birth_date'].required = False
+        self.fields['website'].required = False
+        self.fields['first_name'].required = False
+        self.fields['last_name'].required = False
+
+    def _normalize_url(self, value: str) -> str:
+        value = (value or '').strip()
+        if not value:
+            return ''
+        if value.startswith('@'):
+            return value
+        if not re.match(r'^https?://', value, re.I):
+            value = 'https://' + value.lstrip('/')
+        return value
 
     def clean_username(self):
-        username = self.cleaned_data['username']
-        if User.objects.exclude(pk=self.instance.pk).filter(username=username).exists():
+        username = (self.cleaned_data.get('username') or '').strip()
+        if len(username) < 3:
+            raise forms.ValidationError('Tên người dùng cần ít nhất 3 ký tự.')
+        if len(username) > 30:
+            raise forms.ValidationError('Tên người dùng tối đa 30 ký tự.')
+        if not re.match(r'^[A-Za-z0-9._]+$', username):
+            raise forms.ValidationError('Chỉ dùng chữ cái, số, dấu chấm và gạch dưới.')
+        if username.startswith('.') or username.endswith('.') or '..' in username:
+            raise forms.ValidationError('Tên người dùng không hợp lệ.')
+        if User.objects.exclude(pk=self.instance.pk).filter(username__iexact=username).exists():
             raise forms.ValidationError('Tên người dùng này đã được sử dụng.')
         return username
+
+    def clean_bio(self):
+        bio = (self.cleaned_data.get('bio') or '').strip()
+        if len(bio) > 500:
+            raise forms.ValidationError('Giới thiệu tối đa 500 ký tự.')
+        return bio
+
+    def clean_birth_date(self):
+        from datetime import date
+        birth = self.cleaned_data.get('birth_date')
+        if not birth:
+            return birth
+        today = date.today()
+        if birth > today:
+            raise forms.ValidationError('Ngày sinh không thể ở tương lai.')
+        age = today.year - birth.year - ((today.month, today.day) < (birth.month, birth.day))
+        if age < 13:
+            raise forms.ValidationError('Bạn cần đủ 13 tuổi để dùng Moora.')
+        if age > 120:
+            raise forms.ValidationError('Ngày sinh không hợp lệ.')
+        return birth
+
+    def clean_website(self):
+        return self._normalize_url(self.cleaned_data.get('website') or '')
+
+    def clean_facebook(self):
+        return self._normalize_url(self.cleaned_data.get('facebook') or '')
+
+    def clean_twitter(self):
+        return self._normalize_url(self.cleaned_data.get('twitter') or '')
+
+    def clean_instagram(self):
+        return self._normalize_url(self.cleaned_data.get('instagram') or '')
+
+    def clean_linkedin(self):
+        return self._normalize_url(self.cleaned_data.get('linkedin') or '')
+
+    def clean_avatar(self):
+        avatar = self.cleaned_data.get('avatar')
+        if not avatar or not hasattr(avatar, 'size'):
+            return avatar
+        max_bytes = 5 * 1024 * 1024
+        if avatar.size > max_bytes:
+            raise forms.ValidationError('Ảnh đại diện tối đa 5MB.')
+        content_type = getattr(avatar, 'content_type', '') or ''
+        if content_type and content_type not in (
+            'image/jpeg', 'image/png', 'image/webp', 'image/gif',
+        ):
+            raise forms.ValidationError('Chỉ chấp nhận JPEG, PNG, WebP hoặc GIF.')
+        return avatar
 
     def save(self, commit=True):
         if self.cleaned_data.get('remove_avatar'):
             if self.instance.avatar:
-                self.instance.avatar.delete()
+                self.instance.avatar.delete(save=False)
                 self.instance.avatar = None
 
         if self.cleaned_data.get('avatar'):

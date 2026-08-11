@@ -170,13 +170,12 @@ ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 ACCOUNT_SESSION_REMEMBER = True
 
 # Email
-# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'quangminh159159@gmail.com'  # Điền email của bạn
-EMAIL_HOST_PASSWORD = 'vjmioramcpgxfesp'  # Cần tạo app password trong tài khoản Google
+EMAIL_BACKEND = env('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
+EMAIL_HOST = env('EMAIL_HOST', default='smtp.gmail.com')
+EMAIL_PORT = env.int('EMAIL_PORT', default=587)
+EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
+EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')  # chỉ từ .env — không hardcode
 SITE_NAME = 'Moora'
 DEFAULT_FROM_EMAIL = 'Moora <noreply@moora.vn>'  # Tên hiển thị và email gửi
 
@@ -237,7 +236,7 @@ NOTIFICATIONS_PER_PAGE = 15
 MESSAGES_PER_PAGE = 20
 
 # File upload settings
-MAX_UPLOAD_SIZE = 1024 * 1024 * 1024  # 1GB
+MAX_UPLOAD_SIZE = env.int('MAX_UPLOAD_MB', default=50) * 1024 * 1024
 
 # Thêm cấu hình ACCOUNT_FORMS
 ACCOUNT_FORMS = {

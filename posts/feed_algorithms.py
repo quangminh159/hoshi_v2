@@ -6,12 +6,13 @@ import math
 import random
 
 
-# Pattern ưu tiên khám phá (R/D/T) để feed luôn có cảm giác mới
-SLOT_PATTERN = list('RDTFRDTFRDTF')
+# Pattern ưu tiên khám phá + trending (T = viral/trending)
+SLOT_PATTERN = list('RTDFTFRDTFRDTF')
 
 RECENCY_HALF_LIFE_HOURS = 24.0
 RECENCY_WEIGHT = 28.0
 ENGAGEMENT_WEIGHT = 14.0
+VIRAL_WEIGHT = 0.42
 FOLLOW_BOOST = 18.0
 AFFINITY_BOOST = 15.0
 # Phạt mạnh bài đã xem gần đây → ưu tiên bài chưa thấy
@@ -19,6 +20,8 @@ SEEN_PENALTY = 55.0
 CANDIDATE_MULTIPLIER = 4
 CANDIDATE_MAX = 100
 TOP_K_PICK = 5
+# Cùng 1 bài viral không chiếm quá nhiều slot trong 1 page
+MAX_TRENDING_PER_PAGE = 3
 
 
 def _following_ids(user):
@@ -30,13 +33,14 @@ def _blocked_author_ids(user):
 
 
 def _base_feed_queryset(user):
-    """Queryset chung cho feed — lọc block, private account."""
+    """Queryset chung cho feed — lọc block, private account, visibility."""
     from posts.models import Post
+    from posts.visibility import filter_visible_posts
 
     following_ids = _following_ids(user)
     blocked_ids = _blocked_author_ids(user)
 
-    return Post.objects.filter(
+    qs = Post.objects.filter(
         is_archived=False,
         author__is_suspended=False,
     ).exclude(
@@ -45,7 +49,8 @@ def _base_feed_queryset(user):
         Q(author__private_account=True)
         & ~Q(author_id__in=following_ids)
         & ~Q(author=user)
-    ).select_related(
+    )
+    return filter_visible_posts(qs, user).select_related(
         'author',
         'shared_from',
         'shared_from__author',
@@ -96,8 +101,14 @@ def _score_posts(posts, following_id_set, affinity_post_ids, now=None, seen_ids=
         age_hours = max((now - post.created_at).total_seconds() / 3600.0, 0.0)
         recency = math.pow(0.5, age_hours / half_life)
 
-        engagement = (post.likes_count or 0) * 2 + (post.comments_count or 0) * 3
+        engagement = (
+            (post.likes_count or 0) * 2
+            + (post.comments_count or 0) * 3
+            + (getattr(post, 'shares_count', 0) or 0) * 5
+            + (getattr(post, 'saves_count', 0) or 0) * 2
+        )
         eng_term = math.log1p(engagement)
+        viral_term = min(float(getattr(post, 'viral_score', 0) or 0), 80.0)
 
         follow_boost = FOLLOW_BOOST if post.author_id in following_id_set else 0.0
         affinity = AFFINITY_BOOST if post.id in affinity_set else 0.0
@@ -108,6 +119,7 @@ def _score_posts(posts, following_id_set, affinity_post_ids, now=None, seen_ids=
         post.feed_score = (
             RECENCY_WEIGHT * recency
             + ENGAGEMENT_WEIGHT * eng_term
+            + VIRAL_WEIGHT * viral_term
             + follow_boost
             + affinity
             + fresh_boost
@@ -146,13 +158,14 @@ def _pool_followed(user, following_ids, limit):
 
 
 def _pool_trending(user, limit, exclude_ids=None):
+    """Bài viral/trending 48h gần đây + bài admin ép viral."""
     if limit <= 0:
         return []
     exclude_ids = exclude_ids or set()
     time_threshold = timezone.now() - timedelta(hours=48)
     qs = (
         _base_feed_queryset(user)
-        .filter(created_at__gte=time_threshold)
+        .filter(Q(created_at__gte=time_threshold) | Q(admin_promoted=True))
         .exclude(id__in=exclude_ids)
         .annotate(
             recent_likes=Count(
@@ -163,9 +176,21 @@ def _pool_trending(user, limit, exclude_ids=None):
                 'comments',
                 filter=Q(comments__created_at__gte=time_threshold),
             ),
-            trending_score=F('recent_likes') * 2 + F('recent_comments') * 3,
+            open_reports=Count(
+                'reports',
+                filter=Q(reports__is_resolved=False),
+            ),
+            trending_score=(
+                F('viral_score') * 3
+                + F('recent_likes') * 2
+                + F('recent_comments') * 3
+                + F('shares_count') * 4
+                + F('saves_count') * 2
+                - F('open_reports') * 10
+            ),
         )
-        .order_by('-trending_score', '-created_at')
+        .filter(Q(trending_score__gt=0) | Q(admin_promoted=True))
+        .order_by('-admin_promoted', '-trending_score', '-viral_score', '-created_at')
     )
     return list(qs[:limit])
 
@@ -289,6 +314,7 @@ def _interleave_pools(pools, page_size, pattern=None, rng=None):
 
     used_ids = set()
     result = []
+    trending_used = 0
     key_map = {'F': 'follow', 'T': 'trending', 'D': 'discovery', 'R': 'random'}
     fallback_order = ['follow', 'trending', 'discovery', 'random']
     # Đôi khi đảo luôn thứ tự fallback để slot đầu đa dạng hơn
@@ -308,6 +334,10 @@ def _interleave_pools(pools, page_size, pattern=None, rng=None):
         slot_index += 1
         primary = key_map.get(slot, 'follow')
 
+        # Giới hạn số bài trending/viral trong 1 page
+        if primary == 'trending' and trending_used >= MAX_TRENDING_PER_PAGE:
+            primary = 'discovery'
+
         # Vị trí đầu trang: top_k lớn hơn để tránh "bài số 1" đứng mãi
         top_k = TOP_K_PICK + 3 if len(result) == 0 else TOP_K_PICK
 
@@ -318,16 +348,21 @@ def _interleave_pools(pools, page_size, pattern=None, rng=None):
             for key in fallback_order:
                 if key == primary:
                     continue
+                if key == 'trending' and trending_used >= MAX_TRENDING_PER_PAGE:
+                    continue
                 post = _take_from_pool(
                     working.get(key, []), used_ids, result, rng=rng, top_k=top_k
                 )
                 if post is not None:
+                    primary = key
                     break
 
         if post is None:
             break
 
         used_ids.add(post.id)
+        if primary == 'trending' or float(getattr(post, 'viral_score', 0) or 0) >= 12:
+            trending_used += 1
         result.append(post)
 
     return result
