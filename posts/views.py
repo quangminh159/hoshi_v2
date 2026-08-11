@@ -378,12 +378,15 @@ def create(request):
 
             messages.success(request, 'Bài viết đã được đăng thành công!')
             if _is_ajax_request(request):
-                return JsonResponse({
+                payload = {
                     'success': True,
                     'redirect_url': reverse('posts:index'),
                     'post_id': post.id,
                     'media_count': saved_media_count,
-                })
+                }
+                if upload_errors:
+                    payload['warnings'] = upload_errors
+                return JsonResponse(payload)
             return HttpResponseRedirect(reverse('posts:index'))
 
         if _is_ajax_request(request):
@@ -1089,6 +1092,61 @@ def search(request):
         'posts': posts_result,
         'users': users_result,
     })
+
+
+def _visible_posts_qs(user):
+    """Bài viết người dùng hiện tại được phép xem (block + private)."""
+    posts = Post.objects.select_related('author').prefetch_related('media')
+    if not getattr(user, 'is_authenticated', False):
+        return posts.filter(author__private_account=False)
+
+    blocked_by_users = UserBlock.objects.filter(blocked=user).values_list('blocker_id', flat=True)
+    posts = posts.exclude(author_id__in=blocked_by_users)
+    following_ids = user.get_following_user_ids()
+    posts = posts.exclude(
+        Q(author__private_account=True)
+        & ~Q(author_id__in=following_ids)
+        & ~Q(author=user)
+    )
+    return posts
+
+
+@login_required
+def location_detail(request):
+    """Trang các bài viết gắn cùng một địa điểm."""
+    location = (request.GET.get('q') or request.GET.get('name') or '').strip()
+    if not location:
+        return render(request, 'posts/location_posts.html', {
+            'location': '',
+            'posts': [],
+            'posts_count': 0,
+        })
+
+    posts = (
+        _visible_posts_qs(request.user)
+        .filter(location__iexact=location)
+        .exclude(location='')
+        .order_by('-created_at')
+    )
+
+    posts_count = posts.count()
+    # Chuẩn hóa tên hiển thị theo bản ghi đầu tiên nếu có
+    display_location = location
+    first = posts.first()
+    if first and first.location:
+        display_location = first.location
+
+    paginator = Paginator(posts, 12)
+    page_number = request.GET.get('page', 1)
+    posts_page = paginator.get_page(page_number)
+
+    return render(request, 'posts/location_posts.html', {
+        'location': display_location,
+        'query': location,
+        'posts': posts_page,
+        'posts_count': posts_count,
+    })
+
 
 def _parse_feed_seen_ids(raw_value, limit=80):
     """Parse seen=1,2,3 thành list id (giới hạn độ dài URL)."""

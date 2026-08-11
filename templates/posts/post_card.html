@@ -19,7 +19,7 @@
                     </a>
                     {% if post.location %}
                     <div class="text-muted small">
-                        {{ post.location }}
+                        {{ post.location|location_link }}
                     </div>
                     {% endif %}
                 </div>

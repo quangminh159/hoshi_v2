@@ -121,6 +121,46 @@
     background: transparent;
 }
 
+.composer-input-wrap .mention-input-wrap {
+    width: 100%;
+    min-height: 72px;
+}
+
+.composer-input-wrap .mention-input-backdrop {
+    color: var(--text-color, #262626);
+}
+
+.composer-input-wrap .composer-textarea.mention-input-field {
+    background: transparent !important;
+    color: transparent !important;
+    -webkit-text-fill-color: transparent !important;
+    caret-color: #111 !important;
+    min-height: 72px;
+}
+
+.composer-input-wrap .mention-input-backdrop .mention-chip,
+.composer-input-wrap .mention-input-backdrop .hashtag-chip {
+    color: #405de6;
+    font-weight: inherit;
+    padding: 0;
+    background: rgba(64, 93, 230, 0.16);
+    border-radius: 0.25em;
+}
+
+[data-bs-theme="dark"] .composer-input-wrap .mention-input-backdrop {
+    color: #e4e4e7;
+}
+
+[data-bs-theme="dark"] .composer-input-wrap .composer-textarea.mention-input-field {
+    caret-color: #f4f4f5 !important;
+}
+
+[data-bs-theme="dark"] .composer-input-wrap .mention-input-backdrop .mention-chip,
+[data-bs-theme="dark"] .composer-input-wrap .mention-input-backdrop .hashtag-chip {
+    color: #8aa4ff;
+    background: rgba(138, 164, 255, 0.2);
+}
+
 .composer-textarea:focus {
     box-shadow: none;
     outline: none;
@@ -130,33 +170,79 @@
     color: #a8a8a8;
 }
 
+/* Placeholder vẫn hiện khi text transparent */
+.composer-textarea.mention-input-field:placeholder-shown {
+    -webkit-text-fill-color: #a8a8a8 !important;
+    color: #a8a8a8 !important;
+}
+
+.composer-textarea.mention-input-field:not(:placeholder-shown) {
+    -webkit-text-fill-color: transparent !important;
+    color: transparent !important;
+}
+
 .upload-zone {
     border-radius: 12px;
     overflow: hidden;
+    background: transparent;
+    margin-top: 0.35rem;
+}
+
+/* Không dùng display:none — FilePond sẽ hỏng kích thước / chọn nhiều file */
+.upload-zone:not(.has-files) {
+    height: 0 !important;
+    max-height: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    border: none !important;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.upload-zone.has-files {
+    height: auto !important;
+    max-height: none !important;
+    margin: 0.35rem 0 0;
+    padding: 0.35rem;
+    overflow: visible;
+    opacity: 1;
+    pointer-events: auto;
     background: #fafafa;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
 }
 
 .upload-zone .filepond--root {
     margin-bottom: 0;
 }
 
-.upload-zone .filepond--panel-root {
+.upload-zone.has-files .filepond--panel-root {
     background: transparent;
-    border: 2px dashed #d1d5db;
-    border-radius: 12px;
-    transition: border-color 0.15s, background 0.15s;
+    border: none;
+    border-radius: 0;
+    min-height: 0 !important;
+}
+
+.upload-zone.has-files .filepond--drop-label {
+    display: none !important;
+    min-height: 0 !important;
+    height: 0 !important;
+    opacity: 0;
+    pointer-events: none;
 }
 
 .upload-zone .filepond--root:hover .filepond--panel-root,
 .upload-zone .filepond--root[data-hopper-state="drag-over"] .filepond--panel-root {
-    border-color: var(--primary-color, #405de6);
-    background: rgba(64, 93, 230, 0.04);
+    border-color: transparent;
+    background: transparent;
 }
 
 .upload-zone .filepond--drop-label {
     color: #737373;
     font-size: 0.8rem;
-    min-height: 96px;
+    min-height: 0;
 }
 
 .upload-zone .filepond--label-action {
@@ -176,6 +262,12 @@
 .upload-zone .filepond--item {
     width: 96px;
     margin: 0 !important;
+    cursor: zoom-in;
+}
+
+.upload-zone .filepond--action-remove-item,
+.upload-zone .filepond--file-action-button {
+    cursor: pointer;
 }
 
 .upload-zone .filepond--image-preview-wrapper,
@@ -348,6 +440,12 @@
     background: #f3f3f3;
     border: 1px solid #efefef;
     flex-shrink: 0;
+    cursor: zoom-in;
+}
+
+.edit-media-item--audio,
+.edit-media-item--audio * {
+    cursor: default;
 }
 
 .edit-media-item img,
@@ -445,9 +543,10 @@
     top: auto;
 }
 
-.edit-upload-zone .filepond--drop-label {
-    min-height: 96px;
-    font-size: 0.8rem;
+.edit-upload-zone.has-files .filepond--drop-label {
+    display: none !important;
+    min-height: 0 !important;
+    height: 0 !important;
 }
 
 .edit-upload-zone .filepond--list.filepond--list {
@@ -461,6 +560,12 @@
 .edit-upload-zone .filepond--item {
     width: 96px;
     margin: 0 !important;
+    cursor: zoom-in;
+}
+
+.edit-upload-zone .filepond--action-remove-item,
+.edit-upload-zone .filepond--file-action-button {
+    cursor: pointer;
 }
 
 .edit-upload-zone .filepond--image-preview-wrapper,
@@ -528,13 +633,23 @@
 }
 
 /* Audio / voice tools in composer */
+.composer-media-tools,
 .composer-audio-tools {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
+    align-items: center;
     margin: 0.65rem 0 0.25rem;
 }
 
+.composer-media-tools .btn,
+.composer-audio-tools .btn {
+    border-radius: 999px;
+    padding: 0.35rem 0.85rem;
+    font-weight: 500;
+}
+
+.composer-media-tools .btn.is-recording,
 .composer-audio-tools .btn.is-recording,
 #postVoiceRecordBtn.is-recording {
     background: #fee2e2;

@@ -8,7 +8,7 @@
 {% block body_class %} chat-layout chat-detail-layout{% endblock %}
 
 {% block extra_css %}
-<link href="{% static 'css/chat.css' %}?v=shared-card-1" rel="stylesheet">
+<link href="{% static 'css/chat.css' %}?v=mobile-opt-1" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -16,6 +16,10 @@
   <div class="chat-shell chat-shell--detail">
     <div class="chat-container">
       <div class="chat-header">
+        <a href="{% url 'chat:conversation_list' %}" class="btn-back chat-header-back" title="{% trans 'Quay lại' %}" aria-label="{% trans 'Quay lại' %}">
+          <i class="fas fa-arrow-left"></i>
+          <span class="chat-header-back-label d-none d-md-inline">{% trans "Quay lại" %}</span>
+        </a>
         {% if is_group %}
           <button type="button" class="chat-user-info text-start border-0 bg-transparent p-0" data-bs-toggle="modal" data-bs-target="#groupMembersModal" title="{% trans 'Thành viên nhóm' %}">
             <div class="user-avatar conversation-avatar--group">
@@ -59,20 +63,20 @@
         {% endif %}
         <div class="chat-actions">
           {% if not is_group and conversation.other_user and not is_blocked %}
-            <button type="button" class="btn-back" id="startVoiceCallBtn" title="{% trans 'Gọi thoại' %}">
+            <button type="button" class="btn-back chat-action-icon" id="startVoiceCallBtn" title="{% trans 'Gọi thoại' %}" aria-label="{% trans 'Gọi thoại' %}">
               <i class="fas fa-phone"></i>
             </button>
-            <button type="button" class="btn-back" id="startVideoCallBtn" title="{% trans 'Gọi video' %}">
+            <button type="button" class="btn-back chat-action-icon" id="startVideoCallBtn" title="{% trans 'Gọi video' %}" aria-label="{% trans 'Gọi video' %}">
               <i class="fas fa-video"></i>
             </button>
           {% endif %}
           {% if is_group %}
-            <button type="button" class="btn-back" data-bs-toggle="modal" data-bs-target="#groupMembersModal" title="{% trans 'Thành viên' %}">
+            <button type="button" class="btn-back chat-action-icon" data-bs-toggle="modal" data-bs-target="#groupMembersModal" title="{% trans 'Thành viên' %}" aria-label="{% trans 'Thành viên' %}">
               <i class="fas fa-user-friends"></i>
             </button>
           {% endif %}
           <div class="chat-more-menu" id="chatMoreMenu">
-            <button type="button" class="btn-back" id="chatMoreBtn" title="{% trans 'Thêm' %}" aria-expanded="false" aria-haspopup="true">
+            <button type="button" class="btn-back chat-action-icon" id="chatMoreBtn" title="{% trans 'Thêm' %}" aria-label="{% trans 'Thêm' %}" aria-expanded="false" aria-haspopup="true">
               <i class="fas fa-ellipsis-v"></i>
             </button>
             <div class="chat-more-dropdown" id="chatMoreDropdown" hidden role="menu">
@@ -80,13 +84,8 @@
                 <i class="fas fa-search"></i>
                 <span>{% trans "Tìm kiếm tin nhắn" %}</span>
               </button>
-              {# Thêm mục menu khác tại đây note @@@@@@@@@@ #}
             </div>
           </div>
-          <a href="{% url 'chat:conversation_list' %}" class="btn-back" title="{% trans 'Quay lại' %}">
-            <i class="fas fa-arrow-left"></i>
-            <span class="d-none d-sm-inline">{% trans "Quay lại" %}</span>
-          </a>
         </div>
       </div>
 
@@ -255,7 +254,7 @@
           <div>{% trans "Không thể gửi tin nhắn vì một trong hai người đã chặn người còn lại." %}</div>
         </div>
       {% else %}
-        <form id="messageForm" class="message-form" enctype="multipart/form-data">
+        <form id="messageForm" class="message-form chat-composer" enctype="multipart/form-data">
           {% csrf_token %}
           <div class="attachment-preview" id="attachmentPreview"></div>
           
@@ -824,8 +823,11 @@
 
         chatSocket.send(JSON.stringify(messageData));
         messageInput.value = '';
+        messageInput.dispatchEvent(new Event('input'));
         cancelReply();
-        messageInput.focus();
+        if (window.matchMedia('(min-width: 992px)').matches) {
+          messageInput.focus();
+        }
         clearTimeout(typingTimeout);
         sendTypingStatus(false);
         if (submitButton) resetSubmitButton();
@@ -836,20 +838,17 @@
     if (messageInput) {
       // Tự động điều chỉnh chiều cao của textarea khi nhập
       messageInput.addEventListener('input', function() {
-        // Xóa timeout hiện tại
         clearTimeout(typingTimeout);
-        
-        // Gửi trạng thái đang nhập
         sendTypingStatus(true);
-        
-        // Đặt timeout để hủy trạng thái đang nhập sau 3 giây
         typingTimeout = setTimeout(function() {
           sendTypingStatus(false);
         }, 3000);
-        
-        // Điều chỉnh chiều cao
         this.style.height = 'auto';
         this.style.height = (this.scrollHeight) + 'px';
+        const form = this.closest('.chat-composer');
+        if (form) {
+          form.classList.toggle('has-text', this.value.trim().length > 0);
+        }
       });
       
       // Xử lý sự kiện keydown cho Shift+Enter
@@ -857,16 +856,17 @@
         if (e.key === 'Enter') {
           if (e.shiftKey) {
             // Shift+Enter: Cho phép xuống dòng
-            // Không làm gì đặc biệt, textarea sẽ tự động xuống dòng
           } else {
-            // Enter thường: Gửi tin nhắn
             e.preventDefault();
             messageForm.dispatchEvent(new Event('submit'));
           }
         }
       });
       
-      messageInput.focus();
+      // Desktop: focus sẵn. Mobile: không auto-focus để tránh bung bàn phím
+      if (window.matchMedia('(min-width: 992px)').matches) {
+        messageInput.focus();
+      }
     }
     
     // Hàm gửi trạng thái đang nhập
@@ -1017,8 +1017,11 @@
         clearAttachmentInputs();
         messageInput.value = '';
         messageInput.style.height = 'auto';
+        messageInput.dispatchEvent(new Event('input'));
         cancelReply();
-        messageInput.focus();
+        if (window.matchMedia('(min-width: 992px)').matches) {
+          messageInput.focus();
+        }
         chatMessages.scrollTop = chatMessages.scrollHeight;
       } catch (error) {
         console.error('Upload error:', error);
@@ -1772,7 +1775,9 @@
     replyToContentInput.value = previewText || (attachmentType ? `[${attachmentType}]` : '');
 
     replyPreview.classList.add('active');
-    messageInput.focus();
+    if (window.matchMedia('(min-width: 992px)').matches) {
+      messageInput.focus();
+    }
   }
   
   // Hàm hủy trả lời
@@ -1998,6 +2003,69 @@
     document.addEventListener('click', (e) => {
       if (!moreDropdown || moreDropdown.hidden) return;
       if (!e.target.closest('#chatMoreMenu')) closeMoreMenu();
+    });
+  })();
+
+  // Mobile: ban phim ao + long-press hien thao tac tin nhan
+  (function initMobileChatUX() {
+    const root = document.documentElement;
+    const messagesEl = document.getElementById('chatMessages') || document.querySelector('.chat-messages');
+    const isTouch = window.matchMedia('(hover: none), (pointer: coarse)').matches;
+
+    function updateKeyboardOffset() {
+      if (!window.visualViewport) return;
+      const vv = window.visualViewport;
+      const keyboard = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+      root.style.setProperty('--chat-keyboard-offset', Math.round(keyboard) + 'px');
+      if (messagesEl && keyboard > 40) {
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+      }
+    }
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', updateKeyboardOffset);
+      window.visualViewport.addEventListener('scroll', updateKeyboardOffset);
+      updateKeyboardOffset();
+    }
+
+    if (!isTouch) return;
+
+    let pressTimer = null;
+    let pressTarget = null;
+
+    function clearPress() {
+      if (pressTimer) {
+        clearTimeout(pressTimer);
+        pressTimer = null;
+      }
+      pressTarget = null;
+    }
+
+    document.addEventListener('pointerdown', (e) => {
+      const msg = e.target.closest('.message');
+      if (!msg || e.target.closest('a, button, input, textarea, .message-option-btn')) return;
+      pressTarget = msg;
+      pressTimer = setTimeout(() => {
+        document.querySelectorAll('.message.is-actions-open').forEach((el) => {
+          if (el !== msg) el.classList.remove('is-actions-open');
+        });
+        msg.classList.add('is-actions-open');
+        if (navigator.vibrate) navigator.vibrate(12);
+        pressTimer = null;
+      }, 480);
+    }, { passive: true });
+
+    document.addEventListener('pointerup', clearPress, { passive: true });
+    document.addEventListener('pointercancel', clearPress, { passive: true });
+    document.addEventListener('pointermove', () => {
+      if (pressTarget) clearPress();
+    }, { passive: true });
+
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('.message-options, .message.is-actions-open')) return;
+      document.querySelectorAll('.message.is-actions-open').forEach((el) => {
+        el.classList.remove('is-actions-open');
+      });
     });
   })();
 

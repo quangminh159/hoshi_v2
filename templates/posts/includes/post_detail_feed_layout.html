@@ -22,7 +22,9 @@
                     <span class="text-muted small"><i class="fas fa-retweet me-1"></i>đã chia sẻ</span>
                     {% endif %}
                     {% if post.location %}
-                    <span class="text-muted small"><i class="fas fa-map-marker-alt me-1"></i>{{ post.location }}</span>
+                    <div class="text-muted small">
+                        {{ post.location|location_link }}
+                    </div>
                     {% endif %}
                 </div>
 
@@ -91,7 +93,7 @@
                         <div>
                             <span class="fw-bold">{{ post.shared_from.author.username }}</span>
                             {% if post.shared_from.location %}
-                            <div class="text-muted small">{{ post.shared_from.location }}</div>
+                            <div class="text-muted small">{{ post.shared_from.location|location_link }}</div>
                             {% endif %}
                         </div>
                     </div>
@@ -382,8 +384,8 @@
                        name="text"
                        id="comment-input"
                        autocomplete="off">
-                <button class="btn btn-primary comment-btn" type="button">
-                    <span class="btn-text">Gửi</span>
+                <button class="btn btn-primary comment-btn comment-send-btn" type="button" title="Gửi" aria-label="Gửi bình luận">
+                    <i class="fas fa-paper-plane btn-icon" aria-hidden="true"></i>
                     <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
                 </button>
             </div>

@@ -117,6 +117,15 @@
         return `/users/${encodeURIComponent(username)}/`;
     }
 
+    function locationUrl(name) {
+        return `/posts/location/?q=${encodeURIComponent(name || '')}`;
+    }
+
+    function locationLinkHtml(name) {
+        if (!name) return '';
+        return `<a href="${locationUrl(name)}" class="location-link" onclick="event.stopPropagation()"><i class="fas fa-map-marker-alt me-1"></i>${escapeHtml(name)}</a>`;
+    }
+
     function formatCaption(text) {
         if (!text) return '';
         let html = String(text)
@@ -230,7 +239,7 @@
                                 <a href="${profileUrl(original.author.username)}"
                                    class="text-dark text-decoration-none fw-bold"
                                    onclick="event.stopPropagation();">${original.author.username}</a>
-                                ${original.location ? `<div class="text-muted small">${original.location}</div>` : ''}
+                                ${original.location ? `<div class="text-muted small">${locationLinkHtml(original.location)}</div>` : ''}
                             </div>
                         </div>
                         ${original.caption ? `<p class="card-text mb-0">${formatCaption(original.caption)}</p>` : ''}
@@ -261,7 +270,7 @@
                                onclick="event.stopPropagation();">${post.author.username}</a>
                             <span class="text-muted small feed-post-time">${timeAgo(new Date(post.created_at))}</span>
                             ${post.shared_from ? `<span class="text-muted small"><i class="fas fa-retweet me-1"></i>đã chia sẻ</span>` : ''}
-                            ${post.location ? `<div class="text-muted small feed-post-location"><i class="fas fa-map-marker-alt me-1"></i>${escapeHtml(post.location)}</div>` : ''}
+                            ${post.location ? `<div class="text-muted small feed-post-location">${locationLinkHtml(post.location)}</div>` : ''}
                         </div>
                     </div>
                     ${post.caption ? `
@@ -328,7 +337,10 @@
                             <input type="file" class="d-none comment-image-input" id="comment-image-${post.id}" name="media" accept="image/*,video/mp4,video/webm,video/quicktime,audio/*">
                             <input type="text" name="text" id="comment-input-${post.id}" class="form-control comment-input"
                                    placeholder="Viết bình luận..." aria-label="Comment input" autocomplete="off">
-                            <button class="btn btn-primary" type="submit">Gửi</button>
+                            <button class="btn btn-primary comment-btn comment-send-btn" type="submit" title="Gửi" aria-label="Gửi bình luận">
+                                <i class="fas fa-paper-plane btn-icon" aria-hidden="true"></i>
+                                <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                            </button>
                         </div>
                         <div class="reply-info d-none">
                             <small>
@@ -1863,7 +1875,11 @@
         const originalBtnHtml = submitBtn?.innerHTML;
         if (submitBtn) {
             submitBtn.disabled = true;
-            submitBtn.textContent = 'Đang gửi...';
+            const icon = submitBtn.querySelector('.btn-icon');
+            const spinner = submitBtn.querySelector('.spinner-border');
+            if (icon) icon.classList.add('d-none');
+            if (spinner) spinner.classList.remove('d-none');
+            else submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
         }
 
         const requestId = `feed-${postId}-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
@@ -1903,7 +1919,13 @@
                     updateFeedCommentCount(postId);
                 }
                 const input = document.getElementById(`comment-input-${postId}`);
-                if (input) input.value = '';
+                if (input) {
+                    input.value = '';
+                    input.dispatchEvent(new Event('input', { bubbles: true }));
+                    if (typeof window.syncMentionInputHighlight === 'function') {
+                        window.syncMentionInputHighlight(input);
+                    }
+                }
                 clearCommentMediaPreview(form);
                 const replyInfo = form?.querySelector('.reply-info');
                 if (replyInfo) {

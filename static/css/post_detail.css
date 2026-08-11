@@ -651,13 +651,17 @@
     color: #405de6 !important;
     font-weight: 700;
     text-decoration: none !important;
+    background: rgba(64, 93, 230, 0.12);
+    border-radius: 6px;
+    padding: 0.05em 0.28em;
 }
 
 .post-detail-page .post-detail-caption .mention-link:hover,
 .post-detail-caption .mention-link:hover,
 .mention-link:hover {
     color: #2d46c9 !important;
-    text-decoration: underline !important;
+    background: rgba(64, 93, 230, 0.2);
+    text-decoration: none !important;
 }
 
 .hashtag-link {
@@ -667,6 +671,17 @@
 }
 
 .hashtag-link:hover {
+    text-decoration: underline !important;
+}
+
+.location-link {
+    color: #737373 !important;
+    font-weight: 500;
+    text-decoration: none !important;
+}
+
+.location-link:hover {
+    color: #405de6 !important;
     text-decoration: underline !important;
 }
 

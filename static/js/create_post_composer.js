@@ -71,7 +71,12 @@
         const suggestionBox = root.querySelector('#suggestionBox');
         const locationSuggestionBox = root.querySelector('#locationSuggestionBox');
 
-        if (caption) caption.value = '';
+        if (caption) {
+            caption.value = '';
+            if (typeof window.syncMentionInputHighlight === 'function') {
+                window.syncMentionInputHighlight(caption);
+            }
+        }
         if (location) location.value = '';
         if (suggestionBox) suggestionBox.innerHTML = '';
         if (locationSuggestionBox) locationSuggestionBox.innerHTML = '';
@@ -79,6 +84,11 @@
         if (form._createPostPond) {
             form._createPostPond.removeFiles();
         }
+        if (typeof form._revokeComposerPreviewUrls === 'function') {
+            form._revokeComposerPreviewUrls();
+        }
+        const uploadZone = root.querySelector('#composerUploadZone') || root.querySelector('.upload-zone');
+        if (uploadZone) uploadZone.classList.remove('has-files');
         if (typeof form._stopPostVoice === 'function') {
             form._stopPostVoice(false);
         }
@@ -103,12 +113,18 @@
         }
 
         const fileInput = scope.querySelector('input.filepond');
+        // Chỉ gửi media qua FormData thủ công — tránh input ẩn gửi thiếu/trùng file
+        if (fileInput) fileInput.removeAttribute('name');
+
         const pond = FilePond.create(fileInput, {
             allowMultiple: true,
             allowReorder: true,
             storeAsFile: true,
+            instantUpload: false,
             allowVideoPreview: true,
-            labelIdle: '<i class="fas fa-cloud-upload-alt mb-1 d-block" style="color:#c7c7c7;font-size:1.25rem"></i>Kéo thả hoặc <span class="filepond--label-action">chọn file</span>',
+            allowAudioPreview: true,
+            credits: false,
+            labelIdle: ' ',
             labelFileTypeNotAllowed: 'Loại file không được hỗ trợ',
             stylePanelLayout: 'compact',
             styleItemPanelAspectRatio: 1,
@@ -123,6 +139,137 @@
             },
         });
         form._createPostPond = pond;
+
+        const uploadZone = scope.querySelector('#composerUploadZone') || scope.querySelector('.upload-zone');
+        function syncUploadZoneVisibility() {
+            if (!uploadZone) return;
+            const count = pond.getFiles().length;
+            uploadZone.classList.toggle('has-files', count > 0);
+            // FilePond cần layout lại sau khi hiện vùng preview
+            if (count > 0) {
+                window.requestAnimationFrame(() => {
+                    try {
+                        window.dispatchEvent(new Event('resize'));
+                    } catch (_) { /* ignore */ }
+                });
+            }
+        }
+
+        function revealUploadZone() {
+            if (!uploadZone) return Promise.resolve();
+            uploadZone.classList.add('has-files');
+            return new Promise((resolve) => {
+                window.requestAnimationFrame(() => window.requestAnimationFrame(resolve));
+            });
+        }
+
+        async function addFilesToPond(files) {
+            const list = Array.from(files || []).filter(Boolean);
+            if (!list.length) return;
+            // Hiện zone trước khi add — FilePond dễ lỗi khi thêm file lúc đang height:0 / ẩn
+            await revealUploadZone();
+            for (const file of list) {
+                try {
+                    // eslint-disable-next-line no-await-in-loop
+                    await pond.addFile(file);
+                } catch (err) {
+                    console.error('Không thêm được file vào composer:', err);
+                    alert(err?.message || `Không thể thêm file: ${file.name}`);
+                }
+            }
+            syncUploadZoneVisibility();
+        }
+
+        pond.on('addfile', syncUploadZoneVisibility);
+        pond.on('removefile', syncUploadZoneVisibility);
+        pond.on('updatefiles', syncUploadZoneVisibility);
+        syncUploadZoneVisibility();
+
+        let composerPreviewUrls = [];
+        function revokeComposerPreviewUrls() {
+            composerPreviewUrls.forEach((url) => {
+                try { URL.revokeObjectURL(url); } catch (_) { /* ignore */ }
+            });
+            composerPreviewUrls = [];
+        }
+        form._revokeComposerPreviewUrls = revokeComposerPreviewUrls;
+
+        function openComposerMediaPreview(startPondIndex) {
+            if (!window.HoshiMediaLightbox || typeof window.HoshiMediaLightbox.open !== 'function') {
+                return;
+            }
+            revokeComposerPreviewUrls();
+            const items = [];
+            let startIndex = 0;
+            pond.getFiles().forEach((fileItem, i) => {
+                const file = fileItem && fileItem.file;
+                if (!(file instanceof Blob)) return;
+                let type = null;
+                if (isImageFile(file)) type = 'image';
+                else if (isVideoFile(file)) type = 'video';
+                else return;
+                const src = URL.createObjectURL(file);
+                composerPreviewUrls.push(src);
+                if (i === startPondIndex) startIndex = items.length;
+                items.push({ type, src });
+            });
+            if (!items.length) return;
+            window.HoshiMediaLightbox.open(items, startIndex);
+
+            // Thu hồi blob URL khi đóng lightbox
+            const mo = new MutationObserver(() => {
+                if (!document.body.classList.contains('hoshi-lightbox-open')) {
+                    revokeComposerPreviewUrls();
+                    mo.disconnect();
+                }
+            });
+            mo.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+        }
+
+        if (uploadZone) {
+            uploadZone.addEventListener('click', (e) => {
+                if (
+                    e.target.closest('.filepond--action-remove-item') ||
+                    e.target.closest('.filepond--file-action-button') ||
+                    e.target.closest('button')
+                ) {
+                    return;
+                }
+                const itemEl = e.target.closest('.filepond--item');
+                if (!itemEl || !uploadZone.classList.contains('has-files')) return;
+
+                const pondFiles = pond.getFiles();
+                let idx = pondFiles.findIndex((f) => itemEl.id === `filepond--item-${f.id}`);
+                if (idx < 0) {
+                    const all = Array.from(uploadZone.querySelectorAll('.filepond--item'));
+                    idx = all.indexOf(itemEl);
+                }
+                if (idx < 0 || !pondFiles[idx]) return;
+
+                const file = pondFiles[idx].file;
+                if (!file || (!isImageFile(file) && !isVideoFile(file))) return;
+
+                e.preventDefault();
+                e.stopPropagation();
+                openComposerMediaPreview(idx);
+            });
+        }
+
+        const mediaPickBtn = scope.querySelector('#postMediaPickBtn');
+        const mediaFileInput = scope.querySelector('#postMediaFileInput');
+        if (mediaPickBtn && mediaFileInput) {
+            mediaPickBtn.addEventListener('click', () => mediaFileInput.click());
+            mediaFileInput.addEventListener('change', async () => {
+                const files = Array.from(mediaFileInput.files || []);
+                mediaFileInput.value = '';
+                await addFilesToPond(files);
+            });
+        } else if (mediaPickBtn) {
+            mediaPickBtn.addEventListener('click', async () => {
+                await revealUploadZone();
+                if (typeof pond.browse === 'function') pond.browse();
+            });
+        }
 
         // --- Audio pick + voice record ---
         const audioPickBtn = scope.querySelector('#postAudioPickBtn');
@@ -173,7 +320,7 @@
 
         function addAudioFileToPond(file) {
             if (!pond || !file) return;
-            pond.addFile(file).catch((err) => {
+            addFilesToPond([file]).catch((err) => {
                 console.error('Add audio error:', err);
                 alert('Không thêm được file âm thanh. Vui lòng thử lại.');
             });
@@ -183,8 +330,8 @@
             audioPickBtn.addEventListener('click', () => audioFileInput.click());
             audioFileInput.addEventListener('change', () => {
                 const file = audioFileInput.files && audioFileInput.files[0];
-                if (file) addAudioFileToPond(file);
                 audioFileInput.value = '';
+                if (file) addAudioFileToPond(file);
             });
         }
 
@@ -279,6 +426,10 @@
         let suggestionTimeout = null;
         let locationTimeout = null;
 
+        if (captionInput && typeof window.initMentionInputHighlight === 'function') {
+            window.initMentionInputHighlight(captionInput);
+        }
+
         function clearSuggestions() {
             if (suggestionBox) suggestionBox.innerHTML = '';
         }
@@ -304,6 +455,10 @@
             textarea.value = newText;
             const newPos = start + replacement.length;
             textarea.setSelectionRange(newPos, newPos);
+            textarea.dispatchEvent(new Event('input', { bubbles: true }));
+            if (typeof window.syncMentionInputHighlight === 'function') {
+                window.syncMentionInputHighlight(textarea);
+            }
         }
 
         function showSuggestions(items, onSelect) {
@@ -342,12 +497,18 @@
                 const el = document.createElement('div');
                 el.className = 'suggestion-item location-suggestion-item';
                 const sourceLabel = item.source === 'recent' ? 'Đã dùng gần đây' : 'Địa điểm';
+                const countLabel = item.posts_count
+                    ? `${item.posts_count} bài viết`
+                    : sourceLabel;
                 el.innerHTML = `
                     <div>
                         <div>${item.name}</div>
                         ${item.full_name && item.full_name !== item.name
                             ? `<div class="location-meta">${item.full_name}</div>`
-                            : `<div class="location-meta">${sourceLabel}</div>`}
+                            : `<div class="location-meta">${countLabel}</div>`}
+                        ${item.posts_count && item.full_name && item.full_name !== item.name
+                            ? `<div class="location-meta">${item.posts_count} bài viết</div>`
+                            : ''}
                     </div>
                 `;
                 el.addEventListener('click', () => {
@@ -545,11 +706,30 @@
             formData.append('caption', captionInput.value);
             formData.append('location', locationInput ? locationInput.value : '');
 
-            pond.getFiles().forEach((fileItem) => {
-                const file = fileItem.file || fileItem.source;
-                if (file instanceof File || file instanceof Blob) {
-                    formData.append('media', file, file.name || fileItem.filename || 'upload');
-                }
+            const pondItems = pond.getFiles();
+            const ERROR_STATUSES = new Set([8, 10]); // PROCESSING_ERROR, LOAD_ERROR
+            const BUSY_STATUSES = new Set([1, 3, 7, 9]); // INIT, PROCESSING_QUEUED, PROCESSING, LOADING
+
+            const failedItems = pondItems.filter((item) => item && ERROR_STATUSES.has(item.status));
+            if (failedItems.length) {
+                alert('Có file bị lỗi khi tải lên preview. Hãy xóa file đỏ rồi chọn lại.');
+                resetSubmitButton();
+                return;
+            }
+
+            const busyItems = pondItems.filter((item) => item && BUSY_STATUSES.has(item.status));
+            const notReady = pondItems.some((item) => !item || !(item.file instanceof Blob));
+            if (busyItems.length || notReady) {
+                alert('File đang được xử lý, vui lòng đợi giây lát rồi đăng lại.');
+                resetSubmitButton();
+                return;
+            }
+
+            pondItems.forEach((fileItem, index) => {
+                const file = fileItem.file;
+                const filename = file.name || fileItem.filename || `upload-${index + 1}`;
+                // Dùng media (không media[]) để Django getlist('media') nhận đủ nhiều file
+                formData.append('media', file, filename);
             });
 
             fetch(config.createUrl, {
@@ -566,6 +746,9 @@
                     if (contentType.includes('application/json')) {
                         const data = await response.json();
                         if (!response.ok) throw new Error(data.error || 'Không thể đăng bài.');
+                        if (Array.isArray(data.warnings) && data.warnings.length) {
+                            alert(data.warnings.join('\n'));
+                        }
                         if (typeof config.onSuccess === 'function') {
                             config.onSuccess(data);
                         } else {

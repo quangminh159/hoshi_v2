@@ -1,0 +1,203 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% load post_tags %}
+
+{% block title %}{% if location %}{{ location }}{% else %}Địa điểm{% endif %} - {{ block.super }}{% endblock %}
+
+{% block body_class %} location-layout{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/feed.css' %}?v=location-page-1" rel="stylesheet">
+<style>
+.location-page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 0 2rem;
+}
+.location-toolbar {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+.location-back-home {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: #262626;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    padding: 0.4rem 0.65rem;
+    border-radius: 10px;
+    border: 1px solid #efefef;
+    background: #fff;
+}
+.location-back-home:hover {
+    background: #f5f5f5;
+    color: #111;
+}
+.location-hero {
+    background: #fff;
+    border: 1px solid #efefef;
+    border-radius: 16px;
+    padding: 1.5rem 1.25rem;
+    margin-bottom: 1.25rem;
+    text-align: center;
+}
+.location-hero-icon {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 0.75rem;
+    border-radius: 50%;
+    background: #eef2ff;
+    color: #405de6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+}
+.location-hero h1 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 0.35rem;
+    color: #262626;
+}
+.location-hero-count {
+    color: #737373;
+    font-size: 0.95rem;
+    margin: 0;
+}
+.location-post-grid .card {
+    border: 1px solid #efefef;
+    border-radius: 14px;
+    overflow: hidden;
+}
+.location-post-grid .card-img-top,
+.location-post-grid video.card-img-top {
+    height: 220px;
+    object-fit: cover;
+    width: 100%;
+    background: #111;
+}
+.location-empty {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #8e8e8e;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container location-page py-3">
+    <div class="location-toolbar">
+        <a href="{% url 'posts:index' %}" class="location-back-home">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+    </div>
+
+    {% if not location %}
+    <div class="location-empty">
+        <i class="fas fa-map-marker-alt fa-3x mb-3"></i>
+        <h5 class="text-dark">Chưa chọn địa điểm</h5>
+        <p class="mb-0">Hãy bấm vào địa điểm trên bài viết để xem các bài gắn cùng nơi đó.</p>
+    </div>
+    {% else %}
+    <div class="location-hero">
+        <div class="location-hero-icon" aria-hidden="true">
+            <i class="fas fa-map-marker-alt"></i>
+        </div>
+        <h1>{{ location }}</h1>
+        <p class="location-hero-count">
+            {% if posts_count == 0 %}
+                Chưa có bài viết nào
+            {% elif posts_count == 1 %}
+                <strong>1</strong> bài viết
+            {% else %}
+                <strong>{{ posts_count }}</strong> bài viết
+            {% endif %}
+        </p>
+    </div>
+
+    {% if posts %}
+    <div class="row location-post-grid">
+        {% for post in posts %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-white py-2 border-0">
+                    <div class="d-flex align-items-center">
+                        <img src="{{ post.author.get_avatar_url }}"
+                             class="rounded-circle me-2"
+                             width="32" height="32"
+                             alt="{{ post.author.username }}">
+                        <a href="{% url 'accounts:profile' username=post.author.username %}"
+                           class="text-dark text-decoration-none fw-bold small">
+                            {{ post.author.username }}
+                        </a>
+                    </div>
+                </div>
+
+                {% if post.media.exists %}
+                <a href="{% url 'posts:post_detail' post_id=post.id %}">
+                    {% with first_media=post.media.first %}
+                    {% if first_media.media_type == 'image' %}
+                    <img src="{{ first_media.file.url }}" class="card-img-top" alt="Post image" loading="lazy">
+                    {% elif first_media.media_type == 'video' %}
+                    <video class="card-img-top" preload="metadata" muted playsinline src="{{ first_media.file.url }}"></video>
+                    {% else %}
+                    <div class="card-img-top d-flex align-items-center justify-content-center bg-light text-muted" style="height:220px">
+                        <i class="fas fa-music fa-2x"></i>
+                    </div>
+                    {% endif %}
+                    {% endwith %}
+                </a>
+                {% endif %}
+
+                <div class="card-body pt-2">
+                    <div class="d-flex mb-2 align-items-center text-muted small">
+                        <span class="me-3"><i class="far fa-heart me-1"></i>{{ post.likes_count }}</span>
+                        <span><i class="far fa-comment me-1"></i>{{ post.comments_count }}</span>
+                    </div>
+                    {% if post.caption %}
+                    <p class="card-text small mb-1">{{ post.caption|truncatechars:100 }}</p>
+                    {% endif %}
+                    <a href="{% url 'posts:post_detail' post_id=post.id %}" class="small text-decoration-none">Xem bài viết</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if posts.has_other_pages %}
+    <nav aria-label="Location pagination" class="mt-2">
+        <ul class="pagination justify-content-center">
+            {% if posts.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?q={{ query|urlencode }}&page={{ posts.previous_page_number }}">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+            </li>
+            {% endif %}
+            {% for i in posts.paginator.page_range %}
+            <li class="page-item {% if posts.number == i %}active{% endif %}">
+                <a class="page-link" href="?q={{ query|urlencode }}&page={{ i }}">{{ i }}</a>
+            </li>
+            {% endfor %}
+            {% if posts.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?q={{ query|urlencode }}&page={{ posts.next_page_number }}">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+    {% else %}
+    <div class="location-empty">
+        <i class="far fa-folder-open fa-3x mb-3"></i>
+        <p class="mb-0">Chưa có bài viết nào gắn địa điểm này (hoặc bạn không có quyền xem).</p>
+    </div>
+    {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

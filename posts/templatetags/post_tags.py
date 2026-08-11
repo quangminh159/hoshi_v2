@@ -76,6 +76,23 @@ def format_caption(caption):
 
 
 @register.filter
+def location_link(location):
+    """Render địa điểm thành link tới trang bài viết cùng địa điểm."""
+    if not location:
+        return ''
+    name = str(location).strip()
+    if not name:
+        return ''
+    from urllib.parse import quote
+    url = f'{reverse("posts:location")}?q={quote(name)}'
+    safe_name = escape(name)
+    return mark_safe(
+        f'<a href="{url}" class="location-link" onclick="event.stopPropagation()">'
+        f'<i class="fas fa-map-marker-alt me-1"></i>{safe_name}</a>'
+    )
+
+
+@register.filter
 def format_comment(text):
     """URL + xuống dòng cho bình luận (không bắt buộc mention/hashtag, nhưng hỗ trợ luôn)."""
     return format_caption(text)

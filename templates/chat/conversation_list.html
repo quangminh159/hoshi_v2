@@ -8,7 +8,7 @@
 {% block body_class %} chat-layout{% endblock %}
 
 {% block extra_css %}
-<link href="{% static 'css/chat.css' %}?v=group-chat-2" rel="stylesheet">
+<link href="{% static 'css/chat.css' %}?v=mobile-opt-1" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -215,5 +215,39 @@
     }
     return cookieValue;
   }
+
+  // Mobile: nhấn giữ hiện nút xóa hội thoại
+  (function () {
+    if (!window.matchMedia('(hover: none), (pointer: coarse)').matches) return;
+    let timer = null;
+    let target = null;
+    function clear() {
+      if (timer) clearTimeout(timer);
+      timer = null;
+      target = null;
+    }
+    document.addEventListener('pointerdown', (e) => {
+      const wrap = e.target.closest('.conversation-wrapper');
+      if (!wrap || e.target.closest('.delete-conversation')) return;
+      target = wrap;
+      timer = setTimeout(() => {
+        document.querySelectorAll('.conversation-wrapper.is-actions-open').forEach((el) => {
+          if (el !== wrap) el.classList.remove('is-actions-open');
+        });
+        wrap.classList.add('is-actions-open');
+        if (navigator.vibrate) navigator.vibrate(12);
+        timer = null;
+      }, 480);
+    }, { passive: true });
+    document.addEventListener('pointerup', clear, { passive: true });
+    document.addEventListener('pointercancel', clear, { passive: true });
+    document.addEventListener('pointermove', () => { if (target) clear(); }, { passive: true });
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('.delete-conversation, .conversation-wrapper.is-actions-open')) return;
+      document.querySelectorAll('.conversation-wrapper.is-actions-open').forEach((el) => {
+        el.classList.remove('is-actions-open');
+      });
+    });
+  })();
 </script>
 {% endblock %}

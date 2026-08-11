@@ -10,7 +10,7 @@
 <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
 <link href="https://unpkg.com/filepond-plugin-file-poster/dist/filepond-plugin-file-poster.css" rel="stylesheet">
 <link href="https://unpkg.com/filepond-plugin-media-preview/dist/filepond-plugin-media-preview.css" rel="stylesheet">
-<link href="{% static 'css/create_post_composer.css' %}" rel="stylesheet">
+<link href="{% static 'css/create_post_composer.css' %}?v=edit-media-btn-1" rel="stylesheet">
 <style>
     .filepond--root {
         max-height: none;
@@ -77,6 +77,13 @@
         border-radius: 8px;
         overflow: hidden;
         aspect-ratio: 1;
+        cursor: zoom-in;
+    }
+    .media-preview-item--audio {
+        cursor: default;
+    }
+    .media-preview-item .remove-media {
+        cursor: pointer;
     }
     .media-preview-item img {
         width: 100%;
@@ -152,21 +159,26 @@
                         
                         <!-- Media Upload -->
                         <div class="mb-3">
-                            <input type="file" 
-                                   id="media" 
-                                   name="media" 
-                                   class="filepond"
-                                   accept="image/*,video/*,audio/*,.mp3,.m4a,.wav,.ogg,.aac,.flac,.webm"
-                                   multiple
-                                   data-allow-reorder="true">
-                            <div class="composer-audio-tools mt-2">
+                            <div class="composer-media-tools">
+                                <button type="button" class="btn btn-outline-secondary btn-sm" id="editPageMediaPickBtn" title="Chọn ảnh hoặc video">
+                                    <i class="far fa-image me-1"></i>Ảnh
+                                </button>
                                 <button type="button" class="btn btn-outline-secondary btn-sm" id="editPageAudioPickBtn" title="Chọn file nhạc">
                                     <i class="fas fa-music me-1"></i>Nhạc
                                 </button>
                                 <button type="button" class="btn btn-outline-secondary btn-sm" id="editPageVoiceRecordBtn" title="Ghi âm">
                                     <i class="fas fa-microphone me-1"></i>Ghi âm
                                 </button>
+                                <input type="file" id="editPageMediaFileInput" class="d-none" accept="image/*,video/*" multiple>
                                 <input type="file" id="editPageAudioFileInput" class="d-none" accept="audio/*,.mp3,.m4a,.wav,.ogg,.aac,.flac,.wma">
+                            </div>
+                            <div class="upload-zone edit-upload-zone" id="editPageUploadZone">
+                                <input type="file"
+                                       id="media"
+                                       class="filepond"
+                                       accept="image/*,video/*,audio/*,.mp3,.m4a,.wav,.ogg,.aac,.flac,.webm"
+                                       multiple
+                                       data-allow-reorder="true">
                             </div>
                             <div id="editPageVoiceRecordingBar" class="post-voice-recording-bar d-none mt-2">
                                 <span class="post-voice-rec-dot" aria-hidden="true"></span>
@@ -249,7 +261,7 @@
 <script src="https://unpkg.com/filepond-plugin-file-poster/dist/filepond-plugin-file-poster.js"></script>
 <script src="https://unpkg.com/filepond-plugin-media-preview/dist/filepond-plugin-media-preview.js"></script>
 <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
-<script src="{% static 'js/edit_caption_suggestions.js' %}"></script>
+<script src="{% static 'js/edit_caption_suggestions.js' %}?v=mention-clear-1"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -409,15 +421,23 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    const pond = FilePond.create(document.querySelector('input.filepond'), {
+    const fileInputEl = document.querySelector('input.filepond');
+    if (fileInputEl) fileInputEl.removeAttribute('name');
+
+    const uploadZone = document.getElementById('editPageUploadZone');
+    const pond = FilePond.create(fileInputEl, {
         allowMultiple: true,
         allowReorder: true,
         storeAsFile: true,
+        instantUpload: false,
         allowVideoPreview: true,
-        labelIdle: 'Kéo & thả ảnh, video hoặc nhạc hoặc <span class="filepond--label-action">Tìm</span>',
+        allowAudioPreview: true,
+        credits: false,
+        labelIdle: ' ',
         labelFileTypeNotAllowed: 'Loại file không được hỗ trợ',
         stylePanelLayout: 'compact',
         styleItemPanelAspectRatio: 1,
+        imagePreviewHeight: 96,
         beforeAddFile: (item) => {
             const file = item.file || item;
             if (!isAllowedFile(file)) {
@@ -431,9 +451,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('Error adding file:', error);
                 return;
             }
+            syncUploadZone();
             updateMediaPreviews();
         },
         onremovefile: () => {
+            syncUploadZone();
             updateMediaPreviews();
         },
         onreorderfiles: () => {
@@ -441,8 +463,87 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Nhạc + ghi âm
-    (function bindEditPageAudioTools() {
+    function syncUploadZone() {
+        if (!uploadZone) return;
+        uploadZone.classList.toggle('has-files', pond.getFiles().length > 0);
+    }
+    function revealUploadZone() {
+        if (!uploadZone) return Promise.resolve();
+        uploadZone.classList.add('has-files');
+        return new Promise((resolve) => {
+            window.requestAnimationFrame(() => window.requestAnimationFrame(resolve));
+        });
+    }
+    async function addFilesToPond(files) {
+        const list = Array.from(files || []).filter(Boolean);
+        if (!list.length) return;
+        await revealUploadZone();
+        for (const file of list) {
+            try {
+                // eslint-disable-next-line no-await-in-loop
+                await pond.addFile(file);
+            } catch (err) {
+                console.error(err);
+                alert(err?.message || `Không thể thêm file: ${file.name}`);
+            }
+        }
+        syncUploadZone();
+    }
+    syncUploadZone();
+
+    let pagePreviewUrls = [];
+    function revokePagePreviewUrls() {
+        pagePreviewUrls.forEach((u) => { try { URL.revokeObjectURL(u); } catch (_) {} });
+        pagePreviewUrls = [];
+    }
+    function openPondPreview(startIndex) {
+        if (!window.HoshiMediaLightbox?.open) return;
+        revokePagePreviewUrls();
+        const items = [];
+        let idx = 0;
+        pond.getFiles().forEach((fileItem, i) => {
+            const file = fileItem.file;
+            if (!(file instanceof Blob)) return;
+            let type = null;
+            if (isImageFile(file)) type = 'image';
+            else if (isVideoFile(file)) type = 'video';
+            else return;
+            const src = URL.createObjectURL(file);
+            pagePreviewUrls.push(src);
+            if (i === startIndex) idx = items.length;
+            items.push({ type, src });
+        });
+        if (!items.length) return;
+        window.HoshiMediaLightbox.open(items, idx);
+        const mo = new MutationObserver(() => {
+            if (!document.body.classList.contains('hoshi-lightbox-open')) {
+                revokePagePreviewUrls();
+                mo.disconnect();
+            }
+        });
+        mo.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    }
+    if (uploadZone) {
+        uploadZone.addEventListener('click', (e) => {
+            if (e.target.closest('.filepond--action-remove-item') || e.target.closest('button')) return;
+            const itemEl = e.target.closest('.filepond--item');
+            if (!itemEl || !uploadZone.classList.contains('has-files')) return;
+            const pondFiles = pond.getFiles();
+            let i = pondFiles.findIndex((f) => itemEl.id === `filepond--item-${f.id}`);
+            if (i < 0) i = Array.from(uploadZone.querySelectorAll('.filepond--item')).indexOf(itemEl);
+            if (i < 0) return;
+            const file = pondFiles[i]?.file;
+            if (!file || (!isImageFile(file) && !isVideoFile(file))) return;
+            e.preventDefault();
+            e.stopPropagation();
+            openPondPreview(i);
+        });
+    }
+
+    // Ảnh / Nhạc / Ghi âm
+    (function bindEditPageMediaTools() {
+        const mediaPickBtn = document.getElementById('editPageMediaPickBtn');
+        const mediaFileInput = document.getElementById('editPageMediaFileInput');
         const audioPickBtn = document.getElementById('editPageAudioPickBtn');
         const audioFileInput = document.getElementById('editPageAudioFileInput');
         const voiceRecordBtn = document.getElementById('editPageVoiceRecordBtn');
@@ -470,11 +571,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         function addAudio(file) {
             if (!file) return;
-            pond.addFile(file).catch((err) => {
-                console.error(err);
-                alert('Không thêm được file âm thanh.');
-            });
+            addFilesToPond([file]);
         }
+
+        mediaPickBtn?.addEventListener('click', () => mediaFileInput?.click());
+        mediaFileInput?.addEventListener('change', async () => {
+            const files = Array.from(mediaFileInput.files || []);
+            mediaFileInput.value = '';
+            await addFilesToPond(files);
+        });
 
         let mediaRecorder = null;
         let mediaStream = null;
@@ -511,8 +616,8 @@ document.addEventListener('DOMContentLoaded', function() {
         audioPickBtn?.addEventListener('click', () => audioFileInput?.click());
         audioFileInput?.addEventListener('change', () => {
             const file = audioFileInput.files && audioFileInput.files[0];
-            if (file) addAudio(file);
             audioFileInput.value = '';
+            if (file) addAudio(file);
         });
 
         async function startVoice() {
@@ -567,6 +672,32 @@ document.addEventListener('DOMContentLoaded', function() {
         voiceCancelBtn?.addEventListener('click', () => stopVoice(false));
         voiceSaveBtn?.addEventListener('click', () => stopVoice(true));
     })();
+
+    // Click preview media hiện có → xem to
+    document.querySelector('.media-previews')?.addEventListener('click', (e) => {
+        if (e.target.closest('.remove-media') || e.target.closest('audio') || e.target.closest('button')) return;
+        const item = e.target.closest('.media-preview-item');
+        if (!item || item.classList.contains('media-preview-item--audio')) return;
+        if (!window.HoshiMediaLightbox?.open) return;
+        const items = [];
+        let startIndex = 0;
+        Array.from(document.querySelectorAll('.media-previews .media-preview-item:not(.media-preview-item--audio)')).forEach((node) => {
+            const img = node.querySelector('img');
+            const video = node.querySelector('video');
+            if (img) {
+                if (node === item) startIndex = items.length;
+                items.push({ type: 'image', src: img.currentSrc || img.src });
+            } else if (video) {
+                const src = video.currentSrc || video.getAttribute('src');
+                if (!src) return;
+                if (node === item) startIndex = items.length;
+                items.push({ type: 'video', src });
+            }
+        });
+        if (!items.length) return;
+        e.preventDefault();
+        window.HoshiMediaLightbox.open(items, startIndex);
+    });
     
     // Hiển thị media hiện có
     loadExistingMedia();

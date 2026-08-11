@@ -1,5 +1,6 @@
 {% extends 'base/base.html' %}
 {% load static %}
+{% load post_tags %}
 
 {% block title %}{% if query %}Kết quả: {{ query }}{% else %}Tìm kiếm{% endif %} - {{ block.super }}{% endblock %}
 
@@ -305,7 +306,7 @@
                                                 {{ post.author.username }}
                                             </a>
                                             {% if post.location %}
-                                            <div class="text-muted small">{{ post.location }}</div>
+                                            <div class="text-muted small">{{ post.location|location_link }}</div>
                                             {% endif %}
                                         </div>
                                     </div>

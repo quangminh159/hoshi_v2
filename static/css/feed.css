@@ -225,11 +225,19 @@
 }
 
 
-.feed-page .carousel-item:has(video) {
+/* Chỉ active / đang chuyển slide mới flex — nếu luôn flex thì Bootstrap không ẩn slide video → lướt bị chồng/lỗi */
+.feed-page .carousel-item.active:has(video),
+.feed-page .carousel-item-next:has(video),
+.feed-page .carousel-item-prev:has(video) {
     min-height: 0;
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+/* Chốt: slide không active phải ẩn, kể cả slide có video */
+.feed-page .carousel-item:not(.active):not(.carousel-item-next):not(.carousel-item-prev) {
+    display: none !important;
 }
 
 .feed-page .shared-post-media .carousel.slide {
@@ -559,13 +567,34 @@
     box-shadow: none;
 }
 
-.feed-page .add-comment-form .btn-primary {
-    border-radius: 20px;
-    padding: 0.35rem 1rem;
-    font-size: 0.8125rem;
+.feed-page .add-comment-form .btn-primary,
+.feed-page .add-comment-form .comment-send-btn,
+.post-detail-page .comment-send-btn {
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
     font-weight: 600;
     background: var(--primary-color, #405de6);
     border: none;
+    flex-shrink: 0;
+}
+
+.feed-page .add-comment-form .comment-send-btn .btn-icon,
+.post-detail-page .comment-send-btn .btn-icon {
+    line-height: 1;
+}
+
+.feed-page .add-comment-form .comment-send-btn .spinner-border,
+.post-detail-page .comment-send-btn .spinner-border {
+    width: 1rem;
+    height: 1rem;
+    border-width: 0.15em;
 }
 
 .feed-page .comment-image-btn {
@@ -849,11 +878,113 @@
     color: #405de6 !important;
     font-weight: 700;
     text-decoration: none !important;
+    background: rgba(64, 93, 230, 0.12);
+    border-radius: 6px;
+    padding: 0.05em 0.28em;
+    display: inline;
+    line-height: 1.35;
 }
 
 .mention-link:hover {
     color: #2d46c9 !important;
-    text-decoration: underline !important;
+    background: rgba(64, 93, 230, 0.2);
+    text-decoration: none !important;
+}
+
+/* Highlight @mention ngay trong ô nhập bình luận */
+.mention-input-wrap {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+    align-self: stretch;
+    display: block;
+}
+
+.mention-input-backdrop {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    background: transparent;
+    color: var(--text-color, #262626);
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.mention-input-field.form-control,
+.mention-input-wrap > .form-control.mention-input-field,
+.mention-input-wrap > textarea.mention-input-field,
+.mention-input-wrap > input.mention-input-field {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    background: transparent !important;
+    color: transparent !important;
+    -webkit-text-fill-color: transparent !important;
+    caret-color: #111 !important;
+}
+
+/* Chip trong ô nhập: chỉ đổi màu, KHÔNG đổi độ rộng chữ (tránh lệch caret) */
+.mention-input-backdrop .mention-chip,
+.mention-input-backdrop .hashtag-chip {
+    color: #405de6;
+    font-weight: inherit;
+    background: rgba(64, 93, 230, 0.16);
+    border-radius: 0.25em;
+    padding: 0;
+    border: 0;
+    display: inline;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+}
+
+/* Chip khi đã đăng bài (được phép đậm hơn) */
+.mention-chip,
+.hashtag-chip {
+    color: #405de6;
+    font-weight: 700;
+    background: rgba(64, 93, 230, 0.14);
+    border-radius: 6px;
+    padding: 0.05em 0.22em;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+}
+
+.hashtag-chip {
+    font-weight: 600;
+}
+
+[data-bs-theme="dark"] .mention-input-backdrop {
+    color: #e4e4e7;
+}
+
+[data-bs-theme="dark"] .mention-input-field.form-control,
+[data-bs-theme="dark"] .mention-input-wrap > .form-control.mention-input-field,
+[data-bs-theme="dark"] .mention-input-wrap > input.mention-input-field {
+    caret-color: #f4f4f5 !important;
+}
+
+[data-bs-theme="dark"] .mention-input-backdrop .mention-chip,
+[data-bs-theme="dark"] .mention-input-backdrop .hashtag-chip {
+    color: #8aa4ff;
+    background: rgba(138, 164, 255, 0.2);
+    font-weight: inherit;
+    padding: 0;
+}
+
+[data-bs-theme="dark"] .mention-chip,
+[data-bs-theme="dark"] .hashtag-chip,
+[data-bs-theme="dark"] .mention-link {
+    color: #8aa4ff !important;
+    background: rgba(138, 164, 255, 0.18);
+}
+
+[data-bs-theme="dark"] .mention-link:hover {
+    background: rgba(138, 164, 255, 0.28);
+    color: #b4c4ff !important;
 }
 
 .hashtag-link {
@@ -863,6 +994,19 @@
 }
 
 .hashtag-link:hover {
+    text-decoration: underline !important;
+}
+
+.location-link,
+.feed-post-location .location-link {
+    color: #737373 !important;
+    font-weight: 500;
+    text-decoration: none !important;
+}
+
+.location-link:hover,
+.feed-post-location .location-link:hover {
+    color: #405de6 !important;
     text-decoration: underline !important;
 }
 

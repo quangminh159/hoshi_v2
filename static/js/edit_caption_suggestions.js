@@ -21,6 +21,112 @@
         field.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
+    function escapeHtml(str) {
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    function buildMentionHighlightHtml(text) {
+        const escaped = escapeHtml(text || '');
+        // Giữ khoảng trắng / xuống dòng khớp input
+        return escaped
+            .replace(/@([A-Za-z0-9_.]+)/g, '<mark class="mention-chip">@$1</mark>')
+            .replace(/#([A-Za-z0-9_]+)/g, '<mark class="hashtag-chip">#$1</mark>')
+            .replace(/\n$/g, '\n ');
+    }
+
+    /**
+     * Làm nổi @mention / #hashtag ngay trong ô nhập (overlay).
+     * Quan trọng: không đổi font-weight/padding trong backdrop kẻo lệch caret.
+     */
+    window.initMentionInputHighlight = function (field) {
+        if (!field || field.dataset.mentionHighlightBound === '1') return;
+        field.dataset.mentionHighlightBound = '1';
+
+        let wrap = field.closest('.mention-input-wrap');
+        if (!wrap) {
+            wrap = document.createElement('div');
+            wrap.className = 'mention-input-wrap';
+            field.parentNode.insertBefore(wrap, field);
+            wrap.appendChild(field);
+        }
+
+        let backdrop = wrap.querySelector('.mention-input-backdrop');
+        if (!backdrop) {
+            backdrop = document.createElement('div');
+            backdrop.className = 'mention-input-backdrop';
+            backdrop.setAttribute('aria-hidden', 'true');
+            wrap.insertBefore(backdrop, field);
+        }
+
+        field.classList.add('mention-input-field');
+
+        function syncStyles() {
+            const cs = window.getComputedStyle(field);
+            const props = [
+                'fontFamily', 'fontSize', 'fontWeight', 'fontStyle',
+                'fontVariant', 'letterSpacing', 'textTransform', 'lineHeight',
+                'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft',
+                'borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth',
+                'boxSizing', 'textAlign', 'direction',
+            ];
+            props.forEach((prop) => {
+                backdrop.style[prop] = cs[prop];
+            });
+            backdrop.style.borderStyle = 'solid';
+            backdrop.style.borderColor = 'transparent';
+            backdrop.style.whiteSpace = field.tagName === 'TEXTAREA' ? 'pre-wrap' : 'pre';
+            backdrop.style.wordWrap = 'break-word';
+            backdrop.style.overflowWrap = 'break-word';
+        }
+
+        function sync() {
+            syncStyles();
+            backdrop.innerHTML = buildMentionHighlightHtml(field.value);
+            backdrop.scrollTop = field.scrollTop;
+            backdrop.scrollLeft = field.scrollLeft;
+        }
+
+        field._syncMentionHighlight = sync;
+        field.addEventListener('input', sync);
+        field.addEventListener('scroll', sync);
+        field.addEventListener('change', sync);
+        // Khi code gán field.value = '' (không fire input), vẫn xóa overlay
+        const valueDesc = Object.getOwnPropertyDescriptor(
+            field.tagName === 'TEXTAREA'
+                ? HTMLTextAreaElement.prototype
+                : HTMLInputElement.prototype,
+            'value'
+        );
+        if (valueDesc && valueDesc.set && !field.dataset.mentionValuePatched) {
+            field.dataset.mentionValuePatched = '1';
+            Object.defineProperty(field, 'value', {
+                get() {
+                    return valueDesc.get.call(this);
+                },
+                set(v) {
+                    valueDesc.set.call(this, v);
+                    // sync ngay sau khi gán value từ JS
+                    if (typeof this._syncMentionHighlight === 'function') {
+                        this._syncMentionHighlight();
+                    }
+                },
+                configurable: true,
+            });
+        }
+        window.addEventListener('resize', syncStyles);
+        requestAnimationFrame(sync);
+    };
+
+    window.syncMentionInputHighlight = function (field) {
+        if (field && typeof field._syncMentionHighlight === 'function') {
+            field._syncMentionHighlight();
+        }
+    };
+
     /**
      * Gắn gợi ý #hashtag và/hoặc @mention cho textarea/input.
      * @param {HTMLTextAreaElement|HTMLInputElement} field
@@ -36,6 +142,10 @@
     window.initEditCaptionSuggestions = function (field, options) {
         if (!field || field.dataset.captionSuggestBound === '1') return;
         field.dataset.captionSuggestBound = '1';
+
+        if (typeof window.initMentionInputHighlight === 'function') {
+            window.initMentionInputHighlight(field);
+        }
 
         const hashtagUrl = options.hashtagUrl || '';
         const userUrl = options.userUrl;

@@ -32,6 +32,7 @@ urlpatterns = [
     path('<int:post_id>/report/', views.report_post, name='report_post'),
     path('<int:post_id>/likes/', views.get_post_likes, name='post_likes'),
     path('search/', views.search, name='search'),
+    path('location/', views.location_detail, name='location'),
     path('explore/', redirect_explore_to_search, name='explore'),
     path('api/comments/add/', views.api_add_comment, name='api_add_comment'),
     path('api/posts/load/', views.api_load_posts, name='api_load_posts'),

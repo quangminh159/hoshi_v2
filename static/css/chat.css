@@ -417,6 +417,7 @@ body:has(.chat-shell--detail) .chat-container {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 0.5rem;
     padding: 0.875rem 1.25rem;
     border-bottom: 1px solid var(--chat-border);
     background: var(--chat-surface);
@@ -425,11 +426,16 @@ body:has(.chat-shell--detail) .chat-container {
     box-shadow: 0 1px 0 rgba(28, 30, 33, 0.03);
 }
 
+.chat-header-back {
+    flex-shrink: 0;
+}
+
 .chat-user-info {
     display: flex;
     align-items: center;
     gap: 0.75rem;
     min-width: 0;
+    flex: 1;
 }
 
 .user-avatar {
@@ -504,9 +510,11 @@ body:has(.chat-shell--detail) .chat-container {
     background: #31a24c;
 }
 
-.chat-actions .btn-back {
+.chat-actions .btn-back,
+.chat-header-back.btn-back {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 0.4rem;
     padding: 0.45rem 0.9rem;
     border-radius: var(--chat-radius-pill);
@@ -519,7 +527,16 @@ body:has(.chat-shell--detail) .chat-container {
     transition: background 0.15s, border-color 0.15s;
 }
 
-.chat-actions .btn-back:hover {
+.chat-header-back.btn-back,
+.chat-actions .chat-action-icon.btn-back {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: 50%;
+}
+
+.chat-actions .btn-back:hover,
+.chat-header-back.btn-back:hover {
     background: var(--chat-bg);
     border-color: #d0d3d9;
     color: var(--chat-text);
@@ -1190,8 +1207,12 @@ body:has(.chat-shell--detail) .chat-container {
 
 @media (hover: none) {
     .message-options {
+        display: none;
+        opacity: 1;
+    }
+
+    .message.is-actions-open .message-options {
         display: flex;
-        opacity: 0.85;
     }
 }
 
@@ -2048,12 +2069,17 @@ body:has(.chat-shell--detail) .chat-container {
 }
 
 /* ============================================================
-   Responsive
+   Responsive — mobile chat
    ============================================================ */
 
 /* Trong khung chat chi tiết: ẩn bottom nav để không che ô nhập tin.
    Danh sách tin nhắn vẫn hiện thanh taskbar. */
 @media (max-width: 991.98px) {
+    :root {
+        --chat-nav-offset: 52px;
+        --chat-keyboard-offset: 0px;
+    }
+
     body.chat-detail-layout .mobile-bottom-nav,
     body:has(.chat-shell--detail) .mobile-bottom-nav {
         display: none !important;
@@ -2072,26 +2098,26 @@ body:has(.chat-shell--detail) .chat-container {
         display: flex !important;
         visibility: visible !important;
         pointer-events: auto !important;
-        height: 60px !important;
+        height: calc(60px + env(safe-area-inset-bottom, 0px)) !important;
         overflow: visible !important;
     }
 
     body.chat-layout.user-authenticated:not(.chat-detail-layout):not(:has(.chat-shell--detail)) .site-main {
-        padding-bottom: 72px !important;
+        padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
     }
 
     body.chat-detail-layout:has(.chat-shell--detail),
     body.chat-layout:has(.chat-shell--detail) {
-        --chat-nav-offset: 72px;
+        --chat-nav-offset: 52px;
         --chat-bottom-offset: 0px;
     }
 
     body.chat-detail-layout:has(.chat-shell--detail) main.container,
     body.chat-layout:has(.chat-shell--detail) main.container,
     body:has(.chat-shell--detail) main.container {
-        height: calc(100dvh - 72px);
-        max-height: calc(100dvh - 72px);
-        margin-top: 72px !important;
+        height: calc(100dvh - var(--chat-nav-offset) - var(--chat-keyboard-offset, 0px));
+        max-height: calc(100dvh - var(--chat-nav-offset) - var(--chat-keyboard-offset, 0px));
+        margin-top: var(--chat-nav-offset) !important;
         padding: 0 !important;
         padding-bottom: 0 !important;
         overflow: hidden;
@@ -2100,7 +2126,7 @@ body:has(.chat-shell--detail) .chat-container {
     body.chat-detail-layout .chat-input,
     body.chat-layout .chat-input,
     body:has(.chat-shell--detail) .chat-input {
-        padding-bottom: calc(0.875rem + env(safe-area-inset-bottom, 0px));
+        padding: 0.55rem 0.65rem calc(0.55rem + env(safe-area-inset-bottom, 0px));
         position: relative;
         z-index: 20;
         background: var(--chat-surface);
@@ -2111,6 +2137,7 @@ body:has(.chat-shell--detail) .chat-container {
     body.chat-layout .chat-input-row {
         flex-wrap: nowrap;
         min-width: 0;
+        gap: 0.4rem;
     }
 
     body.chat-detail-layout .chat-input-wrapper,
@@ -2123,13 +2150,60 @@ body:has(.chat-shell--detail) .chat-container {
     body.chat-layout .voice-record-btn,
     body.chat-layout .chat-input button[type="submit"] {
         flex-shrink: 0;
+        width: 44px;
+        height: 44px;
+    }
+
+    .chat-header {
+        padding: 0.45rem 0.55rem;
+        min-height: 56px;
+        gap: 0.35rem;
+    }
+
+    .chat-header-back.btn-back,
+    .chat-actions .chat-action-icon.btn-back {
+        width: 42px;
+        height: 42px;
+        min-width: 42px;
+        border: none;
+        background: transparent;
+    }
+
+    .chat-header .user-avatar {
+        width: 38px;
+        height: 38px;
+    }
+
+    .chat-header .user-name {
+        font-size: 0.95rem;
+    }
+
+    .chat-header .user-status {
+        font-size: 0.7rem;
+    }
+
+    .chat-actions {
+        gap: 0.15rem;
+        flex-shrink: 0;
+    }
+
+    .chat-page {
+        min-height: calc(100dvh - var(--chat-nav-offset));
+    }
+
+    .chat-shell {
+        min-height: calc(100dvh - var(--chat-nav-offset) - 4.5rem);
+    }
+
+    body.chat-layout:not(.chat-detail-layout) .chat-shell {
+        margin-bottom: 0.5rem;
     }
 }
 
 @media (max-width: 768px) {
     body:has(.chat-shell--detail) main.container {
-        height: calc(100dvh - var(--chat-nav-offset));
-        max-height: calc(100dvh - var(--chat-nav-offset));
+        height: calc(100dvh - var(--chat-nav-offset) - var(--chat-keyboard-offset, 0px));
+        max-height: calc(100dvh - var(--chat-nav-offset) - var(--chat-keyboard-offset, 0px));
         margin-top: var(--chat-nav-offset) !important;
         padding: 0 !important;
     }
@@ -2148,7 +2222,7 @@ body:has(.chat-shell--detail) .chat-container {
         border-radius: 0;
         border: none;
         box-shadow: none;
-        min-height: calc(100vh - var(--chat-nav-offset));
+        min-height: calc(100dvh - var(--chat-nav-offset));
         max-width: 100%;
     }
 
@@ -2158,15 +2232,34 @@ body:has(.chat-shell--detail) .chat-container {
     }
 
     .chat-list-header {
-        padding: 1rem;
+        padding: 0.85rem 1rem;
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        background: var(--chat-surface);
     }
 
     .message {
-        max-width: 82%;
+        max-width: 86%;
+    }
+
+    .message-media img,
+    .message-media video,
+    .chat-messages img,
+    .chat-messages video {
+        max-width: min(75vw, 280px);
+        border-radius: 12px;
     }
 
     .delete-conversation {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .conversation-wrapper.is-actions-open .delete-conversation,
+    .conversation-wrapper:focus-within .delete-conversation {
         opacity: 1;
+        pointer-events: auto;
     }
 
     .conversation-wrapper:hover .conversation-item,
@@ -2175,19 +2268,42 @@ body:has(.chat-shell--detail) .chat-container {
     }
 
     .chat-input {
-        padding-left: 0.75rem;
-        padding-right: 0.75rem;
+        padding-left: 0.65rem;
+        padding-right: 0.65rem;
+    }
+
+    .chat-input textarea {
+        font-size: 16px; /* tránh zoom iOS */
+        padding: 0.55rem 0.65rem;
+        min-height: 28px;
+    }
+
+    .chat-input-wrapper {
+        border-radius: 22px;
+        padding: 0.2rem 0.35rem 0.2rem 0.2rem;
+    }
+
+    .chat-composer.has-text .voice-record-btn {
+        display: none;
+    }
+
+    .chat-composer:not(.has-text) button[type="submit"] {
+        display: none;
     }
 
     .voice-recording-bar {
         padding-left: 0.25rem;
         padding-right: 0.25rem;
     }
+
+    .conversation-unread-dot {
+        display: none;
+    }
 }
 
 @media (max-width: 576px) {
     :root {
-        --chat-nav-offset: 72px;
+        --chat-nav-offset: 52px;
     }
 
     .user-list {
@@ -2196,18 +2312,22 @@ body:has(.chat-shell--detail) .chat-container {
     }
 
     .chat-input-row {
-        gap: 0.4rem;
+        gap: 0.35rem;
     }
 
     .voice-record-btn,
     .chat-input button[type="submit"] {
-        width: 40px;
-        height: 40px;
+        width: 44px;
+        height: 44px;
     }
 
     .message-audio .voice-message {
         min-width: 150px;
         max-width: min(240px, 70vw);
+    }
+
+    .chat-header-back-label {
+        display: none !important;
     }
 }
 

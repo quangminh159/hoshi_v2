@@ -1155,17 +1155,21 @@ def location_suggestions(request):
     db_locations = (
         Post.objects.filter(location__icontains=query)
         .exclude(location='')
-        .values_list('location', flat=True)
-        .distinct()[:5]
+        .values('location')
+        .annotate(posts_count=Count('id'))
+        .order_by('-posts_count')[:5]
     )
-    for location in db_locations:
+    for row in db_locations:
+        location = row['location']
         key = location.lower()
         if key in seen:
             continue
         seen.add(key)
+        count = row['posts_count']
         results.append({
             'name': location[:100],
             'full_name': location,
+            'posts_count': count,
             'source': 'recent',
         })
 

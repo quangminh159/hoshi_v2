@@ -899,7 +899,7 @@ function initializeCommentForms() {
             const submitButton = this.querySelector('button[type="submit"]');
             const originalText = submitButton.innerHTML;
             submitButton.disabled = true;
-            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Đang gửi...';
+            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
             
             // Vô hiệu hóa input để ngăn người dùng thay đổi
             commentInput.disabled = true;
@@ -971,6 +971,10 @@ function initializeCommentForms() {
                     
                     // Xóa nội dung input và ẩn thông tin trả lời
                     commentInput.value = '';
+                    commentInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    if (typeof window.syncMentionInputHighlight === 'function') {
+                        window.syncMentionInputHighlight(commentInput);
+                    }
                     if (imageInput) imageInput.value = '';
                     if (replyInfo) replyInfo.classList.add('d-none');
                     form.removeAttribute('data-parent-id');
