@@ -56,7 +56,7 @@ function throttle(func, limit) {
     };
 }
 
-/** Logo + chữ Moora: hover có CSS; click logo / trang chủ thì animate rồi mới reload. */
+/** Logo + chữ Moora: hover có CSS; click logo / trang chủ thì animate (không reload nếu đã ở home). */
 const BRAND_ANIM_KEY = 'mooraBrandAnim';
 const BRAND_ANIM_MS = 980;
 const BRAND_NAV_DELAY_MS = 720;
@@ -100,15 +100,36 @@ function maybePlayBrandAnimFromNavigation() {
     });
 }
 
+function samePageUrl(url) {
+    try {
+        const target = new URL(url, window.location.origin);
+        if (target.origin !== window.location.origin) return false;
+        const curPath = window.location.pathname.replace(/\/+$/, '') || '/';
+        const nextPath = target.pathname.replace(/\/+$/, '') || '/';
+        return curPath === nextPath && target.search === window.location.search;
+    } catch (err) {
+        return false;
+    }
+}
+
+function softStayOnPage() {
+    try {
+        window.scrollTo({ top: 0, behavior: preferReducedMotion() ? 'auto' : 'smooth' });
+    } catch (err) {
+        window.scrollTo(0, 0);
+    }
+}
+
 function navigateHomeWithBrandAnim(url) {
-    requestBrandAnimOnNextHome();
     playBrandLogoAnimation();
+    // Đã ở trang chủ → chỉ animate + kéo lên đầu, không reload
+    if (!url || samePageUrl(url) || (isHomePath(window.location.pathname) && isHomePath(new URL(url || '/', window.location.origin).pathname))) {
+        softStayOnPage();
+        return;
+    }
+    requestBrandAnimOnNextHome();
     const delay = preferReducedMotion() ? 0 : BRAND_NAV_DELAY_MS;
     window.setTimeout(() => {
-        if (!url || isHomePath(new URL(url, window.location.origin).pathname) && isHomePath(window.location.pathname)) {
-            window.location.reload();
-            return;
-        }
         window.location.href = url;
     }, delay);
 }
@@ -116,12 +137,20 @@ function navigateHomeWithBrandAnim(url) {
 document.addEventListener('click', (e) => {
     const logoLink = e.target.closest('a.brand-logo');
     if (logoLink) {
-        if (isHomePath(logoLink.pathname)) {
+        if (isHomePath(logoLink.pathname) || samePageUrl(logoLink.href)) {
             e.preventDefault();
             navigateHomeWithBrandAnim(logoLink.href);
         } else {
             playBrandLogoAnimation();
         }
+        return;
+    }
+
+    // Thanh task mobile: nếu đang đúng trang đó → không reload
+    const bottomNav = e.target.closest('a.mobile-bottom-nav__item');
+    if (bottomNav && bottomNav.href && samePageUrl(bottomNav.href)) {
+        e.preventDefault();
+        softStayOnPage();
         return;
     }
 

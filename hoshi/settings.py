@@ -57,6 +57,10 @@ CSRF_TRUSTED_ORIGINS = [
 # Application definition
 
 INSTALLED_APPS = [
+    # Admin theme (phải trước django.contrib.admin)
+    'admin_interface',
+    'colorfield',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -87,6 +91,7 @@ INSTALLED_APPS = [
     'two_factor',
     
     # Local apps
+    'hoshi.apps.HoshiConfig',
     'accounts.apps.AccountsConfig',
     'posts.apps.PostsConfig',
     'chat.apps.ChatConfig',

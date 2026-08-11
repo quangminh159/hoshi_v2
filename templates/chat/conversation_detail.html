@@ -16,7 +16,7 @@
   <div class="chat-shell chat-shell--detail">
     <div class="chat-container">
       <div class="chat-header">
-        <a href="{% if is_pending_request %}{% url 'chat:message_requests' %}{% else %}{% url 'chat:conversation_list' %}{% endif %}" class="btn-back chat-header-back" title="{% trans 'Quay lại' %}" aria-label="{% trans 'Quay lại' %}">
+        <a href="{% if is_pending_request %}{% url 'chat:message_requests' %}{% else %}{% url 'chat:conversation_list' %}{% endif %}" class="btn-back chat-header-back" >
           <i class="fas fa-arrow-left"></i>
           <span class="chat-header-back-label d-none d-md-inline">{% trans "Quay lại" %}</span>
         </a>

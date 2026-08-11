@@ -56,14 +56,14 @@
 
 <style>
 .qr-code-container {
-    background: #fff;
+    background: var(--card-bg, #fff);
     padding: 1rem;
     border-radius: 0.5rem;
     display: inline-block;
 }
 
 .secret-key {
-    background: #f8f9fa;
+    background: var(--surface-muted, #f8f9fa);
     padding: 1rem;
     border-radius: 0.5rem;
 }
@@ -71,7 +71,7 @@
 .secret-key code {
     letter-spacing: 0.25rem;
     background: none;
-    color: #212529;
+    color: var(--text-color, #212529);
 }
 
 input[type="text"] {

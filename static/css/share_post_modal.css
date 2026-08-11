@@ -15,7 +15,7 @@
     padding: 0.55rem 0.75rem;
     margin: 0;
     cursor: pointer;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    border-bottom: 1px solid var(--border-color, rgba(0, 0, 0, 0.06));
     transition: background 0.12s ease;
 }
 
@@ -24,7 +24,7 @@
 }
 
 .share-recipient-item:hover {
-    background: rgba(0, 0, 0, 0.03);
+    background: var(--hover-bg, rgba(0, 0, 0, 0.03));
 }
 
 .share-recipient-avatar {
@@ -39,12 +39,13 @@
     flex: 1;
     font-size: 0.9rem;
     font-weight: 500;
+    color: var(--text-color, inherit);
 }
 
 .share-recipient-badge {
     font-size: 0.7rem;
-    color: #6c757d;
-    background: #f1f3f5;
+    color: var(--light-text-color, #6c757d);
+    background: var(--surface-muted, #f1f3f5);
     padding: 0.15rem 0.45rem;
     border-radius: 999px;
 }

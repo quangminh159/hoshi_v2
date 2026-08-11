@@ -15,6 +15,7 @@ def _configure_sqlite(sender, connection, **kwargs):
 class PostsConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'posts'
+    verbose_name = '2. Bài viết & Story'
 
     def ready(self):
         connection_created.connect(_configure_sqlite)

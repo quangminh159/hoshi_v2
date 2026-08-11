@@ -14,7 +14,7 @@ body.profile-layout.bg-light {
 }
 
 .profile-shell {
-    max-width: 640px;
+    max-width: 740px;
     margin: 0 auto;
     padding: 0 0 2rem;
 }
@@ -330,6 +330,53 @@ body.profile-layout.bg-light {
     max-width: 100%;
 }
 
+/* Bài viết trên profile: media to hơn feed thường một chút */
+.profile-feed.feed-page {
+    max-width: 100%;
+    padding: 0;
+}
+
+.profile-feed #posts-container .card,
+.profile-feed #posts-container .feed-post-card {
+    border-radius: 18px;
+}
+
+.profile-feed #posts-container .card-header {
+    padding: 1rem 1.15rem 0.55rem;
+}
+
+.profile-feed #posts-container .card-body {
+    padding: 0.55rem 1.15rem;
+}
+
+.profile-feed #posts-container .card-body .card-text {
+    font-size: 1.05rem;
+    line-height: 1.6;
+}
+
+.profile-feed #posts-container .card-header img {
+    width: 48px;
+    height: 48px;
+}
+
+.profile-feed #posts-container .card-header a.fw-bold {
+    font-size: 1rem;
+}
+
+.profile-feed .carousel.slide,
+.profile-feed .shared-post-media .carousel.slide {
+    width: 100%;
+    max-width: 100%;
+    aspect-ratio: 1 / 1;
+    max-height: min(78vh, 720px);
+    margin: 0.4rem 0 0.55rem;
+    border-radius: 0;
+}
+
+.profile-feed #posts-container .card-footer {
+    padding: 0.65rem 1.15rem 1rem;
+}
+
 .profile-feed #posts-container .fas.fa-heart {
     color: inherit !important;
 }
@@ -477,7 +524,28 @@ body.profile-layout.bg-light {
     }
 
     .profile-shell {
-        padding: 0.65rem 0.75rem 1.5rem;
+        padding: 0.65rem 0.5rem 1.5rem;
+        max-width: 100%;
+    }
+
+    .profile-feed .carousel.slide,
+    .profile-feed .shared-post-media .carousel.slide {
+        max-height: min(82vh, 100vw);
+        border-radius: 0;
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .profile-feed #posts-container .card,
+    .profile-feed #posts-container .feed-post-card {
+        border-radius: 14px;
+    }
+
+    .profile-feed #posts-container .card-header,
+    .profile-feed #posts-container .card-body,
+    .profile-feed #posts-container .card-footer {
+        padding-left: 0.9rem;
+        padding-right: 0.9rem;
     }
 
     .profile-hero {

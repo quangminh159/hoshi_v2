@@ -12,11 +12,18 @@ User = get_user_model()
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
-    list_display = ('id', 'author', 'created_at', 'likes_count', 'comments_count', 'is_archived')
-    list_filter = ('is_archived', 'created_at')
+    list_display = ('id', 'author', 'short_caption', 'created_at', 'likes_count', 'comments_count', 'is_archived', 'disable_comments')
+    list_filter = ('is_archived', 'disable_comments', 'created_at')
     search_fields = ('author__username', 'caption', 'location')
     readonly_fields = ('created_at', 'updated_at', 'likes_count', 'comments_count')
     date_hierarchy = 'created_at'
+    autocomplete_fields = ('author', 'shared_from')
+    list_per_page = 40
+
+    @admin.display(description='Caption')
+    def short_caption(self, obj):
+        text = (obj.caption or '').strip()
+        return (text[:60] + '…') if len(text) > 60 else (text or '—')
     
     fieldsets = (
         ('Thông tin bài viết', {
@@ -57,11 +64,21 @@ class PostAdmin(admin.ModelAdmin):
 
 @admin.register(PostReport)
 class PostReportAdmin(admin.ModelAdmin):
-    list_display = ('user', 'post', 'reason', 'created_at', 'is_resolved', 'is_valid')
+    list_display = ('user', 'post', 'reason', 'created_at', 'is_resolved', 'is_valid', 'pending_badge')
     list_filter = ('reason', 'is_resolved', 'is_valid', 'created_at')
     search_fields = ('user__username', 'post__caption', 'details')
     readonly_fields = ('user', 'post', 'reason', 'details', 'created_at')
     date_hierarchy = 'created_at'
+    ordering = ('is_resolved', '-created_at')
+    list_per_page = 40
+    autocomplete_fields = ('resolved_by',)
+
+    @admin.display(description='Hàng đợi')
+    def pending_badge(self, obj):
+        from django.utils.html import format_html
+        if obj.is_resolved:
+            return format_html('<span style="color:#16a34a;">Đã xử lý</span>')
+        return format_html('<span style="color:#dc2626;font-weight:700;">Chờ duyệt</span>')
     
     fieldsets = (
         ('Thông tin báo cáo', {

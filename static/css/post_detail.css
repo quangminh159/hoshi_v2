@@ -12,8 +12,8 @@
     align-items: center;
     gap: 0.75rem;
     padding: 0.75rem 1rem;
-    border-bottom: 1px solid #efefef;
-    background: #fff;
+    border-bottom: 1px solid var(--border-color, #efefef);
+    background: var(--surface-color, #fff);
     position: sticky;
     top: 0;
     z-index: 10;
@@ -26,27 +26,27 @@
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    color: #262626;
+    color: var(--text-color, #262626);
     text-decoration: none;
     transition: background 0.15s;
 }
 
 .post-detail-back:hover {
-    background: #f5f5f5;
-    color: #111;
+    background: var(--hover-bg, #f5f5f5);
+    color: var(--text-color, #111);
 }
 
 .post-detail-topbar-title {
     font-size: 1rem;
     font-weight: 600;
-    color: #262626;
+    color: var(--text-color, #262626);
 }
 
 .post-detail-page .post-detail-card {
     border: none;
     border-radius: 0;
     box-shadow: none;
-    background: #fff;
+    background: var(--card-bg, #fff);
 }
 
 .post-detail-page .feed-post-body {
@@ -722,7 +722,7 @@
 
 @media (max-width: 991.98px) {
     body.post-detail-layout {
-        background: #fff !important;
+        background: var(--background-color, #fff) !important;
     }
 
     /* Chi hien topbar "Bai viet", an navbar/menu chung */

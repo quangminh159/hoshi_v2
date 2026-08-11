@@ -481,3 +481,46 @@
         animation: none !important;
     }
 }
+
+/* Dark: nút primary không được dùng --af-ink (đã là màu chữ sáng) làm nền */
+[data-bs-theme="dark"] .auth-flow__btn--primary {
+    background: #fafaf9 !important;
+    color: #1c1917 !important;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+}
+
+[data-bs-theme="dark"] .auth-flow__btn--primary:hover {
+    background: #e7e5e4 !important;
+    color: #0c0a09 !important;
+}
+
+[data-bs-theme="dark"] .auth-flow__btn--ghost {
+    color: #e7e5e4 !important;
+    border-color: rgba(245, 245, 244, 0.22) !important;
+    background: transparent !important;
+}
+
+[data-bs-theme="dark"] .auth-flow__btn--ghost:hover {
+    background: rgba(245, 245, 244, 0.06) !important;
+    color: #2dd4bf !important;
+    border-color: rgba(45, 212, 191, 0.4) !important;
+}
+
+[data-bs-theme="dark"] .auth-flow__tabs {
+    background: rgba(12, 10, 9, 0.55) !important;
+}
+
+[data-bs-theme="dark"] .auth-flow__tab {
+    color: #a8a29e !important;
+}
+
+[data-bs-theme="dark"] .auth-flow__tab.is-active {
+    background: rgba(45, 212, 191, 0.16) !important;
+    color: #fafaf9 !important;
+    box-shadow: inset 0 0 0 1px rgba(45, 212, 191, 0.35);
+}
+
+[data-bs-theme="dark"] .auth-flow__tab:hover:not(.is-active) {
+    background: rgba(245, 245, 244, 0.06) !important;
+    color: #e7e5e4 !important;
+}

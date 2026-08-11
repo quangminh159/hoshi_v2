@@ -27,6 +27,26 @@
     --chat-messages-bg: #f3f4f7;
 }
 
+[data-bs-theme="dark"] {
+    --chat-primary: #8aa4ff;
+    --chat-primary-dark: #6b86f0;
+    --chat-primary-light: rgba(138, 164, 255, 0.14);
+    --chat-accent: #8aa4ff;
+    --chat-bg: #0b0b0d;
+    --chat-surface: #161618;
+    --chat-border: #2e2e33;
+    --chat-text: #f2f2f2;
+    --chat-text-muted: #a8a8ae;
+    --chat-text-light: #8a8a90;
+    --chat-warning-bg: rgba(245, 197, 24, 0.12);
+    --chat-warning-border: #b8960f;
+    --chat-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+    --chat-shadow-lg: 0 8px 28px rgba(0, 0, 0, 0.45);
+    --chat-sent-bg: rgba(138, 164, 255, 0.18);
+    --chat-sent-border: rgba(138, 164, 255, 0.28);
+    --chat-messages-bg: #0f0f12;
+}
+
 /* ---- Page layout ---- */
 .chat-page {
     min-height: calc(100vh - var(--chat-nav-offset));

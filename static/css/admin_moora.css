@@ -1,0 +1,147 @@
+/* Moora Admin — dashboard kiểm duyệt */
+.moora-admin-dashboard #content {
+    max-width: 1280px;
+}
+
+.moora-ops {
+    margin: 0 0 1.75rem;
+    padding: 1.25rem 1.35rem 1.4rem;
+    border-radius: 16px;
+    background: linear-gradient(145deg, #0f172a 0%, #1e293b 55%, #0ea5e9 160%);
+    color: #f8fafc;
+    box-shadow: 0 12px 40px rgba(15, 23, 42, 0.18);
+}
+
+.moora-ops__intro h2 {
+    margin: 0 0 0.35rem;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.moora-ops__intro p {
+    margin: 0 0 1.1rem;
+    color: rgba(248, 250, 252, 0.78);
+    font-size: 0.92rem;
+    max-width: 52rem;
+}
+
+.moora-ops__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.moora-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 0.95rem 1rem;
+    border-radius: 12px;
+    text-decoration: none !important;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.moora-card:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.14);
+}
+
+.moora-card__label {
+    font-size: 0.78rem;
+    color: rgba(248, 250, 252, 0.75);
+    font-weight: 500;
+}
+
+.moora-card__value {
+    font-size: 1.65rem;
+    line-height: 1.1;
+    color: #fff;
+    font-weight: 700;
+}
+
+.moora-card--danger { border-color: rgba(248, 113, 113, 0.45); }
+.moora-card--warn { border-color: rgba(251, 191, 36, 0.45); }
+.moora-card--purple { border-color: rgba(192, 132, 252, 0.45); }
+.moora-card--slate { border-color: rgba(148, 163, 184, 0.45); }
+.moora-card--blue { border-color: rgba(96, 165, 250, 0.45); }
+.moora-card--teal { border-color: rgba(45, 212, 191, 0.45); }
+
+.moora-ops__stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.55rem;
+    margin-bottom: 1rem;
+}
+
+.moora-stat {
+    background: rgba(15, 23, 42, 0.35);
+    border-radius: 10px;
+    padding: 0.7rem 0.8rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.moora-stat span {
+    font-size: 0.72rem;
+    color: rgba(248, 250, 252, 0.65);
+}
+
+.moora-stat strong {
+    font-size: 1.15rem;
+    color: #fff;
+}
+
+.moora-ops__quick h3 {
+    margin: 0 0 0.55rem;
+    font-size: 0.95rem;
+    color: #fff;
+}
+
+.moora-ops__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+}
+
+.moora-ops__links a {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.4rem 0.7rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #f8fafc !important;
+    text-decoration: none !important;
+    font-size: 0.78rem;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.moora-ops__links a:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+@media (max-width: 1100px) {
+    .moora-ops__grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .moora-ops__stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .moora-ops__grid,
+    .moora-ops__stats {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Dark theme compatibility */
+html[data-theme="dark"] .moora-ops,
+:root[data-theme="dark"] .moora-ops {
+    box-shadow: none;
+}

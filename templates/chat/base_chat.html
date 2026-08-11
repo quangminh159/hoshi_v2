@@ -3,10 +3,9 @@
 
 {% block extra_css %}
 <style>
-  /* CSS RẤT QUAN TRỌNG - KHÔNG ĐƯỢC XÓA */
   .chat-sidebar {
-    background-color: #fafafa !important;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1) !important;
+    background-color: var(--chat-surface, #fafafa) !important;
+    box-shadow: 0 0 10px var(--shadow-color, rgba(0, 0, 0, 0.1)) !important;
     border-radius: 8px !important;
     display: block !important;
     visibility: visible !important;
@@ -16,8 +15,8 @@
   
   .chat-sidebar-header {
     padding: 16px !important;
-    border-bottom: 1px solid #eee !important;
-    background-color: #f5f5f5 !important;
+    border-bottom: 1px solid var(--chat-border, #eee) !important;
+    background-color: var(--surface-muted, #f5f5f5) !important;
     border-top-left-radius: 8px !important;
     border-top-right-radius: 8px !important;
     display: flex !important;
@@ -30,14 +29,14 @@
   .chat-sidebar-header h2 {
     margin: 0 !important;
     font-size: 20px !important;
-    color: #333 !important;
+    color: var(--chat-text, #333) !important;
     visibility: visible !important;
     opacity: 1 !important;
   }
   
   .chat-sidebar-search {
     padding: 16px !important;
-    border-bottom: 1px solid #eee !important;
+    border-bottom: 1px solid var(--chat-border, #eee) !important;
     display: block !important;
     visibility: visible !important;
     opacity: 1 !important;
@@ -47,8 +46,9 @@
     width: 100% !important;
     padding: 10px 12px !important;
     border-radius: 20px !important;
-    border: 1px solid #ddd !important;
-    background-color: #fff !important;
+    border: 1px solid var(--chat-border, #ddd) !important;
+    background-color: var(--input-bg, #fff) !important;
+    color: var(--chat-text, #111) !important;
     display: block !important;
     visibility: visible !important;
     opacity: 1 !important;
@@ -65,7 +65,7 @@
   
   .chat-sidebar-conversation {
     padding: 16px !important;
-    border-bottom: 1px solid #eee !important;
+    border-bottom: 1px solid var(--chat-border, #eee) !important;
     transition: background-color 0.2s !important;
     cursor: pointer !important;
     display: flex !important;
@@ -75,12 +75,12 @@
   }
   
   .chat-sidebar-conversation:hover {
-    background-color: #f5f5f5 !important;
+    background-color: var(--hover-bg, #f5f5f5) !important;
   }
   
   .chat-sidebar-conversation.active {
-    background-color: #e6f7ff !important;
-    border-left: 4px solid #1890ff !important;
+    background-color: var(--chat-primary-light, #e6f7ff) !important;
+    border-left: 4px solid var(--primary-color, #1890ff) !important;
   }
   
   .chat-sidebar-conversation-avatar {
@@ -145,8 +145,8 @@
   
   .chat-sidebar-footer {
     padding: 16px !important;
-    border-top: 1px solid #eee !important;
-    background-color: #f5f5f5 !important;
+    border-top: 1px solid var(--chat-border, #eee) !important;
+    background-color: var(--surface-muted, #f5f5f5) !important;
     border-bottom-left-radius: 8px !important;
     border-bottom-right-radius: 8px !important;
     display: flex !important;

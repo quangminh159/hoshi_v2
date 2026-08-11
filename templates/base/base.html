@@ -37,7 +37,7 @@
     <link href="{% static 'css/cross_browser.css' %}?v=2" rel="stylesheet">
     <link href="{% static 'css/style.css' %}?v=mobile-fixed-chat-2" rel="stylesheet">
     <link href="{% static 'css/theme.css' %}?v=moora-font-1" rel="stylesheet">
-    <link href="{% static 'css/notification_dropdown.css' %}" rel="stylesheet">
+    <link href="{% static 'css/notification_dropdown.css' %}?v=dark-notif-1" rel="stylesheet">
     <link href="{% static 'css/media_lightbox.css' %}?v=5" rel="stylesheet">
     <link href="{% static 'css/webrtc_call.css' %}?v=13" rel="stylesheet">
     
@@ -48,6 +48,8 @@
     {% block extra_css %}{% endblock %}
     <link href="{% static 'css/hoshi_audio_player.css' %}?v=11" rel="stylesheet">
     <link href="{% static 'css/like_effects.css' %}?v=4" rel="stylesheet">
+    <!-- Dark mode overrides — PHẢI load cuối để đè CSS trang -->
+    <link href="{% static 'css/dark_mode.css' %}?v=dark-opt-2" rel="stylesheet">
 </head>
 <body class="bg-light{% if user.is_authenticated %} user-authenticated{% endif %}{% block body_class %}{% endblock %}" {% if user.is_authenticated %}data-user-id="{{ user.id }}"{% endif %}>
     <!-- Navbar -->
@@ -309,7 +311,7 @@
     
     <!-- Custom JS -->
     <script src="{% static 'js/theme.js' %}?v=1"></script>
-    <script src="{% static 'js/main.js' %}?v=comment-autosize-1"></script>
+    <script src="{% static 'js/main.js' %}?v=nav-no-reload-1"></script>
     <script src="{% static 'js/hoshi_audio_player.js' %}?v=8"></script>
     <script src="{% static 'js/like_effects.js' %}?v=4"></script>
     <script src="{% static 'js/debug_feed.js' %}"></script>

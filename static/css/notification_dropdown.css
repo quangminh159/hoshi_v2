@@ -109,3 +109,75 @@
     }
 }
 
+/* Dark mode — header / list / unread */
+[data-bs-theme="dark"] .notification-dropdown {
+    background: var(--card-bg, #18181b) !important;
+    border: 1px solid var(--border-color, #3a3a3a) !important;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55) !important;
+}
+
+[data-bs-theme="dark"] .notification-header {
+    background: var(--surface-muted, #1e1e22) !important;
+    border-bottom-color: var(--border-color, #3a3a3a) !important;
+    color: var(--text-color, #f2f2f2) !important;
+}
+
+[data-bs-theme="dark"] .notification-header h6,
+[data-bs-theme="dark"] .notification-header .mb-0 {
+    color: var(--text-color, #f2f2f2) !important;
+}
+
+[data-bs-theme="dark"] .notification-header .mark-all-read,
+[data-bs-theme="dark"] .notification-header .text-primary {
+    color: var(--link-color, #9eb4ff) !important;
+}
+
+[data-bs-theme="dark"] .notification-list {
+    background: var(--card-bg, #18181b) !important;
+}
+
+[data-bs-theme="dark"] .notification-item {
+    background: transparent !important;
+    color: var(--text-color, #f2f2f2) !important;
+    border-color: var(--border-color, #3a3a3a) !important;
+}
+
+[data-bs-theme="dark"] .notification-item.bg-light,
+[data-bs-theme="dark"] .notification-item:not(.bg-light) {
+    background: transparent !important;
+}
+
+[data-bs-theme="dark"] .notification-item:hover {
+    background: var(--hover-bg, #26262b) !important;
+}
+
+[data-bs-theme="dark"] .notification-item p,
+[data-bs-theme="dark"] .notification-item .mb-1,
+[data-bs-theme="dark"] .notification-item .text-muted,
+[data-bs-theme="dark"] .notification-item small {
+    color: var(--text-color, #f2f2f2) !important;
+}
+
+[data-bs-theme="dark"] .notification-item .text-muted,
+[data-bs-theme="dark"] .notification-item small.text-muted {
+    color: var(--light-text-color, #b8b8b8) !important;
+}
+
+[data-bs-theme="dark"] .notification-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+[data-bs-theme="dark"] .notification-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.28);
+}
+
+[data-bs-theme="dark"] .toast {
+    background-color: rgba(24, 24, 27, 0.96) !important;
+    color: var(--text-color, #f2f2f2) !important;
+}
+
+[data-bs-theme="dark"] .toast .toast-header {
+    border-bottom-color: var(--border-color, #3a3a3a);
+    color: var(--text-color, #f2f2f2);
+}
+

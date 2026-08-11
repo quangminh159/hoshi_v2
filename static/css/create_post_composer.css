@@ -1,18 +1,20 @@
 .create-post-card {
-    background: #fff;
-    border: 1px solid #efefef;
+    background: var(--card-bg, #fff);
+    border: 1px solid var(--border-color, #efefef);
     border-radius: 16px;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 4px 24px var(--shadow-color, rgba(0, 0, 0, 0.06));
     overflow: hidden;
+    color: var(--text-color, #262626);
 }
 
 .create-post-modal-content {
-    background: #fff;
-    border: 1px solid #efefef;
+    background: var(--card-bg, #fff);
+    border: 1px solid var(--border-color, #efefef);
     border-radius: 16px;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 4px 24px var(--shadow-color, rgba(0, 0, 0, 0.06));
     /* Cho dropdown gợi ý # / @ hiện ra ngoài vùng nội dung */
     overflow: visible;
+    color: var(--text-color, #262626);
 }
 
 .create-post-modal-dialog {
@@ -32,19 +34,19 @@
     align-items: center;
     justify-content: space-between;
     padding: 0.875rem 1.25rem;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid var(--border-color, #f0f0f0);
 }
 
 .create-post-header h1 {
     font-size: 1rem;
     font-weight: 600;
+    color: var(--text-color, #262626);
     margin: 0;
-    color: #262626;
 }
 
 .create-post-back,
 .create-post-cancel {
-    color: #737373;
+    color: var(--light-text-color, #737373);
     text-decoration: none;
     width: auto;
     min-width: 32px;

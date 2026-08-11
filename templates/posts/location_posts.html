@@ -23,22 +23,22 @@
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    color: #262626;
+    color: var(--text-color, #262626);
     text-decoration: none;
     font-weight: 600;
     font-size: 0.9375rem;
     padding: 0.4rem 0.65rem;
     border-radius: 10px;
-    border: 1px solid #efefef;
-    background: #fff;
+    border: 1px solid var(--border-color, #efefef);
+    background: var(--card-bg, #fff);
 }
 .location-back-home:hover {
-    background: #f5f5f5;
-    color: #111;
+    background: var(--hover-bg, #f5f5f5);
+    color: var(--text-color, #111);
 }
 .location-hero {
-    background: #fff;
-    border: 1px solid #efefef;
+    background: var(--card-bg, #fff);
+    border: 1px solid var(--border-color, #efefef);
     border-radius: 16px;
     padding: 1.5rem 1.25rem;
     margin-bottom: 1.25rem;
@@ -49,8 +49,8 @@
     height: 56px;
     margin: 0 auto 0.75rem;
     border-radius: 50%;
-    background: #eef2ff;
-    color: #405de6;
+    background: var(--chat-primary-light, #eef2ff);
+    color: var(--primary-color, #405de6);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -60,17 +60,18 @@
     font-size: 1.25rem;
     font-weight: 700;
     margin: 0 0 0.35rem;
-    color: #262626;
+    color: var(--text-color, #262626);
 }
 .location-hero-count {
-    color: #737373;
+    color: var(--light-text-color, #737373);
     font-size: 0.95rem;
     margin: 0;
 }
 .location-post-grid .card {
-    border: 1px solid #efefef;
+    border: 1px solid var(--border-color, #efefef);
     border-radius: 14px;
     overflow: hidden;
+    background: var(--card-bg, #fff);
 }
 .location-post-grid .card-img-top,
 .location-post-grid video.card-img-top {

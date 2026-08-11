@@ -1,12 +1,138 @@
-{% extends "admin/index.html" %}
-{% load i18n %}
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'admin/css/dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin_moora.css' %}?v=1">
+{% endblock %}
+
+{% block coltype %}colMS{% endblock %}
+{% block bodyclass %}{{ block.super }} dashboard moora-admin-dashboard{% endblock %}
+{% block nav-breadcrumbs %}{% endblock %}
+{% block nav-sidebar %}{% endblock %}
+
+{% block content %}
+{% if moora_dashboard %}
+<section class="moora-ops" aria-label="{% trans 'Tổng quan kiểm duyệt' %}">
+  <div class="moora-ops__intro">
+    <h2>{% trans "Trung tâm vận hành Moora" %}</h2>
+    <p>{% trans "Theo dõi báo cáo, tài khoản bị hạn chế và hoạt động gần đây — giống bàn điều khiển kiểm duyệt mạng xã hội." %}</p>
+  </div>
+
+  <div class="moora-ops__grid">
+    <a class="moora-card moora-card--danger" href="{% url 'admin:accounts_userreport_changelist' %}?resolved__exact=0">
+      <span class="moora-card__label">{% trans "Báo cáo user chờ xử lý" %}</span>
+      <strong class="moora-card__value">{{ moora_dashboard.pending_user_reports }}</strong>
+    </a>
+    <a class="moora-card moora-card--warn" href="{% url 'admin:posts_postreport_changelist' %}?is_resolved__exact=0">
+      <span class="moora-card__label">{% trans "Báo cáo bài viết chờ xử lý" %}</span>
+      <strong class="moora-card__value">{{ moora_dashboard.pending_post_reports }}</strong>
+    </a>
+    <a class="moora-card moora-card--purple" href="{% url 'admin:accounts_user_changelist' %}?is_suspended__exact=1">
+      <span class="moora-card__label">{% trans "Tài khoản đang đình chỉ" %}</span>
+      <strong class="moora-card__value">{{ moora_dashboard.suspended_users }}</strong>
+    </a>
+    <a class="moora-card moora-card--slate" href="{% url 'admin:accounts_user_changelist' %}?is_deleted__exact=1">
+      <span class="moora-card__label">{% trans "Tài khoản đã xóa mềm" %}</span>
+      <strong class="moora-card__value">{{ moora_dashboard.deleted_users }}</strong>
+    </a>
+    <a class="moora-card moora-card--blue" href="{% url 'admin:chat_conversation_changelist' %}?is_message_request__exact=1">
+      <span class="moora-card__label">{% trans "Tin nhắn chờ (requests)" %}</span>
+      <strong class="moora-card__value">{{ moora_dashboard.message_requests }}</strong>
+    </a>
+    <a class="moora-card moora-card--teal" href="{% url 'admin:accounts_userblock_changelist' %}">
+      <span class="moora-card__label">{% trans "Chặn mới (7 ngày)" %}</span>
+      <strong class="moora-card__value">{{ moora_dashboard.blocks_week }}</strong>
+    </a>
+  </div>
+
+  <div class="moora-ops__stats">
+    <div class="moora-stat">
+      <span>{% trans "User mới 24h" %}</span>
+      <strong>{{ moora_dashboard.users_24h }}</strong>
+    </div>
+    <div class="moora-stat">
+      <span>{% trans "Bài viết 24h" %}</span>
+      <strong>{{ moora_dashboard.posts_24h }}</strong>
+    </div>
+    <div class="moora-stat">
+      <span>{% trans "Bình luận 24h" %}</span>
+      <strong>{{ moora_dashboard.comments_24h }}</strong>
+    </div>
+    <div class="moora-stat">
+      <span>{% trans "Tin nhắn 24h" %}</span>
+      <strong>{{ moora_dashboard.messages_24h }}</strong>
+    </div>
+    <div class="moora-stat">
+      <span>{% trans "Story đang sống" %}</span>
+      <strong>{{ moora_dashboard.stories_active }}</strong>
+    </div>
+    <div class="moora-stat">
+      <span>{% trans "Tổng user" %}</span>
+      <strong>{{ moora_dashboard.total_users }}</strong>
+    </div>
+    <div class="moora-stat">
+      <span>{% trans "Tổng bài viết" %}</span>
+      <strong>{{ moora_dashboard.total_posts }}</strong>
+    </div>
+    <div class="moora-stat">
+      <span>{% trans "Cuộc trò chuyện" %}</span>
+      <strong>{{ moora_dashboard.total_conversations }}</strong>
+    </div>
+  </div>
+
+  <div class="moora-ops__quick">
+    <h3>{% trans "Lối tắt kiểm duyệt" %}</h3>
+    <div class="moora-ops__links">
+      <a href="{% url 'admin:accounts_userreport_changelist' %}?resolved__exact=0">{% trans "Hàng đợi báo cáo người dùng" %}</a>
+      <a href="{% url 'admin:posts_postreport_changelist' %}?is_resolved__exact=0">{% trans "Hàng đợi báo cáo bài viết" %}</a>
+      <a href="{% url 'admin:report_statistics' %}">{% trans "Thống kê báo cáo chi tiết" %}</a>
+      <a href="{% url 'admin:posts_post_changelist' %}">{% trans "Quản lý bài viết" %}</a>
+      <a href="{% url 'admin:posts_comment_changelist' %}">{% trans "Quản lý bình luận" %}</a>
+      <a href="{% url 'admin:posts_story_changelist' %}">{% trans "Quản lý story" %}</a>
+      <a href="{% url 'admin:chat_conversation_changelist' %}">{% trans "Quản lý chat" %}</a>
+      <a href="{% url 'admin:chat_conversationmessage_changelist' %}">{% trans "Tin nhắn" %}</a>
+      <a href="{% url 'admin:notifications_notification_changelist' %}">{% trans "Thông báo hệ thống" %}</a>
+      <a href="{% url 'admin:accounts_user_changelist' %}">{% trans "Người dùng" %}</a>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<div id="content-main">
+  {% include "admin/app_list.html" with app_list=app_list show_changelinks=True %}
+</div>
+{% endblock %}
 
 {% block sidebar %}
-{{ block.super }}
-<div class="module" style="margin-top: 20px;">
-    <h2>{% trans 'Thống kê báo cáo' %}</h2>
-    <ul>
-        <li><a href="{% url 'admin:report_statistics' %}">{% trans 'Xem thống kê báo cáo' %}</a></li>
-    </ul>
+<div id="content-related">
+  <div class="module" id="recent-actions-module">
+    <h2>{% translate 'Recent actions' %}</h2>
+    <h3>{% translate 'My actions' %}</h3>
+    {% load log %}
+    {% get_admin_log 12 as admin_log for_user user %}
+    {% if not admin_log %}
+      <p>{% translate 'None available' %}</p>
+    {% else %}
+      <ul class="actionlist">
+        {% for entry in admin_log %}
+          <li class="{% if entry.is_addition %}addlink{% endif %}{% if entry.is_change %}changelink{% endif %}{% if entry.is_deletion %}deletelink{% endif %}">
+            {% if entry.is_deletion or not entry.get_admin_url %}
+              {{ entry.object_repr }}
+            {% else %}
+              <a href="{{ entry.get_admin_url }}">{{ entry.object_repr }}</a>
+            {% endif %}
+            <br>
+            {% if entry.content_type %}
+              <span class="mini quiet">{% filter capfirst %}{{ entry.content_type.name }}{% endfilter %}</span>
+            {% else %}
+              <span class="mini quiet">{% translate 'Unknown content' %}</span>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
 </div>
-{% endblock %} 
+{% endblock %}

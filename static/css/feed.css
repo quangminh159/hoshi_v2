@@ -173,8 +173,8 @@
     min-height: 0;
     padding: 0.65rem 0.85rem;
     border-radius: 14px;
-    background: #f5f5f5;
-    border: 1px solid #ebebeb;
+    background: var(--surface-muted, #f5f5f5);
+    border: 1px solid var(--border-color, #ebebeb);
 }
 
 .feed-page .post-audio-player__icon {
@@ -185,10 +185,10 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: #fff;
-    color: #262626;
+    background: var(--card-bg, #fff);
+    color: var(--text-color, #262626);
     box-shadow: none;
-    border: 1px solid #e8e8e8;
+    border: 1px solid var(--border-color, #e8e8e8);
     font-size: 0.95rem;
 }
 
@@ -379,8 +379,8 @@
     margin-top: 0.35rem;
     margin-left: 0.5rem;
     padding: 0.5rem 0 0.25rem 0.75rem;
-    border-left: 2px solid #dbdbdb;
-    background: #fafafa;
+    border-left: 2px solid var(--border-color, #dbdbdb);
+    background: var(--surface-muted, #fafafa);
     border-radius: 0 8px 8px 0;
 }
 
@@ -533,10 +533,10 @@
 }
 
 .feed-page .add-comment-form .input-group {
-    background: #f8f9fa;
+    background: var(--surface-muted, #f8f9fa);
     border-radius: 24px;
     padding: 0.2rem 0.2rem 0.2rem 1rem;
-    border: 1px solid #efefef;
+    border: 1px solid var(--border-color, #efefef);
     align-items: flex-end;
 }
 
@@ -639,9 +639,10 @@
     gap: 0.5rem;
     padding: 0.5rem 0.75rem;
     border-radius: 12px;
-    background: #fafafa;
-    border: 1px solid #efefef;
+    background: var(--surface-muted, #fafafa);
+    border: 1px solid var(--border-color, #efefef);
     font-size: 0.8125rem;
+    color: var(--text-color, inherit);
 }
 
 .feed-page .comment-voice-recording-bar.d-none {

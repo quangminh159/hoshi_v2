@@ -261,10 +261,20 @@ class UserAdmin(BaseUserAdmin):
 
 @admin.register(UserReport)
 class UserReportAdmin(admin.ModelAdmin):
-    list_display = ('reporter', 'reported_user', 'reason', 'created_at', 'resolved', 'is_valid')
+    list_display = ('reporter', 'reported_user', 'reason', 'created_at', 'resolved', 'is_valid', 'pending_badge')
     list_filter = ('reason', 'resolved', 'is_valid', 'created_at')
     search_fields = ('reporter__username', 'reported_user__username', 'description')
     readonly_fields = ('reporter', 'reported_user', 'reason', 'description', 'created_at')
+    ordering = ('resolved', '-created_at')
+    list_per_page = 40
+    autocomplete_fields = ('resolved_by',)
+
+    @admin.display(description='Hàng đợi')
+    def pending_badge(self, obj):
+        from django.utils.html import format_html
+        if obj.resolved:
+            return format_html('<span style="color:#16a34a;">Đã xử lý</span>')
+        return format_html('<span style="color:#dc2626;font-weight:700;">Chờ duyệt</span>')
     fieldsets = (
         ('Thông tin báo cáo', {
             'fields': ('reporter', 'reported_user', 'reason', 'description', 'created_at')
