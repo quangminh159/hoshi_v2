@@ -7,7 +7,7 @@
 {% block body_class %} feed-layout{% endblock %}
 
 {% block extra_css %}
-<link href="{% static 'css/feed.css' %}?v=comment-author-italic-1" rel="stylesheet">
+<link href="{% static 'css/feed.css' %}?v=feed-tabs-soft-1" rel="stylesheet">
 <link href="{% static 'css/share_post_modal.css' %}" rel="stylesheet">
 {% include 'posts/includes/create_post_composer_assets.html' %}
 <style>
@@ -54,7 +54,7 @@
                 <div class="card-body py-3">
                     <div class="d-flex align-items-center">
                         <img src="{{ request.user.get_avatar_url }}"
-                             class="rounded-circle me-3 composer-avatar"
+                             class="rounded-circle me-3 composer-avatar js-self-avatar"
                              width="40" height="40"
                              alt="{{ request.user.username }}">
                         <div class="flex-grow-1 feed-composer-fake-input">{% trans "Bạn đang nghĩ gì?" %}</div>
@@ -104,7 +104,7 @@
 window.HOSHI_USER_SUGGESTIONS_URL = '{% url "posts:user_suggestions" %}';
 </script>
 <script src="{% static 'js/edit_caption_suggestions.js' %}?v=mention-clear-1"></script>
-<script src="{% static 'js/infinite_scroll.js' %}?v=comment-author-italic-1"></script>
+<script src="{% static 'js/infinite_scroll.js' %}?v=comment-compose-fix-1"></script>
 <script src="{% static 'js/share_post_modal.js' %}?v=no-as-new-1"></script>
 <script>
 window.currentUserId = '{{ request.user.id }}';

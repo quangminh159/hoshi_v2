@@ -1,0 +1,65 @@
+========== TURN TỰ HOST (KHÔNG DÙNG BÊN THỨ 3) ==========
+
+Cuộc gọi WebRTC cần TURN khi 2 máy khác mạng (4G ↔ WiFi).
+Moora dùng coturn chạy trên máy/VPS CỦA BẠN — media không qua Metered/Google.
+
+Ghi chú riêng tư:
+- Tin nhắn / tài khoản vốn đã nằm trên server Django của bạn
+- TURN chỉ chuyển gói thoại/video đã mã hóa (SRTP) giữa 2 trình duyệt
+- Không tạo app trên metered.live nếu bạn muốn giữ trong hệ thống mình
+
+----------------------------------------
+A) MÁY LOCAL CÓ IP PUBLIC (như đang test)
+----------------------------------------
+1. Lấy IP public máy bạn (ipconfig / Wi-Fi, hoặc https://api.ipify.org)
+
+2. Trong .env:
+
+TURN_EXTERNAL_IP=IP_PUBLIC_CUA_BAN
+TURN_HOST=IP_PUBLIC_CUA_BAN
+TURN_USERNAME=moora
+TURN_CREDENTIAL=doi_mat_khau_manh
+WEBRTC_ICE_TRANSPORT_POLICY=all
+WEBRTC_PREFER_RELAY=False
+
+3. Mở firewall Windows (UDP+TCP 3478, UDP 49160-49200)
+
+4. Chạy coturn:
+
+cd C:\hoshi_v2
+docker compose --profile turn up -d
+
+5. Restart Daphne, hard refresh 2 máy, test gọi (kể cả ĐT 4G)
+
+Kiểm tra đã login:
+  /chat/api/ice-servers/  → has_turn: true, urls turn:IP:3478
+
+----------------------------------------
+B) LÊN VPS / SERVER PRODUCTION
+----------------------------------------
+Cùng máy với Moora:
+
+TURN_EXTERNAL_IP=<ip_vps>
+TURN_HOST=<ip_vps_hoac_turn.domain.com>
+TURN_USERNAME=moora
+TURN_CREDENTIAL=<mat_khau_manh>
+
+Mở firewall VPS: 3478/tcp+udp, 49160-49200/udp
+docker compose --profile turn up -d
+
+----------------------------------------
+TẮT / XEM LOG
+----------------------------------------
+docker compose --profile turn logs -f turn
+docker compose --profile turn stop turn
+
+----------------------------------------
+LƯU Ý
+----------------------------------------
+- IP nhà đổi (DHCP) → cập nhật lại TURN_HOST / TURN_EXTERNAL_IP rồi restart coturn + Daphne
+- Nếu ISP dùng CGNAT (IP public không vào được từ ngoài) → cần VPS của bạn (vẫn tự host)
+- Không cần / không nên tạo app trên metered.live
+
+New-NetFirewallRule -DisplayName "Moora TURN 3478 UDP" -Direction Inbound -Protocol UDP -LocalPort 3478 -Action Allow
+New-NetFirewallRule -DisplayName "Moora TURN 3478 TCP" -Direction Inbound -Protocol TCP -LocalPort 3478 -Action Allow
+New-NetFirewallRule -DisplayName "Moora TURN relay UDP" -Direction Inbound -Protocol UDP -LocalPort 49160-49200 -Action Allow

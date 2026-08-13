@@ -12,7 +12,7 @@ NOTIFICATION_FILTERS = {
     'all': None,
     'following': 'following',
     'comments': ('comment', 'comment_reply'),
-    'follows': ('follow', 'follow_request'),
+    'follows': ('follow', 'follow_request', 'follow_accepted'),
     'mentions': ('mention',),
 }
 

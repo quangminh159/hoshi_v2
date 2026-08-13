@@ -12,6 +12,22 @@ from .models import Device
 from ipware import get_client_ip
 
 
+class DebugOpenHostMiddleware:
+    """
+    Chỉ khi DEBUG=True: bỏ ép CSRF theo Origin/Referer.
+    Để ĐT/PC vào bằng mọi IP hoặc ngrok mà không phải sửa .env mỗi lần.
+    Production (DEBUG=False) không làm gì.
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        if getattr(django_settings, 'DEBUG', False):
+            setattr(request, '_dont_enforce_csrf_checks', True)
+        return self.get_response(request)
+
+
 class UserLanguageMiddleware(MiddlewareMixin):
     """Activate the authenticated user's preferred language and keep the language cookie in sync."""
 

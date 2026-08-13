@@ -19,10 +19,11 @@ def broadcast_post_engagement(
     comment_likes_count=None,
     parent_comment_id=None,
     replies_count=None,
+    comment=None,
 ):
     """
     Gửi event post_engagement tới group feed_engagement.
-    Client (notifications WS) cập nhật số like/cmt (và like/reply của comment) trên DOM.
+    Client (notifications WS) cập nhật số like/cmt và chèn bình luận mới (nếu có).
     """
     if post_id is None and comment_id is None:
         return
@@ -49,6 +50,8 @@ def broadcast_post_engagement(
         payload['parent_comment_id'] = int(parent_comment_id)
     if replies_count is not None:
         payload['replies_count'] = int(replies_count)
+    if comment is not None:
+        payload['comment'] = comment
 
     try:
         async_to_sync(channel_layer.group_send)(

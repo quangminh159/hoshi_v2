@@ -4,6 +4,31 @@
 (function () {
     'use strict';
 
+    function messageUnixTs(createdAt) {
+        if (!createdAt) return Math.floor(Date.now() / 1000);
+        const t = Date.parse(createdAt);
+        if (Number.isNaN(t)) return Math.floor(Date.now() / 1000);
+        return Math.floor(t / 1000);
+    }
+
+    /** Ghim trước, trong mỗi nhóm tin mới nhất lên đầu. */
+    function reorderConversations() {
+        const list = document.getElementById('conversationList');
+        if (!list) return;
+        const rows = Array.from(list.querySelectorAll('.conversation-wrapper'));
+        rows.sort((a, b) => {
+            const ap = a.dataset.pinned === '1' ? 0 : 1;
+            const bp = b.dataset.pinned === '1' ? 0 : 1;
+            if (ap !== bp) return ap - bp;
+            const at = Number(a.dataset.lastTs || 0);
+            const bt = Number(b.dataset.lastTs || 0);
+            return bt - at;
+        });
+        rows.forEach((row) => list.appendChild(row));
+    }
+
+    window.hoshiReorderConversations = reorderConversations;
+
     function escapeHtml(text) {
         return String(text || '')
             .replace(/&/g, '&amp;')
@@ -139,9 +164,13 @@
         const wrapper = document.createElement('div');
         wrapper.className = 'conversation-wrapper' + (isGroup ? ' is-group' : '');
         wrapper.id = `conversation-${conversationId}`;
+        wrapper.dataset.conversationId = String(conversationId);
         wrapper.dataset.username = String(displayName).toLowerCase();
         wrapper.dataset.isGroup = isGroup ? '1' : '0';
         wrapper.dataset.unread = '0';
+        wrapper.dataset.pinned = '0';
+        wrapper.dataset.muted = conversationMeta?.is_muted ? '1' : '0';
+        wrapper.dataset.lastTs = String(messageUnixTs(message.created_at));
         wrapper.innerHTML = `
             <a href="/chat/conversations/${conversationId}/" class="conversation-item">
               <div class="conversation-avatar${isGroup ? ' conversation-avatar--group' : ''}">
@@ -150,17 +179,12 @@
               </div>
               <div class="conversation-info">
                 <div class="conversation-name">
-                  <span>${escapeHtml(displayName)}</span>
+                  <span class="conversation-name-text">${escapeHtml(displayName)}</span>
                   <span class="conversation-time">${formatTime(message.created_at)}</span>
                 </div>
                 <div class="conversation-last-message">${formatPreview(message, currentUserId, isGroup)}</div>
               </div>
             </a>
-            <button class="delete-conversation"
-                    onclick="deleteConversation(${conversationId}, event)"
-                    title="${isGroup ? 'Rời nhóm' : 'Xóa cuộc trò chuyện'}">
-              <i class="fas fa-trash-alt"></i>
-            </button>
         `;
         return wrapper;
     }
@@ -252,7 +276,8 @@
             list.querySelector('.no-conversations')?.remove();
             ensureSearchBox();
             wrapper = createConversationWrapper(conversationId, message, otherUser, currentUserId, conversationMeta);
-            list.insertBefore(wrapper, list.firstChild);
+            list.appendChild(wrapper);
+            reorderConversations();
             updateSubtitleCount();
 
             const isMine = Number(message.sender_id) === Number(currentUserId);
@@ -263,8 +288,17 @@
         }
 
         if (conversationMeta && conversationMeta.title) {
-            const nameEl = wrapper.querySelector('.conversation-name > span:first-child');
-            if (nameEl) nameEl.textContent = conversationMeta.title;
+            const nameEl = wrapper.querySelector('.conversation-name-text')
+                || wrapper.querySelector('.conversation-name > span:first-child');
+            if (nameEl) {
+                // Giữ icon ghim/mute nếu có
+                const pin = nameEl.querySelector?.('.conversation-pin-icon');
+                const mute = nameEl.querySelector?.('.conversation-mute-icon');
+                const icons = [];
+                if (pin) icons.push(pin.outerHTML);
+                if (mute) icons.push(mute.outerHTML);
+                nameEl.innerHTML = icons.join('') + escapeHtml(conversationMeta.title);
+            }
             wrapper.dataset.username = String(conversationMeta.title).toLowerCase();
         }
 
@@ -278,10 +312,8 @@
             timeEl.textContent = formatTime(message.created_at);
         }
 
-        const first = list.querySelector('.conversation-wrapper');
-        if (first !== wrapper) {
-            list.insertBefore(wrapper, first);
-        }
+        wrapper.dataset.lastTs = String(messageUnixTs(message.created_at));
+        reorderConversations();
 
         // Badge tổng do notifications.js refresh; ở đây chỉ cập nhật chấm từng hội thoại
         const isMine = Number(message.sender_id) === Number(currentUserId);

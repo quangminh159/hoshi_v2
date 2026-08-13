@@ -1,5 +1,7 @@
-# Infra local: Postgres + Redis (chưa cần container web)
+# Infra local: Postgres + Redis (+ TURN tùy chọn cho production / LAN)
 # Chạy: docker compose up -d
+# TURN (VPS / public IP): set TURN_EXTERNAL_IP rồi
+#   docker compose --profile turn up -d
 # Tắt:  docker compose down
 
 services:
@@ -35,6 +37,42 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+
+  # Coturn — TURN tự host trên máy/VPS của bạn (không cần Metered).
+  # Cần TURN_EXTERNAL_IP trong .env = IP public. Mở firewall 3478 + 49160-49200.
+  # Chạy: docker compose --profile turn up -d
+  turn:
+    image: coturn/coturn:4.6
+    container_name: moora-turn
+    restart: unless-stopped
+    profiles: ["turn"]
+    ports:
+      - "3478:3478/udp"
+      - "3478:3478/tcp"
+      - "49160-49200:49160-49200/udp"
+    environment:
+      DETECT_EXTERNAL_IP: "yes"
+      TURN_EXTERNAL_IP: ${TURN_EXTERNAL_IP:-}
+      TURN_REALM: ${TURN_REALM:-moora}
+      TURN_USER: ${TURN_USERNAME:-moora}
+      TURN_PASS: ${TURN_CREDENTIAL:-mooraturn}
+    command:
+      - "-n"
+      - "--log-file=stdout"
+      - "--listening-port=3478"
+      - "--min-port=49160"
+      - "--max-port=49200"
+      - "--fingerprint"
+      - "--lt-cred-mech"
+      - "--user=${TURN_USERNAME:-moora}:${TURN_CREDENTIAL:-mooraturn}"
+      - "--realm=${TURN_REALM:-moora}"
+      - "--no-multicast-peers"
+      - "--no-cli"
+      - "--no-tls"
+      - "--no-dtls"
+      - "--listening-ip=0.0.0.0"
+      - "--relay-ip=0.0.0.0"
+      - "--external-ip=${TURN_EXTERNAL_IP}"
 
 volumes:
   postgres_data:

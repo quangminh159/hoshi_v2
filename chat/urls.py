@@ -24,6 +24,8 @@ urlpatterns = [
     path('conversations/<int:conversation_id>/kick/', views.kick_group_member, name='kick_group_member'),
     path('direct/<str:username>/', views.direct_chat, name='direct_chat'),
     path('delete/<int:conversation_id>/', views.delete_conversation, name='delete_conversation'),
+    path('conversations/<int:conversation_id>/pin/', views.toggle_pin_conversation, name='toggle_pin_conversation'),
+    path('conversations/<int:conversation_id>/mute/', views.toggle_mute_conversation, name='toggle_mute_conversation'),
     
     # Giao diện chat mới
     path('new/', views.new_chat, name='new_chat'),

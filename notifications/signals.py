@@ -11,6 +11,24 @@ from asgiref.sync import async_to_sync
 User = get_user_model()
 channel_layer = get_channel_layer()
 
+# (follower_id, followed_id) — bỏ qua thông báo follow khi accept request
+_skip_follow_notify_pairs = set()
+
+
+class skip_follow_notification_pair:
+    """Context manager: không gửi notif 'đã theo dõi bạn' cho cặp follower→followed."""
+
+    def __init__(self, follower_id, followed_id):
+        self.pair = (int(follower_id), int(followed_id))
+
+    def __enter__(self):
+        _skip_follow_notify_pairs.add(self.pair)
+        return self
+
+    def __exit__(self, exc_type, exc, tb):
+        _skip_follow_notify_pairs.discard(self.pair)
+        return False
+
 
 def _pref_enabled(user, flag_name):
     return bool(getattr(user, flag_name, True))
@@ -140,6 +158,9 @@ def create_follow_notification(sender, instance, created, **kwargs):
 
     followed_user = instance.following_user
     follower = instance.user
+
+    if (follower.id, followed_user.id) in _skip_follow_notify_pairs:
+        return
 
     if not _pref_enabled(followed_user, 'follow_notifications'):
         return

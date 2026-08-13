@@ -36,10 +36,10 @@
     <!-- Custom CSS -->
     <link href="{% static 'css/cross_browser.css' %}?v=2" rel="stylesheet">
     <link href="{% static 'css/style.css' %}?v=mobile-fixed-chat-2" rel="stylesheet">
-    <link href="{% static 'css/theme.css' %}?v=moora-font-1" rel="stylesheet">
-    <link href="{% static 'css/notification_dropdown.css' %}?v=dark-notif-1" rel="stylesheet">
+    <link href="{% static 'css/theme.css' %}?v=feed-tabs-soft-1" rel="stylesheet">
+    <link href="{% static 'css/notification_dropdown.css' %}?v=toast-ui-2" rel="stylesheet">
     <link href="{% static 'css/media_lightbox.css' %}?v=5" rel="stylesheet">
-    <link href="{% static 'css/webrtc_call.css' %}?v=13" rel="stylesheet">
+    <link href="{% static 'css/webrtc_call.css' %}?v=14" rel="stylesheet">
     
     {% if user.is_authenticated %}
     <meta name="user-id" content="{{ user.id }}">
@@ -49,7 +49,7 @@
     <link href="{% static 'css/hoshi_audio_player.css' %}?v=11" rel="stylesheet">
     <link href="{% static 'css/like_effects.css' %}?v=4" rel="stylesheet">
     <!-- Dark mode overrides — PHẢI load cuối để đè CSS trang -->
-    <link href="{% static 'css/dark_mode.css' %}?v=dark-opt-2" rel="stylesheet">
+    <link href="{% static 'css/dark_mode.css' %}?v=conv-menu-1" rel="stylesheet">
 </head>
 <body class="bg-light{% if user.is_authenticated %} user-authenticated{% endif %}{% block body_class %}{% endblock %}" {% if user.is_authenticated %}data-user-id="{{ user.id }}"{% endif %}>
     <!-- Navbar -->
@@ -169,13 +169,13 @@
                                 {% if user.get_avatar_url %}
                                     <img src="{{ user.get_avatar_url }}" 
                                          alt="{{ user.username }}" 
-                                         class="rounded-circle"
+                                         class="rounded-circle js-self-avatar"
                                          width="24" 
                                          height="24">
                                 {% else %}
                                     <img src="{% static 'img/default-avatar.png' %}" 
                                          alt="{{ user.username }}" 
-                                         class="rounded-circle"
+                                         class="rounded-circle js-self-avatar"
                                          width="24" 
                                          height="24">
                                 {% endif %}
@@ -247,7 +247,7 @@
         </div>
         <div class="offcanvas-body p-0">
             <a class="mobile-menu-link" href="{% url 'accounts:profile' user.username %}">
-                <img src="{{ user.get_avatar_url }}" class="rounded-circle" width="36" height="36" alt="">
+                <img src="{{ user.get_avatar_url }}" class="rounded-circle js-self-avatar" width="36" height="36" alt="">
                 <span>{{ user.username }}</span>
             </a>
             <a class="mobile-menu-link" href="{% url 'posts:liked_posts' %}"><i class="fas fa-heart"></i><span>{% trans "Đã thích" %}</span></a>
@@ -311,13 +311,13 @@
     
     <!-- Custom JS -->
     <script src="{% static 'js/theme.js' %}?v=1"></script>
-    <script src="{% static 'js/main.js' %}?v=nav-no-reload-1"></script>
+    <script src="{% static 'js/main.js' %}?v=avatar-sync-1"></script>
     <script src="{% static 'js/hoshi_audio_player.js' %}?v=8"></script>
     <script src="{% static 'js/like_effects.js' %}?v=4"></script>
     <script src="{% static 'js/debug_feed.js' %}"></script>
     <script src="{% static 'js/disable_multiple_submissions.js' %}"></script>
-    <script src="{% static 'js/webrtc_call.js' %}?v=18"></script>
-    <script src="{% static 'js/notifications.js' %}?v=presence-rt-1"></script>
+    <script src="{% static 'js/webrtc_call.js' %}?v=28"></script>
+    <script src="{% static 'js/notifications.js' %}?v=conv-mute-1"></script>
     <script src="{% static 'js/follow_requests.js' %}?v=1"></script>
     <script src="{% static 'js/media_lightbox.js' %}?v=7"></script>
     

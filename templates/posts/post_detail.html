@@ -7,8 +7,8 @@
 {% block body_class %} post-detail-layout{% endblock %}
 
 {% block extra_css %}
-<link href="{% static 'css/feed.css' %}?v=comment-author-italic-1" rel="stylesheet">
-<link href="{% static 'css/post_detail.css' %}?v=comment-author-italic-1" rel="stylesheet">
+<link href="{% static 'css/feed.css' %}?v=comment-dark-text-1" rel="stylesheet">
+<link href="{% static 'css/post_detail.css' %}?v=comment-compose-fix-1" rel="stylesheet">
 <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
 <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
 <link href="https://unpkg.com/filepond-plugin-file-poster/dist/filepond-plugin-file-poster.css" rel="stylesheet">
@@ -357,7 +357,7 @@ document.addEventListener('click', function(e) {
                     likeElement.className = 'd-flex align-items-center justify-content-between mb-3';
                     likeElement.innerHTML = `
                         <div class="d-flex align-items-center">
-                            <img src="${like.user.avatar || '/static/images/default-avatar.png'}" class="rounded-circle me-2" width="32" height="32">
+                            <img src="${like.user.avatar || '/static/img/default-avatar.png'}" class="rounded-circle me-2" width="32" height="32" style="object-fit:cover" alt="${like.user.username}">
                             <div>
                                 <a href="/users/${like.user.username}/" class="text-dark text-decoration-none fw-bold">${like.user.username}</a>
                                 <div class="text-muted small">${like.user.full_name || ''}</div>
@@ -1663,6 +1663,14 @@ function updatePostDetailCommentCounts(postId, countOrDelta, isAbsolute) {
 
 // Hàm thêm bình luận vào DOM
 function addCommentToDOM(comment, postId, parentId) {
+    if (!comment || comment.id == null) return;
+    if (
+        document.getElementById(`comment-${comment.id}`)
+        || document.querySelector(`[data-comment-id="${comment.id}"]`)
+    ) {
+        return;
+    }
+
     // Tăng số lượng bình luận hiển thị (actions + tiêu đề)
     updatePostDetailCommentCounts(postId, 1, false);
     

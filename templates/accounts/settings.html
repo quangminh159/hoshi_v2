@@ -6,6 +6,7 @@
 {% block title %}{% trans "Cài đặt tài khoản" %} - {{ block.super }}{% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{% static 'vendor/cropperjs/cropper.min.css' %}?v=1.6.2">
 <style>
     .settings-container {
         max-width: 960px;
@@ -254,14 +255,14 @@
         width: 120px;
         height: 120px;
         flex-shrink: 0;
-        overflow: hidden;
     }
 
-    /* Ẩn mọi chrome mặc định của input file (nếu còn sót) */
+    /* Ẩn mọi chrome mặc định của input file / checkbox ẩn */
     .avatar-upload input[type="file"],
+    .avatar-upload input[type="checkbox"],
     .avatar-upload a,
     .avatar-upload .form-check,
-    .avatar-upload label:not(.upload-button) {
+    .avatar-upload label:not(.upload-button):not(.avatar-remove-btn) {
         position: absolute !important;
         width: 1px !important;
         height: 1px !important;
@@ -280,14 +281,15 @@
         object-fit: cover;
         border: 3px solid var(--border-color);
         background: var(--surface-muted);
+        display: block;
     }
 
     .avatar-upload .upload-button {
         position: absolute;
         bottom: 2px;
         right: 2px;
-        width: 36px;
-        height: 36px;
+        width: 34px;
+        height: 34px;
         border-radius: 50%;
         background: var(--primary-color);
         color: #fff;
@@ -297,10 +299,112 @@
         cursor: pointer;
         border: 2px solid var(--card-bg, #fff);
         transition: filter 0.15s ease;
+        z-index: 2;
+        margin: 0;
     }
 
     .avatar-upload .upload-button:hover {
         filter: brightness(0.92);
+    }
+
+    .avatar-upload .avatar-remove-btn {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: #dc3545;
+        color: #fff;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        border: 2px solid var(--card-bg, #fff);
+        font-size: 0.7rem;
+        z-index: 2;
+        margin: 0;
+        padding: 0;
+        line-height: 1;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+    }
+
+    .avatar-upload .avatar-remove-btn.is-visible {
+        display: flex;
+    }
+
+    .avatar-upload .avatar-remove-btn:hover {
+        filter: brightness(0.92);
+    }
+
+    .avatar-upload .avatar-remove-btn.is-active {
+        background: #198754;
+    }
+
+    /* Modal crop ảnh đại diện */
+    .avatar-crop-modal .modal-content {
+        border-radius: 1rem;
+        overflow: hidden;
+        background: var(--card-bg, #111);
+        color: var(--text-color, #fff);
+    }
+
+    .avatar-crop-modal .modal-header,
+    .avatar-crop-modal .modal-footer {
+        border-color: rgba(255, 255, 255, 0.08);
+        background: #121214;
+        color: #f5f5f5;
+    }
+
+    .avatar-crop-modal .modal-title {
+        font-size: 1rem;
+        font-weight: 650;
+    }
+
+    .avatar-crop-modal .btn-close {
+        filter: invert(1) grayscale(1);
+        opacity: 0.8;
+    }
+
+    .avatar-crop-stage {
+        position: relative;
+        width: 100%;
+        height: min(62vh, 420px);
+        background: #0a0a0b;
+        overflow: hidden;
+    }
+
+    .avatar-crop-stage img {
+        display: block;
+        max-width: 100%;
+    }
+
+    .avatar-crop-modal .cropper-view-box,
+    .avatar-crop-modal .cropper-face {
+        border-radius: 50%;
+    }
+
+    .avatar-crop-modal .cropper-view-box {
+        outline: 0;
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.75);
+    }
+
+    .avatar-crop-hint {
+        font-size: 0.82rem;
+        color: #a1a1aa;
+    }
+
+    .avatar-crop-zoom {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        padding: 0.75rem 1rem 0;
+        background: #121214;
+        color: #d4d4d8;
+    }
+
+    .avatar-crop-zoom input[type="range"] {
+        flex: 1;
     }
 
     .profile-edit-panel {
@@ -329,13 +433,6 @@
     .profile-edit-hero-meta .username-preview {
         color: var(--text-muted, #6c757d);
         font-size: 0.95rem;
-    }
-
-    .profile-edit-hero-actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        margin-top: 0.75rem;
     }
 
     .profile-section-card {
@@ -472,8 +569,8 @@
             flex-direction: column;
             text-align: center;
         }
-        .profile-edit-hero-actions {
-            justify-content: center;
+        .avatar-upload {
+            margin: 0 auto;
         }
     }
 
@@ -873,33 +970,31 @@
                         <div class="profile-edit-hero">
                             <div class="avatar-upload">
                                 <img id="profile-avatar-preview"
+                                     class="js-self-avatar"
                                      src="{% if user.get_avatar_url %}{{ user.get_avatar_url }}{% else %}{% static 'img/default-avatar.png' %}{% endif %}"
-                                     alt="{{ user.username }}">
+                                     alt="{{ user.username }}"
+                                     data-default-src="{% static 'img/default-avatar.png' %}"
+                                     data-has-avatar="{% if user.avatar %}1{% else %}0{% endif %}">
+                                <button type="button"
+                                        class="avatar-remove-btn{% if user.avatar %} is-visible{% endif %}"
+                                        id="avatar-remove-btn"
+                                        title="{% trans 'Xóa ảnh đại diện' %}"
+                                        aria-label="{% trans 'Xóa ảnh đại diện' %}">
+                                    <i class="fas fa-times"></i>
+                                </button>
                                 <label class="upload-button" for="{{ profile_form.avatar.id_for_label }}" title="{% trans 'Đổi ảnh đại diện' %}">
                                     <i class="fas fa-camera"></i>
                                 </label>
                                 {{ profile_form.avatar }}
+                                {{ profile_form.remove_avatar }}
                             </div>
                             <div class="profile-edit-hero-meta flex-grow-1">
                                 <h5 id="profile-display-name">
                                     {% if user.get_full_name %}{{ user.get_full_name }}{% else %}{{ user.username }}{% endif %}
                                 </h5>
                                 <div class="username-preview">@<span id="profile-username-preview">{{ user.username }}</span></div>
-                                <div class="profile-edit-hero-actions">
-                                    <label class="btn btn-sm btn-outline-primary mb-0" for="{{ profile_form.avatar.id_for_label }}">
-                                        <i class="fas fa-image me-1"></i>{% trans "Tải ảnh lên" %}
-                                    </label>
-                                    <div class="form-check mb-0 align-self-center">
-                                        {{ profile_form.remove_avatar }}
-                                        <label class="form-check-label small" for="{{ profile_form.remove_avatar.id_for_label }}">
-                                            {% trans "Xóa ảnh hiện tại" %}
-                                        </label>
-                                    </div>
-                                </div>
                                 {% if profile_form.avatar.errors %}
                                     <div class="text-danger small mt-2">{{ profile_form.avatar.errors|striptags }}</div>
-                                {% else %}
-                                    <div class="form-text mt-2">{% trans "JPEG/PNG/WebP/GIF · tối đa 5MB · khuyến nghị ảnh vuông." %}</div>
                                 {% endif %}
                             </div>
                         </div>
@@ -1833,15 +1928,48 @@
         </div>
     </div>
 </div>
+
+{# Modal chỉnh khung ảnh đại diện #}
+<div class="modal fade avatar-crop-modal" id="avatarCropModal" tabindex="-1" aria-labelledby="avatarCropModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="avatarCropModalLabel">{% trans "Chỉnh khung ảnh đại diện" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Đóng' %}"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="avatar-crop-stage">
+                    <img id="avatar-crop-image" alt="{% trans 'Ảnh đang chỉnh' %}">
+                </div>
+                <div class="avatar-crop-zoom">
+                    <i class="fas fa-search-minus" aria-hidden="true"></i>
+                    <input type="range" id="avatar-crop-zoom" min="0" max="1" step="0.01" value="0" aria-label="{% trans 'Phóng to' %}">
+                    <i class="fas fa-search-plus" aria-hidden="true"></i>
+                </div>
+                <p class="avatar-crop-hint px-3 pt-2 pb-0 mb-0">
+                    {% trans "Kéo ảnh để đặt vị trí " %}
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">{% trans "Hủy" %}</button>
+                <button type="button" class="btn btn-primary" id="avatar-crop-apply">
+                    <i class="fas fa-check me-1"></i>{% trans "Dùng ảnh này" %}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'vendor/cropperjs/cropper.min.js' %}?v=1.6.2"></script>
 <script>
-    // Chỉnh sửa hồ sơ — avatar preview, bio counter, username live check
+    // Chỉnh sửa hồ sơ — avatar crop, bio counter, username live check
     (function initProfileEdit() {
         const avatarInput = document.getElementById('id_avatar');
         const preview = document.getElementById('profile-avatar-preview');
         const removeAvatar = document.getElementById('id_remove_avatar');
+        const removeAvatarBtn = document.getElementById('avatar-remove-btn');
         const bio = document.getElementById('id_bio');
         const bioCounter = document.getElementById('bio-counter');
         const usernameInput = document.getElementById('id_username');
@@ -1851,28 +1979,214 @@
         const lastName = document.getElementById('id_last_name');
         const displayName = document.getElementById('profile-display-name');
         const originalUsername = (usernameInput && usernameInput.value) || '';
+        const cropModalEl = document.getElementById('avatarCropModal');
+        const cropImage = document.getElementById('avatar-crop-image');
+        const cropZoom = document.getElementById('avatar-crop-zoom');
+        const cropApplyBtn = document.getElementById('avatar-crop-apply');
+        const defaultAvatarSrc = (preview && preview.dataset.defaultSrc) || "{% static 'img/default-avatar.png' %}";
+        const originalAvatarSrc = preview ? preview.src : defaultAvatarSrc;
+
+        let cropper = null;
+        let cropObjectUrl = null;
+        let cropModal = null;
+        let pendingNewAvatar = false;
+
+        function syncRemoveBtn() {
+            if (!removeAvatarBtn) return;
+            const hasCustom = pendingNewAvatar || (preview && preview.dataset.hasAvatar === '1');
+            const markedRemove = !!(removeAvatar && removeAvatar.checked);
+            removeAvatarBtn.classList.toggle('is-visible', hasCustom || markedRemove);
+            removeAvatarBtn.classList.toggle('is-active', markedRemove);
+            removeAvatarBtn.title = markedRemove
+                ? "{% filter escapejs %}{% trans 'Hoàn tác xóa ảnh' %}{% endfilter %}"
+                : "{% filter escapejs %}{% trans 'Xóa ảnh đại diện' %}{% endfilter %}";
+            const icon = removeAvatarBtn.querySelector('i');
+            if (icon) {
+                icon.className = markedRemove ? 'fas fa-undo' : 'fas fa-times';
+            }
+        }
+
+        function destroyCropper() {
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+            if (cropObjectUrl) {
+                URL.revokeObjectURL(cropObjectUrl);
+                cropObjectUrl = null;
+            }
+            if (cropImage) cropImage.removeAttribute('src');
+        }
+
+        function openAvatarCropper(file) {
+            if (!cropModalEl || !cropImage || typeof Cropper === 'undefined' || !window.bootstrap) {
+                // Fallback: preview trực tiếp nếu thư viện lỗi
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    if (preview) preview.src = e.target.result;
+                    if (typeof window.syncSelfAvatar === 'function' && e.target.result) {
+                        window.syncSelfAvatar(e.target.result);
+                    }
+                };
+                reader.readAsDataURL(file);
+                if (removeAvatar) removeAvatar.checked = false;
+                return false;
+            }
+            destroyCropper();
+            if (!cropModal) {
+                cropModal = bootstrap.Modal.getOrCreateInstance(cropModalEl);
+            }
+            cropObjectUrl = URL.createObjectURL(file);
+            let opened = false;
+            const startCropper = function () {
+                if (opened) return;
+                opened = true;
+                cropImage.removeEventListener('load', startCropper);
+                cropModal.show();
+            };
+            cropImage.addEventListener('load', startCropper);
+            cropImage.src = cropObjectUrl;
+            if (cropImage.complete && cropImage.naturalWidth) {
+                startCropper();
+            }
+            return true;
+        }
+
+        if (cropModalEl) {
+            cropModalEl.addEventListener('shown.bs.modal', function () {
+                if (!cropImage || !cropImage.src || cropper || typeof Cropper === 'undefined') return;
+                cropper = new Cropper(cropImage, {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                    dragMode: 'move',
+                    autoCropArea: 1,
+                    responsive: true,
+                    background: false,
+                    guides: false,
+                    center: false,
+                    highlight: false,
+                    cropBoxMovable: false,
+                    cropBoxResizable: false,
+                    toggleDragModeOnDblclick: false,
+                    ready() {
+                        if (!cropZoom) return;
+                        const imageData = cropper.getImageData();
+                        const minRatio = imageData.naturalWidth
+                            ? imageData.width / imageData.naturalWidth
+                            : 1;
+                        cropZoom.dataset.minRatio = String(minRatio);
+                        cropZoom.dataset.maxRatio = String(minRatio * 3);
+                        cropZoom.value = '0';
+                    },
+                });
+            });
+            cropModalEl.addEventListener('hidden.bs.modal', function () {
+                destroyCropper();
+            });
+        }
+
+        if (cropZoom) {
+            cropZoom.addEventListener('input', function () {
+                if (!cropper) return;
+                const minRatio = Number(this.dataset.minRatio || 0.2);
+                const maxRatio = Number(this.dataset.maxRatio || minRatio * 3);
+                const t = Number(this.value || 0);
+                try {
+                    cropper.zoomTo(minRatio + t * (maxRatio - minRatio));
+                } catch (_) { /* ignore */ }
+            });
+        }
+
+        if (cropApplyBtn) {
+            cropApplyBtn.addEventListener('click', function () {
+                if (!cropper || !avatarInput) return;
+                const canvas = cropper.getCroppedCanvas({
+                    width: 800,
+                    height: 800,
+                    imageSmoothingEnabled: true,
+                    imageSmoothingQuality: 'high',
+                });
+                if (!canvas) return;
+                cropApplyBtn.disabled = true;
+                canvas.toBlob(function (blob) {
+                    cropApplyBtn.disabled = false;
+                    if (!blob) {
+                        alert("{% filter escapejs %}{% trans 'Không thể cắt ảnh. Thử lại với ảnh khác.' %}{% endfilter %}");
+                        return;
+                    }
+                    if (blob.size > 5 * 1024 * 1024) {
+                        alert("{% filter escapejs %}{% trans 'Ảnh sau khi cắt vượt 5MB. Hãy thu nhỏ khung hơn.' %}{% endfilter %}");
+                        return;
+                    }
+                    const fileName = 'avatar-' + Date.now() + '.jpg';
+                    const croppedFile = new File([blob], fileName, { type: 'image/jpeg' });
+                    try {
+                        const dt = new DataTransfer();
+                        dt.items.add(croppedFile);
+                        avatarInput.files = dt.files;
+                    } catch (_) {
+                        // Trình duyệt cũ: vẫn cập nhật preview, user có thể không submit được file
+                    }
+                    if (preview) preview.src = URL.createObjectURL(blob);
+                    if (typeof window.syncSelfAvatar === 'function' && preview) {
+                        window.syncSelfAvatar(preview.src);
+                    }
+                    if (removeAvatar) removeAvatar.checked = false;
+                    pendingNewAvatar = true;
+                    if (preview) preview.dataset.hasAvatar = '1';
+                    syncRemoveBtn();
+                    destroyCropper();
+                    cropModal && cropModal.hide();
+                }, 'image/jpeg', 0.92);
+            });
+        }
 
         if (avatarInput && preview) {
             avatarInput.addEventListener('change', function () {
                 const file = this.files && this.files[0];
                 if (!file) return;
+                if (!file.type || !file.type.startsWith('image/')) {
+                    alert("{% filter escapejs %}{% trans 'Vui lòng chọn file ảnh.' %}{% endfilter %}");
+                    this.value = '';
+                    return;
+                }
                 if (file.size > 5 * 1024 * 1024) {
                     alert("{% filter escapejs %}{% trans 'Ảnh tối đa 5MB.' %}{% endfilter %}");
                     this.value = '';
                     return;
                 }
-                const reader = new FileReader();
-                reader.onload = (e) => { preview.src = e.target.result; };
-                reader.readAsDataURL(file);
-                if (removeAvatar) removeAvatar.checked = false;
+                // Clear input khi mở crop để chọn lại cùng file sau khi hủy
+                if (openAvatarCropper(file)) this.value = '';
             });
         }
 
-        if (removeAvatar && preview) {
+        if (removeAvatarBtn && removeAvatar && preview) {
+            removeAvatarBtn.addEventListener('click', function () {
+                if (removeAvatar.checked) {
+                    removeAvatar.checked = false;
+                    if (pendingNewAvatar && avatarInput && avatarInput.files && avatarInput.files[0]) {
+                        preview.src = URL.createObjectURL(avatarInput.files[0]);
+                    } else {
+                        preview.src = originalAvatarSrc;
+                    }
+                    if (typeof window.syncSelfAvatar === 'function') window.syncSelfAvatar(preview.src);
+                    syncRemoveBtn();
+                    return;
+                }
+                removeAvatar.checked = true;
+                pendingNewAvatar = false;
+                if (avatarInput) avatarInput.value = '';
+                preview.src = defaultAvatarSrc;
+                if (typeof window.syncSelfAvatar === 'function') window.syncSelfAvatar(preview.src);
+                syncRemoveBtn();
+            });
+            syncRemoveBtn();
+        } else if (removeAvatar && preview) {
             removeAvatar.addEventListener('change', function () {
                 if (this.checked) {
-                    preview.src = "{% static 'img/default-avatar.png' %}";
+                    preview.src = defaultAvatarSrc;
                     if (avatarInput) avatarInput.value = '';
+                    if (typeof window.syncSelfAvatar === 'function') window.syncSelfAvatar(preview.src);
                 }
             });
         }
@@ -1918,29 +2232,34 @@
             }
             usernameStatus.className = 'username-status';
             usernameStatus.textContent = "{% filter escapejs %}{% trans 'Đang kiểm tra…' %}{% endfilter %}";
-            fetch(`{% url 'accounts:check_username' %}?username=${encodeURIComponent(value)}`, {
-                headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                credentials: 'same-origin',
-            })
+            clearTimeout(usernameTimer);
+            usernameTimer = setTimeout(function () {
+                fetch(`{% url 'accounts:check_username' %}?username=${encodeURIComponent(value)}`, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                })
                 .then((r) => r.json())
                 .then((data) => {
-                    usernameStatus.className = 'username-status ' + (data.available ? 'ok' : 'bad');
-                    usernameStatus.textContent = data.message || '';
+                    if (data.available) {
+                        usernameStatus.className = 'username-status ok';
+                        usernameStatus.textContent = "{% filter escapejs %}{% trans 'Có thể dùng tên này' %}{% endfilter %}";
+                    } else {
+                        usernameStatus.className = 'username-status bad';
+                        usernameStatus.textContent = data.message || "{% filter escapejs %}{% trans 'Tên đã được sử dụng' %}{% endfilter %}";
+                    }
                 })
                 .catch(() => {
                     usernameStatus.className = 'username-status';
                     usernameStatus.textContent = '';
                 });
+            }, 350);
         }
         if (usernameInput) {
-            usernameInput.addEventListener('input', () => {
-                clearTimeout(usernameTimer);
-                usernameTimer = setTimeout(checkUsername, 350);
-            });
+            usernameInput.addEventListener('input', checkUsername);
             checkUsername();
         }
     })();
-    
+</script>
+<script>
     // Xử lý xóa thiết bị
     function revokeDevice(deviceId) {
         if (confirm("{% filter escapejs %}{% trans 'Bạn có chắc chắn muốn đăng xuất khỏi thiết bị này?' %}{% endfilter %}")) {

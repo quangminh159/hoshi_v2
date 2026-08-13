@@ -5,6 +5,21 @@ window.Hoshi.processedRequests = new Set();
 window.Hoshi.processedComments = new Set(); // Lưu trữ ID của các comments đã hiển thị
 window.Hoshi.debug = true;
 
+/** Đồng bộ ảnh đại diện của user đang đăng nhập trên mọi chỗ đang mở. */
+window.syncSelfAvatar = function syncSelfAvatar(url) {
+    if (!url) return;
+    document.querySelectorAll('img.js-self-avatar').forEach((img) => {
+        img.src = url;
+    });
+    const uid = document.body && document.body.dataset.userId;
+    if (uid) {
+        document.querySelectorAll(`img[data-author-id="${uid}"]`).forEach((img) => {
+            img.src = url;
+            img.classList.add('js-self-avatar');
+        });
+    }
+};
+
 /** Tự giãn chiều cao ô bình luận khi nội dung dài / xuống dòng. */
 window.autosizeCommentInput = function autosizeCommentInput(el) {
     if (!el || el.tagName !== 'TEXTAREA') return;

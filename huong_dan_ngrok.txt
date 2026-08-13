@@ -64,9 +64,41 @@ LỖI THƯỜNG GẶP
   phải dùng Daphne, không dùng runserver
 
 ----------------------------------------
-GỌI THOẠI / VIDEO
+TEST GỌI ĐIỆN THOẠI ↔ MÁY TÍNH (ngrok)
 ----------------------------------------
-- Ưu tiên cửa sổ riêng /chat/call/
-- Trình duyệt chặn popup → gọi ngay trên trang vẫn được
-- Cho phép popup: thanh địa chỉ → icon bị chặn → Luôn cho phép
-- Đóng cửa sổ gọi = cúp máy
+Lỗi hay gặp: "Không kết nối được cuộc gọi (mạng/ICE)".
+
+Vì sao: ngrok chỉ chuyển web/chat. Âm thanh/video WebRTC đi P2P hoặc TURN.
+- Cùng WiFi: thường được (P2P)
+- ĐT 4G ↔ PC WiFi: BẮT BUỘC TURN thật (Metered free API)
+
+→ Xem chi tiết: huong_dan_turn.txt
+
+Cách A — test nhanh (cùng WiFi):
+1. ĐT và PC cùng một WiFi
+2. Cả hai mở CÙNG link https ngrok (PC đừng dùng localhost)
+3. Hard refresh, cho phép micro → gọi thoại
+
+Cách B — khác mạng / 4G (TURN tự host, không dùng Metered):
+→ Xem huong_dan_turn.txt
+1. .env: TURN_HOST + TURN_EXTERNAL_IP = IP public máy bạn, TURN_USERNAME/CREDENTIAL
+2. docker compose --profile turn up -d
+3. Mở firewall Windows (3478, 49160-49200) — chạy PowerShell Admin nếu cần
+4. Restart Daphne, hard refresh, gọi thử
+
+KHÔNG cần tạo app trên metered.live.
+KHÔNG đặt WEBRTC_PREFER_RELAY=True trừ khi TURN đã chắc chắn chạy.
+
+Restart Daphne:
+.\venv\Scripts\python.exe -m daphne -b 0.0.0.0 -p 8000 hoshi.asgi:application
+
+----------------------------------------
+GỌI THOẠI / VIDEO (kiểu Facebook / Instagram)
+----------------------------------------
+Gọi ngay trong app (overlay full màn), không mở cửa sổ riêng.
+- Cuộc gọi đến: hiện full màn → Trả lời / Từ chối
+- Đang gọi: có thể thu nhỏ thành bóng nổi để lướt feed/chat
+- Nhận cuộc gọi cả khi đang ở trang khác (qua inbox WS)
+
+Restart Daphne sau khi đổi .env:
+.\venv\Scripts\python.exe -m daphne -b 0.0.0.0 -p 8000 hoshi.asgi:application

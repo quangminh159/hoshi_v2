@@ -709,7 +709,7 @@ def get_suggestions(request):
         'id': user.id,
         'username': user.username,
         'name': f"{user.first_name} {user.last_name}".strip(),
-        'avatar': user.avatar.url if user.avatar else None,
+        'avatar': user.get_avatar_url(),
         'followers_count': user.followers.count()
     } for user in suggestions]
     

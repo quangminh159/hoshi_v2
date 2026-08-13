@@ -266,8 +266,10 @@ body:has(.chat-shell--detail) .chat-container {
 }
 
 .conversation-wrapper:hover .conversation-item,
-.conversation-wrapper:focus-within .conversation-item {
-    padding-right: 3.75rem;
+.conversation-wrapper:focus-within .conversation-item,
+.conversation-wrapper.is-menu-open .conversation-item {
+    padding-right: 3.25rem;
+    background: var(--chat-bg);
 }
 
 .conversation-avatar {
@@ -363,34 +365,115 @@ body:has(.chat-shell--detail) .chat-container {
     font-weight: 500;
 }
 
-.delete-conversation {
+.conversation-name-text {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-width: 0;
+}
+
+.conversation-pin-icon,
+.conversation-mute-icon {
+    font-size: 0.7rem;
+    color: var(--chat-text-muted);
+    opacity: 0.9;
+}
+
+.conversation-pin-icon {
+    transform: rotate(35deg);
+}
+
+/* Menu ... kiểu Instagram */
+.conversation-more {
     position: absolute;
-    right: 1rem;
+    right: 0.65rem;
     top: 50%;
     transform: translateY(-50%);
-    width: 36px;
-    height: 36px;
+    z-index: 3;
+}
+
+.conversation-more-btn {
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
     border: none;
-    background: #fff;
-    color: var(--chat-danger);
-    font-size: 0.875rem;
+    background: rgba(255, 255, 255, 0.92);
+    color: #555;
+    font-size: 0.85rem;
     cursor: pointer;
     opacity: 0;
-    transition: opacity 0.2s, background 0.2s, box-shadow 0.2s;
-    box-shadow: var(--chat-shadow);
-    z-index: 2;
-    display: flex;
+    pointer-events: none;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
+    box-shadow: 0 2px 10px rgba(15, 15, 18, 0.08);
+    transition: opacity 0.18s ease, background 0.18s ease, transform 0.18s ease;
 }
 
-.conversation-wrapper:hover .delete-conversation {
+.conversation-wrapper:hover .conversation-more-btn,
+.conversation-wrapper:focus-within .conversation-more-btn,
+.conversation-wrapper.is-menu-open .conversation-more-btn {
     opacity: 1;
+    pointer-events: auto;
 }
 
-.delete-conversation:hover {
-    background: #fff0f3;
+.conversation-more-btn:hover {
+    background: #fff;
+    color: #111;
+}
+
+.conversation-more-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    min-width: 188px;
+    padding: 0.35rem;
+    border-radius: 14px;
+    background: #fff;
+    border: 1px solid rgba(15, 15, 18, 0.06);
+    box-shadow: 0 8px 28px rgba(15, 15, 18, 0.14);
+    z-index: 20;
+}
+
+.conversation-more-item {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    border: none;
+    background: transparent;
+    border-radius: 10px;
+    padding: 0.65rem 0.75rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #1a1a1a;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.conversation-more-item i {
+    color: #555;
+    font-size: 0.85rem;
+    width: 1rem;
+    text-align: center;
+}
+
+.conversation-more-item:hover {
+    background: rgba(15, 15, 18, 0.05);
+}
+
+.conversation-more-item--danger,
+.conversation-more-item--danger i {
+    color: #e11d48;
+}
+
+.conversation-more-item--danger:hover {
+    background: rgba(225, 29, 72, 0.08);
+}
+
+.delete-conversation {
+    display: none !important;
 }
 
 /* ---- Empty states ---- */
@@ -745,8 +828,10 @@ body:has(.chat-shell--detail) .chat-container {
     display: flex;
     flex-direction: column;
     gap: 0.35rem;
-    scroll-behavior: smooth;
+    /* Không smooth khi mở phòng — nhảy thẳng tin mới nhất */
+    scroll-behavior: auto;
     -webkit-overflow-scrolling: touch;
+    overflow-anchor: none;
     background-color: var(--chat-messages-bg);
     background-image: none;
 }
@@ -2390,19 +2475,22 @@ body:has(.chat-shell--detail) .chat-container {
         border-radius: 12px;
     }
 
-    .delete-conversation {
+    .conversation-more-btn {
         opacity: 0;
         pointer-events: none;
+        background: rgba(18, 18, 20, 0.04);
+        box-shadow: none;
     }
 
-    .conversation-wrapper.is-actions-open .delete-conversation,
-    .conversation-wrapper:focus-within .delete-conversation {
+    .conversation-wrapper.is-menu-open .conversation-more-btn,
+    .conversation-wrapper:focus-within .conversation-more-btn {
         opacity: 1;
         pointer-events: auto;
     }
 
     .conversation-wrapper:hover .conversation-item,
-    .conversation-wrapper:focus-within .conversation-item {
+    .conversation-wrapper:focus-within .conversation-item,
+    .conversation-wrapper.is-menu-open .conversation-item {
         padding-right: 3.25rem;
     }
 

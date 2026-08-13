@@ -267,6 +267,24 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 },
             )
 
+        # Multi-device (kiểu Facebook): máy nào accept/reject/end trước
+        # → các thiết bị khác cùng tài khoản dừng đổ chuông.
+        # Gửi qua inbox của chính user (room WS exclude theo user_id nên không tới được).
+        if signal_type in ('call_accept', 'call_reject', 'call_end', 'call_busy'):
+            taken_payload = {
+                **payload,
+                'signal': 'call_taken',
+                'taken_by_device': True,
+                'taken_action': signal_type,
+            }
+            await self.channel_layer.group_send(
+                f'chat_inbox_{self.user.id}',
+                {
+                    'type': 'inbox_call',
+                    'payload': taken_payload,
+                },
+            )
+
         if signal_type == 'call_end' and data.get('write_system'):
             await self.write_call_system_message(data)
 
@@ -414,6 +432,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     'message': payload,
                     'other_user': row.get('other_user'),
                     'conversation': row.get('conversation'),
+                    'is_muted': bool(row.get('is_muted')),
                 },
             )
 
@@ -423,13 +442,18 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         try:
             conversation = (
-                Conversation.objects.prefetch_related('participants')
+                Conversation.objects.prefetch_related('participants', 'conversation_participants')
                 .select_related('created_by')
                 .get(id=self.conversation_id)
             )
         except Conversation.DoesNotExist:
             return []
         participants = list(conversation.participants.all())
+        muted_ids = {
+            p.user_id
+            for p in conversation.conversation_participants.all()
+            if p.is_muted
+        }
         rows = []
         for participant in participants:
             other = next((u for u in participants if u.id != participant.id), None)
@@ -444,6 +468,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'user_id': participant.id,
                 'other_user': other_payload,
                 'conversation': conversation_inbox_payload(conversation, participant),
+                'is_muted': participant.id in muted_ids,
             })
         return rows
 
@@ -908,6 +933,7 @@ class ChatInboxConsumer(AsyncWebsocketConsumer):
             'message': event.get('message'),
             'other_user': event.get('other_user'),
             'conversation': event.get('conversation'),
+            'is_muted': bool(event.get('is_muted')),
         }))
 
     async def inbox_message_request_accepted(self, event):

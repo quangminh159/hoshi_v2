@@ -528,22 +528,6 @@ def add_comment(request):
         post.comments_count = post.comments.count()
         post.save(update_fields=['comments_count'])
 
-        from posts.realtime import broadcast_post_engagement
-        replies_count = None
-        parent_comment_id = None
-        if root_parent is not None:
-            parent_comment_id = root_parent.id
-            replies_count = Comment.objects.filter(parent_id=root_parent.id).count()
-        broadcast_post_engagement(
-            post.id,
-            likes_count=post.likes_count,
-            comments_count=post.comments_count,
-            action='comment_add',
-            actor_id=request.user.id,
-            parent_comment_id=parent_comment_id,
-            replies_count=replies_count,
-        )
-
         parent_data = _build_parent_data(root_parent, direct_parent)
 
         if direct_parent and direct_parent.author != request.user:
@@ -558,11 +542,34 @@ def add_comment(request):
             send_notification_to_websocket(notification)
 
         comment = Comment.objects.select_related(
-            'author', 'parent', 'parent__author'
+            'author', 'parent', 'parent__author', 'post',
         ).get(pk=comment.pk)
 
+        comment_payload = _payload(comment, False, parent_data)
+
+        from posts.realtime import broadcast_post_engagement
+        replies_count = None
+        parent_comment_id = None
+        if root_parent is not None:
+            parent_comment_id = root_parent.id
+            replies_count = Comment.objects.filter(parent_id=root_parent.id).count()
+        # Broadcast cho mọi client — can_delete/edit để False, client tự bật nếu là tác giả
+        live_payload = dict(comment_payload)
+        live_payload['can_delete'] = False
+        live_payload['can_edit'] = False
+        broadcast_post_engagement(
+            post.id,
+            likes_count=post.likes_count,
+            comments_count=post.comments_count,
+            action='comment_add',
+            actor_id=request.user.id,
+            parent_comment_id=parent_comment_id,
+            replies_count=replies_count,
+            comment=live_payload,
+        )
+
         return Response({
-            'comment': _payload(comment, False, parent_data),
+            'comment': comment_payload,
             'comments_count': post.comments_count,
         })
     except Exception as e:

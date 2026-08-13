@@ -242,9 +242,17 @@ class User(AbstractUser):
         return self.posts.count()
 
     def get_avatar_url(self):
-        # Nếu có avatar, trả về URL của avatar
+        # Nếu có avatar, trả về URL (kèm cache-bust để đổi ảnh hiện ngay mọi chỗ)
         if self.avatar:
-            return self.avatar.url
+            url = self.avatar.url
+            try:
+                version = int(self.updated_at.timestamp()) if self.updated_at else None
+            except (AttributeError, OSError, TypeError, ValueError):
+                version = None
+            if version:
+                sep = '&' if '?' in url else '?'
+                return f'{url}{sep}v={version}'
+            return url
         
         # Tạo URL cho avatar dạng text dựa trên username
         username = self.username or ''

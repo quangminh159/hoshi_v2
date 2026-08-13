@@ -16,6 +16,7 @@ class Notification(models.Model):
         ('comment_reply', _('Comment Reply')),
         ('follow', _('Follow')),
         ('follow_request', _('Follow Request')),
+        ('follow_accepted', _('Follow Accepted')),
         ('mention', _('Mention')),
         ('message', _('Message')),
         ('share', _('Share')),
@@ -78,7 +79,7 @@ class Notification(models.Model):
             if self.notification_type == 'share' and self.original_post_id:
                 return reverse('posts:post_detail', args=[self.original_post_id])
             return reverse('posts:post_detail', args=[self.post_id])
-        if self.notification_type in ('follow', 'follow_request') and self.sender_id:
+        if self.notification_type in ('follow', 'follow_request', 'follow_accepted') and self.sender_id:
             return reverse('accounts:profile', args=[self.sender.username])
         if self.notification_type == 'message':
             conversation_id = self._conversation_id()

@@ -39,7 +39,7 @@
 [data-bs-theme="dark"] .list-group-item,
 [data-bs-theme="dark"] .offcanvas,
 [data-bs-theme="dark"] .popover,
-[data-bs-theme="dark"] .toast {
+[data-bs-theme="dark"] .toast:not(.hoshi-toast) {
     background-color: var(--surface-color) !important;
     color: var(--text-color) !important;
     border-color: var(--border-color) !important;
@@ -79,6 +79,15 @@
     background-color: var(--input-bg) !important;
     color: var(--text-color) !important;
     border-color: var(--border-color) !important;
+}
+
+/* Ô bình luận dùng nền trong suốt + chữ sáng (mention overlay) */
+[data-bs-theme="dark"] .add-comment-form .form-control,
+[data-bs-theme="dark"] .add-comment-form textarea.comment-input,
+[data-bs-theme="dark"] .add-comment-form textarea {
+    background-color: transparent !important;
+    color: #e4e4e7 !important;
+    caret-color: #f4f4f5 !important;
 }
 
 [data-bs-theme="dark"] .form-control:focus,
@@ -167,22 +176,34 @@
 
 [data-bs-theme="dark"] .feed-page #posts-container .card,
 [data-bs-theme="dark"] .feed-page #posts-container .feed-post-card,
-[data-bs-theme="dark"] .feed-page .feed-composer-trigger,
-[data-bs-theme="dark"] .feed-tab {
+[data-bs-theme="dark"] .feed-page .feed-composer-trigger {
     background: var(--card-bg) !important;
     border-color: var(--border-color) !important;
     color: var(--text-color) !important;
 }
 
+[data-bs-theme="dark"] .feed-tabs {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-bs-theme="dark"] .feed-tab {
+    background: transparent !important;
+    border-color: transparent !important;
+    color: #9a9a9a !important;
+    box-shadow: none !important;
+}
+
 [data-bs-theme="dark"] .feed-tab:hover {
-    background: var(--hover-bg) !important;
-    color: var(--text-color) !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+    color: #f2f2f2 !important;
 }
 
 [data-bs-theme="dark"] .feed-tab.active {
-    background: var(--primary-color) !important;
-    border-color: var(--primary-color) !important;
-    color: #fff !important;
+    background: #2a2a2e !important;
+    border-color: transparent !important;
+    color: #f7f7f7 !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 6px 18px rgba(0, 0, 0, 0.28) !important;
 }
 
 [data-bs-theme="dark"] .feed-page .feed-top h1,
@@ -310,6 +331,45 @@
 [data-bs-theme="dark"] .chat-search-box input:focus,
 [data-bs-theme="dark"] .chat-input-wrapper:focus-within {
     background: var(--surface-muted) !important;
+}
+
+[data-bs-theme="dark"] .conversation-more-btn {
+    background: rgba(42, 42, 46, 0.95);
+    color: #d4d4d4;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+
+[data-bs-theme="dark"] .conversation-more-btn:hover {
+    background: #2a2a2e;
+    color: #fff;
+}
+
+[data-bs-theme="dark"] .conversation-more-menu {
+    background: #1c1c1f;
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+
+[data-bs-theme="dark"] .conversation-more-item {
+    color: #f2f2f2;
+}
+
+[data-bs-theme="dark"] .conversation-more-item i {
+    color: #c4c4c4;
+}
+
+[data-bs-theme="dark"] .conversation-more-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+[data-bs-theme="dark"] .conversation-more-item--danger,
+[data-bs-theme="dark"] .conversation-more-item--danger i {
+    color: #fb7185;
+}
+
+[data-bs-theme="dark"] .conversation-pin-icon,
+[data-bs-theme="dark"] .conversation-mute-icon {
+    color: #a3a3a3;
 }
 
 [data-bs-theme="dark"] .delete-conversation,

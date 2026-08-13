@@ -50,7 +50,7 @@
 }
 
 .post-detail-page .feed-post-body {
-    padding: 0.875rem 1rem 0.25rem;
+    padding: 0.875rem 0.65rem 0.25rem;
 }
 
 .post-detail-page .feed-post-body .fw-bold {
@@ -75,14 +75,15 @@
     font-size: 0.875rem;
 }
 
-/* Media: to + gần vuông, nhưng không cao hơn viewport (tránh cắt mất nửa video) */
+/* Media: theo tỉ lệ ảnh gốc, không crop */
 .post-detail-page .post-detail-media.carousel.slide,
 .post-detail-page .post-detail-media {
-    width: min(100%, 68vh, 620px);
+    width: 100%;
     max-width: 100%;
-    aspect-ratio: 1 / 1;
-    max-height: min(68vh, 620px);
-    margin: 0.5rem auto 0.35rem;
+    aspect-ratio: auto;
+    height: auto;
+    max-height: none;
+    margin: 0.5rem 0 0.35rem;
     border-radius: 14px;
     overflow: hidden;
     background: #000;
@@ -90,25 +91,27 @@
 
 .post-detail-page .post-detail-media .carousel-inner,
 .post-detail-page .post-detail-media .carousel-item {
-    height: 100%;
+    height: auto;
     max-height: none;
-    background: #000;
+    background: transparent;
 }
 
 .post-detail-page .post-detail-media .carousel-item img {
     width: 100%;
-    height: 100%;
-    max-height: none;
-    object-fit: cover;
+    height: auto;
+    max-height: min(85vh, 960px);
+    object-fit: contain;
     object-position: center;
     display: block;
+    margin: 0 auto;
+    background: #000;
 }
 
 .post-detail-page .post-detail-media .carousel-item video,
 .post-detail-page .post-detail-media .feed-video {
     width: 100%;
-    height: 100%;
-    max-height: none;
+    height: auto;
+    max-height: min(85vh, 960px);
     object-fit: contain;
     object-position: center;
     display: block;
@@ -180,26 +183,29 @@
 
 .post-detail-page .shared-post-media .carousel.slide,
 .post-detail-page .shared-post-media .post-detail-media {
-    width: min(100%, 68vh, 620px);
-    aspect-ratio: 1 / 1;
-    max-height: min(68vh, 620px);
+    width: 100%;
+    aspect-ratio: auto;
+    height: auto;
+    max-height: none;
     margin-inline: auto;
 }
 
 .post-detail-page .shared-post-media .carousel-item,
 .post-detail-page .shared-post-media .carousel-inner {
-    height: 100%;
+    height: auto;
 }
 
 .post-detail-page .shared-post-media .carousel-item img {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    height: auto;
+    max-height: min(85vh, 960px);
+    object-fit: contain;
 }
 
 .post-detail-page .shared-post-media .carousel-item video {
     width: 100%;
-    height: 100%;
+    height: auto;
+    max-height: min(85vh, 960px);
     object-fit: contain;
 }
 
@@ -238,7 +244,7 @@
 }
 
 .post-detail-comment-form .input-group {
-    align-items: flex-end;
+    align-items: center;
 }
 
 .post-detail-comment-form textarea.comment-input,
@@ -253,17 +259,19 @@
 }
 
 .comment-image-btn {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 0.375rem 0.65rem;
+    padding: 0.35rem 0.4rem;
     color: #737373;
-    border-radius: 0.375rem 0 0 0.375rem !important;
+    border: none !important;
+    background: transparent !important;
+    border-radius: 50% !important;
 }
 
 .comment-image-btn:hover {
     color: var(--primary-color, #405de6);
-    background: #f8f9fa;
+    background: transparent !important;
 }
 
 .comment-image-preview-inner {
@@ -461,10 +469,10 @@
 
 .comment-voice-btn {
     border: none !important;
-    background: transparent;
+    background: transparent !important;
     color: #737373;
     border-radius: 50% !important;
-    padding: 0.35rem 0.55rem;
+    padding: 0.35rem 0.4rem;
 }
 
 .comment-voice-btn.is-recording {
@@ -777,15 +785,16 @@
     }
 
     .post-detail-page .feed-post-body {
-        padding: 0.85rem 1rem 0.35rem;
+        padding: 0.8rem 0.55rem 0.3rem;
     }
 
     .post-detail-page .post-detail-media.carousel.slide,
     .post-detail-page .post-detail-media {
-        width: min(100%, 72vw);
-        max-height: min(72vw, 70vh);
+        width: 100%;
+        max-height: none;
         border-radius: 12px;
-        aspect-ratio: 1 / 1;
+        aspect-ratio: auto;
+        height: auto;
     }
 
     .post-detail-page .post-detail-media.carousel.slide:has(.post-audio-player):not(:has(img)):not(:has(video)),

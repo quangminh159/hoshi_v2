@@ -8,7 +8,7 @@
 {% block body_class %} chat-layout chat-detail-layout{% endblock %}
 
 {% block extra_css %}
-<link href="{% static 'css/chat.css' %}?v=mobile-fixed-chat-2" rel="stylesheet">
+<link href="{% static 'css/chat.css' %}?v=chat-scroll-bottom-1" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -743,6 +743,42 @@
     const typingIndicator = document.getElementById('typingIndicator');
     const typingUsername = document.getElementById('typingUsername');
     const conversationListUrl = "{% url 'chat:conversation_list' %}";
+
+    /** Luôn neo xuống tin mới nhất (không animate từ trên xuống). */
+    function scrollChatToBottom() {
+      if (!chatMessages) return;
+      const prev = chatMessages.style.scrollBehavior;
+      chatMessages.style.scrollBehavior = 'auto';
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      // layout/ảnh có thể làm cao thêm → chỉnh lại vài frame
+      requestAnimationFrame(() => {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        requestAnimationFrame(() => {
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+          chatMessages.style.scrollBehavior = prev || '';
+        });
+      });
+    }
+
+    function pinChatToLatestOnOpen() {
+      scrollChatToBottom();
+      // Sau font/ảnh/layout mobile
+      setTimeout(scrollChatToBottom, 50);
+      setTimeout(scrollChatToBottom, 200);
+      setTimeout(scrollChatToBottom, 500);
+      if (chatMessages) {
+        chatMessages.querySelectorAll('img, video').forEach((media) => {
+          if (media.tagName === 'IMG' && media.complete) return;
+          const once = () => scrollChatToBottom();
+          media.addEventListener('load', once, { once: true });
+          media.addEventListener('loadeddata', once, { once: true });
+        });
+      }
+      window.addEventListener('load', scrollChatToBottom, { once: true });
+    }
+
+    pinChatToLatestOnOpen();
+
     let messageRequestLimitState = {% if message_request_limit %}{
       active: true,
       sent: {{ message_request_limit.sent|default:0 }},
@@ -898,7 +934,7 @@
       else if (data.type === 'message') {
         // Hiển thị tin nhắn mới
         const added = displayMessage(data.message);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+        scrollChatToBottom();
         if (data.message.sender_id !== currentUserId && !data.message.is_system) {
           markMessageAsRead(data.message.id);
           markOtherUserActiveNow();
@@ -963,7 +999,7 @@
             }
           });
         }
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+        scrollChatToBottom();
         refreshOutgoingReceipts();
         data.messages.forEach(message => {
           if (message.sender_id !== currentUserId && !message.is_read) {
@@ -1231,7 +1267,7 @@
         if (window.matchMedia('(min-width: 992px)').matches) {
           messageInput.focus();
         }
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+        scrollChatToBottom();
       } catch (error) {
         console.error('Upload error:', error);
         alert("{% filter escapejs %}{% trans 'Lỗi khi tải lên tệp:' %}{% endfilter %} " + error.message);
@@ -1423,7 +1459,7 @@
           img.loading = 'lazy';
           img.onclick = () => openImageModal(message.attachment_url);
           img.style.cursor = 'pointer';
-          img.onload = () => { chatMessages.scrollTop = chatMessages.scrollHeight; };
+          img.onload = () => { scrollChatToBottom(); };
           mediaDiv.appendChild(img);
           messageContent.appendChild(mediaDiv);
         } else if (message.attachment_type === 'video') {
@@ -2052,7 +2088,7 @@
           }
         }
         cancelReply();
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+        scrollChatToBottom();
       } catch (error) {
         console.error('Voice upload error:', error);
         alert(error.message || "{% filter escapejs %}{% trans 'Lỗi khi gửi tin nhắn thoại' %}{% endfilter %}");
@@ -2073,7 +2109,7 @@
       voiceSendBtn.addEventListener('click', finishVoiceRecordingAndSend);
     }
 
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    // Đã pin xuống tin mới nhất lúc mở phòng (pinChatToLatestOnOpen)
   });
   
   // Cuộn tới tin nhắn gốc khi bấm vào quote reply
@@ -2485,6 +2521,7 @@
         }
       }
       if (messagesEl && keyboard > 40) {
+        messagesEl.style.scrollBehavior = 'auto';
         messagesEl.scrollTop = messagesEl.scrollHeight;
       }
     }

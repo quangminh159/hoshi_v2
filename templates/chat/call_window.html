@@ -7,7 +7,7 @@
     <title>Cuộc gọi - Moora</title>
     <link rel="shortcut icon" href="{% static 'img/favicon.ico' %}?v=moora-sprout-1" type="image/x-icon">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="{% static 'css/webrtc_call.css' %}?v=13" rel="stylesheet">
+    <link href="{% static 'css/webrtc_call.css' %}?v=14" rel="stylesheet">
     <style>
         html, body {
             margin: 0;
@@ -46,7 +46,7 @@
         window.HOSHI_CALL_POPUP = true;
         window.HOSHI_CALL_WINDOW_URL = '{% url "chat:call_window" %}';
     </script>
-    <script src="{% static 'js/webrtc_call.js' %}?v=18"></script>
+    <script src="{% static 'js/webrtc_call.js' %}?v=28"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             if (window.HoshiCall && typeof window.HoshiCall.bootPopup === 'function') {

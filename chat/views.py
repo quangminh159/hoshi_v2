@@ -137,9 +137,27 @@ def conversation_list(request):
             )
         conversation.unread_count = unread_map.get(conversation.id, 0)
         conversation.preview_message = conversation.get_last_message(user)
+        part = next(
+            (
+                p for p in conversation.conversation_participants.all()
+                if p.user_id == user.id
+            ),
+            None,
+        )
+        conversation.is_pinned = bool(getattr(part, 'is_pinned', False))
+        conversation.is_muted = bool(getattr(part, 'is_muted', False))
+        conversation.pinned_at = getattr(part, 'pinned_at', None)
 
     # Gộp DM trùng (cùng 1 người nhưng nhiều hội thoại do race tạo cũ)
     all_conversations = dedupe_direct_conversations_for_user(user, all_conversations)
+    # Ghim lên đầu (sau dedupe)
+    all_conversations.sort(
+        key=lambda c: (
+            0 if getattr(c, 'is_pinned', False) else 1,
+            -(c.pinned_at.timestamp() if getattr(c, 'pinned_at', None) else 0),
+            -(c.last_message_time.timestamp() if c.last_message_time else 0),
+        )
+    )
 
     context = {
         'conversations': all_conversations,
@@ -1123,6 +1141,54 @@ def delete_conversation(request, conversation_id):
     except Exception as e:
         console.print(f"Error deleting conversation: {e}")
         return JsonResponse({"error": "Đã xảy ra lỗi khi xóa cuộc trò chuyện"}, status=500)
+
+
+@login_required
+@require_POST
+@csrf_protect
+def toggle_pin_conversation(request, conversation_id):
+    """Ghim / bỏ ghim cuộc trò chuyện (chỉ phía mình)."""
+    from django.utils import timezone
+
+    user = request.user
+    conversation = get_object_or_404(Conversation, id=conversation_id)
+    part = ConversationParticipant.objects.filter(
+        conversation=conversation, user=user, left_at__isnull=True
+    ).first()
+    if not part:
+        return JsonResponse({'ok': False, 'error': 'forbidden'}, status=403)
+
+    part.is_pinned = not part.is_pinned
+    part.pinned_at = timezone.now() if part.is_pinned else None
+    part.save(update_fields=['is_pinned', 'pinned_at'])
+    return JsonResponse({
+        'ok': True,
+        'is_pinned': part.is_pinned,
+        'conversation_id': conversation.id,
+    })
+
+
+@login_required
+@require_POST
+@csrf_protect
+def toggle_mute_conversation(request, conversation_id):
+    """Tắt / bật thông báo cuộc trò chuyện (chỉ phía mình)."""
+    user = request.user
+    conversation = get_object_or_404(Conversation, id=conversation_id)
+    part = ConversationParticipant.objects.filter(
+        conversation=conversation, user=user, left_at__isnull=True
+    ).first()
+    if not part:
+        return JsonResponse({'ok': False, 'error': 'forbidden'}, status=403)
+
+    part.is_muted = not part.is_muted
+    part.save(update_fields=['is_muted'])
+    return JsonResponse({
+        'ok': True,
+        'is_muted': part.is_muted,
+        'conversation_id': conversation.id,
+    })
+
 
 @login_required
 def upload_attachment(request, conversation_id):

@@ -215,7 +215,10 @@ def pending_message_request_count(user):
 
 
 def inbox_conversations_qs(user):
-    """Inbox chính — loại tin nhắn chờ của chính user."""
+    """Inbox chính — loại tin nhắn chờ của chính user.
+
+    Thứ tự ghim được gắn/sắp trong conversation_list (Postgres không MAX(boolean)).
+    """
     if not user:
         return Conversation.objects.none()
     hidden_ids = hidden_conversation_ids_for_user(user)
@@ -224,7 +227,7 @@ def inbox_conversations_qs(user):
         .exclude(id__in=hidden_ids)
         .exclude(is_message_request=True, message_request_for=user)
         .select_related('created_by', 'message_request_for')
-        .prefetch_related('participants')
+        .prefetch_related('participants', 'conversation_participants')
         .order_by('-last_message_time')
     )
 
@@ -598,6 +601,11 @@ def conversation_inbox_payload(conversation, viewer):
         conversation.is_message_request
         and conversation.message_request_for_id == getattr(viewer, 'id', None)
     )
+    part = None
+    if viewer is not None:
+        part = ConversationParticipant.objects.filter(
+            conversation=conversation, user=viewer
+        ).only('is_pinned', 'is_muted').first()
     return {
         'id': conversation.id,
         'is_group': bool(conversation.is_group),
@@ -605,7 +613,23 @@ def conversation_inbox_payload(conversation, viewer):
         'title': conversation.get_display_title(viewer),
         'avatar_url': conversation.get_display_avatar_url(viewer),
         'member_count': conversation.get_member_count() if conversation.is_group else 2,
+        'is_pinned': bool(part.is_pinned) if part else False,
+        'is_muted': bool(part.is_muted) if part else False,
     }
+
+
+def get_participant_prefs(conversation, user):
+    """Trả về (is_pinned, is_muted) cho user trong conversation."""
+    if not conversation or not user:
+        return False, False
+    row = (
+        ConversationParticipant.objects.filter(conversation=conversation, user=user)
+        .only('is_pinned', 'is_muted')
+        .first()
+    )
+    if not row:
+        return False, False
+    return bool(row.is_pinned), bool(row.is_muted)
 
 
 def send_conversation_message(user, conversation, content='', shared_post=None):
@@ -698,7 +722,7 @@ def broadcast_chat_message(conversation_id, message_data):
     try:
         conversation = (
             Conversation.objects.filter(id=conversation_id)
-            .prefetch_related('participants')
+            .prefetch_related('participants', 'conversation_participants')
             .select_related('created_by')
             .first()
         )
@@ -706,6 +730,11 @@ def broadcast_chat_message(conversation_id, message_data):
             return
 
         participants = list(conversation.participants.all())
+        muted_ids = {
+            p.user_id
+            for p in conversation.conversation_participants.all()
+            if p.is_muted
+        }
         for participant in participants:
             other = next((u for u in participants if u.id != participant.id), None)
             other_payload = None
@@ -723,6 +752,7 @@ def broadcast_chat_message(conversation_id, message_data):
                     'message': message_data,
                     'other_user': other_payload,
                     'conversation': conversation_inbox_payload(conversation, participant),
+                    'is_muted': participant.id in muted_ids,
                 },
             )
     except Exception:

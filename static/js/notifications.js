@@ -178,6 +178,9 @@ function handleChatInboxMessage(data) {
     // Đang trong khung chat / list tin nhắn → không toast
     if (isOnChatPage()) return;
 
+    // Hội thoại đã tắt thông báo → không toast
+    if (data.is_muted || data.conversation?.is_muted) return;
+
     // Tin hệ thống nhóm: toast nội dung nguyên văn
     if (message.is_system) {
         const groupTitle = data.conversation?.is_group ? data.conversation.title : null;
@@ -284,15 +287,61 @@ function applyLiveCommentRepliesCount(commentId, repliesCount) {
     }
 }
 
+function applyLiveNewComment(data) {
+    const comment = data && data.comment;
+    if (!comment || comment.id == null) return;
+
+    const postId = data.post_id != null ? data.post_id : comment.post_id;
+    if (postId == null) return;
+
+    if (
+        document.getElementById(`comment-${comment.id}`)
+        || document.querySelector(`[data-comment-id="${comment.id}"]`)
+    ) {
+        return;
+    }
+
+    const myId = document.body && document.body.dataset.userId;
+    if (myId && String(comment.author_id) === String(myId)) {
+        comment.can_delete = true;
+        comment.can_edit = true;
+    }
+
+    const parentId = (comment.parent && comment.parent.id)
+        || comment.parent_id
+        || data.parent_comment_id
+        || null;
+    const isReply = !!parentId;
+
+    // Feed (infinite scroll)
+    if (typeof window.appendCommentToFeed === 'function' && document.getElementById(`post-${postId}`)) {
+        window.appendCommentToFeed(comment, postId, isReply, parentId);
+        return;
+    }
+
+    // Trang chi tiết bài
+    const onDetail = !!document.getElementById('post-detail-comments-list')
+        || !!document.querySelector(`.post-detail[data-post-id="${postId}"], #post-${postId}`);
+    if (onDetail && typeof window.addCommentToDOM === 'function') {
+        window.addCommentToDOM(comment, postId, parentId);
+    }
+}
+
 function handlePostEngagement(data) {
     if (!data) return;
     const postId = data.post_id;
     const commentId = data.comment_id;
 
+    // Chèn bình luận mới trước, rồi ghi đè số đếm bằng giá trị tuyệt đối từ server
+    if (data.action === 'comment_add' && data.comment) {
+        applyLiveNewComment(data);
+    }
+
     if (postId != null) {
         const visible = document.querySelector(
             `#post-${postId}, .likes-count[data-post-id="${postId}"], `
-            + `.comments-count[data-post-id="${postId}"], .like-button[data-post-id="${postId}"]`
+            + `.comments-count[data-post-id="${postId}"], .like-button[data-post-id="${postId}"], `
+            + `#post-detail-comments-list, .post-comment-count[data-post-id="${postId}"]`
         );
         if (visible) {
             if (typeof data.likes_count === 'number') {
@@ -451,6 +500,9 @@ function getNotificationLink(notification) {
     if (notification.notification_type === 'follow_request' && notification.sender_username) {
         return `/users/${notification.sender_username}/`;
     }
+    if (notification.notification_type === 'follow_accepted' && notification.sender_username) {
+        return `/users/${notification.sender_username}/`;
+    }
     if (notification.notification_type === 'message' && notification.conversation_id) {
         return `/chat/conversations/${notification.conversation_id}/`;
     }
@@ -469,6 +521,8 @@ function getNotificationTitle(notification) {
             return 'Người theo dõi mới';
         case 'follow_request':
             return 'Yêu cầu theo dõi';
+        case 'follow_accepted':
+            return 'Đã chấp nhận theo dõi';
         case 'mention':
             return 'Bạn được nhắc đến';
         case 'message':
@@ -644,35 +698,66 @@ function showToast(notification) {
     }
 
     const toastEl = document.createElement('div');
-    toastEl.className = 'toast';
+    const type = notification.notification_type || 'default';
+    toastEl.className = `toast hoshi-toast hoshi-toast--${type}`;
     toastEl.setAttribute('role', 'alert');
     toastEl.setAttribute('aria-live', 'assertive');
     toastEl.setAttribute('aria-atomic', 'true');
 
     const link = getNotificationLink(notification);
-    const notificationText = getNotificationText(notification);
     const notificationTitle = getNotificationTitle(notification);
+    const senderName = String(notification.sender_username || '').trim();
+    let bodyText = String(getNotificationText(notification) || '').trim();
+
+    // Bỏ prefix "username: " nếu body đã gồm tên (toast tin nhắn)
+    if (senderName) {
+        const prefix = `${senderName}:`;
+        if (bodyText.toLowerCase().startsWith(prefix.toLowerCase())) {
+            bodyText = bodyText.slice(prefix.length).trim();
+        }
+    }
+
+    const avatar = escapeHtmlNotif(notification.sender_avatar || '/static/img/default-avatar.png');
+    const safeTitle = escapeHtmlNotif(notificationTitle);
+    const safeName = escapeHtmlNotif(senderName);
+    const safeBody = escapeHtmlNotif(bodyText);
+    const safeLink = escapeHtmlNotif(link);
+
+    const displayName = safeName || safeTitle;
+    const subtitle = safeName ? safeTitle : '';
 
     toastEl.innerHTML = `
-        <div class="toast-header">
-            <img src="${notification.sender_avatar || '/static/img/default-avatar.png'}" class="rounded me-2" width="20" height="20" alt="${notification.sender_username || 'User'}">
-            <strong class="me-auto">${notificationTitle}</strong>
-            <small>vừa mới</small>
-            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-        <div class="toast-body">
-            ${link !== '#'
-                ? `<a href="${link}" class="text-decoration-none text-body">${notificationText}</a>`
-                : notificationText}
+        <div class="hoshi-toast__inner">
+            <img src="${avatar}" class="hoshi-toast__avatar" width="44" height="44" alt="">
+            <div class="hoshi-toast__body">
+                <div class="hoshi-toast__row">
+                    <span class="hoshi-toast__name">${displayName}</span>
+                    <span class="hoshi-toast__time">vừa mới</span>
+                </div>
+                ${subtitle ? `<div class="hoshi-toast__label">${subtitle}</div>` : ''}
+                ${safeBody ? `<p class="hoshi-toast__text">${safeBody}</p>` : ''}
+            </div>
+            <button type="button" class="hoshi-toast__close" data-bs-dismiss="toast" aria-label="Đóng">
+                <i class="fas fa-times" aria-hidden="true"></i>
+            </button>
         </div>
     `;
 
+    if (link && link !== '#') {
+        toastEl.style.cursor = 'pointer';
+        toastEl.addEventListener('click', (e) => {
+            if (e.target.closest('.hoshi-toast__close')) return;
+            window.location.href = link;
+        });
+        toastEl.setAttribute('data-href', safeLink);
+    }
+
     toastContainer.appendChild(toastEl);
 
-    const toast = new bootstrap.Toast(toastEl, { delay: 5000 });
+    const toast = new bootstrap.Toast(toastEl, { delay: 5200, autohide: true });
     toast.show();
 
-    toastEl.addEventListener('hidden.bs.toast', function() {
+    toastEl.addEventListener('hidden.bs.toast', function () {
         toastEl.remove();
     });
 }

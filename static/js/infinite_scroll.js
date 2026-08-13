@@ -260,7 +260,8 @@
             <div class="feed-post-body">
                 <div class="feed-post-avatar-col">
                     <a href="${profileUrl(post.author.username)}" class="feed-post-avatar-link" onclick="event.stopPropagation();">
-                        <img src="${post.author.avatar}" class="rounded-circle feed-post-avatar"
+                        <img src="${post.author.avatar}" class="rounded-circle feed-post-avatar${String(post.author.id) === String(document.body.dataset.userId) ? ' js-self-avatar' : ''}"
+                             data-author-id="${post.author.id || ''}"
                              alt="${post.author.username}" loading="lazy">
                     </a>
                 </div>
@@ -270,7 +271,7 @@
                             <a href="${profileUrl(post.author.username)}"
                                class="text-dark text-decoration-none fw-bold feed-post-username"
                                onclick="event.stopPropagation();">${post.author.username}</a>
-                            ${post.visibility === 'only_me' ? '<span class="badge bg-secondary-subtle text-secondary border ms-1 align-middle" title="Chỉ mình bạn xem được"><i class="fas fa-lock"></i> Chỉ mình tôi</span>' : (post.author?.is_private && post.visibility !== 'only_me' ? '<span class="badge bg-primary-subtle text-primary border ms-1 align-middle" title="Chỉ người theo dõi đã duyệt mới xem được"><i class="fas fa-user-friends"></i> Người theo dõi</span>' : '')}
+                            ${post.visibility === 'only_me' ? '<span class="badge bg-secondary-subtle text-secondary border ms-1 align-middle" title="Chỉ mình bạn xem được"><i class="fas fa-lock"></i> Chỉ mình tôi</span>' : (post.author?.is_private && post.visibility !== 'only_me' ? '<span class="badge visibility-badge visibility-badge--followers ms-1 align-middle" title="Chỉ người theo dõi đã duyệt mới xem được"><i class="fas fa-user-friends"></i> Người theo dõi</span>' : '')}
                             <span class="text-muted small feed-post-time">${timeAgo(new Date(post.created_at))}</span>
                             ${post.is_trending ? '<span class="feed-trending-badge" title="Đang thịnh hành"><i class="fas fa-fire" aria-hidden="true"></i> Đang thịnh hành</span>' : ''}
                             ${post.shared_from ? `<span class="text-muted small"><i class="fas fa-retweet me-1"></i>đã chia sẻ</span>` : ''}
@@ -287,7 +288,9 @@
                         <div class="d-flex align-items-center">
                             <button class="btn btn-light btn-sm me-2 like-button ${post.is_liked ? 'liked' : ''}" data-post-id="${post.id}">
                                 <i class="${post.is_liked ? 'fas' : 'far'} fa-heart"></i>
-                                ${post.hide_likes ? '' : `<span class="likes-count" data-post-id="${post.id}">${post.likes_count}</span>`}
+                                ${(!post.hide_likes && String(post.author?.id) === String(document.body.dataset.userId))
+                                    ? `<span class="likes-count" data-post-id="${post.id}">${post.likes_count}</span>`
+                                    : ''}
                             </button>
                             <a href="/posts/${post.id}/" class="btn btn-light btn-sm me-2 comment-button" data-post-id="${post.id}">
                                 <i class="far fa-comment"></i>
@@ -331,14 +334,16 @@
                                 <button type="button" class="btn btn-sm btn-primary comment-voice-save">Dùng</button>
                             </div>
                         </div>
-                        <div class="input-group">
-                            <label class="btn btn-light border comment-image-btn mb-0" title="Đính kèm ảnh/video (≤5s)" for="comment-image-${post.id}">
-                                <i class="far fa-image"></i>
-                            </label>
-                            <button type="button" class="btn btn-light border comment-voice-btn mb-0" title="Ghi âm bình luận">
-                                <i class="fas fa-microphone"></i>
-                            </button>
-                            <input type="file" class="d-none comment-image-input" id="comment-image-${post.id}" name="media" accept="image/*,video/mp4,video/webm,video/quicktime,audio/*">
+                        <div class="input-group comment-compose-bar">
+                            <div class="comment-compose-tools">
+                                <label class="btn btn-light border comment-image-btn mb-0" title="Đính kèm ảnh/video (≤5s)" for="comment-image-${post.id}">
+                                    <i class="far fa-image"></i>
+                                </label>
+                                <button type="button" class="btn btn-light border comment-voice-btn mb-0" title="Ghi âm bình luận">
+                                    <i class="fas fa-microphone"></i>
+                                </button>
+                                <input type="file" class="d-none comment-image-input" id="comment-image-${post.id}" name="media" accept="image/*,video/mp4,video/webm,video/quicktime,audio/*">
+                            </div>
                             <textarea name="text" id="comment-input-${post.id}" class="form-control comment-input"
                                    placeholder="Viết bình luận..." aria-label="Comment input" rows="1" autocomplete="off"></textarea>
                             <button class="btn btn-primary comment-btn comment-send-btn" type="submit" title="Gửi" aria-label="Gửi bình luận">
@@ -1818,7 +1823,8 @@
     }
 
     function appendCommentToFeed(comment, postId, isReply, parentId) {
-        if (comment.is_duplicate) return;
+        if (!comment || comment.is_duplicate) return;
+        if (comment.id != null && document.getElementById(`comment-${comment.id}`)) return;
 
         const postCard = document.getElementById(`post-${postId}`);
         if (!postCard) return;
@@ -2399,5 +2405,6 @@
     window.setPostLikeCount = setPostLikeCount;
     window.setPostCommentCount = setPostCommentCount;
     window.bumpPostCommentCount = bumpPostCommentCount;
+    window.appendCommentToFeed = appendCommentToFeed;
     window.infiniteScroll = { loadMorePosts, resetAndReload, refresh: restoreInteractionStates };
 })();

@@ -106,7 +106,7 @@ def feed(request):
                         'author': {
                             'id': comment.author.id,
                             'username': comment.author.username,
-                            'avatar': comment.author.avatar.url if comment.author.avatar else None,
+                            'avatar': comment.author.get_avatar_url(),
                         },
                         'likes_count': comment.likes_count,
                     },
@@ -117,7 +117,7 @@ def feed(request):
                         'author': {
                             'id': reply.author.id,
                             'username': reply.author.username,
-                            'avatar': reply.author.avatar.url if reply.author.avatar else None,
+                            'avatar': reply.author.get_avatar_url(),
                         },
                         'likes_count': reply.likes_count,
                         'parent_id': reply.parent_id,
@@ -140,7 +140,7 @@ def feed(request):
                 'author': {
                     'id': post.author.id,
                     'username': post.author.username,
-                    'avatar': post.author.avatar.url if post.author.avatar else None,
+                    'avatar': post.author.get_avatar_url(),
                 },
                 'caption': post.caption,
                 'location': post.location,
@@ -830,7 +830,7 @@ def add_comment(request, post_id):
             'author': {
                 'id': request.user.id,
                 'username': request.user.username,
-                'avatar': request.user.avatar.url if request.user.avatar else None
+                'avatar': request.user.get_avatar_url(),
             },
             'post_id': post.id,
             'parent_id': parent.id if parent else None,
@@ -1018,10 +1018,14 @@ def liked_posts(request):
 
 @login_required
 def get_post_likes(request, post_id):
-    """Lấy danh sách người đã thích bài viết"""
+    """Lấy danh sách người đã thích bài viết — chỉ tác giả bài mới xem được."""
     post = get_object_or_404(Post, id=post_id)
+    if post.author_id != request.user.id:
+        return JsonResponse({'error': 'Chỉ tác giả mới xem được danh sách lượt thích.'}, status=403)
+    if post.hide_likes:
+        return JsonResponse({'likes': []})
+
     likes = []
-    
     for like in Like.objects.filter(post=post).select_related('user'):
         user = like.user
         likes.append({
@@ -1029,11 +1033,11 @@ def get_post_likes(request, post_id):
                 'id': user.id,
                 'username': user.username,
                 'full_name': f"{user.first_name} {user.last_name}".strip(),
-                'avatar': user.avatar.url if user.avatar else None,
+                'avatar': user.get_avatar_url(),
                 'is_following': request.user.is_following_user(user) if request.user.is_authenticated else False
             }
         })
-    
+
     return JsonResponse({'likes': likes})
 
 @login_required

@@ -190,10 +190,13 @@ class ConversationParticipant(models.Model):
     joined_at = models.DateTimeField(auto_now_add=True)
     left_at = models.DateTimeField(null=True, blank=True)
     is_admin = models.BooleanField(default=False)
-    
+    is_pinned = models.BooleanField(default=False)
+    is_muted = models.BooleanField(default=False)
+    pinned_at = models.DateTimeField(null=True, blank=True)
+
     class Meta:
         unique_together = ('conversation', 'user')
-        
+
     def __str__(self):
         role = 'admin' if self.is_admin else 'member'
         return f"{self.user.username} ({role}) in {self.conversation}"

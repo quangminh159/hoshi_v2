@@ -58,6 +58,11 @@ ALLOWED_HOSTS = [h.strip() for h in str(_raw_hosts).split(',') if h.strip()]
 if not ALLOWED_HOSTS:
     ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
+# Local DEBUG: nhận mọi Host (IP đổi / ĐT vào bằng IP / ngrok) — không cần sửa .env
+# Production (DEBUG=False): BẮT BUỘC liệt kê domain thật, không dùng '*'.
+if DEBUG:
+    ALLOWED_HOSTS = ['*']
+
 # CSRF — cấu hình qua env; local + ngrok khi DEBUG
 _raw_csrf = (
     config('CSRF_TRUSTED_ORIGINS', default='')
@@ -74,6 +79,7 @@ if DEBUG:
     ):
         if origin not in CSRF_TRUSTED_ORIGINS:
             CSRF_TRUSTED_ORIGINS.append(origin)
+    # Origin theo IP bất kỳ được nới bằng DebugOpenHostMiddleware (dưới)
 
 # Application definition
 
@@ -125,6 +131,8 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
+    # DEBUG: cho phép đăng nhập/POST từ mọi IP/Host mà không sửa CSRF_TRUSTED_ORIGINS
+    'accounts.middleware.DebugOpenHostMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'accounts.middleware.UserLanguageMiddleware',
@@ -657,21 +665,20 @@ POSTS_PER_PAGE = 20
 NOTIFICATIONS_PER_PAGE = 15
 MESSAGES_PER_PAGE = 20
 
-# WebRTC ICE / TURN (gọi thoại-video trên server thật)
-# Cách 1 — user/password cố định (Metered, Twilio, coturn long-term):
-#   TURN_URLS=turn:turn.example.com:3478,turns:turn.example.com:443
-#   TURN_USERNAME=...
-#   TURN_CREDENTIAL=...
-# Cách 2 — coturn use-auth-secret (credential tạm thời):
-#   TURN_URLS=turn:turn.example.com:3478
-#   TURN_SECRET=your-static-auth-secret
-# Cách 3 — JSON đầy đủ ghi đè:
-#   ICE_SERVERS_JSON=[{"urls":"stun:..."},{"urls":"turn:...","username":"...","credential":"..."}]
+# WebRTC ICE / TURN tự host (coturn) — xem huong_dan_turn.txt
+# TURN_HOST=IP_hoac_domain
+# TURN_USERNAME=moora
+# TURN_CREDENTIAL=...
+# TURN_EXTERNAL_IP=...  (cho docker coturn)
 TURN_URLS = config('TURN_URLS', default='').strip()
+TURN_HOST = config('TURN_HOST', default='').strip()
 TURN_USERNAME = config('TURN_USERNAME', default='').strip()
 TURN_CREDENTIAL = config('TURN_CREDENTIAL', default='').strip()
 TURN_SECRET = config('TURN_SECRET', default='').strip()
 TURN_CREDENTIAL_TTL = int(config('TURN_CREDENTIAL_TTL', default='3600') or 3600)
 ICE_SERVERS_JSON = config('ICE_SERVERS_JSON', default='').strip()
-# True = dùng TURN free Metered khi chưa cấu hình TURN_URLS (cần cho gọi qua 4G/ngrok)
-WEBRTC_USE_FREE_TURN = config('WEBRTC_USE_FREE_TURN', default=True, cast=bool)
+METERED_TURN_API_KEY = config('METERED_TURN_API_KEY', default='').strip()
+METERED_TURN_APP_NAME = config('METERED_TURN_APP_NAME', default='').strip()
+METERED_TURN_CREDENTIALS_URL = config('METERED_TURN_CREDENTIALS_URL', default='').strip()
+WEBRTC_ICE_TRANSPORT_POLICY = config('WEBRTC_ICE_TRANSPORT_POLICY', default='all').strip()
+WEBRTC_PREFER_RELAY = config('WEBRTC_PREFER_RELAY', default=False, cast=bool)

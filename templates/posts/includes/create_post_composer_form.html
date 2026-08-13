@@ -3,7 +3,7 @@
 
     <div class="create-post-body">
         <div class="composer-row">
-            <img src="{{ request.user.get_avatar_url }}" alt="{{ request.user.username }}" class="composer-avatar">
+            <img src="{{ request.user.get_avatar_url }}" alt="{{ request.user.username }}" class="composer-avatar js-self-avatar">
             <div class="composer-input-wrap position-relative">
                 <textarea id="caption"
                           name="caption"

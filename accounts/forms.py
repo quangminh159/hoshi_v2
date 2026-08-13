@@ -423,8 +423,21 @@ class ProfileForm(forms.ModelForm):
                 self.instance.avatar.delete(save=False)
                 self.instance.avatar = None
 
-        if self.cleaned_data.get('avatar'):
-            self.instance.avatar = self.cleaned_data['avatar']
+        avatar = self.cleaned_data.get('avatar')
+        if avatar:
+            # Đổi tên file mỗi lần upload để tránh trình duyệt/CDN giữ ảnh cũ
+            import uuid
+            raw_name = getattr(avatar, 'name', '') or 'avatar.jpg'
+            ext = raw_name.rsplit('.', 1)[-1].lower() if '.' in raw_name else 'jpg'
+            if ext not in ('jpg', 'jpeg', 'png', 'webp', 'gif'):
+                ext = 'jpg'
+            if self.instance.avatar:
+                try:
+                    self.instance.avatar.delete(save=False)
+                except Exception:
+                    pass
+            avatar.name = f'{self.instance.pk or "u"}_{uuid.uuid4().hex[:16]}.{ext}'
+            self.instance.avatar = avatar
 
         return super().save(commit)
 

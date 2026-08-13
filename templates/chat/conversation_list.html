@@ -8,7 +8,7 @@
 {% block body_class %} chat-layout{% endblock %}
 
 {% block extra_css %}
-<link href="{% static 'css/chat.css' %}?v=msg-request-1" rel="stylesheet">
+<link href="{% static 'css/chat.css' %}?v=conv-menu-1" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -68,11 +68,15 @@
       {% if conversations %}
         {% for conversation in conversations %}
           {% with other_user=conversation.other_user %}
-          <div class="conversation-wrapper{% if conversation.unread_count %} has-unread{% endif %}{% if conversation.is_group %} is-group{% endif %}"
+          <div class="conversation-wrapper{% if conversation.unread_count %} has-unread{% endif %}{% if conversation.is_group %} is-group{% endif %}{% if conversation.is_pinned %} is-pinned{% endif %}{% if conversation.is_muted %} is-muted{% endif %}"
                id="conversation-{{ conversation.id }}"
+               data-conversation-id="{{ conversation.id }}"
                data-username="{{ conversation.display_title|lower }}"
                data-is-group="{% if conversation.is_group %}1{% else %}0{% endif %}"
-               data-unread="{{ conversation.unread_count|default:0 }}">
+               data-unread="{{ conversation.unread_count|default:0 }}"
+               data-pinned="{% if conversation.is_pinned %}1{% else %}0{% endif %}"
+               data-muted="{% if conversation.is_muted %}1{% else %}0{% endif %}"
+               data-last-ts="{% if conversation.last_message_time %}{{ conversation.last_message_time|date:'U' }}{% else %}0{% endif %}">
             <a href="{% url 'chat:conversation_detail' conversation.id %}" class="conversation-item">
               <div class="conversation-avatar{% if conversation.is_group %} conversation-avatar--group{% endif %}">
                 <img src="{{ conversation.display_avatar }}"
@@ -86,7 +90,11 @@
               </div>
               <div class="conversation-info">
                 <div class="conversation-name">
-                  <span class="{% if conversation.unread_count %}fw-bold{% endif %}">{{ conversation.display_title }}</span>
+                  <span class="conversation-name-text {% if conversation.unread_count %}fw-bold{% endif %}">
+                    {% if conversation.is_pinned %}<i class="fas fa-thumbtack conversation-pin-icon" title="{% trans 'Đã ghim' %}"></i>{% endif %}
+                    {% if conversation.is_muted %}<i class="fas fa-bell-slash conversation-mute-icon" title="{% trans 'Đã tắt thông báo' %}"></i>{% endif %}
+                    {{ conversation.display_title }}
+                  </span>
                   <span class="conversation-time">
                     {% if conversation.last_message_time %}
                       {{ conversation.last_message_time|date:"H:i" }}
@@ -144,11 +152,36 @@
               </span>
               {% endif %}
             </a>
-            <button class="delete-conversation"
-                    onclick="deleteConversation({{ conversation.id }}, event)"
-                    title="{% if conversation.is_group %}{% trans 'Rời nhóm' %}{% else %}{% trans 'Xóa cuộc trò chuyện' %}{% endif %}">
-              <i class="fas fa-trash-alt"></i>
-            </button>
+            <div class="conversation-more">
+              <button type="button"
+                      class="conversation-more-btn"
+                      aria-label="{% trans 'Thêm' %}"
+                      aria-expanded="false"
+                      aria-haspopup="true"
+                      title="{% trans 'Thêm' %}">
+                <i class="fas fa-ellipsis-h"></i>
+              </button>
+              <div class="conversation-more-menu" hidden role="menu">
+                <button type="button" class="conversation-more-item" data-action="pin" role="menuitem">
+                  <span class="conversation-more-label" data-pin-label>
+                    {% if conversation.is_pinned %}{% trans "Bỏ ghim" %}{% else %}{% trans "Ghim" %}{% endif %}
+                  </span>
+                  <i class="fas fa-thumbtack"></i>
+                </button>
+                <button type="button" class="conversation-more-item" data-action="mute" role="menuitem">
+                  <span class="conversation-more-label" data-mute-label>
+                    {% if conversation.is_muted %}{% trans "Bật thông báo" %}{% else %}{% trans "Tắt thông báo" %}{% endif %}
+                  </span>
+                  <i class="{% if conversation.is_muted %}fas fa-bell{% else %}fas fa-bell-slash{% endif %}" data-mute-icon></i>
+                </button>
+                <button type="button" class="conversation-more-item conversation-more-item--danger" data-action="delete" role="menuitem">
+                  <span class="conversation-more-label">
+                    {% if conversation.is_group %}{% trans "Rời nhóm" %}{% else %}{% trans "Xóa" %}{% endif %}
+                  </span>
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </div>
+            </div>
           </div>
           {% endwith %}
         {% endfor %}
@@ -188,15 +221,109 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/chat_list.js' %}?v=msg-request-2"></script>
+<script src="{% static 'js/chat_list.js' %}?v=conv-reorder-1"></script>
 <script>
   document.querySelector('.mobile-bottom-nav__item[data-nav="messages"]')?.classList.add('is-active');
 
+  const I18N_PIN = "{% filter escapejs %}{% trans 'Ghim' %}{% endfilter %}";
+  const I18N_UNPIN = "{% filter escapejs %}{% trans 'Bỏ ghim' %}{% endfilter %}";
+  const I18N_MUTE = "{% filter escapejs %}{% trans 'Tắt thông báo' %}{% endfilter %}";
+  const I18N_UNMUTE = "{% filter escapejs %}{% trans 'Bật thông báo' %}{% endfilter %}";
+
   let conversationToDelete = null;
 
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
+  function closeAllConversationMenus(exceptWrap) {
+    document.querySelectorAll('.conversation-wrapper.is-menu-open').forEach((el) => {
+      if (exceptWrap && el === exceptWrap) return;
+      el.classList.remove('is-menu-open');
+      const btn = el.querySelector('.conversation-more-btn');
+      const menu = el.querySelector('.conversation-more-menu');
+      if (btn) btn.setAttribute('aria-expanded', 'false');
+      if (menu) menu.hidden = true;
+    });
+  }
+
+  function updatePinUi(wrap, isPinned) {
+    wrap.dataset.pinned = isPinned ? '1' : '0';
+    wrap.classList.toggle('is-pinned', !!isPinned);
+    const label = wrap.querySelector('[data-pin-label]');
+    if (label) label.textContent = isPinned ? I18N_UNPIN : I18N_PIN;
+    const nameText = wrap.querySelector('.conversation-name-text');
+    if (!nameText) return;
+    let icon = nameText.querySelector('.conversation-pin-icon');
+    if (isPinned && !icon) {
+      icon = document.createElement('i');
+      icon.className = 'fas fa-thumbtack conversation-pin-icon';
+      icon.title = I18N_PIN;
+      nameText.insertBefore(icon, nameText.firstChild);
+    } else if (!isPinned && icon) {
+      icon.remove();
+    }
+  }
+
+  function updateMuteUi(wrap, isMuted) {
+    wrap.dataset.muted = isMuted ? '1' : '0';
+    wrap.classList.toggle('is-muted', !!isMuted);
+    const label = wrap.querySelector('[data-mute-label]');
+    if (label) label.textContent = isMuted ? I18N_UNMUTE : I18N_MUTE;
+    const muteIcon = wrap.querySelector('[data-mute-icon]');
+    if (muteIcon) {
+      muteIcon.className = isMuted ? 'fas fa-bell' : 'fas fa-bell-slash';
+    }
+    const nameText = wrap.querySelector('.conversation-name-text');
+    if (!nameText) return;
+    let icon = nameText.querySelector('.conversation-mute-icon');
+    if (isMuted && !icon) {
+      icon = document.createElement('i');
+      icon.className = 'fas fa-bell-slash conversation-mute-icon';
+      icon.title = I18N_MUTE;
+      const pin = nameText.querySelector('.conversation-pin-icon');
+      if (pin) nameText.insertBefore(icon, pin.nextSibling);
+      else nameText.insertBefore(icon, nameText.firstChild);
+    } else if (!isMuted && icon) {
+      icon.remove();
+    }
+  }
+
+  function reorderPinnedList() {
+    if (typeof window.hoshiReorderConversations === 'function') {
+      window.hoshiReorderConversations();
+      return;
+    }
+    const list = document.getElementById('conversationList');
+    if (!list) return;
+    const rows = Array.from(list.querySelectorAll('.conversation-wrapper'));
+    rows.sort((a, b) => {
+      const ap = a.dataset.pinned === '1' ? 0 : 1;
+      const bp = b.dataset.pinned === '1' ? 0 : 1;
+      if (ap !== bp) return ap - bp;
+      const at = Number(a.dataset.lastTs || 0);
+      const bt = Number(b.dataset.lastTs || 0);
+      return bt - at;
+    });
+    rows.forEach((row) => list.appendChild(row));
+  }
+
   function deleteConversation(conversationId, event) {
-    event.preventDefault();
-    event.stopPropagation();
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
     conversationToDelete = conversationId;
     const deleteModal = new bootstrap.Modal(document.getElementById('deleteConversationModal'));
     deleteModal.show();
@@ -230,22 +357,72 @@
     };
   }
 
-  function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-      const cookies = document.cookie.split(';');
-      for (let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i].trim();
-        if (cookie.substring(0, name.length + 1) === (name + '=')) {
-          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-          break;
-        }
-      }
-    }
-    return cookieValue;
+  async function togglePin(wrap) {
+    const id = wrap.dataset.conversationId;
+    const resp = await fetch(`/chat/conversations/${id}/pin/`, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': getCookie('csrftoken'), 'X-Requested-With': 'XMLHttpRequest' },
+      credentials: 'same-origin',
+    });
+    const data = await resp.json();
+    if (!resp.ok || !data.ok) throw new Error('pin failed');
+    updatePinUi(wrap, !!data.is_pinned);
+    reorderPinnedList();
   }
 
-  // Mobile: nhấn giữ hiện nút xóa hội thoại
+  async function toggleMute(wrap) {
+    const id = wrap.dataset.conversationId;
+    const resp = await fetch(`/chat/conversations/${id}/mute/`, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': getCookie('csrftoken'), 'X-Requested-With': 'XMLHttpRequest' },
+      credentials: 'same-origin',
+    });
+    const data = await resp.json();
+    if (!resp.ok || !data.ok) throw new Error('mute failed');
+    updateMuteUi(wrap, !!data.is_muted);
+  }
+
+  document.getElementById('conversationList')?.addEventListener('click', async (e) => {
+    const moreBtn = e.target.closest('.conversation-more-btn');
+    const actionBtn = e.target.closest('.conversation-more-item');
+    const wrap = e.target.closest('.conversation-wrapper');
+
+    if (moreBtn && wrap) {
+      e.preventDefault();
+      e.stopPropagation();
+      const menu = wrap.querySelector('.conversation-more-menu');
+      const open = wrap.classList.contains('is-menu-open');
+      closeAllConversationMenus();
+      if (!open) {
+        wrap.classList.add('is-menu-open');
+        moreBtn.setAttribute('aria-expanded', 'true');
+        if (menu) menu.hidden = false;
+      }
+      return;
+    }
+
+    if (actionBtn && wrap) {
+      e.preventDefault();
+      e.stopPropagation();
+      const action = actionBtn.dataset.action;
+      closeAllConversationMenus();
+      try {
+        if (action === 'pin') await togglePin(wrap);
+        else if (action === 'mute') await toggleMute(wrap);
+        else if (action === 'delete') deleteConversation(wrap.dataset.conversationId, e);
+      } catch (_) {
+        alert("{% filter escapejs %}{% trans 'Không thực hiện được. Thử lại.' %}{% endfilter %}");
+      }
+      return;
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('.conversation-more')) return;
+    closeAllConversationMenus();
+  });
+
+  // Mobile: nhấn giữ mở menu ...
   (function () {
     if (!window.matchMedia('(hover: none), (pointer: coarse)').matches) return;
     let timer = null;
@@ -257,13 +434,15 @@
     }
     document.addEventListener('pointerdown', (e) => {
       const wrap = e.target.closest('.conversation-wrapper');
-      if (!wrap || e.target.closest('.delete-conversation')) return;
+      if (!wrap || e.target.closest('.conversation-more')) return;
       target = wrap;
       timer = setTimeout(() => {
-        document.querySelectorAll('.conversation-wrapper.is-actions-open').forEach((el) => {
-          if (el !== wrap) el.classList.remove('is-actions-open');
-        });
-        wrap.classList.add('is-actions-open');
+        closeAllConversationMenus();
+        const btn = wrap.querySelector('.conversation-more-btn');
+        const menu = wrap.querySelector('.conversation-more-menu');
+        wrap.classList.add('is-menu-open');
+        if (btn) btn.setAttribute('aria-expanded', 'true');
+        if (menu) menu.hidden = false;
         if (navigator.vibrate) navigator.vibrate(12);
         timer = null;
       }, 480);
@@ -271,12 +450,6 @@
     document.addEventListener('pointerup', clear, { passive: true });
     document.addEventListener('pointercancel', clear, { passive: true });
     document.addEventListener('pointermove', () => { if (target) clear(); }, { passive: true });
-    document.addEventListener('click', (e) => {
-      if (e.target.closest('.delete-conversation, .conversation-wrapper.is-actions-open')) return;
-      document.querySelectorAll('.conversation-wrapper.is-actions-open').forEach((el) => {
-        el.classList.remove('is-actions-open');
-      });
-    });
   })();
 </script>
 {% endblock %}

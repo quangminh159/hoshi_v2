@@ -22,7 +22,7 @@
                         <i class="fas fa-lock"></i> Chỉ mình tôi
                     </span>
                     {% elif post.visibility != 'only_me' and post.author.is_account_private and request.user == post.author %}
-                    <span class="badge bg-primary-subtle text-primary border ms-1 align-middle" title="Chỉ người theo dõi đã duyệt mới xem được">
+                    <span class="badge visibility-badge visibility-badge--followers ms-1 align-middle" title="Chỉ người theo dõi đã duyệt mới xem được">
                         <i class="fas fa-user-friends"></i> Người theo dõi
                     </span>
                     {% endif %}
@@ -124,7 +124,7 @@
                     <button class="btn btn-light btn-sm me-2 like-button {% if is_liked %}liked{% endif %}"
                             data-post-id="{{ post.id }}">
                         <i class="{% if is_liked %}fas{% else %}far{% endif %} fa-heart"></i>
-                        {% if not post.hide_likes %}
+                        {% if not post.hide_likes and request.user == post.author %}
                         <span class="likes-count" data-post-id="{{ post.id }}">{{ post.likes_count }}</span>
                         {% endif %}
                     </button>
@@ -146,7 +146,7 @@
                 </button>
             </div>
 
-            {% if not post.hide_likes %}
+            {% if not post.hide_likes and request.user == post.author %}
             <p class="mb-0 likes-count-display">
                 <a href="#" class="text-dark text-decoration-none fw-bold show-likes-button" data-post-id="{{ post.id }}">
                     <span class="likes-count-text" data-post-id="{{ post.id }}">{{ post.likes_count }} lượt thích</span>
@@ -382,18 +382,20 @@
                     <button type="button" class="btn btn-sm btn-primary comment-voice-save">Dùng</button>
                 </div>
             </div>
-            <div class="input-group">
-                <label class="btn btn-light border comment-image-btn mb-0" title="Đính kèm ảnh/video (≤5s)" for="comment-image-{{ post.id }}">
-                    <i class="far fa-image"></i>
-                </label>
-                <button type="button" class="btn btn-light border comment-voice-btn mb-0" title="Ghi âm bình luận">
-                    <i class="fas fa-microphone"></i>
-                </button>
-                <input type="file"
-                       class="d-none comment-image-input"
-                       id="comment-image-{{ post.id }}"
-                       name="media"
-                       accept="image/*,video/mp4,video/webm,video/quicktime,audio/*">
+            <div class="input-group comment-compose-bar">
+                <div class="comment-compose-tools">
+                    <label class="btn btn-light border comment-image-btn mb-0" title="Đính kèm ảnh/video (≤5s)" for="comment-image-{{ post.id }}">
+                        <i class="far fa-image"></i>
+                    </label>
+                    <button type="button" class="btn btn-light border comment-voice-btn mb-0" title="Ghi âm bình luận">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <input type="file"
+                           class="d-none comment-image-input"
+                           id="comment-image-{{ post.id }}"
+                           name="media"
+                           accept="image/*,video/mp4,video/webm,video/quicktime,audio/*">
+                </div>
                 <textarea
                        class="form-control comment-input"
                        placeholder="Viết bình luận..."

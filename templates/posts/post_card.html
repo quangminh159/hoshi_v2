@@ -7,9 +7,10 @@
         <div class="d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center">
                 <img src="{{ post.author.get_avatar_url }}" 
-                     class="rounded-circle me-2" 
+                     class="rounded-circle me-2{% if request.user == post.author %} js-self-avatar{% endif %}" 
                      width="32" 
                      height="32"
+                     data-author-id="{{ post.author.id }}"
                      alt="{{ post.author.username }}"
                 >
                 <div>
@@ -22,7 +23,7 @@
                         <i class="fas fa-lock"></i> {% trans "Chỉ mình tôi" %}
                     </span>
                     {% elif post.visibility != 'only_me' and post.author.is_account_private and request.user == post.author %}
-                    <span class="badge bg-primary-subtle text-primary border ms-1 align-middle" title="{% trans 'Chỉ người theo dõi đã duyệt mới xem được' %}">
+                    <span class="badge visibility-badge visibility-badge--followers ms-1 align-middle" title="{% trans 'Chỉ người theo dõi đã duyệt mới xem được' %}">
                         <i class="fas fa-user-friends"></i> {% trans "Người theo dõi" %}
                     </span>
                     {% endif %}
@@ -271,7 +272,7 @@
             <button class="btn btn-link text-dark p-0 me-3 like-button" 
                     data-post-id="{{ post.id }}">
                 <i class="{% if request.user in post.post_likes.all %}fas{% else %}far{% endif %} fa-heart"></i>
-                {% if not post.hide_likes %}
+                {% if not post.hide_likes and request.user == post.author %}
                 <span class="likes-count" data-post-id="{{ post.id }}">{{ post.likes_count }}</span>
                 {% endif %}
             </button>
@@ -292,9 +293,9 @@
             </button>
         </div>
 
-        {% if not post.hide_likes %}
+        {% if not post.hide_likes and request.user == post.author %}
         <p class="mb-2 likes-count-display">
-            <a href="#" class="text-dark text-decoration-none fw-bold" data-post-id="{{ post.id }}">
+            <a href="#" class="text-dark text-decoration-none fw-bold show-likes-button" data-post-id="{{ post.id }}">
                 {% blocktrans with count=post.likes_count %}{{ count }} lượt thích{% endblocktrans %}
             </a>
         </p>

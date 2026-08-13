@@ -89,9 +89,93 @@
     height: 112px;
     border-radius: 50%;
     object-fit: cover;
-    margin-bottom: 1rem;
+    margin-bottom: 0;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
     border: 3px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+    z-index: 1;
+}
+
+.hoshi-call-avatar-wrap {
+    position: relative;
+    width: 112px;
+    height: 112px;
+    margin: 0 auto 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hoshi-call-ring {
+    display: none;
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    pointer-events: none;
+}
+
+.hoshi-call-overlay.is-incoming .hoshi-call-ring {
+    display: block;
+    animation: hoshi-call-pulse 2s ease-out infinite;
+}
+
+.hoshi-call-overlay.is-incoming .hoshi-call-ring--2 {
+    animation-delay: 1s;
+}
+
+@keyframes hoshi-call-pulse {
+    0% {
+        transform: scale(1);
+        opacity: 0.55;
+    }
+    100% {
+        transform: scale(2.1);
+        opacity: 0;
+    }
+}
+
+.hoshi-call-incoming-actions {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 2.75rem;
+    width: 100%;
+}
+
+.hoshi-call-incoming-actions[hidden] {
+    display: none !important;
+}
+
+.hoshi-call-btn--xl {
+    width: 68px;
+    height: 68px;
+    flex-direction: column;
+    gap: 0.35rem;
+    font-size: 1.25rem;
+}
+
+.hoshi-call-btn-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    position: absolute;
+    bottom: -1.45rem;
+    white-space: nowrap;
+}
+
+.hoshi-call-btn--xl {
+    position: relative;
+    margin-bottom: 1.1rem;
+}
+
+.hoshi-call-overlay.is-incoming .hoshi-call-controls {
+    bottom: max(2.5rem, calc(env(safe-area-inset-bottom) + 1.5rem));
+}
+
+.hoshi-call-overlay.is-incoming .hoshi-call-status {
+    font-size: 1rem;
+    opacity: 0.9;
 }
 
 .hoshi-call-name {
