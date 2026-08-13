@@ -7,8 +7,8 @@
 {% block body_class %} post-detail-layout{% endblock %}
 
 {% block extra_css %}
-<link href="{% static 'css/feed.css' %}?v=comment-dark-text-1" rel="stylesheet">
-<link href="{% static 'css/post_detail.css' %}?v=comment-compose-fix-1" rel="stylesheet">
+<link href="{% static 'css/feed.css' %}?v=comments-ui-1" rel="stylesheet">
+<link href="{% static 'css/post_detail.css' %}?v=comments-ui-1" rel="stylesheet">
 <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
 <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
 <link href="https://unpkg.com/filepond-plugin-file-poster/dist/filepond-plugin-file-poster.css" rel="stylesheet">
@@ -266,7 +266,7 @@
 window.HOSHI_USER_SUGGESTIONS_URL = '{% url "posts:user_suggestions" %}';
 </script>
 <script src="{% static 'js/share_post_modal.js' %}?v=no-as-new-1"></script>
-<script src="{% static 'js/edit_caption_suggestions.js' %}?v=mention-clear-1"></script>
+<script src="{% static 'js/edit_caption_suggestions.js' %}?v=caret-visible-1"></script>
 <script src="https://unpkg.com/filepond-plugin-image-exif-orientation/dist/filepond-plugin-image-exif-orientation.js"></script>
 <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
 <script src="https://unpkg.com/filepond-plugin-file-poster/dist/filepond-plugin-file-poster.js"></script>
@@ -1688,24 +1688,27 @@ function addCommentToDOM(comment, postId, parentId) {
             // Tìm hoặc tạo phần replies của comment cha
             let repliesSection = parentComment.querySelector('.comment-replies');
             if (!repliesSection) {
-                repliesSection = document.createElement('div');
-                repliesSection.className = 'comment-replies ps-4 mt-2';
-                parentComment.querySelector('.flex-grow-1').appendChild(repliesSection);
+                const block = document.createElement('div');
+                block.className = 'comment-replies-block';
+                block.innerHTML = '<div class="comment-replies"></div>';
+                const host = parentComment.querySelector('.comment-body-main')
+                    || parentComment.querySelector('.flex-grow-1')
+                    || parentComment;
+                host.appendChild(block);
+                repliesSection = block.querySelector('.comment-replies');
             }
             
             // Tạo HTML cho reply
             const replyHTML = `
-            <div class="reply-comment mb-2" id="comment-${comment.id}" data-comment-id="${comment.id}">
+            <div class="reply-comment" id="comment-${comment.id}" data-comment-id="${comment.id}">
                 <div class="comment-body-main">
                     <div class="d-flex justify-content-between align-items-start gap-2 comment-header-row">
-                        <div class="min-w-0">
+                        <div class="d-flex align-items-center flex-wrap gap-1 min-w-0">
                             <a href="/accounts/profile/${comment.author_username || comment.author.username}/" 
-                               class="text-dark text-decoration-none fw-bold">
+                               class="comment-username text-decoration-none fw-bold">
                                 ${comment.author_username || comment.author.username}
                             </a>
                             ${comment.is_post_author ? '<span class="comment-author-badge" title="Tác giả bài viết"><i class="fas fa-pen" aria-hidden="true"></i>Tác giả</span>' : ''}
-                            <span class="text-muted small me-1">đã trả lời</span>
-                            <a href="#comment-${parentId}" class="text-dark fw-bold small">@${document.querySelector(`#comment-${parentId} a.text-dark.text-decoration-none.fw-bold`).textContent}</a>
                         </div>
                         <div class="dropdown flex-shrink-0">
                             <button class="btn btn-link btn-sm p-0 text-muted" 
@@ -1732,36 +1735,32 @@ function addCommentToDOM(comment, postId, parentId) {
                                 </li>
                                 <li>
                                     <button class="dropdown-item text-danger" 
-                                           onclick="deleteComment(${comment.id})">
+                                            onclick="deleteComment(${comment.id})">
                                         <i class="fas fa-trash-alt me-2"></i>Xóa
                                     </button>
                                 </li>
                             </ul>
                         </div>
                     </div>
-                    ${commentBodyHtml(comment)}
-                    <div class="text-muted small comment-meta-row mt-1 d-flex align-items-center flex-wrap gap-2">
-                        <span>vừa xong</span>
-                        <button class="btn btn-link btn-sm p-0 comment-action-btn comment-like-button like-comment-button" 
-                                data-comment-id="${comment.id}"
-                                aria-label="Thích"
-                                title="Thích">
+                    ${comment.text ? `<div class="comment-text mt-1" data-raw-text="${(comment.text || '').replace(/"/g, '&quot;')}">${typeof formatCommentText === 'function' ? formatCommentText(comment.text) : comment.text}</div>` : ''}
+                    ${comment.image_url ? `<div class="comment-image-wrap mt-1"><a href="${comment.image_url}" target="_blank" rel="noopener"><img src="${comment.image_url}" alt="Ảnh bình luận" class="comment-image"></a></div>` : ''}
+                    <div class="text-muted small comment-meta-row d-flex align-items-center flex-wrap">
+                        <span class="comment-time">Vừa xong</span>
+                        <button class="btn btn-link btn-sm p-0 comment-action-btn comment-like-button like-comment-button"
+                                data-comment-id="${comment.id}" aria-label="Thích" title="Thích">
                             <i class="far fa-heart" aria-hidden="true"></i>
                             <span class="comment-likes-count" data-comment-id="${comment.id}"></span>
                         </button>
-                        <button class="btn btn-link btn-sm p-0 comment-action-btn text-muted reply-button" 
+                        <button class="btn btn-link btn-sm p-0 comment-action-btn text-muted reply-button"
                                 data-username="${comment.author_username || comment.author.username}"
                                 data-post-id="${postId}"
-                                data-comment-id="${comment.id}"
-                                aria-label="Trả lời"
-                                title="Trả lời">
+                                data-comment-id="${parentId}"
+                                aria-label="Trả lời" title="Trả lời">
                             <i class="far fa-comment" aria-hidden="true"></i>
                         </button>
                     </div>
                 </div>
             </div>`;
-            
-            // Thêm reply vào phần replies
             repliesSection.insertAdjacentHTML('beforeend', replyHTML);
             const rootEl = parentComment.classList.contains('reply-comment')
                 ? parentComment.closest('.d-flex.comment, [id^="comment-"]:not(.reply-comment)')
@@ -1775,7 +1774,7 @@ function addCommentToDOM(comment, postId, parentId) {
     } else {
         // Tạo HTML cho bình luận mới
         const commentHTML = `
-        <div class="d-flex mb-3 comment" id="comment-${comment.id}" data-comment-id="${comment.id}">
+        <div class="d-flex comment root-comment" id="comment-${comment.id}" data-comment-id="${comment.id}">
             <img src="${avatarUrl}" 
                  class="rounded-circle me-2 flex-shrink-0" 
                  width="32" 

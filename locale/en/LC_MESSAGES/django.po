@@ -1,29 +1,82 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: hoshi\n"
+"Project-Id-Version: moora\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "%(count)s bÃ¬nh luáº­n"
+msgstr "%(count)s comments"
 
 msgid "%(count)s bình luận"
 msgstr "%(count)s comments"
 
+msgid "%(count)s lÆ°á»£t thÃ­ch"
+msgstr "%(count)s likes"
+
 msgid "%(count)s lượt thích"
 msgstr "%(count)s likes"
 
+msgid "%(counter)s cuá»c trÃ² chuyá»n"
+msgstr "%(counter)s conversations"
+
 msgid "%(counter)s cuộc trò chuyện"
-msgstr "%(counter)s conversations{% plural %}%(counter)s conversations"
+msgstr "%(counter)s conversation"
+
+msgid "%(counter)s cuộc trò chuyện%(counter)s cuộc trò chuyện"
+msgstr "%(counter)s conversations%(counter)s conversations"
+
+msgid "%(counter)s tin nhắn mới%(counter)s tin nhắn mới"
+msgstr "%(counter)s new message%(counter)s new message"
+
+msgid "%(time)s trÆ°á»c"
+msgstr "%(time)s ago"
 
 msgid "%(time)s trước"
 msgstr "%(time)s ago"
 
+msgid "%(username)s chÆ°a theo dÃµi ai."
+msgstr "%(username)s doesn't follow anyone yet."
+
 msgid "%(username)s chưa theo dõi ai."
 msgstr "%(username)s doesn't follow anyone yet."
 
+msgid "%(username)s ÄÃ£ chia sáº»"
+msgstr "%(username)s shared"
+
 msgid "%(username)s đã chia sẻ"
 msgstr "%(username)s shared"
+
+msgid "%(var)s bÃ¬nh luáº­n"
+msgstr "%(var)s formula"
+
+msgid "%(var)s chÆ°a theo dÃµi ai."
+msgstr "%(var)s only follows anyone."
+
+msgid "%(var)s cuá»c trÃ² chuyá»n %(var)s cuá»c trÃ² chuyá»n"
+msgstr "%(var)s of conversions %(var)s of conversions"
+
+msgid "%(var)s lÆ°á»£t thÃ­ch"
+msgstr "%(var)s is like"
+
+msgid "%(var)s tin nháº¯n má»i %(var)s tin nháº¯n má»i"
+msgstr "%(var)s news %(var)s news"
+
+msgid "%(var)s trÆ°á»c"
+msgstr "%(var)s trÆ°á»c"
+
+msgid "%(var)s ÄÃ£ chia sáº»"
+msgstr "%(var)s ÄÃ£ shareº»"
+
+msgid ""
+"<strong>Cháº·n tin nháº¯n</strong> - Chá» nháº­n tin nháº¯n tá»« ngÆ°á»i "
+"báº¡n theo dÃµi"
+msgstr ""
+"<strong>Block messages</strong> - Only receive messages from people you "
+"follow"
 
 msgid ""
 "<strong>Chặn tin nhắn</strong> - Chỉ nhận tin nhắn từ người bạn theo dõi"
@@ -32,10 +85,39 @@ msgstr ""
 "follow"
 
 msgid ""
+"<strong>TÃ i khoáº£n riÃªng tÆ°</strong> - Chá» nhá»¯ng ngÆ°á»i theo dÃµi "
+"má»i cÃ³ thá» xem bÃ i viáº¿t cá»§a báº¡n"
+msgstr ""
+"<strong>Private account</strong> - Only your followers can see your posts"
+
+msgid ""
+"<strong>TÃ i khoáº£n riÃªng tÆ°</strong> - NgÆ°á»i khÃ¡c pháº£i gá»­i yÃªu "
+"cáº§u vÃ ÄÆ°á»£c báº¡n xÃ¡c nháº­n má»i theo dÃµi ÄÆ°á»£c; chá» ngÆ°á»i"
+" ÄÃ£ theo dÃµi má»i xem bÃ i viáº¿t cá»§a báº¡n"
+msgstr ""
+"<strong>I'm locking myself in</strong> - People discover girls' preferences "
+"and see what they're seeing over time. ÄÆ°á»£c; Please follow me to see what"
+" you're doing."
+
+msgid ""
 "<strong>Tài khoản riêng tư</strong> - Chỉ những người theo dõi mới có thể "
 "xem bài viết của bạn"
 msgstr ""
 "<strong>Private account</strong> - Only your followers can see your posts"
+
+msgid ""
+"<strong>Tài khoản riêng tư</strong> - Người khác phải gửi yêu cầu và được "
+"bạn xác nhận mới theo dõi được; chỉ người đã theo dõi mới xem bài viết của "
+"bạn"
+msgstr ""
+"<strong>Private account</strong> - Others must send a request and be "
+"confirmed by you to follow; Only followers will see your posts"
+
+msgid ""
+"<strong>áº¨n tráº¡ng thÃ¡i hoáº¡t Äá»ng</strong> - KhÃ´ng hiá»n thá» "
+"tráº¡ng thÃ¡i hoáº¡t Äá»ng cá»§a báº¡n"
+msgstr ""
+"<strong>Hide activity status</strong> - Does not show your activity status"
 
 msgid ""
 "<strong>Ẩn trạng thái hoạt động</strong> - Không hiển thị trạng thái hoạt "
@@ -43,23 +125,215 @@ msgid ""
 msgstr ""
 "<strong>Hide activity status</strong> - Does not show your activity status"
 
+msgid "Admin"
+msgstr "Admin"
+
+msgid "Audio"
+msgstr "Audio"
+
+msgid "Bao gá»m hÃ¬nh áº£nh vÃ video"
+msgstr "Includes images and videos"
+
 msgid "Bao gồm hình ảnh và video"
 msgstr "Includes images and videos"
+
+msgid "BÃ i viáº¿t"
+msgstr "Article"
+
+msgid "BÃ i viáº¿t 24h"
+msgstr "24-hour service"
+
+msgid "BÃ¡o cÃ¡o"
+msgstr "Report"
+
+msgid "BÃ¡o cÃ¡o bÃ i viáº¿t chá» xá»­ lÃ½"
+msgstr "Is it true that you have to deal with this problem?"
+
+msgid "BÃ¡o cÃ¡o user chá» xá»­ lÃ½"
+msgstr "How many users are there?"
+
+msgid "BÃ¬nh luáº­n"
+msgstr "Comment"
+
+msgid "BÃ¬nh luáº­n 24h"
+msgstr "24-hour alarm"
+
+msgid "BÆ°á»c cuá»i"
+msgstr "BÆ°á»c of»i"
 
 msgid "Bài viết"
 msgstr "Article"
 
+msgid "Bài viết 24h"
+msgstr "24h article"
+
 msgid "Báo cáo"
 msgstr "Report"
 
+msgid "Báo cáo bài viết chờ xử lý"
+msgstr "Report pending posts"
+
+msgid "Báo cáo user chờ xử lý"
+msgstr "User report pending"
+
+msgid "Báº¡n chÆ°a cháº·n ngÆ°á»i dÃ¹ng nÃ o."
+msgstr "You haven't blocked any users yet."
+
+msgid "Báº¡n chÆ°a lÆ°u bÃ i viáº¿t nÃ o."
+msgstr "You haven't saved any posts yet."
+
+msgid "Báº¡n cháº¯c muá»n rá»i nhÃ³m nÃ y?"
+msgstr "How many people do you want?"
+
+msgid "Báº¡n cÃ³ cháº¯c cháº¯n muá»n bá» cháº·n"
+msgstr "Are you sure you want to unblock"
+
+msgid "Báº¡n cÃ³ cháº¯c cháº¯n muá»n cháº·n"
+msgstr "Are you sure you want to block"
+
+msgid "Báº¡n cÃ³ cháº¯c cháº¯n muá»n há»§y liÃªn káº¿t vá»i"
+msgstr "Are you sure you want to unlink with"
+
+msgid "Báº¡n cÃ³ cháº¯c cháº¯n muá»n há»§y theo dÃµi"
+msgstr "Are you sure you want to unfollow?"
+
+msgid "Báº¡n cÃ³ cháº¯c cháº¯n muá»n xoÃ¡ bÃ i viáº¿t nÃ y khÃ´ng?"
+msgstr "Are you sure you want to delete this post?"
+
+msgid "Báº¡n cÃ³ cháº¯c cháº¯n muá»n xÃ³a bÃ i viáº¿t nÃ y khÃ´ng?"
+msgstr "Are you sure you want to delete this post?"
+
+msgid "Báº¡n cÃ³ cháº¯c cháº¯n muá»n xÃ³a phÆ°Æ¡ng tiá»n nÃ y khÃ´ng?"
+msgstr "Are you sure you want to delete this media?"
+
+msgid "Báº¡n cÃ³ cháº¯c cháº¯n muá»n xÃ³a tin nháº¯n nÃ y khÃ´ng?"
+msgstr "Are you sure you want to delete this message?"
+
+msgid "Báº¡n cÃ³ cháº¯c cháº¯n muá»n xÃ³a tÃ i khoáº£n?"
+msgstr "Are you sure you want to delete your account?"
+
+msgid "Báº¡n cÃ³ cháº¯c cháº¯n muá»n ÄÄng xuáº¥t khá»i thiáº¿t bá» nÃ y?"
+msgstr "Are you sure you want to sign out of this device?"
+
+msgid ""
+"Báº¡n cÃ³ cháº¯c muá»n xÃ³a cuá»c trÃ² chuyá»n nÃ y? HÃ nh Äá»ng nÃ y "
+"khÃ´ng thá» hoÃ n tÃ¡c."
+msgstr ""
+"Are you sure you want to delete this conversation? This action cannot be "
+"undone."
+
+msgid ""
+"Báº¡n cÃ³ cháº¯c muá»n ÄÄng xuáº¥t khá»i tÃ i khoáº£n trÃªn thiáº¿t bá»"
+" nÃ y?"
+msgstr "Do you have any idea how to get rid of this product?"
+
+msgid "Báº¡n cÃ³ thá» chá»n nhiá»u áº£nh hoáº·c video cÃ¹ng lÃºc."
+msgstr "You can select multiple photos or videos at the same time."
+
+msgid ""
+"Báº¡n cÃ³ thá» ÄÄng nháº­p vÃ o Moora báº±ng máº­t kháº©u má»i ngay bÃ¢y"
+" giá»."
+msgstr ""
+"You have a lot of money, and Moora sells quite a bit of blood at this price."
+
+msgid "Báº¡n khÃ´ng cÃ³ quyá»n chá»nh sá»­a bÃ i viáº¿t nÃ y."
+msgstr "You do not have permission to edit this article."
+
+msgid "Báº¡n khÃ´ng cÃ³ quyá»n xÃ³a bÃ i viáº¿t nÃ y."
+msgstr "You do not have permission to delete this post."
+
+msgid "Báº¡n khÃ´ng cÃ³ thÃ´ng bÃ¡o nÃ o"
+msgstr "You have no notifications"
+
+msgid "Báº¡n khÃ´ng cÃ³ thÃ´ng bÃ¡o nÃ o."
+msgstr "You have no notifications."
+
+msgid "Báº¡n luÃ´n cÃ³ thá» ÄÄng nháº­p láº¡i báº¥t cá»© lÃºc nÃ o."
+msgstr "The sale of rice paper can be done at any time."
+
+msgid ""
+"Báº¡n sáº½ khÃ´ng tháº¥y bÃ i viáº¿t cá»§a há» vÃ há» khÃ´ng thá» tÆ°Æ¡ng"
+" tÃ¡c vá»i báº¡n."
+msgstr "You won't see their posts and they can't interact with you."
+
+msgid "Báº¡n Äang nghÄ© gÃ¬?"
+msgstr "What are you thinking?"
+
+msgid ""
+"Báº¡n Äang ÄÄng nháº­p vá»i <strong>@%(var)s</strong>. Báº¡n cÃ³ cháº¯c "
+"muá»n rá»i khá»i Moora trÃªn thiáº¿t bá» nÃ y?"
+msgstr ""
+"You can use <strong>@%(var)s</strong>. Do you have any questions about Moora"
+" in this form?"
+
+msgid "Báº¡n ÄÃ£ cháº·n"
+msgstr "You have blocked"
+
+msgid ""
+"Báº¡n ÄÃ£ gá»­i Äá»§ %(var)s tin. Chá» ngÆ°á»i nháº­n cháº¥p nháº­n "
+"Äá» nháº¯n tiáº¿p."
+msgstr "Counting %(var)s believe. If you accept it, please accept it."
+
+msgid ""
+"Báº¡n ÄÃ£ tá»« chá»i quyá»n vá» trÃ­. Chá» dÃ¹ng vá» trÃ­ theo IP."
+msgstr "You have to wait until now. Cannot be used to update by IP."
+
+msgid "Báº¡n ÄÃ£ xem háº¿t thÃ´ng bÃ¡o"
+msgstr "You can see all the news"
+
+msgid "Báº¡n ÄÃ£ xem háº¿t táº¥t cáº£ bÃ i viáº¿t"
+msgstr "You have read all the articles"
+
+msgid "Báº¡n:"
+msgstr "Friend:"
+
+msgid "Báº£n Äá»"
+msgstr "Baº£n Äá»"
+
+msgid "Báº£ng tin"
+msgstr "Feed"
+
+msgid "Báº£o máº­t"
+msgstr "Security"
+
+msgid "Báº­t thÃ´ng bÃ¡o"
+msgstr "Almost every month"
+
+msgid "Báº¯t Äáº§u cuá»c trÃ² chuyá»n..."
+msgstr "Start the conversation..."
+
+msgid "Báº¯t Äáº§u trÃ² chuyá»n vá»i báº¡n bÃ¨ ngay hÃ´m nay"
+msgstr "Start chatting with friends today"
+
+msgid "Bá» cháº·n tá»« %(date)s"
+msgstr "Blocked from %(date)s"
+
+msgid "Bá» cháº·n tá»« %(var)s"
+msgstr "Ba» cháº·n ta»« %(var)s"
+
+msgid "Bá» cháº·n"
+msgstr "Unblock"
+
+msgid "Bá» ghim"
+msgstr "Ba» pin"
+
 msgid "Bình luận"
 msgstr "Comment"
+
+msgid "Bình luận 24h"
+msgstr "Comment 24h"
+
+msgid "Bước cuối"
+msgstr "Final step"
 
 msgid "Bạn chưa chặn người dùng nào."
 msgstr "You haven't blocked any users yet."
 
 msgid "Bạn chưa lưu bài viết nào."
 msgstr "You haven't saved any posts yet."
+
+msgid "Bạn chắc muốn rời nhóm này?"
+msgstr "Are you sure you want to leave this group?"
 
 msgid "Bạn có chắc chắn muốn bỏ chặn"
 msgstr "Are you sure you want to unblock"
@@ -97,8 +371,14 @@ msgstr ""
 "Are you sure you want to delete this conversation? This action cannot be "
 "undone."
 
+msgid "Bạn có chắc muốn đăng xuất khỏi tài khoản trên thiết bị này?"
+msgstr "Are you sure you want to sign out of your account on this device?"
+
 msgid "Bạn có thể chọn nhiều ảnh hoặc video cùng lúc."
 msgstr "You can select multiple photos or videos at the same time."
+
+msgid "Bạn có thể đăng nhập vào Moora bằng mật khẩu mới ngay bây giờ."
+msgstr "You can log in to Moora with your new password now."
 
 msgid "Bạn không có quyền chỉnh sửa bài viết này."
 msgstr "You do not have permission to edit this article."
@@ -112,14 +392,35 @@ msgstr "You have no notifications"
 msgid "Bạn không có thông báo nào."
 msgstr "You have no notifications."
 
+msgid "Bạn luôn có thể đăng nhập lại bất cứ lúc nào."
+msgstr "You can always log back in at any time."
+
 msgid "Bạn sẽ không thấy bài viết của họ và họ không thể tương tác với bạn."
 msgstr "You won't see their posts and they can't interact with you."
 
 msgid "Bạn đang nghĩ gì?"
 msgstr "What are you thinking?"
 
+msgid ""
+"Bạn đang đăng nhập với <strong>@%(name)s</strong>. Bạn có chắc muốn rời khỏi"
+" Moora trên thiết bị này?"
+msgstr ""
+"You are logged in as <strong>@%(name)s</strong>. Are you sure you want to "
+"leave Moora on this device?"
+
 msgid "Bạn đã chặn"
 msgstr "You have blocked"
+
+msgid "Bạn đã gửi đủ %(max)s tin. Chờ người nhận chấp nhận để nhắn tiếp."
+msgstr ""
+"You have sent enough %(max)s messages. Wait for the recipient to accept to "
+"continue sending the message."
+
+msgid "Bạn đã từ chối quyền vị trí. Chỉ dùng vị trí theo IP."
+msgstr "You have denied location permission. Only use location by IP."
+
+msgid "Bạn đã xem hết thông báo"
+msgstr "You have seen all the notifications"
 
 msgid "Bạn đã xem hết tất cả bài viết"
 msgstr "You have read all the articles"
@@ -127,11 +428,17 @@ msgstr "You have read all the articles"
 msgid "Bạn:"
 msgstr "Friend:"
 
+msgid "Bản đồ"
+msgstr "Map"
+
 msgid "Bảng tin"
 msgstr "Feed"
 
 msgid "Bảo mật"
 msgstr "Security"
+
+msgid "Bật thông báo"
+msgstr "Unmute notifications"
 
 msgid "Bắt đầu cuộc trò chuyện..."
 msgstr "Start the conversation..."
@@ -145,14 +452,226 @@ msgstr "Blocked from %(date)s"
 msgid "Bỏ chặn"
 msgstr "Unblock"
 
+msgid "Bỏ ghim"
+msgstr "Unpin"
+
+msgid "Chi tiáº¿t cuá»c trÃ² chuyá»n"
+msgstr "Chat details"
+
 msgid "Chi tiết cuộc trò chuyện"
 msgstr "Chat details"
+
+msgid "Chia sáº» giá»i tÃ­nh trÃªn trang cÃ¡ nhÃ¢n"
+msgstr "Share the price of the product on your page."
+
+msgid "Chia sáº» ngÃ y sinh trÃªn trang cÃ¡ nhÃ¢n"
+msgstr "Share your birthday on your page"
+
+msgid "Chia sẻ giới tính trên trang cá nhân"
+msgstr "Share your gender on your personal page"
+
+msgid "Chia sẻ ngày sinh trên trang cá nhân"
+msgstr "Share your date of birth on your personal page"
+
+msgid ""
+"ChÃ o báº¡n tá»« %(var)s! Báº¡n nháº­n ÄÆ°á»£c email nÃ y vÃ¬ báº¡n hoáº·c "
+"ai ÄÃ³ ÄÃ£ yÃªu cáº§u Äáº·t láº¡i máº­t kháº©u cho tÃ i khoáº£n cá»§a "
+"báº¡n. Náº¿u ÄÃ¢y khÃ´ng pháº£i lÃ báº¡n, báº¡n cÃ³ thá» bá» qua email nÃ"
+" y. Äá» Äáº·t láº¡i máº­t kháº©u, vui lÃ²ng nháº¥p vÃ o liÃªn káº¿t bÃªn "
+"dÆ°á»i:"
+msgstr ""
+"Check out %(var)s! You should accept this email and sell it to anyone who "
+"needs it. baº¡n. If this is not the case, you should contact me via this "
+"email. It's pretty cool, please click here and click here:"
+
+msgid "ChÃ o má»«ng trá» láº¡i!"
+msgstr "Welcome back!"
+
+msgid "ChÃ­nh sÃ¡ch báº£o máº­t"
+msgstr "Privacy policy"
+
+msgid "ChÃ­nh sÃ¡ch quyá»n riÃªng tÆ°"
+msgstr "Individual policy making"
+
+msgid "ChÃºng tÃ´i sáº½ gá»­i liÃªn káº¿t Äáº·t láº¡i máº­t kháº©u."
+msgstr "We're going to give you a lot of money."
+
+msgid "ChÆ°a cÃ³ ai theo dÃµi %(username)s."
+msgstr "No one is following %(username)s yet."
+
+msgid "ChÆ°a cÃ³ ai theo dÃµi %(var)s."
+msgstr "No one follows %(var)s."
+
+msgid "ChÆ°a cÃ³ bÃ i viáº¿t nÃ o ÄÆ°á»£c chia sáº»."
+msgstr "There are no posts shared yet."
+
+msgid "ChÆ°a cÃ³ bÃ i viáº¿t nÃ o Äá» hiá»n thá»"
+msgstr "There are no posts to display yet"
+
+msgid "ChÆ°a cÃ³ bÃ i viáº¿t nÃ o."
+msgstr "There are no posts yet."
+
+msgid "ChÆ°a cÃ³ cuá»c trÃ² chuyá»n nÃ o"
+msgstr "There have been no conversations yet"
+
+msgid "ChÆ°a cÃ³ tin nháº¯n"
+msgstr "No messages yet"
+
+msgid "ChÆ°a cÃ³ tin nháº¯n nÃ o"
+msgstr "There are no messages yet"
+
+msgid "ChÆ°a cÃ³ tÃ i khoáº£n máº¡ng xÃ£ há»i nÃ o ÄÆ°á»£c liÃªn káº¿t."
+msgstr "There are no linked social media accounts yet."
+
+msgid "ChÆ°a cÃ³ tÃ i khoáº£n?"
+msgstr "Don't have an account yet?"
+
+msgid "ChÆ°a cáº­p nháº­t"
+msgstr "Not updated yet"
+
+msgid ""
+"Chào bạn từ %(site_name)s! Bạn nhận được email này vì bạn hoặc ai đó đã yêu "
+"cầu đặt lại mật khẩu cho tài khoản của bạn. Nếu đây không phải là bạn, bạn "
+"có thể bỏ qua email này. Để đặt lại mật khẩu, vui lòng nhấp vào liên kết bên"
+" dưới:"
+msgstr ""
+"Hello from %(site_name)s! You received this email because you or someone "
+"else requested a password reset for your account. If this is not you, you "
+"can ignore this email. To reset your password, please click the link below:"
 
 msgid "Chào mừng trở lại!"
 msgstr "Welcome back!"
 
+msgid "Cháº¥p nháº­n"
+msgstr "Check it out"
+
+msgid ""
+"Cháº¥p nháº­n Äá» chuyá»n vÃ o há»p thÆ° chÃ­nh. Tá»« chá»i sáº½ áº©n "
+"cuá»c trÃ² chuyá»n nÃ y."
+msgstr ""
+"Please click here to switch to the main location. What are the results of "
+"this transition?"
+
+msgid "Cháº·n"
+msgstr "Block"
+
+msgid "Cháº·n má»i (7 ngÃ y)"
+msgstr "Mother's Day (7 days)"
+
+msgid "Cháº¿ Äá» mÃ u"
+msgstr "Check it out"
+
+msgid "Cháº¿ Äá» xem"
+msgstr "Let's see"
+
+msgid "Cháº¿ Äá» xem báº£ng tin"
+msgstr "Message board view"
+
+msgid "Chá» há» trá»£ Facebook, Twitter/X, Instagram vÃ LinkedIn."
+msgstr "Only supports Facebook, Twitter/X, Instagram and LinkedIn."
+
+msgid "Chá» mÃ¬nh báº¡n xem ÄÆ°á»£c"
+msgstr "Let's see the screen"
+
+msgid "Chá» mÃ¬nh tÃ´i"
+msgstr "I'm sorry"
+
+msgid "Chá» ngÆ°á»i theo dÃµi ÄÃ£ duyá»t má»i xem ÄÆ°á»£c"
+msgstr "You can only watch this video here."
+
+msgid ""
+"Chá» nhá»¯ng ngÆ°á»i theo dÃµi má»i cÃ³ thá» xem bÃ i viáº¿t cá»§a tÃ i "
+"khoáº£n nÃ y. HÃ£y theo dÃµi Äá» xem ná»i dung."
+msgstr ""
+"Let's have a look at the results of this course. Please follow the link to "
+"see the content."
+
+msgid "Chá»nh há» sÆ¡, máº­t kháº©u, xÃ³a / khÃ´i phá»¥c tÃ i khoáº£n."
+msgstr "What's wrong, what's wrong, what's going on?"
+
+msgid "Chá»nh khung áº£nh Äáº¡i diá»n"
+msgstr "How to fix the frame?"
+
+msgid "Chá»nh sá»­a"
+msgstr "Edit"
+
+msgid "Chá»nh sá»­a bÃ i viáº¿t"
+msgstr "Edit article"
+
+msgid "Chá»nh sá»­a há» sÆ¡"
+msgstr "Edit profile"
+
+msgid ""
+"Chá»n cháº¿ Äá» sÃ¡ng, tá»i hoáº·c theo há» thá»ng. TÃ¹y chá»n "
+"ÄÆ°á»£c lÆ°u trÃªn thiáº¿t bá» nÃ y."
+msgstr ""
+"Change and regenerate according to different ways. This is not the case "
+"here."
+
+msgid ""
+"Chá»n cÃ¡c tÃ¹y chá»n quyá»n riÃªng tÆ° báº±ng cÃ¡ch báº­t/táº¯t cÃ´ng "
+"táº¯c bÃªn dÆ°á»i."
+msgstr "Choose your privacy options by toggling the switch below."
+
+msgid ""
+"Chá»n email hoáº·c sá» Äiá»n thoáº¡i ÄÃ£ liÃªn káº¿t vá»i tÃ i "
+"khoáº£n. SÄT há» trá»£ má»i quá»c gia."
+msgstr "Don't email the file to get rid of the key. SÄT is not too bad."
+
+msgid "Chá»n giao diá»n"
+msgstr "Don't communicate"
+
+msgid "Chá»n giá»i tÃ­nh"
+msgstr "Choose gender"
+
+msgid "Chá»n lÃ½ do"
+msgstr "Choose a reason"
+
+msgid ""
+"Chá»n mÃ£ quá»c gia rá»i nháº­p sá» Äiá»n thoáº¡i (há» trá»£ má»i "
+"quá»c gia)."
+msgstr ""
+"Select the country code then enter the phone number (supports all "
+"countries)."
+
+msgid ""
+"Chá»n mÃ£ quá»c gia rá»i nháº­p sá» â há» trá»£ má»i quá»c gia."
+msgstr "The price is too low, but the price is too low."
+
+msgid ""
+"Chá»n máº­t kháº©u máº¡nh vÃ dá» nhá» vá»i báº¡n. Sau ÄÃ³ báº¡n cÃ³ "
+"thá» ÄÄng nháº­p láº¡i ngay."
+msgstr ""
+"It's quite blood-thirsty and easy to deal with. After that, you need to "
+"click the button immediately."
+
+msgid "Chá»n má»t má»¥c bÃªn trÃ¡i Äá» xem vÃ chá»nh cÃ i Äáº·t."
+msgstr "Check out the code you have here and check it out."
+
+msgid "Chá»n má»t má»¥c Äá» má» chi tiáº¿t."
+msgstr "Check out the details."
+
+msgid "Chá»n ngÃ y sinh cá»§a báº¡n"
+msgstr "Choose your date of birth"
+
+msgid ""
+"Chá»n ngÃ´n ngá»¯ hiá»n thá» cho tÃ i khoáº£n cá»§a báº¡n. TÃ¹y chá»n nÃ"
+" y sáº½ ÄÆ°á»£c lÆ°u vÃ Ã¡p dá»¥ng má»i khi báº¡n ÄÄng nháº­p."
+msgstr ""
+"Choose the display language for your account. This preference will be saved "
+"and applied every time you log in."
+
+msgid "Chá»n tÃªn ngÆ°á»i dÃ¹ng cá»§a báº¡n"
+msgstr "Choose your username"
+
 msgid "Chính sách bảo mật"
 msgstr "Privacy policy"
+
+msgid "Chính sách quyền riêng tư"
+msgstr "Privacy policy"
+
+msgid "Chúng tôi sẽ gửi liên kết đặt lại mật khẩu."
+msgstr "We'll send you a password reset link."
 
 msgid "Chưa có ai theo dõi %(username)s."
 msgstr "No one is following %(username)s yet."
@@ -184,14 +703,52 @@ msgstr "Don't have an account yet?"
 msgid "Chưa cập nhật"
 msgstr "Not updated yet"
 
+msgid "Chấp nhận"
+msgstr "Accept"
+
+msgid ""
+"Chấp nhận để chuyển vào hộp thư chính. Từ chối sẽ ẩn cuộc trò chuyện này."
+msgstr ""
+"Accept to transfer to main mailbox. Declining will hide this conversation."
+
 msgid "Chặn"
 msgstr "Block"
+
+msgid "Chặn mới (7 ngày)"
+msgstr "New block (7 days)"
+
+msgid "Chế độ màu"
+msgstr "Color mode"
+
+msgid "Chế độ xem"
+msgstr "View mode"
 
 msgid "Chế độ xem bảng tin"
 msgstr "Message board view"
 
 msgid "Chỉ hỗ trợ Facebook, Twitter/X, Instagram và LinkedIn."
 msgstr "Only supports Facebook, Twitter/X, Instagram and LinkedIn."
+
+msgid "Chỉ mình bạn xem được"
+msgstr "Only you can see it"
+
+msgid "Chỉ mình tôi"
+msgstr "Just me"
+
+msgid "Chỉ người theo dõi đã duyệt mới xem được"
+msgstr "Only approved followers can view it"
+
+msgid ""
+"Chỉ những người theo dõi mới có thể xem bài viết của tài khoản này. Hãy theo"
+" dõi để xem nội dung."
+msgstr ""
+"Only followers can see this account's posts. Stay tuned to see the content."
+
+msgid "Chỉnh hồ sơ, mật khẩu, xóa / khôi phục tài khoản."
+msgstr "Edit profile, password, delete/restore account."
+
+msgid "Chỉnh khung ảnh đại diện"
+msgstr "Adjust the representative image frame"
 
 msgid "Chỉnh sửa"
 msgstr "Edit"
@@ -202,8 +759,24 @@ msgstr "Edit article"
 msgid "Chỉnh sửa hồ sơ"
 msgstr "Edit profile"
 
+msgid ""
+"Chọn chế độ sáng, tối hoặc theo hệ thống. Tùy chọn được lưu trên thiết bị "
+"này."
+msgstr ""
+"Choose light, dark or system mode. Preferences are saved on this device."
+
 msgid "Chọn các tùy chọn quyền riêng tư bằng cách bật/tắt công tắc bên dưới."
 msgstr "Choose your privacy options by toggling the switch below."
+
+msgid ""
+"Chọn email hoặc số điện thoại đã liên kết với tài khoản. SĐT hỗ trợ mọi quốc"
+" gia."
+msgstr ""
+"Select the email or phone number associated with the account. Phone number "
+"supports all countries."
+
+msgid "Chọn giao diện"
+msgstr "Select interface"
 
 msgid "Chọn giới tính"
 msgstr "Choose gender"
@@ -215,6 +788,22 @@ msgid "Chọn mã quốc gia rồi nhập số điện thoại (hỗ trợ mọi
 msgstr ""
 "Select the country code then enter the phone number (supports all "
 "countries)."
+
+msgid "Chọn mã quốc gia rồi nhập số — hỗ trợ mọi quốc gia."
+msgstr ""
+"Select the country code then enter the number — all countries are supported."
+
+msgid ""
+"Chọn mật khẩu mạnh và dễ nhớ với bạn. Sau đó bạn có thể đăng nhập lại ngay."
+msgstr ""
+"Choose a password that is strong and easy for you to remember. You can then "
+"log back in immediately."
+
+msgid "Chọn một mục bên trái để xem và chỉnh cài đặt."
+msgstr "Select an item on the left to view and adjust settings."
+
+msgid "Chọn một mục để mở chi tiết."
+msgstr "Select an item to open details."
 
 msgid "Chọn ngày sinh của bạn"
 msgstr "Choose your date of birth"
@@ -228,6 +817,78 @@ msgstr ""
 
 msgid "Chọn tên người dùng của bạn"
 msgstr "Choose your username"
+
+msgid "Comment"
+msgstr "Comment"
+
+msgid "Comment Reply"
+msgstr "Comment Reply"
+
+msgid "Cuá»c trÃ² chuyá»n"
+msgstr "Conversion process"
+
+msgid "Cuộc gọi thoại"
+msgstr "Voice call"
+
+msgid "Cuộc gọi video"
+msgstr "Video call"
+
+msgid "Cuộc trò chuyện"
+msgstr "Conversation"
+
+msgid "CÃ i Äáº·t"
+msgstr "Settings"
+
+msgid "CÃ i Äáº·t báº£o máº­t"
+msgstr "Security settings"
+
+msgid "CÃ i Äáº·t ngÃ´n ngá»¯"
+msgstr "Language settings"
+
+msgid "CÃ i Äáº·t quyá»n riÃªng tÆ°"
+msgstr "Privacy settings"
+
+msgid "CÃ i Äáº·t thÃ´ng bÃ¡o"
+msgstr "Notification settings"
+
+msgid "CÃ i Äáº·t tÃ i khoáº£n"
+msgstr "Account settings"
+
+msgid "CÃ¡ nhÃ¢n"
+msgstr "CÃ¡¡n"
+
+msgid ""
+"CÃ¡ch chÃºng tÃ´i thu tháº­p, dÃ¹ng vÃ báº£o vá» dá»¯ liá»u cá»§a báº¡n."
+msgstr "We collect, use and sell the ingredients."
+
+msgid "CÃ¢u há»i thÆ°á»ng gáº·p vÃ hÆ°á»ng dáº«n dÃ¹ng Moora."
+msgstr "There are a lot of places and places to use in Moora."
+
+msgid ""
+"CÃ²n %(var)s/%(var)s tin nháº¯n trÆ°á»c khi ngÆ°á»i nháº­n cháº¥p nháº­n."
+msgstr ""
+"You need %(var)s/%(var)s to receive the message when the user receives it."
+
+msgid "CÃ³ lá»i xáº£y ra khi cáº­p nháº­t bÃ i viáº¿t."
+msgstr "An error occurred while updating the post."
+
+msgid "CÃ³ lá»i xáº£y ra khi táº£i danh sÃ¡ch ngÆ°á»i theo dÃµi."
+msgstr "An error occurred while loading the follower list."
+
+msgid "CÃ³ lá»i xáº£y ra khi táº£i danh sÃ¡ch Äang theo dÃµi."
+msgstr "An error occurred while loading the tracking list."
+
+msgid "CÃ³ lá»i xáº£y ra khi xoÃ¡ bÃ i viáº¿t."
+msgstr "An error occurred while deleting the post."
+
+msgid "CÃ³ lá»i xáº£y ra khi xÃ³a bÃ i viáº¿t."
+msgstr "An error occurred while deleting the post."
+
+msgid "CÃ³ thá» dÃ¹ng tÃªn nÃ y"
+msgstr "How can I use this name?"
+
+msgid "CÃ´ng khai"
+msgstr "Also declare"
 
 msgid "Cài đặt"
 msgstr "Settings"
@@ -247,6 +908,35 @@ msgstr "Notification settings"
 msgid "Cài đặt tài khoản"
 msgstr "Account settings"
 
+msgid "Cá nhân"
+msgstr "Individual"
+
+msgid "Cách chúng tôi thu thập, dùng và bảo vệ dữ liệu của bạn."
+msgstr "How we collect, use and protect your data."
+
+msgid ""
+"Cáº£m Æ¡n báº¡n ÄÃ£ bÃ¡o cÃ¡o. ChÃºng tÃ´i sáº½ xem xÃ©t ná»i dung nÃ y "
+"trong thá»i gian sá»m nháº¥t."
+msgstr ""
+"Thank you for your report. We will review this content as soon as possible."
+
+msgid "Cáº£nh bÃ¡o"
+msgstr "Warning"
+
+msgid "Cáº§n Ã­t nháº¥t 3 kÃ½ tá»±"
+msgstr "At most 3 dozen"
+
+msgid "Cáº­p nháº­t vá» trÃ­ chÃ­nh xÃ¡c (GPS)"
+msgstr "Accurate signal (GPS)"
+
+msgid "Câu hỏi thường gặp và hướng dẫn dùng Moora."
+msgstr "Frequently asked questions and instructions for using Moora."
+
+msgid "Còn %(remaining)s/%(max)s tin nhắn trước khi người nhận chấp nhận."
+msgstr ""
+"There are %(remaining)s/%(max)s messages remaining before the recipient "
+"accepts."
+
 msgid "Có lỗi xảy ra khi cập nhật bài viết."
 msgstr "An error occurred while updating the post."
 
@@ -262,6 +952,12 @@ msgstr "An error occurred while deleting the post."
 msgid "Có lỗi xảy ra khi xóa bài viết."
 msgstr "An error occurred while deleting the post."
 
+msgid "Có thể dùng tên này"
+msgstr "This name can be used"
+
+msgid "Công khai"
+msgstr "Public"
+
 msgid ""
 "Cảm ơn bạn đã báo cáo. Chúng tôi sẽ xem xét nội dung này trong thời gian sớm"
 " nhất."
@@ -271,8 +967,47 @@ msgstr ""
 msgid "Cảnh báo"
 msgstr "Warning"
 
+msgid "Cần ít nhất 3 ký tự"
+msgstr "Requires at least 3 characters"
+
+msgid "Cập nhật vị trí chính xác (GPS)"
+msgstr "Precise location updates (GPS)"
+
+msgid "DÃ nh cho báº¡n"
+msgstr "For you"
+
+msgid "DÃ¡n URL Äáº§y Äá»§. Äá» trá»ng náº¿u khÃ´ng dÃ¹ng."
+msgstr "Enter URL Äáº§y Äá»§. The ice is not used anymore."
+
+msgid "DÃ¹ng #hashtag hoáº·c @tag ngÆ°á»i Äang follow..."
+msgstr "Use #hashtag to follow..."
+
+msgid "DÃ¹ng email / SÄT khÃ¡c"
+msgstr "Use other email / phone numbers"
+
+msgid "DÃ¹ng vá» trÃ­ hiá»n táº¡i"
+msgstr "Use and support"
+
+msgid "DÃ¹ng áº£nh nÃ y"
+msgstr "Use this light"
+
 msgid "Dành cho bạn"
 msgstr "For you"
+
+msgid "Dán URL đầy đủ. Để trống nếu không dùng."
+msgstr "Paste the full URL. Leave blank if not used."
+
+msgid "Dùng #hashtag hoặc @tag người đang follow..."
+msgstr "Use #hashtag or @tag the person you are following..."
+
+msgid "Dùng email / SĐT khác"
+msgstr "Use another email/phone number"
+
+msgid "Dùng vị trí hiện tại"
+msgstr "Use current location"
+
+msgid "Dùng ảnh này"
+msgstr "Use this photo"
 
 msgid "Email"
 msgstr "E-mail"
@@ -280,14 +1015,156 @@ msgstr "E-mail"
 msgid "Email / Gmail"
 msgstr "Email/Gmail"
 
+msgid ""
+"Email vÃ SÄT dÃ¹ng Äá» báº£o máº­t / khÃ´i phá»¥c tÃ i khoáº£n. Äá»i "
+"qua xÃ¡c thá»±c OTP."
+msgstr "Email and phone number to sell/discover passwords. Check OTP via OTP."
+
+msgid ""
+"Email và SĐT dùng để bảo mật / khôi phục tài khoản. Đổi qua xác thực OTP."
+msgstr ""
+"Email and phone number are used for account security/recovery. Change to OTP"
+" authentication."
+
+msgid "Email ÄÃ£ ÄÆ°á»£c gá»­i"
+msgstr "Email ÄÃ£ ÄÆ°á»£c girl"
+
+msgid "Email đã được gửi"
+msgstr "Email has been sent"
+
+msgid "Female"
+msgstr "Female"
+
+msgid "File khÃ´ng ÄÆ°á»£c há» trá»£. Vui lÃ²ng chá»n áº£nh hoáº·c video."
+msgstr "The file is not the same. Please watch the video."
+
+msgid "File không được hỗ trợ. Vui lòng chọn ảnh hoặc video."
+msgstr "Files are not supported. Please select photo or video."
+
+msgid "Follow"
+msgstr "Follow"
+
+msgid "Follow Accepted"
+msgstr "FollowAccepted"
+
+msgid "Follow Request"
+msgstr "Follow Request"
+
+msgid "GPS"
+msgstr "GPS"
+
+msgid "Ghi nhá» ÄÄng nháº­p"
+msgstr "Remember to log in"
+
 msgid "Ghi nhớ đăng nhập"
 msgstr "Remember to log in"
+
+msgid "Ghi Ã¢m"
+msgstr "Remember Ã¢m"
+
+msgid "Ghi Ã¢m tin nháº¯n thoáº¡i"
+msgstr "Record message messages"
+
+msgid "Ghi âm"
+msgstr "Record"
+
+msgid "Ghi âm tin nhắn thoại"
+msgstr "Record voice messages"
+
+msgid "Ghim"
+msgstr "Pin"
+
+msgid "Giao diá»n"
+msgstr "Communication"
+
+msgid "Giao diá»n sÃ¡ng / tá»i"
+msgstr "Communicate with each other"
+
+msgid "Giao diện"
+msgstr "Interface"
+
+msgid "Giao diện sáng / tối"
+msgstr "Light/dark interface"
+
+msgid "Giá»i thiá»u"
+msgstr "Price is low"
+
+msgid "Giá»i tÃ­nh"
+msgstr "Sex"
+
+msgid "Giá»¯ ghi Ã¢m Ã­t nháº¥t 1 giÃ¢y."
+msgstr "The recorded price is less than 1 second."
+
+msgid "Giá»¯ máº­t kháº©u cá»§a báº¡n an toÃ n vÃ Äá»«ng chia sáº» vá»i ai."
+msgstr ""
+"The price is quite reasonable because it is safe and can be shared with "
+"anyone."
+
+msgid "Giá»¯ vá» trÃ­ GPS cÅ© (chÃ­nh xÃ¡c hÆ¡n)."
+msgstr "Price and GPS tracking are available (only accurate)."
+
+msgid "Giới thiệu"
+msgstr "Introduce"
 
 msgid "Giới tính"
 msgstr "Sex"
 
+msgid "Giữ ghi âm ít nhất 1 giây."
+msgstr "Keep recording for at least 1 second."
+
+msgid "Giữ mật khẩu của bạn an toàn và đừng chia sẻ với ai."
+msgstr "Keep your password safe and don't share it with anyone."
+
+msgid "Giữ vị trí GPS cũ (chính xác hơn)."
+msgstr "Keeps the old GPS location (more accurate)."
+
+msgid "Gá»i thoáº¡i"
+msgstr "Escape"
+
+msgid "Gá»i video"
+msgstr "Ga»i video"
+
+msgid "Gá»¡ admin"
+msgstr "Gá»¡ admin"
+
+msgid "Gá»­i bÃ¡o cÃ¡o"
+msgstr "Submit report"
+
+msgid "Gá»­i láº¡i email"
+msgstr "Send email"
+
+msgid "Gá»­i láº¡i mÃ£"
+msgstr "This girl is new"
+
+msgid "Gá»­i lá»i chÃ o Äá» báº¯t Äáº§u cuá»c trÃ² chuyá»n"
+msgstr "Say hello to start a conversation"
+
+msgid "Gá»­i tin nháº¯n"
+msgstr "Send a message"
+
+msgid "Gá»­i tin nháº¯n thoáº¡i"
+msgstr "Girls believe in sex"
+
+msgid "Gá»­i tÃ³m táº¯t hÃ ng ngÃ y"
+msgstr "Send daily summary"
+
+msgid "Gọi thoại"
+msgstr "Voice call"
+
+msgid "Gọi video"
+msgstr "Video calling"
+
+msgid "Gỡ admin"
+msgstr "Remove admin"
+
 msgid "Gửi báo cáo"
 msgstr "Submit report"
+
+msgid "Gửi lại email"
+msgstr "Resend email"
+
+msgid "Gửi lại mã"
+msgstr "Resend code"
 
 msgid "Gửi lời chào để bắt đầu cuộc trò chuyện"
 msgstr "Say hello to start a conversation"
@@ -295,23 +1172,129 @@ msgstr "Say hello to start a conversation"
 msgid "Gửi tin nhắn"
 msgstr "Send a message"
 
+msgid "Gửi tin nhắn thoại"
+msgstr "Send voice messages"
+
 msgid "Gửi tóm tắt hàng ngày"
 msgstr "Send daily summary"
+
+msgid "Hate speech"
+msgstr "Hate speech"
+
+msgid "Hiá»n máº­t kháº©u"
+msgstr "It's pretty cool"
+
+msgid "Hiện mật khẩu"
+msgstr "Show password"
 
 msgid "Home"
 msgstr "Home"
 
-msgid "Moora - Mạng xã hội chia sẻ khoảnh khắc"
-msgstr "Moora - Social network for sharing moments"
+msgid "HoÃ n tÃ¡c xÃ³a áº£nh"
+msgstr "Postpone the structure"
+
+msgid "HoÃ n táº¥t"
+msgstr "Completed"
+
+msgid "Hoàn tác xóa ảnh"
+msgstr "Undo photo deletion"
+
+msgid "Hoàn tất"
+msgstr "Completed"
+
+msgid "Hoáº¡t Äá»ng %(time)s trÆ°á»c"
+msgstr "Operation %(time)s ago"
+
+msgid "Hoáº¡t Äá»ng %(var)s trÆ°á»c"
+msgstr "Chemical %(var)s in"
 
 msgid "Hoạt động %(time)s trước"
 msgstr "Operation %(time)s ago"
+
+msgid "HÃ ng Äá»£i bÃ¡o cÃ¡o bÃ i viáº¿t"
+msgstr "They have to talk about it."
+
+msgid "HÃ ng Äá»£i bÃ¡o cÃ¡o ngÆ°á»i dÃ¹ng"
+msgstr "How many people use it?"
+
+msgid ""
+"HÃ£y má» email vÃ báº¥m vÃ o liÃªn káº¿t Äá» táº¡o máº­t kháº©u má»i. "
+"Äá»«ng quÃªn kiá»m tra cáº£ thÆ° má»¥c spam. Náº¿u báº¡n dÃ¹ng sá» "
+"Äiá»n thoáº¡i, hÃ£y quay láº¡i vÃ nháº­p SÄT Äá» nháº­n OTP."
+msgstr ""
+"Open your email and update your email to get more information. Check for "
+"spam machines. If you want to use the phone number, dial the card and tap "
+"SÄT to receive OTP."
+
+msgid "HÃ¬nh áº£nh"
+msgstr "Image"
+
+msgid "HÃ´m nay"
+msgstr "Today"
+
+msgid ""
+"HÆ°á»ng dáº«n nhanh. Báº¥m tá»«ng chá»§ Äá» hoáº·c má» trang trá»£ giÃºp"
+" Äáº§y Äá»§."
+msgstr "It's done quickly. You can use it to make money."
+
+msgid "Hàng đợi báo cáo bài viết"
+msgstr "Post report queue"
+
+msgid "Hàng đợi báo cáo người dùng"
+msgstr "User report queue"
+
+msgid "Há» thá»ng"
+msgstr "Ha» tha»ng"
+
+msgid "Há»"
+msgstr "Ha»"
+
+msgid ""
+"Há» tÃªn vÃ tÃªn ngÆ°á»i dÃ¹ng dÃ¹ng Äá» má»i ngÆ°á»i tÃ¬m tháº¥y "
+"báº¡n."
+msgstr "How many people do you want to use?"
+
+msgid "Há» sÆ¡"
+msgstr "File"
+
+msgid "Há»§y"
+msgstr "Cancel"
+
+msgid "Há»§y liÃªn káº¿t %(name)s"
+msgstr "Unlink %(name)s"
+
+msgid "Há»§y liÃªn káº¿t %(var)s"
+msgstr "How to connect %(var)s"
+
+msgid "Há»§y yÃªu cáº§u theo dÃµi"
+msgstr "What do you want from now on?"
+
+msgid ""
+"Hãy mở email và bấm vào liên kết để tạo mật khẩu mới. Đừng quên kiểm tra cả "
+"thư mục spam. Nếu bạn dùng số điện thoại, hãy quay lại và nhập SĐT để nhận "
+"OTP."
+msgstr ""
+"Open the email and click the link to create a new password. Don't forget to "
+"check your spam folder as well. If you use a phone number, go back and enter"
+" your phone number to receive OTP."
 
 msgid "Hình ảnh"
 msgstr "Image"
 
 msgid "Hôm nay"
 msgstr "Today"
+
+msgid "Hướng dẫn nhanh. Bấm từng chủ đề hoặc mở trang trợ giúp đầy đủ."
+msgstr "Quick guide. Click each topic or open the full help page."
+
+msgid "Hệ thống"
+msgstr "System"
+
+msgid "Họ"
+msgstr "Surname"
+
+msgid "Họ tên và tên người dùng dùng để mọi người tìm thấy bạn."
+msgstr "Your full name and username are used to help people find you."
 
 msgid "Hồ sơ"
 msgstr "File"
@@ -322,12 +1305,55 @@ msgstr "Cancel"
 msgid "Hủy liên kết %(name)s"
 msgstr "Unlink %(name)s"
 
+msgid "Hủy yêu cầu theo dõi"
+msgstr "Cancel tracking request"
+
+msgid "IP"
+msgstr "IP"
+
+msgid "If enabled, birth date is visible on your public profile."
+msgstr "If enabled, birth date is visible on your public profile."
+
+msgid "If enabled, gender is visible on your public profile."
+msgstr "If enabled, gender is visible on your public profile."
+
+msgid "Image"
+msgstr "Image"
+
+msgid "Inappropriate content"
+msgstr "Inappropriate content"
+
+msgid ""
+"Khi báº­t, báº¡n sáº½ cáº§n nháº­p mÃ£ xÃ¡c thá»±c tá»« á»©ng dá»¥ng (Google"
+" Authenticator, Authyâ¦) má»i khi ÄÄng nháº­p."
+msgstr ""
+"When enabled, you will need to enter the authentication code from the "
+"application (Google Authenticator, Authy...) every time you log in."
+
 msgid ""
 "Khi bật, bạn sẽ cần nhập mã xác thực từ ứng dụng (Google Authenticator, "
 "Authy…) mỗi khi đăng nhập."
 msgstr ""
 "When enabled, you will need to enter the authentication code from the "
 "application (Google Authenticator, Authy...) every time you log in."
+
+msgid ""
+"Khi cÃ³ ngÆ°á»i bÃ¬nh luáº­n bÃ i viáº¿t cá»§a báº¡n hoáº·c tráº£ lá»i "
+"bÃ¬nh luáº­n cá»§a báº¡n"
+msgstr "When someone comments on your post or replies to your comment"
+
+msgid "Khi cÃ³ ngÆ°á»i gá»­i tin nháº¯n cho báº¡n"
+msgstr "When someone sends you a message"
+
+msgid ""
+"Khi cÃ³ ngÆ°á»i nháº¯c Äáº¿n báº¡n trong bÃ i viáº¿t hoáº·c bÃ¬nh luáº­n"
+msgstr "When someone mentions you in a post or comment"
+
+msgid "Khi cÃ³ ngÆ°á»i theo dÃµi báº¡n"
+msgstr "When someone follows you"
+
+msgid "Khi cÃ³ ngÆ°á»i thÃ­ch bÃ i viáº¿t hoáº·c bÃ¬nh luáº­n cá»§a báº¡n"
+msgstr "When someone likes your post or comment"
 
 msgid "Khi có người bình luận bài viết của bạn hoặc trả lời bình luận của bạn"
 msgstr "When someone comments on your post or replies to your comment"
@@ -344,11 +1370,105 @@ msgstr "When someone follows you"
 msgid "Khi có người thích bài viết hoặc bình luận của bạn"
 msgstr "When someone likes your post or comment"
 
+msgid "Khi ngÆ°á»i láº¡ nháº¯n tin, yÃªu cáº§u sáº½ hiá»n á» ÄÃ¢y."
+msgstr "When the person receives the message, the message will be displayed."
+
+msgid "Khi người lạ nhắn tin, yêu cầu sẽ hiện ở đây."
+msgstr "When strangers text, the request will appear here."
+
+msgid "KhÃ¡c"
+msgstr "Other"
+
+msgid "KhÃ´i phá»¥c truy cáº­p"
+msgstr "Avoid hunting and fishing"
+
+msgid "KhÃ´i phá»¥c tÃ i khoáº£n"
+msgstr "Account recovery"
+
+msgid ""
+"KhÃ´ng báº¯t buá»c. Báº­t chia sáº» náº¿u muá»n hiá»n trÃªn trang cÃ¡ "
+"nhÃ¢n."
+msgstr "No evidence. How many shares do you want to show on your page?"
+
+msgid ""
+"KhÃ´ng cÃ³ thiáº¿t bá» nÃ o khÃ¡c ÄÄng nháº­p vÃ o tÃ i khoáº£n cá»§a "
+"báº¡n."
+msgstr "No other devices are logged into your account."
+
+msgid "KhÃ´ng cÃ³ thiáº¿t bá» ÄÄng nháº­p nÃ o ÄÆ°á»£c ghi nháº­n"
+msgstr "No logged in devices recorded"
+
+msgid "KhÃ´ng cÃ³ tin nháº¯n chá»"
+msgstr "There is no news"
+
+msgid "KhÃ´ng gá»­i ÄÆ°á»£c tin nháº¯n thoáº¡i"
+msgstr "Don't be afraid to text messages"
+
+msgid "KhÃ´ng lÆ°u ÄÆ°á»£c vá» trÃ­."
+msgstr "There are no problems or problems."
+
+msgid ""
+"KhÃ´ng láº¥y ÄÆ°á»£c GPS. Thá»­ láº¡i hoáº·c kiá»m tra quyá»n vá» trÃ­."
+msgstr "No GPS support. Let's digitize the investigation and investigation."
+
+msgid "KhÃ´ng nháº­n ÄÆ°á»£c gÃ¬?"
+msgstr "Don't like it?"
+
+msgid "KhÃ´ng thá» báº¯t Äáº§u ghi Ã¢m."
+msgstr "It's not possible to record anything."
+
+msgid "KhÃ´ng thá» cáº¯t áº£nh. Thá»­ láº¡i vá»i áº£nh khÃ¡c."
+msgstr "Not sure. Let's talk to other people."
+
+msgid ""
+"KhÃ´ng thá» gá»­i tin nháº¯n vÃ¬ má»t trong hai ngÆ°á»i ÄÃ£ cháº·n "
+"ngÆ°á»i cÃ²n láº¡i."
+msgstr "The message cannot be sent because one of you has blocked the other."
+
+msgid "KhÃ´ng thá» há»§y liÃªn káº¿t tÃ i khoáº£n."
+msgstr "Accounts cannot be unlinked."
+
+msgid "KhÃ´ng thá» láº¥y vá» trÃ­ hiá»n táº¡i."
+msgstr "It's not possible to fix it anymore."
+
+msgid "KhÃ´ng thá» nháº¯n tin (ÄÃ£ cháº·n)"
+msgstr "Can't text (blocked)"
+
+msgid ""
+"KhÃ´ng thá» truy cáº­p micro. HÃ£y cho phÃ©p quyá»n micro rá»i thá»­ "
+"láº¡i."
+msgstr ""
+"Unable to access the microphone. Let's give permission to control the "
+"microphone very quickly."
+
+msgid ""
+"KhÃ´ng thá» truy cáº­p vá» trÃ­. Vui lÃ²ng cho phÃ©p quyá»n Äá»nh vá»."
+msgstr "It is impossible to track the problem. Please give your permission."
+
+msgid "KhÃ´ng thá» Äáº·t láº¡i"
+msgstr "No problem"
+
+msgid "KhÃ´ng thá»±c hiá»n ÄÆ°á»£c. Thá»­ láº¡i."
+msgstr "Unable to understand. That» leavesº¡i."
+
+msgid "KhÃ´ng tÃ¬m tháº¥y bÃ i viáº¿t."
+msgstr "No articles found."
+
+msgid "KhÃ´ng tÃ¬m tháº¥y ngÆ°á»i dÃ¹ng phÃ¹ há»£p."
+msgstr "Do not take advantage of the room every day."
+
 msgid "Khác"
 msgstr "Other"
 
+msgid "Khôi phục truy cập"
+msgstr "Restore access"
+
 msgid "Khôi phục tài khoản"
 msgstr "Account recovery"
+
+msgid "Không bắt buộc. Bật chia sẻ nếu muốn hiện trên trang cá nhân."
+msgstr ""
+"Optional. Turn on sharing if you want to appear on your personal page."
 
 msgid "Không có thiết bị nào khác đăng nhập vào tài khoản của bạn."
 msgstr "No other devices are logged into your account."
@@ -356,20 +1476,137 @@ msgstr "No other devices are logged into your account."
 msgid "Không có thiết bị đăng nhập nào được ghi nhận"
 msgstr "No logged in devices recorded"
 
+msgid "Không có tin nhắn chờ"
+msgstr "No message waiting"
+
+msgid "Không gửi được tin nhắn thoại"
+msgstr "Unable to send voice messages"
+
+msgid "Không lưu được vị trí."
+msgstr "Unable to save location."
+
+msgid "Không lấy được GPS. Thử lại hoặc kiểm tra quyền vị trí."
+msgstr "Could not get GPS. Try again or check location permissions."
+
+msgid "Không nhận được gì?"
+msgstr "Didn't receive anything?"
+
+msgid "Không thể bắt đầu ghi âm."
+msgstr "Unable to start recording."
+
+msgid "Không thể cắt ảnh. Thử lại với ảnh khác."
+msgstr "Image cannot be cropped. Try again with another photo."
+
 msgid "Không thể gửi tin nhắn vì một trong hai người đã chặn người còn lại."
 msgstr "The message cannot be sent because one of you has blocked the other."
 
 msgid "Không thể hủy liên kết tài khoản."
 msgstr "Accounts cannot be unlinked."
 
+msgid "Không thể lấy vị trí hiện tại."
+msgstr "Unable to get current location."
+
 msgid "Không thể nhắn tin (đã chặn)"
 msgstr "Can't text (blocked)"
+
+msgid "Không thể truy cập micro. Hãy cho phép quyền micro rồi thử lại."
+msgstr ""
+"Cannot access microphone. Please allow microphone permissions and try again."
+
+msgid "Không thể truy cập vị trí. Vui lòng cho phép quyền định vị."
+msgstr "Location cannot be accessed. Please allow location permissions."
+
+msgid "Không thể đặt lại"
+msgstr "Cannot reset"
+
+msgid "Không thực hiện được. Thử lại."
+msgstr "Cannot be done. Retry."
 
 msgid "Không tìm thấy bài viết."
 msgstr "No articles found."
 
+msgid "Không tìm thấy người dùng phù hợp."
+msgstr "No matching users were found."
+
+msgid "Kick"
+msgstr "Kick"
+
+msgid "Kick %(name)s khỏi nhóm?"
+msgstr "Kick %(name)s from the group?"
+
+msgid "Kick %(var)s khá»i nhÃ³m?"
+msgstr "Kick %(var)s quite a bit?"
+
+msgid "Kiá»m tra há»p thÆ°"
+msgstr "Check whether it's true or not"
+
+msgid "Kiểm tra hộp thư"
+msgstr "Check your mailbox"
+
+msgid "KÃ©o áº£nh Äá» Äáº·t vá» trÃ­"
+msgstr "KÃ©o áº£nh Äá» Äáº·t and"
+
+msgid "Káº¿t quáº£ sau"
+msgstr "Not too much later"
+
+msgid "Káº¿t quáº£ trÆ°á»c"
+msgstr "It's too late"
+
+msgid "Kéo thả hoặc chọn ảnh/video mới · tối đa 1GB/file"
+msgstr "Drag and drop or select new photos/videos · maximum 1GB/file"
+
+msgid "Kéo ảnh để đặt vị trí"
+msgstr "Drag the photo to set the position"
+
+msgid "Kết quả sau"
+msgstr "The following results"
+
+msgid "Kết quả trước"
+msgstr "Previous results"
+
+msgid "Kết thúc"
+msgstr "End"
+
+msgid "Like"
+msgstr "Like"
+
+msgid "LiÃªn káº¿t & máº¡ng xÃ£ há»i"
+msgstr "What is the link & network?"
+
+msgid "LiÃªn káº¿t háº¿t háº¡n"
+msgstr "Links are not available"
+
+msgid "LiÃªn káº¿t máº¡ng xÃ£ há»i"
+msgstr "Social network links"
+
+msgid ""
+"LiÃªn káº¿t nÃ y khÃ´ng há»£p lá» hoáº·c ÄÃ£ háº¿t háº¡n. HÃ£y yÃªu cáº§u "
+"má»t liÃªn káº¿t má»i Äá» tiáº¿p tá»¥c."
+msgstr ""
+"This connection does not change the situation. Let's ask for blood to be "
+"kept close to each other."
+
+msgid ""
+"LiÃªn káº¿t ÄÃ£ ÄÆ°á»£c lÆ°u vÃ o Website. Chá» há» trá»£ Facebook, "
+"Twitter/X, Instagram vÃ LinkedIn trong danh sÃ¡ch máº¡ng xÃ£ há»i."
+msgstr ""
+"The link has been saved to the Website. Only Facebook, Twitter/X, Instagram "
+"and LinkedIn are supported in the social network list."
+
+msgid "Liên kết & mạng xã hội"
+msgstr "Links & social networks"
+
+msgid "Liên kết hết hạn"
+msgstr "Expired link"
+
 msgid "Liên kết mạng xã hội"
 msgstr "Social network links"
+
+msgid ""
+"Liên kết này không hợp lệ hoặc đã hết hạn. Hãy yêu cầu một liên kết mới để "
+"tiếp tục."
+msgstr ""
+"This link is invalid or has expired. Please request a new link to continue."
 
 msgid ""
 "Liên kết đã được lưu vào Website. Chỉ hỗ trợ Facebook, Twitter/X, Instagram "
@@ -378,14 +1615,86 @@ msgstr ""
 "The link has been saved to the Website. Only Facebook, Twitter/X, Instagram "
 "and LinkedIn are supported in the social network list."
 
+msgid "Loáº¡i file khÃ´ng ÄÆ°á»£c há» trá»£"
+msgstr "Deleting files is not a problem."
+
+msgid "Loáº¡i thÃ´ng bÃ¡o"
+msgstr "Notification type"
+
+msgid "Loại file không được hỗ trợ"
+msgstr "File type not supported"
+
 msgid "Loại thông báo"
 msgstr "Notification type"
+
+msgid "LÃ½ do bÃ¡o cÃ¡o"
+msgstr "Reason for reporting"
+
+msgid "LÃ½ do xÃ³a tÃ i khoáº£n"
+msgstr "Reason for account deletion"
+
+msgid "LÆ°u"
+msgstr "LÆ°u"
+
+msgid "LÆ°u há» sÆ¡"
+msgstr "LÆ°u ha» sÆ¡"
+
+msgid "LÆ°u máº­t kháº©u má»i"
+msgstr "The blood is quite good"
+
+msgid "LÆ°u ngÃ´n ngá»¯"
+msgstr "Save language"
+
+msgid "LÆ°u thay Äá»i"
+msgstr "Save changes"
+
+msgid "LÆ°u thay Äá»i quyá»n riÃªng tÆ°"
+msgstr "Save privacy changes"
+
+msgid "LÆ°u thay Äá»i thÃ´ng bÃ¡o"
+msgstr "Save notification changes"
+
+msgid "LÆ°á»£t thÃ­ch"
+msgstr "Likes"
+
+msgid "Lá»c thÃ´ng bÃ¡o"
+msgstr "Leaves the news"
+
+msgid "Lá»i táº¯t kiá»m duyá»t"
+msgstr "It's not that bad"
+
+msgid "Lá»i khi gá»­i tin nháº¯n thoáº¡i"
+msgstr "When does a girl believe in sex?"
+
+msgid "Lá»i khi táº£i danh sÃ¡ch ngÆ°á»i theo dÃµi"
+msgstr "Error loading follower list"
+
+msgid "Lá»i khi táº£i danh sÃ¡ch Äang theo dÃµi"
+msgstr "Error loading the tracking list"
+
+msgid "Lá»i khi táº£i lÃªn tá»p:"
+msgstr "Error uploading file:"
+
+msgid "Lá»i káº¿t ná»i tá»i mÃ¡y chá»§. Vui lÃ²ng thá»­ láº¡i sau."
+msgstr "Error connecting to server. Please try again later."
+
+msgid "Lá»i máº¡ng khi lÆ°u vá» trÃ­."
+msgstr "Cools down when used and grown."
 
 msgid "Lý do báo cáo"
 msgstr "Reason for reporting"
 
 msgid "Lý do xóa tài khoản"
 msgstr "Reason for account deletion"
+
+msgid "Lưu"
+msgstr "Save"
+
+msgid "Lưu hồ sơ"
+msgstr "Save profile"
+
+msgid "Lưu mật khẩu mới"
+msgstr "Save new password"
 
 msgid "Lưu ngôn ngữ"
 msgstr "Save language"
@@ -402,6 +1711,15 @@ msgstr "Save notification changes"
 msgid "Lượt thích"
 msgstr "Likes"
 
+msgid "Lọc thông báo"
+msgstr "Filter notifications"
+
+msgid "Lối tắt kiểm duyệt"
+msgstr "Censorship shortcuts"
+
+msgid "Lỗi khi gửi tin nhắn thoại"
+msgstr "Error when sending voice message"
+
 msgid "Lỗi khi tải danh sách người theo dõi"
 msgstr "Error loading follower list"
 
@@ -414,8 +1732,100 @@ msgstr "Error uploading file:"
 msgid "Lỗi kết nối tới máy chủ. Vui lòng thử lại sau."
 msgstr "Error connecting to server. Please try again later."
 
+msgid "Lỗi mạng khi lưu vị trí."
+msgstr "Network error when saving location."
+
+msgid "Male"
+msgstr "Male"
+
+msgid "Mention"
+msgstr "Mention"
+
 msgid "Menu"
 msgstr "Menu"
+
+msgid "Message"
+msgstr "Message"
+
+msgid "Moora - Máº¡ng xÃ£ há»i chia sáº» khoáº£nh kháº¯c"
+msgstr "Moora - Social network for sharing moments"
+
+msgid "Moora - Mạng xã hội chia sẻ khoảnh khắc"
+msgstr "Moora - Social network for sharing moments"
+
+msgid ""
+"Moora lÆ°u thiáº¿t bá» + vá» trÃ­ Äá» báº£o vá» tÃ i khoáº£n. Vá» trÃ­"
+" chÃ­nh xÃ¡c nháº¥t láº¥y tá»« GPS trÃ¬nh duyá»t (cáº§n báº¡n cho phÃ©p); "
+"náº¿u khÃ´ng sáº½ dÃ¹ng vá» trÃ­ theo IP (Äá» chÃ­nh xÃ¡c thÃ nh phá»)."
+msgstr ""
+"Moora is a good girl + and a child. And the GPS navigation device (sold to "
+"customers); If you don't use it, you'll need to track it by IP."
+
+msgid ""
+"Moora lưu thiết bị + vị trí để bảo vệ tài khoản. Vị trí chính xác nhất lấy "
+"từ GPS trình duyệt (cần bạn cho phép); nếu không sẽ dùng vị trí theo IP (độ "
+"chính xác thành phố)."
+msgstr ""
+"Moora saves device + location to protect account. Most accurate location "
+"taken from browser GPS (requires your permission); otherwise IP location "
+"(city precision) will be used."
+
+msgid "Moora Äang closed beta â cáº§n mÃ£ má»i Äá» ÄÄng kÃ½."
+msgstr "Moora is now closed beta, but it's still open."
+
+msgid "Moora đang closed beta — cần mã mời để đăng ký."
+msgstr "Moora is in closed beta — invitation code required to sign up."
+
+msgid ""
+"MÃ£ 8 sá», hiá»u lá»±c 10 phÃºt. Sai quÃ¡ 5 láº§n sáº½ bá» khÃ³a táº¡m."
+msgstr "CODE 8 hours, time 10 minutes. Wrong number of 5 leaves is too much."
+
+msgid "MÃ£ má»i beta"
+msgstr "Code beta"
+
+msgid "MÃ£ xÃ¡c thá»±c"
+msgstr "CODE=month±c"
+
+msgid "MÃ´ táº£ chi tiáº¿t"
+msgstr "Detailed description"
+
+msgid "Máº­t kháº©u"
+msgstr "Password"
+
+msgid "Máº­t kháº©u má»i"
+msgstr "It's pretty cool"
+
+msgid ""
+"Máº­t kháº©u má»i ÄÃ£ sáºµn sÃ ng. Báº¡n cÃ³ thá» ÄÄng nháº­p láº¡i "
+"ngay bÃ¢y giá»."
+msgstr ""
+"It's pretty cool with the product. You have to take advantage of this price."
+
+msgid "Máº­t kháº©u vÃ ÄÄng nháº­p"
+msgstr "Password and login"
+
+msgid "Máº­t kháº©u ÄÃ£ Äá»i"
+msgstr "It's pretty cool"
+
+msgid "Má» Trung tÃ¢m trá»£ giÃºp"
+msgstr "The Center is responsible for the crime"
+
+msgid "Má»¥c cÃ i Äáº·t"
+msgstr "What are the problems?"
+
+msgid "Má»¥c há» sÆ¡"
+msgstr "Profile section"
+
+msgid "Mã 8 số, hiệu lực 10 phút. Sai quá 5 lần sẽ bị khóa tạm."
+msgstr ""
+"8-digit code, valid for 10 minutes. If you get it wrong more than 5 times, "
+"it will be temporarily locked."
+
+msgid "Mã mời beta"
+msgstr "Beta invitation code"
+
+msgid "Mã xác thực"
+msgstr "Authentication code"
 
 msgid "Mô tả chi tiết"
 msgstr "Detailed description"
@@ -423,14 +1833,72 @@ msgstr "Detailed description"
 msgid "Mật khẩu"
 msgstr "Password"
 
+msgid "Mật khẩu mới"
+msgstr "New password"
+
+msgid "Mật khẩu mới đã sẵn sàng. Bạn có thể đăng nhập lại ngay bây giờ."
+msgstr "New password is ready. You can log back in now."
+
 msgid "Mật khẩu và đăng nhập"
 msgstr "Password and login"
+
+msgid "Mật khẩu đã đổi"
+msgstr "Password changed"
+
+msgid "Mở Trung tâm trợ giúp"
+msgstr "Open the Help Center"
+
+msgid "Mục cài đặt"
+msgstr "Settings section"
 
 msgid "Mục hồ sơ"
 msgstr "Profile section"
 
 msgid "Nam"
 msgstr "Male"
+
+msgid "NguyÃªn táº¯c cá»ng Äá»ng"
+msgstr "Sources of information"
+
+msgid "Nguyên tắc cộng đồng"
+msgstr "Community Guidelines"
+
+msgid "NgÃ y sinh"
+msgstr "Date of birth"
+
+msgid "NgÃ´n ngá»¯"
+msgstr "Language"
+
+msgid "NgÃ´n ngá»¯ hiá»n thá»"
+msgstr "Display language"
+
+msgid "NgÆ°á»i báº¡n theo dÃµi"
+msgstr "People sell according to time"
+
+msgid "NgÆ°á»i dÃ¹ng"
+msgstr "Users"
+
+msgid "NgÆ°á»i dÃ¹ng ÄÃ£ bá» cháº·n"
+msgstr "User has been blocked"
+
+msgid ""
+"NgÆ°á»i nÃ y báº¡n chÆ°a theo dÃµi. Cháº¥p nháº­n Äá» tráº£ lá»i trong "
+"há»p thÆ° chÃ­nh, hoáº·c tá»« chá»i."
+msgstr ""
+"This person needs to follow the instructions. Let's accept the left and "
+"right leaves in the main room and work together."
+
+msgid "NgÆ°á»i theo dÃµi"
+msgstr "People follow along"
+
+msgid "NgÆ°á»i theo dÃµi (%(count)s)"
+msgstr "Followers (%(count)s)"
+
+msgid "NgÆ°á»i theo dÃµi (%(var)s)"
+msgstr "People by length (%(var)s)"
+
+msgid "NgÆ°á»i táº¡o"
+msgstr "NgÆ°á»i taº¡o"
 
 msgid "Ngày sinh"
 msgstr "Date of birth"
@@ -441,11 +1909,105 @@ msgstr "Language"
 msgid "Ngôn ngữ hiển thị"
 msgstr "Display language"
 
+msgid "Người bạn theo dõi"
+msgstr "People you follow"
+
+msgid "Người dùng"
+msgstr "User"
+
 msgid "Người dùng đã bị chặn"
 msgstr "User has been blocked"
 
+msgid ""
+"Người này bạn chưa theo dõi. Chấp nhận để trả lời trong hộp thư chính, hoặc "
+"từ chối."
+msgstr ""
+"This person you haven't followed yet. Accept to reply in the main inbox, or "
+"decline."
+
+msgid "Người theo dõi"
+msgstr "Followers"
+
 msgid "Người theo dõi (%(count)s)"
 msgstr "Followers (%(count)s)"
+
+msgid "Người tạo"
+msgstr "Creator"
+
+msgid "NhÃ³m má»i â gá»­i tin nháº¯n Äáº§u tiÃªn"
+msgstr "Mothers and girls believe in spending money"
+
+msgid "Nháº¥n Ã Äá» ÄÃ¡nh dáº¥u xÃ³a áº£nh/video hiá»n cÃ³."
+msgstr "Check out the pictures/videos you need."
+
+msgid "Nháº­n email tÃ³m táº¯t cÃ¡c hoáº¡t Äá»ng má»i ngÃ y"
+msgstr "Receive emails summarizing daily activities"
+
+msgid "Nháº­n thÃ´ng bÃ¡o ngay cáº£ khi khÃ´ng má» á»©ng dá»¥ng"
+msgstr "Receive notifications even without the app open"
+
+msgid "Nháº­n thÃ´ng bÃ¡o qua Äá»a chá» email cá»§a báº¡n"
+msgstr "Receive notifications via your email address"
+
+msgid "Nháº­n thÃ´ng bÃ¡o sau 30 ngÃ y khÃ´ng hoáº¡t Äá»ng"
+msgstr "Get notified after 30 days of inactivity"
+
+msgid "Nháº­p láº¡i máº­t kháº©u"
+msgstr "Re-enter the password"
+
+msgid "Nháº­p láº¡i máº­t kháº©u má»i"
+msgstr "Smudging the cheeks is quite cool"
+
+msgid "Nháº­p mÃ£ OTP"
+msgstr "Click the OTP code"
+
+msgid "Nháº­p mÃ£ má»i"
+msgstr "Click on the code"
+
+msgid "Nháº­p máº­t kháº©u cá»§a báº¡n"
+msgstr "Enter your password"
+
+msgid "Nháº­p máº­t kháº©u hoáº·c mÃ£ xÃ¡c thá»±c Äá» táº¯t 2FA:"
+msgstr "Enter your password or authentication code to turn off 2FA:"
+
+msgid "Nháº­p máº­t kháº©u Äá» xÃ¡c nháº­n"
+msgstr "Enter password to confirm"
+
+msgid "Nháº­p tin nháº¯n..."
+msgstr "Enter message..."
+
+msgid "Nháº­p tÃªn ngÆ°á»i dÃ¹ng cá»§a báº¡n"
+msgstr "Enter your username"
+
+msgid "Nháº­p Äá»a chá» email cá»§a báº¡n"
+msgstr "Enter your email address"
+
+msgid "Nháº¯c Äáº¿n"
+msgstr "Mentioned"
+
+msgid "Nháº¯n tin"
+msgstr "Texting"
+
+msgid "Nháº¯n tin trá»±c tiáº¿p"
+msgstr "Direct message"
+
+msgid "Nhá»¯ng ngÆ°á»i mÃ %(username)s Äang theo dÃµi"
+msgstr "People %(username)s is following"
+
+msgid "Nhá»¯ng ngÆ°á»i mÃ %(var)s Äang theo dÃµi"
+msgstr "What are the %(var)s following the code?"
+
+msgid "Nhá»¯ng ngÆ°á»i Äang theo dÃµi %(username)s"
+msgstr "People following %(username)s"
+
+msgid "Nhá»¯ng ngÆ°á»i Äang theo dÃµi %(var)s"
+msgstr "What people are following length %(var)s"
+
+msgid "Nhóm mới — gửi tin nhắn đầu tiên"
+msgstr "New group — send first message"
+
+msgid "Nhấn × để đánh dấu xóa ảnh/video hiện có."
+msgstr "Press × to mark deletion of existing photos/videos."
 
 msgid "Nhận email tóm tắt các hoạt động mỗi ngày"
 msgstr "Receive emails summarizing daily activities"
@@ -461,6 +2023,15 @@ msgstr "Get notified after 30 days of inactivity"
 
 msgid "Nhập lại mật khẩu"
 msgstr "Re-enter the password"
+
+msgid "Nhập lại mật khẩu mới"
+msgstr "Re-enter the new password"
+
+msgid "Nhập mã OTP"
+msgstr "Enter OTP code"
+
+msgid "Nhập mã mời"
+msgstr "Enter invitation code"
 
 msgid "Nhập mật khẩu của bạn"
 msgstr "Enter your password"
@@ -495,8 +2066,73 @@ msgstr "People %(username)s is following"
 msgid "Những người đang theo dõi %(username)s"
 msgstr "People following %(username)s"
 
+msgid "NÃªn cÃ³ chá»¯ hoa, chá»¯ thÆ°á»ng, sá» vÃ kÃ½ tá»± Äáº·c biá»t."
+msgstr "There are flowers, herbs, flowers and other ingredients."
+
+msgid ""
+"Náº¿u báº¡n khÃ´ng yÃªu cáº§u Äáº·t láº¡i máº­t kháº©u, hÃ£y bá» qua email"
+" nÃ y. Cáº£m Æ¡n báº¡n ÄÃ£ sá»­ dá»¥ng %(var)s! %(var)s"
+msgstr ""
+"If you don't want to ask for more information, please let me know via this "
+"email. How much %(var)s! %(var)s"
+
+msgid ""
+"Náº¿u sá» káº¿t thÃºc báº±ng <strong>%(var)s</strong> cÃ³ trÃªn Moora, "
+"báº¡n sáº½ nháº­n mÃ£ 8 sá» trong vÃ i phÃºt."
+msgstr ""
+"If you find out that you have <strong>%(var)s</strong> on Moora, you will "
+"receive up to 8% in just a few minutes."
+
+msgid ""
+"Náº¿u Äá»a chá» email tá»n táº¡i trÃªn Moora, báº¡n sáº½ nháº­n ÄÆ°á»£c"
+" liÃªn káº¿t Äáº·t láº¡i máº­t kháº©u trong vÃ i phÃºt."
+msgstr ""
+"If you have an email address on Moora, you will be able to find a better "
+"link in the future. and minutes."
+
+msgid "Ná»i dung"
+msgstr "Content"
+
+msgid "Ná»i dung & cá»ng Äá»ng"
+msgstr "Contents & Terms"
+
+msgid "Ná»i dung khÃ´ng phÃ¹ há»£p"
+msgstr "Inappropriate content"
+
+msgid "Ná»¯"
+msgstr "Female"
+
+msgid "Nên có chữ hoa, chữ thường, số và ký tự đặc biệt."
+msgstr ""
+"Should have uppercase letters, lowercase letters, numbers and special "
+"characters."
+
+msgid ""
+"Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email này. Cảm ơn bạn đã "
+"sử dụng %(site_name)s! %(site_domain)s"
+msgstr ""
+"If you did not request a password reset, ignore this email. Thank you for "
+"using %(site_name)s! %(site_domain)s"
+
+msgid ""
+"Nếu số kết thúc bằng <strong>%(hint)s</strong> có trên Moora, bạn sẽ nhận mã"
+" 8 số trong vài phút."
+msgstr ""
+"If the number ending with <strong>%(hint)s</strong> is on Moora, you will "
+"receive an 8-digit code within minutes."
+
+msgid ""
+"Nếu địa chỉ email tồn tại trên Moora, bạn sẽ nhận được liên kết đặt lại mật "
+"khẩu trong vài phút."
+msgstr ""
+"If the email address exists on Moora, you will receive a password reset link"
+" within minutes."
+
 msgid "Nội dung"
 msgstr "Content"
+
+msgid "Nội dung & cộng đồng"
+msgstr "Content & community"
 
 msgid "Nội dung không phù hợp"
 msgstr "Inappropriate content"
@@ -507,23 +2143,140 @@ msgstr "Female"
 msgid "Offline"
 msgstr "Offline"
 
+msgid "Only me"
+msgstr "Only me"
+
+msgid "Other"
+msgstr "Other"
+
+msgid "Phong admin"
+msgstr "Admin room"
+
+msgid "PhÃ¡p lÃ½ & cá»ng Äá»ng"
+msgstr "Food & drinks"
+
+msgid "PhÃ¢n trang thÃ´ng bÃ¡o"
+msgstr "Notification pagination"
+
+msgid "PhÃ³ng to"
+msgstr "Big room"
+
+msgid "PhÆ°Æ¡ng thá»©c nháº­n thÃ´ng bÃ¡o"
+msgstr "Method of receiving notifications"
+
+msgid "PhÆ°Æ¡ng thá»©c Äáº·t láº¡i"
+msgstr "Months and months of the year"
+
+msgid "PhÆ°Æ¡ng tiá»n hiá»n táº¡i"
+msgstr "Current media"
+
+msgid "Pháp lý & cộng đồng"
+msgstr "Legal & community"
+
 msgid "Phân trang thông báo"
 msgstr "Notification pagination"
+
+msgid "Phóng to"
+msgstr "Enlarge"
 
 msgid "Phương thức nhận thông báo"
 msgstr "Method of receiving notifications"
 
+msgid "Phương thức đặt lại"
+msgstr "Reset method"
+
 msgid "Phương tiện hiện tại"
 msgstr "Current media"
+
+msgid "Public"
+msgstr "Public"
+
+msgid "Quay láº¡i"
+msgstr "Come back"
+
+msgid "Quay láº¡i danh má»¥c"
+msgstr "Spin the card"
+
+msgid "Quay láº¡i ÄÄng nháº­p"
+msgstr "Spin the leaves gently"
 
 msgid "Quay lại"
 msgstr "Come back"
 
+msgid "Quay lại danh mục"
+msgstr "Back to category"
+
+msgid "Quay lại đăng nhập"
+msgstr "Return to login"
+
+msgid "Quy táº¯c ÄÄng bÃ i vÃ táº£i dá»¯ liá»u cÃ¡ nhÃ¢n."
+msgstr "Procedures for treatment and treatment."
+
+msgid "Quy táº¯c á»©ng xá»­ Äá» cá»ng Äá»ng an toÃ n vÃ tÃ´n trá»ng."
+msgstr "The process of cleaning and disinfection is safe and effective."
+
+msgid "Quy tắc đăng bài và tải dữ liệu cá nhân."
+msgstr "Rules for posting and downloading personal data."
+
+msgid "Quy tắc ứng xử để cộng đồng an toàn và tôn trọng."
+msgstr "Code of conduct for a safe and respectful community."
+
+msgid "Quyá»n riÃªng tÆ°"
+msgstr "Privacy"
+
+msgid "Quyá»n riÃªng tÆ° & an toÃ n"
+msgstr "Personal privacy & safety"
+
 msgid "Quyền riêng tư"
 msgstr "Privacy"
 
+msgid "Quyền riêng tư & an toàn"
+msgstr "Privacy & safety"
+
+msgid "QuÃªn máº­t kháº©u?"
+msgstr "Forgot password?"
+
+msgid "Quáº£n lÃ½ bÃ i viáº¿t"
+msgstr "It's too bad to write"
+
+msgid "Quáº£n lÃ½ bÃ¬nh luáº­n"
+msgstr "Too much is a problem"
+
+msgid "Quáº£n lÃ½ chat"
+msgstr "Too much is chatting"
+
+msgid ""
+"Quáº£n lÃ½ cÃ i Äáº·t báº£o máº­t cho tÃ i khoáº£n cá»§a báº¡n. Báº­t xÃ¡c "
+"thá»±c hai yáº¿u tá» Äá» tÄng cÆ°á»ng báº£o máº­t."
+msgstr ""
+"Manage your account's security settings. Enable two-factor authentication "
+"for added security."
+
+msgid ""
+"Quáº£n lÃ½ cÃ¡c tÃ i khoáº£n máº¡ng xÃ£ há»i ÄÆ°á»£c liÃªn káº¿t vá»i tÃ "
+"i khoáº£n Moora cá»§a báº¡n"
+msgstr "Manage social media accounts linked to your Moora account"
+
+msgid "Quáº£n lÃ½ danh sÃ¡ch ngÆ°á»i dÃ¹ng mÃ báº¡n ÄÃ£ cháº·n"
+msgstr "Manage the list of users you've blocked"
+
+msgid "Quáº£n lÃ½ story"
+msgstr "Tooº£n is a story"
+
+msgid "Quáº¥y rá»i"
+msgstr "Harassment"
+
 msgid "Quên mật khẩu?"
 msgstr "Forgot password?"
+
+msgid "Quản lý bài viết"
+msgstr "Article management"
+
+msgid "Quản lý bình luận"
+msgstr "Manage comments"
+
+msgid "Quản lý chat"
+msgstr "Chat management"
 
 msgid ""
 "Quản lý cài đặt bảo mật cho tài khoản của bạn. Bật xác thực hai yếu tố để "
@@ -539,8 +2292,50 @@ msgstr "Manage social media accounts linked to your Moora account"
 msgid "Quản lý danh sách người dùng mà bạn đã chặn"
 msgstr "Manage the list of users you've blocked"
 
+msgid "Quản lý story"
+msgstr "Manage stories"
+
 msgid "Quấy rối"
 msgstr "Harassment"
+
+msgid "RiÃªng tÆ°"
+msgstr "Exactly"
+
+msgid "Riêng tư"
+msgstr "Private"
+
+msgid "Rá»i nhÃ³m"
+msgstr "It's too late"
+
+msgid "Rời nhóm"
+msgstr "Leave group"
+
+msgid "Share"
+msgstr "Share"
+
+msgid "Spam"
+msgstr "Spam"
+
+msgid "Story Äang sá»ng"
+msgstr "Story of the story"
+
+msgid "Story đang sống"
+msgstr "Story is alive"
+
+msgid "SÃ¡ng"
+msgstr "Sang"
+
+msgid "Sáng"
+msgstr "Bright"
+
+msgid "Sáºµn sÃ ng táº£i xuá»ng"
+msgstr "Ready to download"
+
+msgid "Sá» Äiá»n thoáº¡i"
+msgstr "Phone number"
+
+msgid "Sá»­ dá»¥ng # hashtag vÃ @ gáº¯n tháº» ngÆ°á»i Äang follow"
+msgstr "Sá» dá»¥ng # hashtag and @ gá»¯n thaº» ngÆ°á»i Äang follow"
 
 msgid "Sẵn sàng tải xuống"
 msgstr "Ready to download"
@@ -548,11 +2343,73 @@ msgstr "Ready to download"
 msgid "Số điện thoại"
 msgstr "Phone number"
 
+msgid "Sử dụng # hashtag và @ gắn thẻ người đang follow"
+msgstr "Use # hashtags and @ tag the person you are following"
+
+msgid "Tham gia cá»ng Äá»ng Moora ngay hÃ´m nay"
+msgstr "Join the Moora community today"
+
 msgid "Tham gia cộng đồng Moora ngay hôm nay"
 msgstr "Join the Moora community today"
 
+msgid "Thay Äá»i chá» lÆ°u khi báº¡n nháº¥n nÃºt bÃªn pháº£i."
+msgstr "Change the number of times when you receive a break."
+
+msgid "Thay đổi chỉ lưu khi bạn nhấn nút bên phải."
+msgstr "Changes are only saved when you press the right button."
+
+msgid "Theo IP"
+msgstr "According to IP"
+
+msgid "Theo dÃµi"
+msgstr "Follow"
+
+msgid ""
+"Theo dÃµi bÃ¡o cÃ¡o, tÃ i khoáº£n bá» háº¡n cháº¿ vÃ hoáº¡t Äá»ng gáº§n "
+"ÄÃ¢y â giá»ng bÃ n Äiá»u khiá»n kiá»m duyá»t máº¡ng xÃ£ há»i."
+msgstr ""
+"According to the report, I'm not selling the product and selling it at a "
+"reasonable price. What's the difference?"
+
+msgid "Theo dÃµi láº¡i"
+msgstr "Follow the instructions"
+
+msgid "Theo dÃµi Äá» xem danh sÃ¡ch"
+msgstr "Follow the instructions to view the list"
+
 msgid "Theo dõi"
 msgstr "Follow"
+
+msgid ""
+"Theo dõi báo cáo, tài khoản bị hạn chế và hoạt động gần đây — giống bàn điều"
+" khiển kiểm duyệt mạng xã hội."
+msgstr ""
+"Monitor reports, restricted accounts, and recent activity — like a social "
+"media moderation console."
+
+msgid "Theo dõi lại"
+msgstr "Follow back"
+
+msgid "Theo dõi để xem danh sách"
+msgstr "Follow to see the list"
+
+msgid ""
+"Thiáº¿t bá» cá»§a báº¡n ÄÃ£ ÄÄng nháº­p. Báº¡n cÃ³ thá» ÄÄng xuáº¥t "
+"khá»i cÃ¡c thiáº¿t bá» khÃ¡c tá»« ÄÃ¢y."
+msgstr ""
+"Your device is signed in. You can sign out of other devices from here."
+
+msgid "Thiáº¿t bá» hiá»n táº¡i"
+msgstr "Current equipment"
+
+msgid "Thiáº¿t bá» khÃ¡c"
+msgstr "Other equipment"
+
+msgid "Thiáº¿t bá» ÄÄng nháº­p"
+msgstr "Login device"
+
+msgid "Thiáº¿t láº­p xÃ¡c thá»±c hai yáº¿u tá»"
+msgstr "Set up two-factor authentication"
 
 msgid ""
 "Thiết bị của bạn đã đăng nhập. Bạn có thể đăng xuất khỏi các thiết bị khác "
@@ -572,17 +2429,95 @@ msgstr "Login device"
 msgid "Thiết lập xác thực hai yếu tố"
 msgstr "Set up two-factor authentication"
 
+msgid "ThÃ nh viÃªn"
+msgstr "Member"
+
+msgid "ThÃ nh viÃªn nhÃ³m"
+msgstr "Staff"
+
+msgid "ThÃªm"
+msgstr "More"
+
+msgid "ThÃªm báº¥t ká»³ liÃªn káº¿t máº¡ng xÃ£ há»i nÃ o cá»§a báº¡n"
+msgstr "Add any of your social media links"
+
+msgid "ThÃªm thÃ nh viÃªn"
+msgstr "Become a member"
+
+msgid "ThÃªm vÃ o nhÃ³m"
+msgstr "Go to the house"
+
+msgid "ThÃªm áº£nh/video má»i"
+msgstr "Add new photos/videos"
+
+msgid "ThÃ´ng bÃ¡o"
+msgstr "Notifications"
+
+msgid "ThÃ´ng bÃ¡o há» thá»ng"
+msgstr "How often do you report?"
+
+msgid "ThÃ´ng bÃ¡o khi khÃ´ng hoáº¡t Äá»ng"
+msgstr "Notification when inactive"
+
+msgid "ThÃ´ng bÃ¡o qua email"
+msgstr "Notification via email"
+
+msgid "ThÃ´ng bÃ¡o Äáº©y"
+msgstr "Push notifications"
+
+msgid "ThÃ´ng tin cÆ¡ báº£n"
+msgstr "Information is sold"
+
+msgid "ThÃ´ng tin liÃªn há»"
+msgstr "What information is there?"
+
+msgid "ThÃ´ng tin liÃªn há» (cáº§n xÃ¡c thá»±c khi Äá»i)"
+msgstr "Contact information (need to be authenticated when exchanging)"
+
+msgid "ThÃ´ng tin nhÃ³m"
+msgstr "Good news"
+
+msgid "ThÃ´ng tin nÃ y hiá»n trÃªn trang há» sÆ¡ cÃ´ng khai cá»§a báº¡n."
+msgstr "This information appears on the seller's website."
+
+msgid "Thành viên"
+msgstr "Member"
+
+msgid "Thành viên nhóm"
+msgstr "Group member"
+
+msgid "Tháº» & Äá» cáº­p"
+msgstr "Thaº» & Äá» caºp"
+
+msgid "Thá»ng kÃª bÃ¡o cÃ¡o"
+msgstr "Report statistics"
+
+msgid "Thá»ng kÃª bÃ¡o cÃ¡o chi tiáº¿t"
+msgstr "How much does it cost?"
+
+msgid "Thá»ng kÃª há» sÆ¡"
+msgstr "How long will it be?"
+
 msgid "Thêm"
 msgstr "More"
 
 msgid "Thêm bất kỳ liên kết mạng xã hội nào của bạn"
 msgstr "Add any of your social media links"
 
+msgid "Thêm thành viên"
+msgstr "Add members"
+
+msgid "Thêm vào nhóm"
+msgstr "Add to group"
+
 msgid "Thêm ảnh/video mới"
 msgstr "Add new photos/videos"
 
 msgid "Thông báo"
 msgstr "Notifications"
+
+msgid "Thông báo hệ thống"
+msgstr "System notifications"
 
 msgid "Thông báo khi không hoạt động"
 msgstr "Notification when inactive"
@@ -593,17 +2528,107 @@ msgstr "Notification via email"
 msgid "Thông báo đẩy"
 msgstr "Push notifications"
 
+msgid "Thông tin cơ bản"
+msgstr "Basic information"
+
+msgid "Thông tin liên hệ"
+msgstr "Contact information"
+
 msgid "Thông tin liên hệ (cần xác thực khi đổi)"
 msgstr "Contact information (need to be authenticated when exchanging)"
+
+msgid "Thông tin nhóm"
+msgstr "Group information"
+
+msgid "Thông tin này hiện trên trang hồ sơ công khai của bạn."
+msgstr "This information appears on your public profile page."
+
+msgid "Thẻ & đề cập"
+msgstr "Tags & mentions"
 
 msgid "Thống kê báo cáo"
 msgstr "Report statistics"
 
+msgid "Thống kê báo cáo chi tiết"
+msgstr "Detailed statistical reports"
+
+msgid "Thống kê hồ sơ"
+msgstr "Profile statistics"
+
+msgid "Tin nháº¯n"
+msgstr "Messages"
+
+msgid "Tin nháº¯n 24h"
+msgstr "News 24 hours"
+
+msgid "Tin nháº¯n chá»"
+msgstr "Good news"
+
+msgid "Tin nháº¯n chá» (requests)"
+msgstr "News (requests)"
+
+msgid "Tin nháº¯n má»i"
+msgstr "Good news"
+
+msgid "Tin nháº¯n thoáº¡i"
+msgstr "Breaking news"
+
+msgid "Tin nháº¯n thoáº¡i quÃ¡ ngáº¯n."
+msgstr "The news is boring."
+
+msgid "Tin nháº¯n ÄÃ£ ÄÆ°á»£c thu há»i"
+msgstr "News of the fall"
+
 msgid "Tin nhắn"
 msgstr "Messages"
 
+msgid "Tin nhắn 24h"
+msgstr "24h messages"
+
+msgid "Tin nhắn chờ"
+msgstr "Message waiting"
+
+msgid "Tin nhắn chờ (requests)"
+msgstr "Message waiting (requests)"
+
+msgid "Tin nhắn mới"
+msgstr "New message"
+
+msgid "Tin nhắn thoại"
+msgstr "Voice messages"
+
+msgid "Tin nhắn thoại quá ngắn."
+msgstr "Voice messages are too short."
+
+msgid "Tin nhắn đã được thu hồi"
+msgstr "The message has been recalled"
+
+msgid "Tin tá»« ngÆ°á»i báº¡n chÆ°a theo dÃµi"
+msgstr "Message the seller according to time"
+
+msgid "Tin từ người bạn chưa theo dõi"
+msgstr "News from someone you don't follow yet"
+
+msgid "Tiáº¿p tá»¥c"
+msgstr "Tiáº¿p ta»¥c"
+
+msgid "Tiếp tục"
+msgstr "Continue"
+
+msgid "Trang chá»§"
+msgstr "Home"
+
+msgid "Trang chá»§ Moora"
+msgstr "Trang chá»§ Moora"
+
 msgid "Trang chủ"
 msgstr "Home"
+
+msgid "Trang chủ Moora"
+msgstr "Moora Homepage"
+
+msgid "Trang cÃ¡ nhÃ¢n"
+msgstr "Profile"
 
 msgid "Trang cá nhân"
 msgstr "Profile"
@@ -611,14 +2636,138 @@ msgstr "Profile"
 msgid "Trang sau"
 msgstr "Next page"
 
+msgid "Trang trÆ°á»c"
+msgstr "Previous page"
+
 msgid "Trang trước"
 msgstr "Previous page"
+
+msgid "Trung tÃ¢m trá»£ giÃºp"
+msgstr "Center for fraud"
+
+msgid "Trung tÃ¢m váº­n hÃ nh Moora"
+msgstr "Moora Health Center"
+
+msgid "Trung tâm trợ giúp"
+msgstr "Help Center"
+
+msgid "Trung tâm vận hành Moora"
+msgstr "Moora Operations Center"
+
+msgid "TrÃ¬nh duyá»t khÃ´ng há» trá»£ GPS."
+msgstr "GPS tracking cannot be used."
+
+msgid "TrÃ¬nh duyá»t khÃ´ng há» trá»£ ghi Ã¢m."
+msgstr "There is no need to write the record."
+
+msgid "TrÃ¬nh duyá»t khÃ´ng há» trá»£ Äá»nh vá» GPS."
+msgstr "The navigation is not protected by GPS."
+
+msgid "TrÃ² chuyá»n má»i"
+msgstr "New chat"
+
+msgid "Tráº£ lá»i"
+msgstr "Reply"
+
+msgid "Trình duyệt không hỗ trợ GPS."
+msgstr "The browser does not support GPS."
+
+msgid "Trình duyệt không hỗ trợ ghi âm."
+msgstr "The browser does not support audio recording."
+
+msgid "Trình duyệt không hỗ trợ định vị GPS."
+msgstr "The browser does not support GPS positioning."
 
 msgid "Trò chuyện mới"
 msgstr "New chat"
 
 msgid "Trả lời"
-msgstr "Reply"
+msgstr "Answer"
+
+msgid "TÃ i khoáº£n & há» sÆ¡"
+msgstr "I'm locked & what's going on?"
+
+msgid "TÃ i khoáº£n bá» xÃ³a?"
+msgstr "Account deleted?"
+
+msgid "TÃ i khoáº£n giáº£ máº¡o"
+msgstr "Fake account"
+
+msgid "TÃ i khoáº£n riÃªng tÆ°"
+msgstr "I'll lock it separately"
+
+msgid "TÃ i khoáº£n riÃªng tÆ°, cháº·n/bÃ¡o cÃ¡o, thiáº¿t bá» ÄÄng nháº­p."
+msgstr "I'm going to lock myself in the same way, just a little bit."
+
+msgid "TÃ i khoáº£n Äang ÄÃ¬nh chá»"
+msgstr "I lock the program"
+
+msgid "TÃ i khoáº£n ÄÃ£ xÃ³a má»m"
+msgstr "I lock the code"
+
+msgid "TÃ i liá»u"
+msgstr "Document"
+
+msgid "TÃªn"
+msgstr "TÃªn"
+
+msgid "TÃªn ngÆ°á»i dÃ¹ng"
+msgstr "User name"
+
+msgid "TÃªn ngÆ°á»i dÃ¹ng khÃ´ng há»£p lá»"
+msgstr "Invalid username"
+
+msgid "TÃªn nhÃ³m"
+msgstr "Name"
+
+msgid "TÃªn ÄÃ£ ÄÆ°á»£c sá»­ dá»¥ng"
+msgstr "Full name"
+
+msgid "TÃ¬m hoáº·c chá»n Äá»a Äiá»m (tÃ¹y chá»n)"
+msgstr "Make a difference"
+
+msgid "TÃ¬m kiáº¿m"
+msgstr "Search"
+
+msgid "TÃ¬m kiáº¿m cuá»c trÃ² chuyá»n..."
+msgstr "Search chat..."
+
+msgid "TÃ¬m kiáº¿m tin nháº¯n"
+msgstr "Look for news"
+
+msgid "TÃ¬m kiáº¿m..."
+msgstr "Search..."
+
+msgid "TÃ¬m theo tÃªn hoáº·c @username"
+msgstr "Follow @username"
+
+msgid "TÃ¬m tin nháº¯n..."
+msgstr "Have some news..."
+
+msgid ""
+"TÃ´i hiá»u ráº±ng sau 30 ngÃ y tÃ i khoáº£n sáº½ bá» xÃ³a vÄ©nh viá» n vÃ "
+"khÃ´ng thá» khÃ´i phá»¥c"
+msgstr ""
+"I understand that after 30 days the account will be permanently deleted and "
+"cannot be restored"
+
+msgid "TÃ´i Äá»ng Ã½ vá»i"
+msgstr "I agree"
+
+msgid "TÃ¹y chá»nh cÃ¡ch báº¡n nháº­n thÃ´ng bÃ¡o tá»« Moora"
+msgstr "Customize how you receive notifications from Moora"
+
+msgid "TÃ¹y chá»nh thá»i gian ÄÃ¬nh chá»"
+msgstr "Customize suspension time"
+
+msgid "TÃ¹y chá»nh thá»i gian ÄÃ¬nh chá» ngÆ°á»i dÃ¹ng bá» bÃ¡o cÃ¡o"
+msgstr "Customize reported user suspension time"
+
+msgid "TÃ¹y chá»n thÃ´ng bÃ¡o khÃ¡c"
+msgstr "More notification options"
+
+msgid "Tài khoản & hồ sơ"
+msgstr "Account & profile"
 
 msgid "Tài khoản bị xóa?"
 msgstr "Account deleted?"
@@ -626,8 +2775,81 @@ msgstr "Account deleted?"
 msgid "Tài khoản giả mạo"
 msgstr "Fake account"
 
+msgid "Tài khoản riêng tư"
+msgstr "Private account"
+
+msgid "Tài khoản riêng tư, chặn/báo cáo, thiết bị đăng nhập."
+msgstr "Private account, block/report, device login."
+
+msgid "Tài khoản đang đình chỉ"
+msgstr "Account is suspended"
+
+msgid "Tài khoản đã xóa mềm"
+msgstr "Account soft deleted"
+
 msgid "Tài liệu"
 msgstr "Document"
+
+msgid "Táº¡m biá»t má»t chÃºt"
+msgstr "Let's see if that's the case"
+
+msgid "Táº¡o bÃ i viáº¿t"
+msgstr "Create articles"
+
+msgid "Táº¡o bÃ i viáº¿t má»i"
+msgstr "Create new article"
+
+msgid "Táº¡o máº­t kháº©u má»i"
+msgstr "Create a new password"
+
+msgid "Táº¡o tÃ i khoáº£n má»i"
+msgstr "Create a new account"
+
+msgid "Táº£i xuá»ng"
+msgstr "Download"
+
+msgid ""
+"Táº£i xuá»ng báº£n sao dá»¯ liá»u cá»§a báº¡n, bao gá»m bÃ i viáº¿t, "
+"bÃ¬nh luáº­n, vÃ thÃ´ng tin cÃ¡ nhÃ¢n."
+msgstr ""
+"Download a copy of your data, including posts, comments, and personal "
+"information."
+
+msgid "Táº£i xuá»ng dá»¯ liá»u"
+msgstr "Download data"
+
+msgid "Táº¥t cáº£"
+msgstr "Táº¥t caº£"
+
+msgid "Táº¯t bÃ¬nh luáº­n"
+msgstr "Turn off comments"
+
+msgid "Táº¯t thÃ´ng bÃ¡o"
+msgstr "All reports"
+
+msgid "Táº¯t xÃ¡c thá»±c hai yáº¿u tá»"
+msgstr "Turn off two-factor authentication"
+
+msgid "Tá»i"
+msgstr "T»i"
+
+msgid "Tá»ng bÃ i viáº¿t"
+msgstr "I'm talking about it"
+
+msgid "Tá»ng quan kiá»m duyá»t"
+msgstr "This is important"
+
+msgid "Tá»ng user"
+msgstr "All users"
+
+msgid "Tá»« chá»i"
+msgstr "Tá»« cha»i"
+
+msgid "Tá»« chá»i tin nháº¯n nÃ y?"
+msgstr "Who will believe this?"
+
+msgid "Tên"
+msgstr "Name"
 
 msgid "Tên người dùng"
 msgstr "User name"
@@ -635,14 +2857,32 @@ msgstr "User name"
 msgid "Tên người dùng không hợp lệ"
 msgstr "Invalid username"
 
+msgid "Tên nhóm"
+msgstr "Group name"
+
+msgid "Tên đã được sử dụng"
+msgstr "The name is already in use"
+
+msgid "Tìm hoặc chọn địa điểm (tùy chọn)"
+msgstr "Find or select a location (optional)"
+
 msgid "Tìm kiếm"
 msgstr "Search"
 
 msgid "Tìm kiếm cuộc trò chuyện..."
 msgstr "Search chat..."
 
+msgid "Tìm kiếm tin nhắn"
+msgstr "Search messages"
+
 msgid "Tìm kiếm..."
 msgstr "Search..."
+
+msgid "Tìm theo tên hoặc @username"
+msgstr "Search by name or @username"
+
+msgid "Tìm tin nhắn..."
+msgstr "Find messages..."
 
 msgid ""
 "Tôi hiểu rằng sau 30 ngày tài khoản sẽ bị xóa vĩnh viễn và không thể khôi "
@@ -665,6 +2905,9 @@ msgstr "Customize reported user suspension time"
 
 msgid "Tùy chọn thông báo khác"
 msgstr "More notification options"
+
+msgid "Tạm biệt một chút"
+msgstr "Goodbye for a moment"
 
 msgid "Tạo bài viết"
 msgstr "Create articles"
@@ -691,14 +2934,77 @@ msgstr ""
 msgid "Tải xuống dữ liệu"
 msgstr "Download data"
 
+msgid "Tất cả"
+msgstr "All"
+
 msgid "Tắt bình luận"
 msgstr "Turn off comments"
+
+msgid "Tắt thông báo"
+msgstr "Mute notifications"
 
 msgid "Tắt xác thực hai yếu tố"
 msgstr "Turn off two-factor authentication"
 
+msgid "Tối"
+msgstr "Dark"
+
+msgid "Tổng bài viết"
+msgstr "Total article"
+
+msgid "Tổng quan kiểm duyệt"
+msgstr "Censorship overview"
+
+msgid "Tổng user"
+msgstr "Total users"
+
+msgid "Từ chối"
+msgstr "Decline"
+
+msgid "Từ chối tin nhắn này?"
+msgstr "Reject this message?"
+
+msgid "User má»i 24h"
+msgstr "User is open 24 hours"
+
+msgid "User mới 24h"
+msgstr "New user 24 hours"
+
 msgid "Video"
 msgstr "Video"
+
+msgid "Violence"
+msgstr "Violence"
+
+msgid ""
+"Việc xóa tài khoản là <strong>tạm thời</strong> trong vòng 30 ngày. Trong "
+"thời gian này, bạn có thể khôi phục lại tài khoản bằng cách đăng nhập lại "
+"hoặc sử dụng trang <a href=\"%(restore_url)s\" class=\"alert-link\">khôi "
+"phục tài khoản</a>. Sau 30 ngày, tài khoản và tất cả dữ liệu sẽ bị xóa vĩnh "
+"viễn."
+msgstr ""
+"Account deletion is <strong>temporary</strong> for 30 days. During this "
+"time, you can restore your account by logging in again or using the <a "
+"href=\"%(restore_url)s\" class=\"alert-link\">account recovery page</a>. "
+"After 30 days, the account and all data will be permanently deleted."
+
+msgid "Vui lÃ²ng chá»n file áº£nh."
+msgstr "Please check the file here."
+
+msgid "Vui lÃ²ng chá»n lÃ½ do bÃ¡o cÃ¡o."
+msgstr "Please select a reason for reporting."
+
+msgid "Vui lÃ²ng cung cáº¥p thÃªm thÃ´ng tin..."
+msgstr "Please provide more information..."
+
+msgid "Vui lÃ²ng kiá»m tra láº¡i cÃ¡c thÃ´ng tin bÃªn dÆ°á»i."
+msgstr "Please check the information provided."
+
+msgid "Vui lÃ²ng kiá»m tra láº¡i cÃ¡c trÆ°á»ng bá» lá»i bÃªn dÆ°á»i."
+msgstr "Please feel free to check out the answers you're looking for."
+
+msgid "Vui lòng chọn file ảnh."
+msgstr "Please select image file."
 
 msgid "Vui lòng chọn lý do báo cáo."
 msgstr "Please select a reason for reporting."
@@ -706,23 +3012,149 @@ msgstr "Please select a reason for reporting."
 msgid "Vui lòng cung cấp thêm thông tin..."
 msgstr "Please provide more information..."
 
+msgid "Vui lòng kiểm tra lại các thông tin bên dưới."
+msgstr "Please check the information below."
+
+msgid "Vui lòng kiểm tra lại các trường bị lỗi bên dưới."
+msgstr "Please check the error fields below."
+
+msgid "Vá» trang ÄÄng nháº­p"
+msgstr "Please update the page"
+
+msgid "Về trang đăng nhập"
+msgstr "Go to the login page"
+
+msgid "Website"
+msgstr "Website"
+
+msgid "Who can see this post"
+msgstr "Who can see this post"
+
+msgid "Xem bÃ i viáº¿t gá»c"
+msgstr "See original article"
+
 msgid "Xem bài viết gốc"
 msgstr "See original article"
+
+msgid "Xem chi tiáº¿t"
+msgstr "See details"
 
 msgid "Xem chi tiết"
 msgstr "See details"
 
+msgid "Xem há» sÆ¡"
+msgstr "Let's see"
+
+msgid "Xem hồ sơ"
+msgstr "View profile"
+
+msgid "Xem thá»ng kÃª bÃ¡o cÃ¡o"
+msgstr "View report statistics"
+
 msgid "Xem thống kê báo cáo"
 msgstr "View report statistics"
+
+msgid "Xem trÃªn báº£n Äá»"
+msgstr "See the website"
+
+msgid "Xem trên bản đồ"
+msgstr "See on map"
+
+msgid "Xem táº¥t cáº£ thÃ´ng bÃ¡o"
+msgstr "See all announcements"
 
 msgid "Xem tất cả thông báo"
 msgstr "See all announcements"
 
+msgid "Xem áº£nh"
+msgstr "See photos"
+
+msgid "Xem áº£nh Äáº¡i diá»n"
+msgstr "See áº£nh Äáº¡i diá»n"
+
 msgid "Xem ảnh"
 msgstr "See photos"
 
+msgid "Xem ảnh đại diện"
+msgstr "See representative photo"
+
+msgid "Xong rá»i"
+msgstr "It's done"
+
+msgid "Xong rồi"
+msgstr "Done"
+
+msgid "XÃ¡c nháº­n"
+msgstr "Please accept"
+
+msgid "XÃ¡c nháº­n máº­t kháº©u"
+msgstr "Confirm password"
+
+msgid "XÃ¡c thá»±c OTP"
+msgstr "Check OTP status"
+
+msgid "XÃ¡c thá»±c hai yáº¿u tá»"
+msgstr "Two-factor authentication"
+
+msgid ""
+"XÃ¡c thá»±c hai yáº¿u tá» Äang <strong>báº­t</strong>. Báº¡n sáº½ cáº§n "
+"mÃ£ tá»« á»©ng dá»¥ng xÃ¡c thá»±c má»i khi ÄÄng nháº­p."
+msgstr ""
+"Two-factor authentication is <strong>on</strong>. You'll need the code from "
+"the authenticator app every time you log in."
+
+msgid "XÃ¡c thá»±c sá» Äiá»n thoáº¡i"
+msgstr "Determining the status of the situation"
+
+msgid "XÃ³a"
+msgstr "Erase"
+
+msgid "XÃ³a bÃ i viáº¿t"
+msgstr "Delete posts"
+
+msgid ""
+"XÃ³a chá» bÃªn mÃ¬nh? (OK = chá» mÃ¬nh, Cancel rá»i thá»­ láº¡i Äá» "
+"chá»n khÃ¡c)"
+msgstr "What's wrong with you? (OK = it's ok, Cancel is the next step)"
+
+msgid "XÃ³a cuá»c trÃ² chuyá»n"
+msgstr "Delete chat"
+
+msgid "XÃ³a phÃ­a mÃ¬nh"
+msgstr "Screenshot"
+
+msgid "XÃ³a phÃ­a ngÆ°á»i nháº­n"
+msgstr "Get out of the way"
+
+msgid "XÃ³a thÃ´ng bÃ¡o"
+msgstr "Reportedly"
+
+msgid "XÃ³a tin nháº¯n"
+msgstr "Here's the news"
+
+msgid "XÃ³a tin nháº¯n nÃ y."
+msgstr "Check out this news."
+
+msgid "XÃ³a tÃ i khoáº£n"
+msgstr "Delete account"
+
+msgid "XÃ³a táº¥t cáº£"
+msgstr "XÃ³aº¥t º£"
+
+msgid "XÃ³a áº£nh Äáº¡i diá»n"
+msgstr "What's going on?"
+
+msgid "XÃ³a áº£nh Äáº¡i diá»n hiá»n táº¡i"
+msgstr "Delete current avatar"
+
+msgid "Xác nhận"
+msgstr "Confirm"
+
 msgid "Xác nhận mật khẩu"
 msgstr "Confirm password"
+
+msgid "Xác thực OTP"
+msgstr "OTP authentication"
 
 msgid "Xác thực hai yếu tố"
 msgstr "Two-factor authentication"
@@ -734,20 +3166,64 @@ msgstr ""
 "Two-factor authentication is <strong>on</strong>. You'll need the code from "
 "the authenticator app every time you log in."
 
+msgid "Xác thực số điện thoại"
+msgstr "Verify phone number"
+
 msgid "Xóa"
-msgstr "Erase"
+msgstr "Delete"
 
 msgid "Xóa bài viết"
 msgstr "Delete posts"
 
+msgid "Xóa chỉ bên mình? (OK = chỉ mình, Cancel rồi thử lại để chọn khác)"
+msgstr ""
+"Delete thread on your side? (OK = just me, Cancel and try again to choose "
+"another)"
+
 msgid "Xóa cuộc trò chuyện"
-msgstr "Delete chat"
+msgstr "Delete conversation"
+
+msgid "Xóa phía mình"
+msgstr "Delete your side"
+
+msgid "Xóa phía người nhận"
+msgstr "Delete the recipient side"
+
+msgid "Xóa thông báo"
+msgstr "Delete notification"
+
+msgid "Xóa tin nhắn"
+msgstr "Delete message"
+
+msgid "Xóa tin nhắn này."
+msgstr "Delete this message."
 
 msgid "Xóa tài khoản"
 msgstr "Delete account"
 
+msgid "Xóa tất cả"
+msgstr "Delete all"
+
+msgid "Xóa ảnh đại diện"
+msgstr "Delete avatar"
+
 msgid "Xóa ảnh đại diện hiện tại"
 msgstr "Delete current avatar"
+
+msgid "YÃªu cáº§u cá»§a báº¡n ÄÃ£ ÄÆ°á»£c ghi nháº­n."
+msgstr "Your request has been acknowledged."
+
+msgid "YÃªu cáº§u gáº§n ÄÃ¢y"
+msgstr "Recent requests"
+
+msgid "YÃªu cáº§u liÃªn káº¿t má»i"
+msgstr "Cool link requirements"
+
+msgid "YÃªu cáº§u nháº¯n tin"
+msgstr "You need to receive information"
+
+msgid "YÃªu cáº§u táº£i xuá»ng"
+msgstr "Download required"
 
 msgid "Yêu cầu của bạn đã được ghi nhận."
 msgstr "Your request has been acknowledged."
@@ -755,14 +3231,116 @@ msgstr "Your request has been acknowledged."
 msgid "Yêu cầu gần đây"
 msgstr "Recent requests"
 
+msgid "Yêu cầu liên kết mới"
+msgstr "New link request"
+
+msgid "Yêu cầu nhắn tin"
+msgstr "Request a message"
+
 msgid "Yêu cầu tải xuống"
 msgstr "Download required"
+
+msgid "admin notes"
+msgstr "admin notes"
+
+msgid "audio"
+msgstr "audio. audio"
+
+msgid "bio"
+msgstr "bio"
+
+msgid "birth date"
+msgstr "birth date"
+
+msgid "block"
+msgstr "block. block"
+
+msgid "block messages from non-followers"
+msgstr "block messages from non-followers"
+
+msgid "blocks"
+msgstr "blocks. blocks"
+
+msgid "bÃ i viáº¿t"
+msgstr "article"
 
 msgid "bài viết"
 msgstr "article"
 
+msgid "caption"
+msgstr "caption"
+
+msgid "comment like"
+msgstr "comment like"
+
+msgid "comment likes"
+msgstr "comment likes"
+
+msgid "comment notifications"
+msgstr "comment notifications"
+
+msgid "cá»§a Moora"
+msgstr "by Moora"
+
 msgid "của Moora"
 msgstr "by Moora"
+
+msgid "deleted account"
+msgstr "deleted account"
+
+msgid "deleted at"
+msgstr "deleted at"
+
+msgid "deletion reason"
+msgstr "deletion reason"
+
+msgid "description"
+msgstr "description"
+
+msgid "details"
+msgstr "details. details"
+
+msgid "email address"
+msgstr "email address"
+
+msgid "email notifications"
+msgstr "email notifications"
+
+msgid "facebook"
+msgstr "facebook"
+
+msgid "file"
+msgstr "file"
+
+msgid "follow notifications"
+msgstr "follow notifications"
+
+msgid "follow request"
+msgstr "follow request"
+
+msgid "follow requests"
+msgstr "follow requests"
+
+msgid "following"
+msgstr "following"
+
+msgid "followings"
+msgstr "followings"
+
+msgid "gender"
+msgstr "gender"
+
+msgid "hide activity status"
+msgstr "hide activity status"
+
+msgid "highlight"
+msgstr "highlight. highlight"
+
+msgid "hoáº·c tiáº¿p tá»¥c vá»i"
+msgstr "or continue with"
+
+msgid "hoáº·c ÄÄng kÃ½ vá»i"
+msgstr "or register with"
 
 msgid "hoặc tiếp tục với"
 msgstr "or continue with"
@@ -770,32 +3348,503 @@ msgstr "or continue with"
 msgid "hoặc đăng ký với"
 msgstr "or register with"
 
+msgid "inactive notifications"
+msgstr "inactive notifications"
+
+msgid "instagram"
+msgstr "instagram"
+
+msgid "language"
+msgstr "language. language"
+
+msgid "like"
+msgstr "like"
+
+msgid "like notifications"
+msgstr "like notifications"
+
+msgid "likes"
+msgstr "likes"
+
+msgid "linkedin"
+msgstr "linkedin"
+
+msgid "location"
+msgstr "location. location"
+
+msgid "lÆ°á»£t thÃ­ch"
+msgstr "likes"
+
 msgid "lượt thích"
 msgstr "likes"
+
+msgid "media"
+msgstr "media. media"
+
+msgid "media type"
+msgstr "media type"
+
+msgid "mention notifications"
+msgstr "mention notifications"
+
+msgid "message notifications"
+msgstr "message notifications"
+
+msgid "ngÆ°á»i theo dÃµi"
+msgstr "followers"
 
 msgid "người theo dõi"
 msgstr "followers"
 
+msgid "order"
+msgstr "order. order"
+
+msgid "phone number"
+msgstr "phone number"
+
+msgid "post media"
+msgstr "post media"
+
+msgid "post report"
+msgstr "post report"
+
+msgid "post reports"
+msgstr "post reports"
+
+msgid "private account"
+msgstr "private account"
+
+msgid "push notifications"
+msgstr "push notifications"
+
+msgid "reason"
+msgstr "reason. reason"
+
+msgid "resolved"
+msgstr "resolved. resolved"
+
+msgid "resolved at"
+msgstr "resolved at"
+
+msgid "show birth date on profile"
+msgstr "show birth date on profile"
+
+msgid "show gender on profile"
+msgstr "show gender on profile"
+
+msgid "stories"
+msgstr "stories. stories"
+
+msgid "story"
+msgstr "story.story"
+
+msgid "story view"
+msgstr "story view"
+
+msgid "story views"
+msgstr "story views"
+
+msgid "summary notifications"
+msgstr "summary notifications"
+
+msgid "suspended account"
+msgstr "suspended account"
+
+msgid "suspension end date"
+msgstr "suspension end date"
+
+msgid "suspension reason"
+msgstr "suspension reason"
+
+msgid "thÃ nh cÃ´ng."
+msgstr "success."
+
+msgid "thÃ nh viÃªn"
+msgstr "member"
+
+msgid "thÃ´ng bÃ¡o chÆ°a Äá»c"
+msgstr "unread notification"
+
 msgid "thành công."
 msgstr "success."
+
+msgid "thành viên"
+msgstr "member"
 
 msgid "thông báo chưa đọc"
 msgstr "unread notification"
 
+msgid "tin nháº¯n chÆ°a Äá»c"
+msgstr "only news"
+
+msgid "tin nhắn chưa đọc"
+msgstr "unread messages"
+
+msgid "twitter"
+msgstr "twitter"
+
+msgid "two-factor authentication"
+msgstr "two-factor authentication"
+
+msgid "two-factor secret"
+msgstr "two-factor secret"
+
+msgid "user"
+msgstr "user.user"
+
+msgid "user report"
+msgstr "user report"
+
+msgid "user reports"
+msgstr "user reports"
+
+msgid "users"
+msgstr "users. users"
+
+msgid "valid report"
+msgstr "valid report"
+
+msgid "verified account"
+msgstr "verified account"
+
+msgid "video"
+msgstr "video"
+
+msgid "vÃ"
+msgstr "and"
+
 msgid "và"
 msgstr "and"
+
+msgid "website"
+msgstr "website"
+
+msgid "you@email.com"
+msgstr "you@email.com"
+
+msgid "Âm thanh"
+msgstr "Sound"
+
+msgid "Ãm thanh"
+msgstr "Ãm sound"
+
+msgid "Ãt nháº¥t 8 kÃ½ tá»±"
+msgstr "Ãt 8 kÃ½ dozen»±"
+
+msgid "Äang ghi Ã¢m..."
+msgstr "Recording Ã¢m..."
+
+msgid "Äang hoáº¡t Äá»ng"
+msgstr "Active"
+
+msgid "Äang kiá»m traâ¦"
+msgstr "Looking at the tram"
+
+msgid "Äang lÆ°u vá» trÃ­â¦"
+msgstr "ÄdÆ°u and » trÃâ¦"
+
+msgid "Äang lÆ°u..."
+msgstr "Saving..."
+
+msgid "Äang láº¥y GPS chÃ­nh xÃ¡câ¦"
+msgstr "Accurate GPS navigation"
+
+msgid "Äang theo dÃµi"
+msgstr "Following"
+
+msgid "Äang theo dÃµi (%(count)s)"
+msgstr "Following (%(count)s)"
+
+msgid "Äang theo dÃµi (%(var)s)"
+msgstr "Length (%(var)s)"
+
+msgid "Äang tráº£ lá»i"
+msgstr "Replying"
+
+msgid "Äang táº£i bÃ i viáº¿t..."
+msgstr "Loading article..."
+
+msgid "Äang táº£i..."
+msgstr "Loading..."
+
+msgid "Äang xá»­ lÃ½"
+msgstr "Processing"
+
+msgid "Äang xá»­ lÃ½..."
+msgstr "Processing..."
+
+msgid "Äiá»u hÆ°á»ng nhanh"
+msgstr "Quick navigation"
+
+msgid "Äiá»u khoáº£n dá»ch vá»¥"
+msgstr "How to fix the problem?"
+
+msgid "Äiá»u khoáº£n sá»­ dá»¥ng"
+msgstr "Terms of use"
+
+msgid "Äiá»u kiá»n sá»­ dá»¥ng tÃ i khoáº£n vÃ dá»ch vá»¥ Moora."
+msgstr "Find out more about Moora."
+
+msgid "ÄÃ¡nh dáº¥u táº¥t cáº£ lÃ ÄÃ£ Äá»c"
+msgstr "Mark all as read"
+
+msgid "ÄÃ¡nh dáº¥u táº¥t cáº£ ÄÃ£ Äá»c"
+msgstr "ÄÃ¡nh Äº¥t Äº£ ÄÃ£ Äá»c"
+
+msgid "ÄÃ¢y lÃ tÃ i khoáº£n riÃªng tÆ°"
+msgstr "ÄÃ¢yyyyyyyyyyyyyyyyyyyyy Æ°"
+
+msgid "ÄÃ¢y lÃ tÃªn hiá»n táº¡i cá»§a báº¡n"
+msgstr "ÄÃ¢y Ãªn Ä»n Äº¡n Ä»§Ã¡n"
+
+msgid "ÄÃ£ bá» cháº·n"
+msgstr "Unblocked"
+
+msgid "ÄÃ£ chia sáº»"
+msgstr "Shared"
+
+msgid "ÄÃ£ chia sáº» má»t bÃ i viáº¿t"
+msgstr "ÄÃ£ share the blood with water"
+
+msgid "ÄÃ£ chia sáº» má»t bÃ¬nh luáº­n"
+msgstr "ÄÃ£ share the blood"
+
+msgid "ÄÃ£ cÃ³ tÃ i khoáº£n?"
+msgstr "Already have an account?"
+
+msgid "ÄÃ£ cáº­p nháº­t GPS"
+msgstr "ÄÃ£ GPS cable"
+
+msgid "ÄÃ£ cáº­p nháº­t bÃ i viáº¿t thÃ nh cÃ´ng!"
+msgstr "Post updated successfully!"
+
+msgid "ÄÃ£ cáº­p nháº­t ngÃ´n ngá»¯ hiá»n thá»."
+msgstr "The shortest cable appears."
+
+msgid "ÄÃ£ ghim"
+msgstr "ÄÃ£ pin"
+
+msgid "ÄÃ£ gá»­i email"
+msgstr "Send email"
+
+msgid "ÄÃ£ gá»­i yÃªu cáº§u"
+msgstr "The girl loves you"
+
+msgid "ÄÃ£ háº¿t háº¡n"
+msgstr "Expired"
+
+msgid "ÄÃ£ há»§y liÃªn káº¿t"
+msgstr "Unlinked"
+
+msgid "ÄÃ£ lÆ°u"
+msgstr "Saved"
+
+msgid "ÄÃ£ thÃ­ch"
+msgstr "Liked"
+
+msgid "ÄÃ£ táº¯t thÃ´ng bÃ¡o"
+msgstr "ÄÃ£ dozens of newspapers"
+
+msgid "ÄÃ£ xÃ³a bÃ i viáº¿t thÃ nh cÃ´ng!"
+msgstr "Post deleted successfully!"
+
+msgid "ÄÃ£ xáº£y ra lá»i khi bá» cháº·n ngÆ°á»i dÃ¹ng."
+msgstr "An error occurred while unblocking the user."
+
+msgid "ÄÃ£ xáº£y ra lá»i khi cháº·n ngÆ°á»i dÃ¹ng."
+msgstr "An error occurred while blocking the user."
+
+msgid ""
+"ÄÃ£ xáº£y ra lá»i khi cháº·n ngÆ°á»i dÃ¹ng. Vui lÃ²ng thá»­ láº¡i sau."
+msgstr "An error occurred while blocking the user. Please try again later."
+
+msgid "ÄÃ£ xáº£y ra lá»i khi gá»­i bÃ¡o cÃ¡o."
+msgstr "An error occurred while sending the report."
+
+msgid "ÄÃ£ xáº£y ra lá»i khi gá»­i bÃ¡o cÃ¡o. Vui lÃ²ng thá»­ láº¡i sau."
+msgstr "An error occurred while sending the report. Please try again later."
+
+msgid "ÄÃ£ xáº£y ra lá»i khi gá»­i yÃªu cáº§u."
+msgstr "An error occurred while sending the request."
+
+msgid "ÄÃ£ xáº£y ra lá»i khi há»§y liÃªn káº¿t."
+msgstr "An error occurred while unlinking."
+
+msgid ""
+"ÄÃ£ xáº£y ra lá»i khi thá»±c hiá»n thao tÃ¡c. Vui lÃ²ng thá»­ láº¡i sau."
+msgstr ""
+"An error occurred while performing the operation. Please try again later."
+
+msgid "ÄÃ£ xáº£y ra lá»i khi xÃ³a cuá»c trÃ² chuyá»n."
+msgstr "An error occurred while deleting the chat."
+
+msgid "ÄÃ£ xáº£y ra lá»i khi ÄÄng xuáº¥t thiáº¿t bá»."
+msgstr "An error occurred while logging out of the device."
+
+msgid "ÄÃ£ yÃªu cáº§u"
+msgstr "ÄÃ£ request"
+
+msgid ""
+"ÄÃ£ Äáº¡t giá»i háº¡n 3 tin nháº¯n chá». NgÆ°á»i nháº­n cáº§n cháº¥p "
+"nháº­n trÆ°á»c khi báº¡n gá»­i thÃªm."
+msgstr ""
+"ÄÃ£ Äáº¡t price 3 more messages. People recognize themselves when they are "
+"tired."
+
+msgid "ÄÃ£ Äá»i máº­t kháº©u"
+msgstr "Pretty cool"
+
+msgid "ÄÃ³ng"
+msgstr "Close"
+
+msgid "ÄÄng kÃ½"
+msgstr "Sign up"
+
+msgid "ÄÄng kÃ½ ngay"
+msgstr "Register now"
+
+msgid "ÄÄng kÃ½ vá»i Google"
+msgstr "Sign up with Google"
+
+msgid "ÄÄng nháº­p"
+msgstr "Log in"
+
+msgid "ÄÄng nháº­p báº±ng máº¡ng xÃ£ há»i"
+msgstr "Log in using social networks"
+
+msgid "ÄÄng nháº­p ngay"
+msgstr "Sign in now"
+
+msgid "ÄÄng nháº­p vá»i Google"
+msgstr "Sign in with Google"
+
+msgid "ÄÄng nháº­p Äá» tiáº¿p tá»¥c vá»i Moora"
+msgstr "Log in to continue with Moora"
+
+msgid "ÄÄng xuáº¥t"
+msgstr "Log out"
+
+msgid "ÄÄng xuáº¥t?"
+msgstr "Production?"
+
+msgid ""
+"Äáº£m báº£o sá»­ dá»¥ng máº­t kháº©u máº¡nh vÃ khÃ´ng sá»­ dá»¥ng láº¡i á»"
+" cÃ¡c trang web khÃ¡c"
+msgstr "Make sure to use strong passwords and don't reuse them on other sites"
+
+msgid "Äáº·t láº¡i máº­t kháº©u"
+msgstr "It's pretty cool"
+
+msgid "Äáº·t láº¡i máº­t kháº©u cho %(var)s"
+msgstr "%(var)s"
+
+msgid "Äáº·t láº¡i thÃ nh cÃ´ng"
+msgstr "Let's take it easy"
+
+msgid "Äá»a Äiá»m"
+msgstr "Location"
+
+msgid ""
+"Äá»c cÃ¡c tÃ i liá»u quan trá»ng vá» cÃ¡ch dÃ¹ng Moora vÃ cÃ¡ch chÃºng "
+"tÃ´i báº£o vá» báº¡n."
+msgstr ""
+"The relevant documents and applications of Moora and our customers are "
+"discussed."
+
+msgid "Äá»i"
+msgstr "Change"
+
+msgid ""
+"Äá»i SÄT sáº½ gá»­i mÃ£ xÃ¡c thá»±c vá» sá» hiá»n táº¡i (hoáº·c email "
+"náº¿u SMS khÃ´ng kháº£ dá»¥ng)."
+msgstr ""
+"Changing your phone number will send a verification code to your current "
+"number (or email if SMS is not available)."
+
+msgid "Äá»i email sáº½ gá»­i mÃ£ xÃ¡c thá»±c vá» email hiá»n táº¡i."
+msgstr ""
+"Changing your email will send a verification code to your current email."
+
+msgid "Äá»i giao diá»n sÃ¡ng/tá»i"
+msgstr "Contact number/hour"
+
+msgid "Äá»i máº­t kháº©u"
+msgstr "Change password"
+
+msgid "Äá»i áº£nh nhÃ³m"
+msgstr "I'm sorry"
+
+msgid "Äá»i áº£nh Äáº¡i diá»n"
+msgstr "What's going on?"
+
+msgid "Äá»£i thÃªm má»t lÃºc rá»i thá»­ láº¡i."
+msgstr "It's really cool to play this game."
+
+msgid "Äang nháº­p..."
+msgstr "entering..."
+
+msgid "Äang theo dÃµi"
+msgstr "are following"
+
+msgid "Ít nhất 8 ký tự"
+msgstr "At least 8 characters"
+
+msgid "áº¢nh"
+msgstr "Image"
+
+msgid "áº¢nh / video"
+msgstr "images / videos"
+
+msgid "áº¢nh sau khi cáº¯t vÆ°á»£t 5MB. HÃ£y thu nhá» khung hÆ¡n."
+msgstr "Image after downloading 5MB. Let's collect more frames."
+
+msgid "áº¢nh tá»i Äa 5MB."
+msgstr "Characteristics 5MB."
+
+msgid "áº¢nh Äang chá»nh"
+msgstr "I'm sorry"
+
+msgid "áº¢nh Äáº¡i diá»n cá»§a %(var)s"
+msgstr "Calculation of individual values ​​%(var)s"
+
+msgid "áº¢nh Äáº§y Äá»§"
+msgstr "Full photo"
+
+msgid "áº¨n lÆ°á»£t thÃ­ch"
+msgstr "Hide likes"
+
+msgid "á» láº¡i Moora"
+msgstr "á» laº¡i Moora"
+
+msgid "Đang ghi âm..."
+msgstr "Recording..."
 
 msgid "Đang hoạt động"
 msgstr "Active"
 
+msgid "Đang kiểm tra…"
+msgstr "Checking…"
+
+msgid "Đang kết nối..."
+msgstr "Connecting..."
+
+msgid "Đang lưu vị trí…"
+msgstr "Saving location…"
+
 msgid "Đang lưu..."
 msgstr "Saving..."
+
+msgid "Đang lấy GPS chính xác…"
+msgstr "Getting accurate GPS…"
 
 msgid "Đang theo dõi"
 msgstr "Following"
 
 msgid "Đang theo dõi (%(count)s)"
 msgstr "Following (%(count)s)"
+
+msgid "Đang trong cuộc gọi"
+msgstr "In call"
 
 msgid "Đang trả lời"
 msgstr "Replying"
@@ -812,14 +3861,32 @@ msgstr "Processing"
 msgid "Đang xử lý..."
 msgstr "Processing..."
 
+msgid "Đang đổ chuông..."
+msgstr "Ringing..."
+
 msgid "Điều hướng nhanh"
 msgstr "Quick navigation"
+
+msgid "Điều khoản dịch vụ"
+msgstr "Terms of service"
 
 msgid "Điều khoản sử dụng"
 msgstr "Terms of use"
 
+msgid "Điều kiện sử dụng tài khoản và dịch vụ Moora."
+msgstr "Conditions for using Moora accounts and services."
+
 msgid "Đánh dấu tất cả là đã đọc"
 msgstr "Mark all as read"
+
+msgid "Đánh dấu tất cả đã đọc"
+msgstr "Mark all as read"
+
+msgid "Đây là tài khoản riêng tư"
+msgstr "This is a private account"
+
+msgid "Đây là tên hiện tại của bạn"
+msgstr "This is your current name"
 
 msgid "Đã bỏ chặn"
 msgstr "Unblocked"
@@ -827,11 +3894,32 @@ msgstr "Unblocked"
 msgid "Đã chia sẻ"
 msgstr "Shared"
 
+msgid "Đã chia sẻ một bài viết"
+msgstr "Shared a post"
+
+msgid "Đã chia sẻ một bình luận"
+msgstr "Shared a comment"
+
 msgid "Đã có tài khoản?"
 msgstr "Already have an account?"
 
+msgid "Đã cập nhật GPS"
+msgstr "Updated GPS"
+
 msgid "Đã cập nhật bài viết thành công!"
 msgstr "Post updated successfully!"
+
+msgid "Đã cập nhật ngôn ngữ hiển thị."
+msgstr "Display language updated."
+
+msgid "Đã ghim"
+msgstr "Pinned"
+
+msgid "Đã gửi email"
+msgstr "Email sent"
+
+msgid "Đã gửi yêu cầu"
+msgstr "Request sent"
 
 msgid "Đã hết hạn"
 msgstr "Expired"
@@ -844,6 +3932,9 @@ msgstr "Saved"
 
 msgid "Đã thích"
 msgstr "Liked"
+
+msgid "Đã tắt thông báo"
+msgstr "Notifications turned off"
 
 msgid "Đã xóa bài viết thành công!"
 msgstr "Post deleted successfully!"
@@ -879,6 +3970,19 @@ msgstr "An error occurred while deleting the chat."
 msgid "Đã xảy ra lỗi khi đăng xuất thiết bị."
 msgstr "An error occurred while logging out of the device."
 
+msgid "Đã yêu cầu"
+msgstr "Requested"
+
+msgid ""
+"Đã đạt giới hạn 3 tin nhắn chờ. Người nhận cần chấp nhận trước khi bạn gửi "
+"thêm."
+msgstr ""
+"The limit of 3 waiting messages has been reached. The recipient needs to "
+"accept before you send more."
+
+msgid "Đã đổi mật khẩu"
+msgstr "Password changed"
+
 msgid "Đóng"
 msgstr "Close"
 
@@ -909,12 +4013,29 @@ msgstr "Log in to continue with Moora"
 msgid "Đăng xuất"
 msgstr "Log out"
 
+msgid "Đăng xuất?"
+msgstr "Sign out?"
+
 msgid ""
 "Đảm bảo sử dụng mật khẩu mạnh và không sử dụng lại ở các trang web khác"
 msgstr "Make sure to use strong passwords and don't reuse them on other sites"
 
+msgid "Đặt lại mật khẩu"
+msgstr "Reset password"
+
+msgid "Đặt lại mật khẩu cho %(site_name)s"
+msgstr "Reset password for %(site_name)s"
+
+msgid "Đặt lại thành công"
+msgstr "Reset successfully"
+
 msgid "Địa điểm"
 msgstr "Location"
+
+msgid ""
+"Đọc các tài liệu quan trọng về cách dùng Moora và cách chúng tôi bảo vệ bạn."
+msgstr ""
+"Read important documents about how to use Moora and how we protect you."
 
 msgid "Đổi"
 msgstr "Change"
@@ -930,8 +4051,20 @@ msgid "Đổi email sẽ gửi mã xác thực về email hiện tại."
 msgstr ""
 "Changing your email will send a verification code to your current email."
 
+msgid "Đổi giao diện sáng/tối"
+msgstr "Change light/dark interface"
+
 msgid "Đổi mật khẩu"
 msgstr "Change password"
+
+msgid "Đổi ảnh nhóm"
+msgstr "Change group photo"
+
+msgid "Đổi ảnh đại diện"
+msgstr "Change avatar"
+
+msgid "Đợi thêm một lúc rồi thử lại."
+msgstr "Wait a while and try again."
 
 msgid "đang nhập..."
 msgstr "entering..."
@@ -942,8 +4075,26 @@ msgstr "are following"
 msgid "Ảnh"
 msgstr "Image"
 
+msgid "Ảnh / video"
+msgstr "Photos/videos"
+
+msgid "Ảnh sau khi cắt vượt 5MB. Hãy thu nhỏ khung hơn."
+msgstr "Photo after cropping exceeds 5MB. Let's make the frame smaller."
+
+msgid "Ảnh tối đa 5MB."
+msgstr "Maximum photo size 5MB."
+
+msgid "Ảnh đang chỉnh"
+msgstr "Photo is being edited"
+
+msgid "Ảnh đại diện của %(username)s"
+msgstr "Representative photo of %(username)s"
+
 msgid "Ảnh đầy đủ"
 msgstr "Full photo"
 
 msgid "Ẩn lượt thích"
 msgstr "Hide likes"
+
+msgid "Ở lại Moora"
+msgstr "Stay at Moora"

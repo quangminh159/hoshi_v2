@@ -1,33 +1,97 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: hoshi\n"
+"Project-Id-Version: moora\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "%(count)s bÃ¬nh luáº­n"
+msgstr "%(count)s 件のコメント"
 
 msgid "%(count)s bình luận"
 msgstr "%(count)s 件のコメント"
 
+msgid "%(count)s lÆ°á»£t thÃ­ch"
+msgstr "%(count)s 件のいいね！"
+
 msgid "%(count)s lượt thích"
 msgstr "%(count)s 件のいいね！"
 
-msgid "%(counter)s cuộc trò chuyện"
+msgid "%(counter)s cuá»c trÃ² chuyá»n"
 msgstr "%(counter)s 件の会話{% 複数形 %}%(counter)s 件の会話"
+
+msgid "%(counter)s cuộc trò chuyện"
+msgstr "%(counter)s の会話"
+
+msgid "%(counter)s cuộc trò chuyện%(counter)s cuộc trò chuyện"
+msgstr "%(counter)s 件の会話 %(counter)s 件の会話"
+
+msgid "%(counter)s tin nhắn mới%(counter)s tin nhắn mới"
+msgstr "%(counter)s の新しいメッセージ%(counter)s の新しいメッセージ"
+
+msgid "%(time)s trÆ°á»c"
+msgstr "%(時間)秒前"
 
 msgid "%(time)s trước"
 msgstr "%(時間)秒前"
 
+msgid "%(username)s chÆ°a theo dÃµi ai."
+msgstr "%(username)s はまだ誰もフォローしていません。"
+
 msgid "%(username)s chưa theo dõi ai."
 msgstr "%(username)s はまだ誰もフォローしていません。"
+
+msgid "%(username)s ÄÃ£ chia sáº»"
+msgstr "%(ユーザー名)s が共有されました"
 
 msgid "%(username)s đã chia sẻ"
 msgstr "%(ユーザー名)s が共有されました"
 
+msgid "%(var)s bÃ¬nh luáº­n"
+msgstr "%(var)s の式"
+
+msgid "%(var)s chÆ°a theo dÃµi ai."
+msgstr "%(var)s は誰のみをフォローします。"
+
+msgid "%(var)s cuá»c trÃ² chuyá»n %(var)s cuá»c trÃ² chuyá»n"
+msgstr "コンバージョン数 %(var)s コンバージョン数 %(var)s"
+
+msgid "%(var)s lÆ°á»£t thÃ­ch"
+msgstr "%(var)s は次のようなものです"
+
+msgid "%(var)s tin nháº¯n má»i %(var)s tin nháº¯n má»i"
+msgstr "%(var)s ニュース %(var)s ニュース"
+
+msgid "%(var)s trÆ°á»c"
+msgstr "%(var)s trÆ°á»c"
+
+msgid "%(var)s ÄÃ£ chia sáº»"
+msgstr "%(var)s ÄÃ£ シェア»"
+
+msgid ""
+"<strong>Cháº·n tin nháº¯n</strong> - Chá» nháº­n tin nháº¯n tá»« ngÆ°á»i "
+"báº¡n theo dÃµi"
+msgstr "<strong>メッセージをブロック</strong> - フォローしている人からのメッセージのみを受信します"
+
 msgid ""
 "<strong>Chặn tin nhắn</strong> - Chỉ nhận tin nhắn từ người bạn theo dõi"
 msgstr "<strong>メッセージをブロック</strong> - フォローしている人からのメッセージのみを受信します"
+
+msgid ""
+"<strong>TÃ i khoáº£n riÃªng tÆ°</strong> - Chá» nhá»¯ng ngÆ°á»i theo dÃµi "
+"má»i cÃ³ thá» xem bÃ i viáº¿t cá»§a báº¡n"
+msgstr "<strong>非公開アカウント</strong> - フォロワーのみがあなたの投稿を閲覧できます"
+
+msgid ""
+"<strong>TÃ i khoáº£n riÃªng tÆ°</strong> - NgÆ°á»i khÃ¡c pháº£i gá»­i yÃªu "
+"cáº§u vÃ ÄÆ°á»£c báº¡n xÃ¡c nháº­n má»i theo dÃµi ÄÆ°á»£c; chá» ngÆ°á»i"
+" ÄÃ£ theo dÃµi má»i xem bÃ i viáº¿t cá»§a báº¡n"
+msgstr ""
+"<strong>私は自分自身を閉じ込めている</strong> - 人々は女の子の好みを発見し、時間の経過とともに彼らが見ているものを確認します。 "
+"ÄÆ°á»£c;あなたが何をしているのかを見るために私をフォローしてください。"
 
 msgid ""
 "<strong>Tài khoản riêng tư</strong> - Chỉ những người theo dõi mới có thể "
@@ -35,27 +99,227 @@ msgid ""
 msgstr "<strong>非公開アカウント</strong> - フォロワーのみがあなたの投稿を閲覧できます"
 
 msgid ""
+"<strong>Tài khoản riêng tư</strong> - Người khác phải gửi yêu cầu và được "
+"bạn xác nhận mới theo dõi được; chỉ người đã theo dõi mới xem bài viết của "
+"bạn"
+msgstr ""
+"<strong>非公開アカウント</strong> - "
+"他の人はリクエストを送信し、フォローすることをあなたに確認する必要があります。あなたの投稿はフォロワーのみに表示されます"
+
+msgid ""
+"<strong>áº¨n tráº¡ng thÃ¡i hoáº¡t Äá»ng</strong> - KhÃ´ng hiá»n thá» "
+"tráº¡ng thÃ¡i hoáº¡t Äá»ng cá»§a báº¡n"
+msgstr "<strong>アクティビティ ステータスを非表示</strong> - アクティビティ ステータスを表示しません。"
+
+msgid ""
 "<strong>Ẩn trạng thái hoạt động</strong> - Không hiển thị trạng thái hoạt "
 "động của bạn"
 msgstr "<strong>アクティビティ ステータスを非表示</strong> - アクティビティ ステータスを表示しません。"
 
+msgid "Admin"
+msgstr "管理者"
+
+msgid "Audio"
+msgstr "オーディオ"
+
+msgid "Bao gá»m hÃ¬nh áº£nh vÃ video"
+msgstr "画像とビデオが含まれます"
+
 msgid "Bao gồm hình ảnh và video"
 msgstr "画像とビデオが含まれます"
+
+msgid "BÃ i viáº¿t"
+msgstr "記事"
+
+msgid "BÃ i viáº¿t 24h"
+msgstr "24時間対応"
+
+msgid "BÃ¡o cÃ¡o"
+msgstr "報告"
+
+msgid "BÃ¡o cÃ¡o bÃ i viáº¿t chá» xá»­ lÃ½"
+msgstr "この問題に対処しなければならないというのは本当ですか?"
+
+msgid "BÃ¡o cÃ¡o user chá» xá»­ lÃ½"
+msgstr "ユーザーは何人いますか?"
+
+msgid "BÃ¬nh luáº­n"
+msgstr "コメント"
+
+msgid "BÃ¬nh luáº­n 24h"
+msgstr "24時間アラーム"
+
+msgid "BÆ°á»c cuá»i"
+msgstr "BÆ°á»c of»i"
 
 msgid "Bài viết"
 msgstr "記事"
 
+msgid "Bài viết 24h"
+msgstr "24時間記事"
+
 msgid "Báo cáo"
 msgstr "報告"
 
+msgid "Báo cáo bài viết chờ xử lý"
+msgstr "保留中の投稿を報告する"
+
+msgid "Báo cáo user chờ xử lý"
+msgstr "ユーザーレポートは保留中"
+
+msgid "Báº¡n chÆ°a cháº·n ngÆ°á»i dÃ¹ng nÃ o."
+msgstr "まだユーザーをブロックしていません。"
+
+msgid "Báº¡n chÆ°a lÆ°u bÃ i viáº¿t nÃ o."
+msgstr "まだ投稿を保存していません。"
+
+msgid "Báº¡n cháº¯c muá»n rá»i nhÃ³m nÃ y?"
+msgstr "何人欲しいですか？"
+
+msgid "Báº¡n cÃ³ cháº¯c cháº¯n muá»n bá» cháº·n"
+msgstr "ブロックを解除してもよろしいですか"
+
+msgid "Báº¡n cÃ³ cháº¯c cháº¯n muá»n cháº·n"
+msgstr "本当にブロックしてもよろしいですか"
+
+msgid "Báº¡n cÃ³ cháº¯c cháº¯n muá»n há»§y liÃªn káº¿t vá»i"
+msgstr "とのリンクを解除してもよろしいですか?"
+
+msgid "Báº¡n cÃ³ cháº¯c cháº¯n muá»n há»§y theo dÃµi"
+msgstr "フォローを解除してもよろしいですか?"
+
+msgid "Báº¡n cÃ³ cháº¯c cháº¯n muá»n xoÃ¡ bÃ i viáº¿t nÃ y khÃ´ng?"
+msgstr "この投稿を削除してもよろしいですか?"
+
+msgid "Báº¡n cÃ³ cháº¯c cháº¯n muá»n xÃ³a bÃ i viáº¿t nÃ y khÃ´ng?"
+msgstr "この投稿を削除してもよろしいですか?"
+
+msgid "Báº¡n cÃ³ cháº¯c cháº¯n muá»n xÃ³a phÆ°Æ¡ng tiá»n nÃ y khÃ´ng?"
+msgstr "このメディアを削除してもよろしいですか?"
+
+msgid "Báº¡n cÃ³ cháº¯c cháº¯n muá»n xÃ³a tin nháº¯n nÃ y khÃ´ng?"
+msgstr "このメッセージを削除してもよろしいですか?"
+
+msgid "Báº¡n cÃ³ cháº¯c cháº¯n muá»n xÃ³a tÃ i khoáº£n?"
+msgstr "アカウントを削除してもよろしいですか?"
+
+msgid "Báº¡n cÃ³ cháº¯c cháº¯n muá»n ÄÄng xuáº¥t khá»i thiáº¿t bá» nÃ y?"
+msgstr "このデバイスからサインアウトしてもよろしいですか?"
+
+msgid ""
+"Báº¡n cÃ³ cháº¯c muá»n xÃ³a cuá»c trÃ² chuyá»n nÃ y? HÃ nh Äá»ng nÃ y "
+"khÃ´ng thá» hoÃ n tÃ¡c."
+msgstr "この会話を削除してもよろしいですか?この操作は元に戻すことができません。"
+
+msgid ""
+"Báº¡n cÃ³ cháº¯c muá»n ÄÄng xuáº¥t khá»i tÃ i khoáº£n trÃªn thiáº¿t bá»"
+" nÃ y?"
+msgstr "この製品を取り除く方法はありますか?"
+
+msgid "Báº¡n cÃ³ thá» chá»n nhiá»u áº£nh hoáº·c video cÃ¹ng lÃºc."
+msgstr "複数の写真またはビデオを同時に選択できます。"
+
+msgid ""
+"Báº¡n cÃ³ thá» ÄÄng nháº­p vÃ o Moora báº±ng máº­t kháº©u má»i ngay bÃ¢y"
+" giá»."
+msgstr "あなたはたくさんのお金を持っています、そしてムーラはこの価格でかなりの量の血を売っています。"
+
+msgid "Báº¡n khÃ´ng cÃ³ quyá»n chá»nh sá»­a bÃ i viáº¿t nÃ y."
+msgstr "この記事を編集する権限がありません。"
+
+msgid "Báº¡n khÃ´ng cÃ³ quyá»n xÃ³a bÃ i viáº¿t nÃ y."
+msgstr "この投稿を削除する権限がありません。"
+
+msgid "Báº¡n khÃ´ng cÃ³ thÃ´ng bÃ¡o nÃ o"
+msgstr "通知はありません"
+
+msgid "Báº¡n khÃ´ng cÃ³ thÃ´ng bÃ¡o nÃ o."
+msgstr "通知はありません。"
+
+msgid "Báº¡n luÃ´n cÃ³ thá» ÄÄng nháº­p láº¡i báº¥t cá»© lÃºc nÃ o."
+msgstr "ライスペーパーの販売は随時行っております。"
+
+msgid ""
+"Báº¡n sáº½ khÃ´ng tháº¥y bÃ i viáº¿t cá»§a há» vÃ há» khÃ´ng thá» tÆ°Æ¡ng"
+" tÃ¡c vá»i báº¡n."
+msgstr "彼らの投稿は表示されず、あなたと対話することもできません。"
+
+msgid "Báº¡n Äang nghÄ© gÃ¬?"
+msgstr "何を考えているのですか？"
+
+msgid ""
+"Báº¡n Äang ÄÄng nháº­p vá»i <strong>@%(var)s</strong>. Báº¡n cÃ³ cháº¯c "
+"muá»n rá»i khá»i Moora trÃªn thiáº¿t bá» nÃ y?"
+msgstr "<strong>@%(var)s</strong> を使用できます。このフォームで Moora についてご質問はありますか?"
+
+msgid "Báº¡n ÄÃ£ cháº·n"
+msgstr "ブロックしました"
+
+msgid ""
+"Báº¡n ÄÃ£ gá»­i Äá»§ %(var)s tin. Chá» ngÆ°á»i nháº­n cháº¥p nháº­n "
+"Äá» nháº¯n tiáº¿p."
+msgstr "%(var)s を数えています。ご了承いただける場合は、ご了承ください。"
+
+msgid ""
+"Báº¡n ÄÃ£ tá»« chá»i quyá»n vá» trÃ­. Chá» dÃ¹ng vá» trÃ­ theo IP."
+msgstr "今まで待たなければなりません。 IPによる更新には使用できません。"
+
+msgid "Báº¡n ÄÃ£ xem háº¿t thÃ´ng bÃ¡o"
+msgstr "すべてのニュースを見ることができます"
+
+msgid "Báº¡n ÄÃ£ xem háº¿t táº¥t cáº£ bÃ i viáº¿t"
+msgstr "すべての記事を読みました"
+
+msgid "Báº¡n:"
+msgstr "友人:"
+
+msgid "Báº£n Äá»"
+msgstr "バーンア»"
+
+msgid "Báº£ng tin"
+msgstr "掲示板"
+
+msgid "Báº£o máº­t"
+msgstr "安全"
+
+msgid "Báº­t thÃ´ng bÃ¡o"
+msgstr "ほぼ毎月"
+
+msgid "Báº¯t Äáº§u cuá»c trÃ² chuyá»n..."
+msgstr "会話を始めてください..."
+
+msgid "Báº¯t Äáº§u trÃ² chuyá»n vá»i báº¡n bÃ¨ ngay hÃ´m nay"
+msgstr "今日から友達とチャットを始めましょう"
+
+msgid "Bá» cháº·n tá»« %(date)s"
+msgstr "%(date)s からブロックされました"
+
+msgid "Bá» cháº·n tá»« %(var)s"
+msgstr "Ba» cháº·n ta»« %(var)s"
+
+msgid "Bá» cháº·n"
+msgstr "ブロックを解除する"
+
+msgid "Bá» ghim"
+msgstr "バ»ピン"
+
 msgid "Bình luận"
 msgstr "コメント"
+
+msgid "Bình luận 24h"
+msgstr "コメント24時間"
+
+msgid "Bước cuối"
+msgstr "最終ステップ"
 
 msgid "Bạn chưa chặn người dùng nào."
 msgstr "まだユーザーをブロックしていません。"
 
 msgid "Bạn chưa lưu bài viết nào."
 msgstr "まだ投稿を保存していません。"
+
+msgid "Bạn chắc muốn rời nhóm này?"
+msgstr "このグループを退会してもよろしいですか?"
 
 msgid "Bạn có chắc chắn muốn bỏ chặn"
 msgstr "ブロックを解除してもよろしいですか"
@@ -91,8 +355,14 @@ msgid ""
 "Bạn có chắc muốn xóa cuộc trò chuyện này? Hành động này không thể hoàn tác."
 msgstr "この会話を削除してもよろしいですか?この操作は元に戻すことができません。"
 
+msgid "Bạn có chắc muốn đăng xuất khỏi tài khoản trên thiết bị này?"
+msgstr "このデバイスのアカウントからサインアウトしてもよろしいですか?"
+
 msgid "Bạn có thể chọn nhiều ảnh hoặc video cùng lúc."
 msgstr "複数の写真またはビデオを同時に選択できます。"
+
+msgid "Bạn có thể đăng nhập vào Moora bằng mật khẩu mới ngay bây giờ."
+msgstr "新しいパスワードを使用して Moora にログインできるようになりました。"
 
 msgid "Bạn không có quyền chỉnh sửa bài viết này."
 msgstr "この記事を編集する権限がありません。"
@@ -106,14 +376,31 @@ msgstr "通知はありません"
 msgid "Bạn không có thông báo nào."
 msgstr "通知はありません。"
 
+msgid "Bạn luôn có thể đăng nhập lại bất cứ lúc nào."
+msgstr "いつでも再度ログインできます。"
+
 msgid "Bạn sẽ không thấy bài viết của họ và họ không thể tương tác với bạn."
 msgstr "彼らの投稿は表示されず、あなたと対話することもできません。"
 
 msgid "Bạn đang nghĩ gì?"
 msgstr "何を考えているのですか？"
 
+msgid ""
+"Bạn đang đăng nhập với <strong>@%(name)s</strong>. Bạn có chắc muốn rời khỏi"
+" Moora trên thiết bị này?"
+msgstr "<strong>@%(name)s</strong> としてログインしています。 Moora をこのデバイス上に残してもよろしいですか?"
+
 msgid "Bạn đã chặn"
 msgstr "ブロックしました"
+
+msgid "Bạn đã gửi đủ %(max)s tin. Chờ người nhận chấp nhận để nhắn tiếp."
+msgstr "十分な %(max)s メッセージを送信しました。受信者がメッセージの送信を続行することを受け入れるまで待ちます。"
+
+msgid "Bạn đã từ chối quyền vị trí. Chỉ dùng vị trí theo IP."
+msgstr "位置情報の許可を拒否しました。 IP による位置情報のみを使用します。"
+
+msgid "Bạn đã xem hết thông báo"
+msgstr "すべての通知を確認しました"
 
 msgid "Bạn đã xem hết tất cả bài viết"
 msgstr "すべての記事を読みました"
@@ -121,11 +408,17 @@ msgstr "すべての記事を読みました"
 msgid "Bạn:"
 msgstr "友人:"
 
+msgid "Bản đồ"
+msgstr "地図"
+
 msgid "Bảng tin"
 msgstr "掲示板"
 
 msgid "Bảo mật"
 msgstr "安全"
+
+msgid "Bật thông báo"
+msgstr "通知をオン"
 
 msgid "Bắt đầu cuộc trò chuyện..."
 msgstr "会話を始めてください..."
@@ -139,14 +432,212 @@ msgstr "%(date)s からブロックされました"
 msgid "Bỏ chặn"
 msgstr "ブロックを解除する"
 
+msgid "Bỏ ghim"
+msgstr "ピンを外す"
+
+msgid "Chi tiáº¿t cuá»c trÃ² chuyá»n"
+msgstr "チャットの詳細"
+
 msgid "Chi tiết cuộc trò chuyện"
 msgstr "チャットの詳細"
+
+msgid "Chia sáº» giá»i tÃ­nh trÃªn trang cÃ¡ nhÃ¢n"
+msgstr "ページ上で商品の価格を共有します。"
+
+msgid "Chia sáº» ngÃ y sinh trÃªn trang cÃ¡ nhÃ¢n"
+msgstr "自分のページで誕生日を共有する"
+
+msgid "Chia sẻ giới tính trên trang cá nhân"
+msgstr "自分の性別を個人ページで共有する"
+
+msgid "Chia sẻ ngày sinh trên trang cá nhân"
+msgstr "個人ページで生年月日を共有する"
+
+msgid ""
+"ChÃ o báº¡n tá»« %(var)s! Báº¡n nháº­n ÄÆ°á»£c email nÃ y vÃ¬ báº¡n hoáº·c "
+"ai ÄÃ³ ÄÃ£ yÃªu cáº§u Äáº·t láº¡i máº­t kháº©u cho tÃ i khoáº£n cá»§a "
+"báº¡n. Náº¿u ÄÃ¢y khÃ´ng pháº£i lÃ báº¡n, báº¡n cÃ³ thá» bá» qua email nÃ"
+" y. Äá» Äáº·t láº¡i máº­t kháº©u, vui lÃ²ng nháº¥p vÃ o liÃªn káº¿t bÃªn "
+"dÆ°á»i:"
+msgstr ""
+"%(var)s "
+"をチェックしてください!このメールを受け入れて、必要とする人に販売する必要があります。バーン。そうでない場合は、このメールでご連絡ください。とてもクールなので、ここをクリックしてここをクリックしてください:"
+
+msgid "ChÃ o má»«ng trá» láº¡i!"
+msgstr "おかえり！"
+
+msgid "ChÃ­nh sÃ¡ch báº£o máº­t"
+msgstr "プライバシーポリシー"
+
+msgid "ChÃ­nh sÃ¡ch quyá»n riÃªng tÆ°"
+msgstr "個別の政策立案"
+
+msgid "ChÃºng tÃ´i sáº½ gá»­i liÃªn káº¿t Äáº·t láº¡i máº­t kháº©u."
+msgstr "私たちはあなたにたくさんのお金をあげるつもりです。"
+
+msgid "ChÆ°a cÃ³ ai theo dÃµi %(username)s."
+msgstr "まだ誰も %(username)s をフォローしていません。"
+
+msgid "ChÆ°a cÃ³ ai theo dÃµi %(var)s."
+msgstr "誰も %(var)s をフォローしていません。"
+
+msgid "ChÆ°a cÃ³ bÃ i viáº¿t nÃ o ÄÆ°á»£c chia sáº»."
+msgstr "まだ共有された投稿はありません。"
+
+msgid "ChÆ°a cÃ³ bÃ i viáº¿t nÃ o Äá» hiá»n thá»"
+msgstr "表示する投稿はまだありません"
+
+msgid "ChÆ°a cÃ³ bÃ i viáº¿t nÃ o."
+msgstr "まだ投稿はありません。"
+
+msgid "ChÆ°a cÃ³ cuá»c trÃ² chuyá»n nÃ o"
+msgstr "まだ会話はありません"
+
+msgid "ChÆ°a cÃ³ tin nháº¯n"
+msgstr "まだメッセージはありません"
+
+msgid "ChÆ°a cÃ³ tin nháº¯n nÃ o"
+msgstr "まだメッセージはありません"
+
+msgid "ChÆ°a cÃ³ tÃ i khoáº£n máº¡ng xÃ£ há»i nÃ o ÄÆ°á»£c liÃªn káº¿t."
+msgstr "リンクされているソーシャル メディア アカウントはまだありません。"
+
+msgid "ChÆ°a cÃ³ tÃ i khoáº£n?"
+msgstr "まだアカウントをお持ちでない場合は、"
+
+msgid "ChÆ°a cáº­p nháº­t"
+msgstr "まだ更新されていません"
+
+msgid ""
+"Chào bạn từ %(site_name)s! Bạn nhận được email này vì bạn hoặc ai đó đã yêu "
+"cầu đặt lại mật khẩu cho tài khoản của bạn. Nếu đây không phải là bạn, bạn "
+"có thể bỏ qua email này. Để đặt lại mật khẩu, vui lòng nhấp vào liên kết bên"
+" dưới:"
+msgstr ""
+"%(site_name)s "
+"からこんにちは!このメールは、あなたまたは他の誰かがあなたのアカウントのパスワードのリセットをリクエストしたために受信しました。これがあなたではない場合は、このメールを無視していただいて大丈夫です。パスワードをリセットするには、以下のリンクをクリックしてください。"
 
 msgid "Chào mừng trở lại!"
 msgstr "おかえり！"
 
+msgid "Cháº¥p nháº­n"
+msgstr "それをチェックしてください"
+
+msgid ""
+"Cháº¥p nháº­n Äá» chuyá»n vÃ o há»p thÆ° chÃ­nh. Tá»« chá»i sáº½ áº©n "
+"cuá»c trÃ² chuyá»n nÃ y."
+msgstr "ここをクリックしてメインの場所に切り替えてください。この移行の結果はどうなるのでしょうか?"
+
+msgid "Cháº·n"
+msgstr "ブロック"
+
+msgid "Cháº·n má»i (7 ngÃ y)"
+msgstr "母の日（7日間）"
+
+msgid "Cháº¿ Äá» mÃ u"
+msgstr "それをチェックしてください"
+
+msgid "Cháº¿ Äá» xem"
+msgstr "見てみましょう"
+
+msgid "Cháº¿ Äá» xem báº£ng tin"
+msgstr "掲示板ビュー"
+
+msgid "Chá» há» trá»£ Facebook, Twitter/X, Instagram vÃ LinkedIn."
+msgstr "Facebook、Twitter/X、Instagram、LinkedIn のみをサポートします。"
+
+msgid "Chá» mÃ¬nh báº¡n xem ÄÆ°á»£c"
+msgstr "画面を見てみましょう"
+
+msgid "Chá» mÃ¬nh tÃ´i"
+msgstr "ごめんなさい"
+
+msgid "Chá» ngÆ°á»i theo dÃµi ÄÃ£ duyá»t má»i xem ÄÆ°á»£c"
+msgstr "このビデオはここでしか見ることができません。"
+
+msgid ""
+"Chá» nhá»¯ng ngÆ°á»i theo dÃµi má»i cÃ³ thá» xem bÃ i viáº¿t cá»§a tÃ i "
+"khoáº£n nÃ y. HÃ£y theo dÃµi Äá» xem ná»i dung."
+msgstr "では、この講座の結果を見てみましょう。リンクをクリックして内容をご覧ください。"
+
+msgid "Chá»nh há» sÆ¡, máº­t kháº©u, xÃ³a / khÃ´i phá»¥c tÃ i khoáº£n."
+msgstr "何が間違っている、何が間違っている、何が起こっているのですか？"
+
+msgid "Chá»nh khung áº£nh Äáº¡i diá»n"
+msgstr "フレームを固定するにはどうすればよいですか？"
+
+msgid "Chá»nh sá»­a"
+msgstr "編集"
+
+msgid "Chá»nh sá»­a bÃ i viáº¿t"
+msgstr "記事を編集する"
+
+msgid "Chá»nh sá»­a há» sÆ¡"
+msgstr "プロフィールの編集"
+
+msgid ""
+"Chá»n cháº¿ Äá» sÃ¡ng, tá»i hoáº·c theo há» thá»ng. TÃ¹y chá»n "
+"ÄÆ°á»£c lÆ°u trÃªn thiáº¿t bá» nÃ y."
+msgstr "さまざまな方法で変化および再生します。ここではそうではありません。"
+
+msgid ""
+"Chá»n cÃ¡c tÃ¹y chá»n quyá»n riÃªng tÆ° báº±ng cÃ¡ch báº­t/táº¯t cÃ´ng "
+"táº¯c bÃªn dÆ°á»i."
+msgstr "下のスイッチを切り替えて、プライバシー オプションを選択します。"
+
+msgid ""
+"Chá»n email hoáº·c sá» Äiá»n thoáº¡i ÄÃ£ liÃªn káº¿t vá»i tÃ i "
+"khoáº£n. SÄT há» trá»£ má»i quá»c gia."
+msgstr "キーを削除するためにファイルを電子メールで送信しないでください。セットも悪くない。"
+
+msgid "Chá»n giao diá»n"
+msgstr "通信しないでください"
+
+msgid "Chá»n giá»i tÃ­nh"
+msgstr "性別を選択してください"
+
+msgid "Chá»n lÃ½ do"
+msgstr "理由を選択してください"
+
+msgid ""
+"Chá»n mÃ£ quá»c gia rá»i nháº­p sá» Äiá»n thoáº¡i (há» trá»£ má»i "
+"quá»c gia)."
+msgstr "国コードを選択し、電話番号を入力します (すべての国をサポート)。"
+
+msgid ""
+"Chá»n mÃ£ quá»c gia rá»i nháº­p sá» â há» trá»£ má»i quá»c gia."
+msgstr "値段が安すぎるのですが、値段が安すぎます。"
+
+msgid ""
+"Chá»n máº­t kháº©u máº¡nh vÃ dá» nhá» vá»i báº¡n. Sau ÄÃ³ báº¡n cÃ³ "
+"thá» ÄÄng nháº­p láº¡i ngay."
+msgstr "それはかなり血に飢えていて、対処するのは簡単です。その後、すぐにボタンをクリックする必要があります。"
+
+msgid "Chá»n má»t má»¥c bÃªn trÃ¡i Äá» xem vÃ chá»nh cÃ i Äáº·t."
+msgstr "ここにあるコードを確認して確認してください。"
+
+msgid "Chá»n má»t má»¥c Äá» má» chi tiáº¿t."
+msgstr "詳細を確認してください。"
+
+msgid "Chá»n ngÃ y sinh cá»§a báº¡n"
+msgstr "生年月日を選択してください"
+
+msgid ""
+"Chá»n ngÃ´n ngá»¯ hiá»n thá» cho tÃ i khoáº£n cá»§a báº¡n. TÃ¹y chá»n nÃ"
+" y sáº½ ÄÆ°á»£c lÆ°u vÃ Ã¡p dá»¥ng má»i khi báº¡n ÄÄng nháº­p."
+msgstr "アカウントの表示言語を選択します。この設定は保存され、ログインするたびに適用されます。"
+
+msgid "Chá»n tÃªn ngÆ°á»i dÃ¹ng cá»§a báº¡n"
+msgstr "ユーザー名を決める"
+
 msgid "Chính sách bảo mật"
 msgstr "プライバシーポリシー"
+
+msgid "Chính sách quyền riêng tư"
+msgstr "プライバシーポリシー"
+
+msgid "Chúng tôi sẽ gửi liên kết đặt lại mật khẩu."
+msgstr "パスワードをリセットするリンクをお送りします。"
 
 msgid "Chưa có ai theo dõi %(username)s."
 msgstr "まだ誰も %(username)s をフォローしていません。"
@@ -178,14 +669,50 @@ msgstr "まだアカウントをお持ちでない場合は、"
 msgid "Chưa cập nhật"
 msgstr "まだ更新されていません"
 
+msgid "Chấp nhận"
+msgstr "受け入れる"
+
+msgid ""
+"Chấp nhận để chuyển vào hộp thư chính. Từ chối sẽ ẩn cuộc trò chuyện này."
+msgstr "メインメールボックスへの転送を承認します。拒否するとこの会話は非表示になります。"
+
 msgid "Chặn"
 msgstr "ブロック"
+
+msgid "Chặn mới (7 ngày)"
+msgstr "新しいブロック (7 日間)"
+
+msgid "Chế độ màu"
+msgstr "カラーモード"
+
+msgid "Chế độ xem"
+msgstr "ビューモード"
 
 msgid "Chế độ xem bảng tin"
 msgstr "掲示板ビュー"
 
 msgid "Chỉ hỗ trợ Facebook, Twitter/X, Instagram và LinkedIn."
 msgstr "Facebook、Twitter/X、Instagram、LinkedIn のみをサポートします。"
+
+msgid "Chỉ mình bạn xem được"
+msgstr "あなただけがそれを見ることができます"
+
+msgid "Chỉ mình tôi"
+msgstr "私だけ"
+
+msgid "Chỉ người theo dõi đã duyệt mới xem được"
+msgstr "承認されたフォロワーのみが閲覧できます"
+
+msgid ""
+"Chỉ những người theo dõi mới có thể xem bài viết của tài khoản này. Hãy theo"
+" dõi để xem nội dung."
+msgstr "このアカウントの投稿はフォロワーのみが閲覧できます。内容を楽しみにお待ちください。"
+
+msgid "Chỉnh hồ sơ, mật khẩu, xóa / khôi phục tài khoản."
+msgstr "プロフィール、パスワードの編集、アカウントの削除/復元。"
+
+msgid "Chỉnh khung ảnh đại diện"
+msgstr "代表画像フレームを調整する"
 
 msgid "Chỉnh sửa"
 msgstr "編集"
@@ -196,8 +723,21 @@ msgstr "記事を編集する"
 msgid "Chỉnh sửa hồ sơ"
 msgstr "プロフィールの編集"
 
+msgid ""
+"Chọn chế độ sáng, tối hoặc theo hệ thống. Tùy chọn được lưu trên thiết bị "
+"này."
+msgstr "ライト、ダーク、またはシステム モードを選択します。設定はこのデバイスに保存されます。"
+
 msgid "Chọn các tùy chọn quyền riêng tư bằng cách bật/tắt công tắc bên dưới."
 msgstr "下のスイッチを切り替えて、プライバシー オプションを選択します。"
+
+msgid ""
+"Chọn email hoặc số điện thoại đã liên kết với tài khoản. SĐT hỗ trợ mọi quốc"
+" gia."
+msgstr "アカウントに関連付けられている電子メールまたは電話番号を選択します。電話番号はすべての国をサポートしています。"
+
+msgid "Chọn giao diện"
+msgstr "インターフェースの選択"
 
 msgid "Chọn giới tính"
 msgstr "性別を選択してください"
@@ -207,6 +747,19 @@ msgstr "理由を選択してください"
 
 msgid "Chọn mã quốc gia rồi nhập số điện thoại (hỗ trợ mọi quốc gia)."
 msgstr "国コードを選択し、電話番号を入力します (すべての国をサポート)。"
+
+msgid "Chọn mã quốc gia rồi nhập số — hỗ trợ mọi quốc gia."
+msgstr "国コードを選択して番号を入力します。すべての国がサポートされています。"
+
+msgid ""
+"Chọn mật khẩu mạnh và dễ nhớ với bạn. Sau đó bạn có thể đăng nhập lại ngay."
+msgstr "強力で覚えやすいパスワードを選択してください。その後、すぐに再度ログインできます。"
+
+msgid "Chọn một mục bên trái để xem và chỉnh cài đặt."
+msgstr "左側の項目を選択して、設定を表示および調整します。"
+
+msgid "Chọn một mục để mở chi tiết."
+msgstr "項目を選択して詳細を開きます。"
 
 msgid "Chọn ngày sinh của bạn"
 msgstr "生年月日を選択してください"
@@ -218,6 +771,77 @@ msgstr "アカウントの表示言語を選択します。この設定は保存
 
 msgid "Chọn tên người dùng của bạn"
 msgstr "ユーザー名を決める"
+
+msgid "Comment"
+msgstr "コメント"
+
+msgid "Comment Reply"
+msgstr "コメント返信"
+
+msgid "Cuá»c trÃ² chuyá»n"
+msgstr "変換プロセス"
+
+msgid "Cuộc gọi thoại"
+msgstr "音声通話"
+
+msgid "Cuộc gọi video"
+msgstr "ビデオ通話"
+
+msgid "Cuộc trò chuyện"
+msgstr "会話"
+
+msgid "CÃ i Äáº·t"
+msgstr "設定"
+
+msgid "CÃ i Äáº·t báº£o máº­t"
+msgstr "セキュリティ設定"
+
+msgid "CÃ i Äáº·t ngÃ´n ngá»¯"
+msgstr "言語設定"
+
+msgid "CÃ i Äáº·t quyá»n riÃªng tÆ°"
+msgstr "プライバシー設定"
+
+msgid "CÃ i Äáº·t thÃ´ng bÃ¡o"
+msgstr "通知設定"
+
+msgid "CÃ i Äáº·t tÃ i khoáº£n"
+msgstr "アカウント設定"
+
+msgid "CÃ¡ nhÃ¢n"
+msgstr "できる"
+
+msgid ""
+"CÃ¡ch chÃºng tÃ´i thu tháº­p, dÃ¹ng vÃ báº£o vá» dá»¯ liá»u cá»§a báº¡n."
+msgstr "原料を収集し、使用し、販売します。"
+
+msgid "CÃ¢u há»i thÆ°á»ng gáº·p vÃ hÆ°á»ng dáº«n dÃ¹ng Moora."
+msgstr "ムーラには使える場所や場所がたくさんあります。"
+
+msgid ""
+"CÃ²n %(var)s/%(var)s tin nháº¯n trÆ°á»c khi ngÆ°á»i nháº­n cháº¥p nháº­n."
+msgstr "ユーザーがメッセージを受信したときにそれを受信するには、%(var)s/%(var)s が必要です。"
+
+msgid "CÃ³ lá»i xáº£y ra khi cáº­p nháº­t bÃ i viáº¿t."
+msgstr "投稿の更新中にエラーが発生しました。"
+
+msgid "CÃ³ lá»i xáº£y ra khi táº£i danh sÃ¡ch ngÆ°á»i theo dÃµi."
+msgstr "フォロワー リストの読み込み中にエラーが発生しました。"
+
+msgid "CÃ³ lá»i xáº£y ra khi táº£i danh sÃ¡ch Äang theo dÃµi."
+msgstr "追跡リストのロード中にエラーが発生しました。"
+
+msgid "CÃ³ lá»i xáº£y ra khi xoÃ¡ bÃ i viáº¿t."
+msgstr "投稿の削除中にエラーが発生しました。"
+
+msgid "CÃ³ lá»i xáº£y ra khi xÃ³a bÃ i viáº¿t."
+msgstr "投稿の削除中にエラーが発生しました。"
+
+msgid "CÃ³ thá» dÃ¹ng tÃªn nÃ y"
+msgstr "この名前はどのように使用できますか?"
+
+msgid "CÃ´ng khai"
+msgstr "も宣言します"
 
 msgid "Cài đặt"
 msgstr "設定"
@@ -237,6 +861,32 @@ msgstr "通知設定"
 msgid "Cài đặt tài khoản"
 msgstr "アカウント設定"
 
+msgid "Cá nhân"
+msgstr "個人"
+
+msgid "Cách chúng tôi thu thập, dùng và bảo vệ dữ liệu của bạn."
+msgstr "当社がお客様のデータをどのように収集、使用、保護するか。"
+
+msgid ""
+"Cáº£m Æ¡n báº¡n ÄÃ£ bÃ¡o cÃ¡o. ChÃºng tÃ´i sáº½ xem xÃ©t ná»i dung nÃ y "
+"trong thá»i gian sá»m nháº¥t."
+msgstr "ご報告ありがとうございます。できるだけ早くこの内容を確認させていただきます。"
+
+msgid "Cáº£nh bÃ¡o"
+msgstr "警告"
+
+msgid "Cáº§n Ã­t nháº¥t 3 kÃ½ tá»±"
+msgstr "多くても3ダース"
+
+msgid "Cáº­p nháº­t vá» trÃ­ chÃ­nh xÃ¡c (GPS)"
+msgstr "正確な信号 (GPS)"
+
+msgid "Câu hỏi thường gặp và hướng dẫn dùng Moora."
+msgstr "Moora の使用に関するよくある質問と説明。"
+
+msgid "Còn %(remaining)s/%(max)s tin nhắn trước khi người nhận chấp nhận."
+msgstr "受信者が受け入れるまでに %(remaining)s/%(max)s 個のメッセージが残っています。"
+
 msgid "Có lỗi xảy ra khi cập nhật bài viết."
 msgstr "投稿の更新中にエラーが発生しました。"
 
@@ -252,6 +902,12 @@ msgstr "投稿の削除中にエラーが発生しました。"
 msgid "Có lỗi xảy ra khi xóa bài viết."
 msgstr "投稿の削除中にエラーが発生しました。"
 
+msgid "Có thể dùng tên này"
+msgstr "この名前は使用できます"
+
+msgid "Công khai"
+msgstr "公共"
+
 msgid ""
 "Cảm ơn bạn đã báo cáo. Chúng tôi sẽ xem xét nội dung này trong thời gian sớm"
 " nhất."
@@ -260,8 +916,47 @@ msgstr "ご報告ありがとうございます。できるだけ早くこの内
 msgid "Cảnh báo"
 msgstr "警告"
 
-msgid "Dành cho bạn"
+msgid "Cần ít nhất 3 ký tự"
+msgstr "少なくとも 3 文字が必要です"
+
+msgid "Cập nhật vị trí chính xác (GPS)"
+msgstr "正確な位置情報の更新 (GPS)"
+
+msgid "DÃ nh cho báº¡n"
 msgstr "あなたのために"
+
+msgid "DÃ¡n URL Äáº§y Äá»§. Äá» trá»ng náº¿u khÃ´ng dÃ¹ng."
+msgstr "URL「Äáº§y Äá»§」を入力します。氷はもう使われていません。"
+
+msgid "DÃ¹ng #hashtag hoáº·c @tag ngÆ°á»i Äang follow..."
+msgstr "#ハッシュタグを付けてフォローしてください..."
+
+msgid "DÃ¹ng email / SÄT khÃ¡c"
+msgstr "他の電子メール/電話番号を使用する"
+
+msgid "DÃ¹ng vá» trÃ­ hiá»n táº¡i"
+msgstr "使用とサポート"
+
+msgid "DÃ¹ng áº£nh nÃ y"
+msgstr "このライトを使ってください"
+
+msgid "Dành cho bạn"
+msgstr "おすすめ"
+
+msgid "Dán URL đầy đủ. Để trống nếu không dùng."
+msgstr "完全な URL を貼り付けます。使用しない場合は空白のままにしてください。"
+
+msgid "Dùng #hashtag hoặc @tag người đang follow..."
+msgstr "フォローしている人に #ハッシュタグ または @タグ を使用します..."
+
+msgid "Dùng email / SĐT khác"
+msgstr "別のメールアドレス/電話番号を使用する"
+
+msgid "Dùng vị trí hiện tại"
+msgstr "現在地を使用する"
+
+msgid "Dùng ảnh này"
+msgstr "この写真を使用してください"
 
 msgid "Email"
 msgstr "電子メール"
@@ -269,14 +964,152 @@ msgstr "電子メール"
 msgid "Email / Gmail"
 msgstr "電子メール/Gmail"
 
+msgid ""
+"Email vÃ SÄT dÃ¹ng Äá» báº£o máº­t / khÃ´i phá»¥c tÃ i khoáº£n. Äá»i "
+"qua xÃ¡c thá»±c OTP."
+msgstr "パスワードを販売/発見するための電子メールと電話番号。 OTP経由でOTPを確認します。"
+
+msgid ""
+"Email và SĐT dùng để bảo mật / khôi phục tài khoản. Đổi qua xác thực OTP."
+msgstr "電子メールと電話番号はアカウントのセキュリティ/回復のために使用されます。 OTP認証に変更します。"
+
+msgid "Email ÄÃ£ ÄÆ°á»£c gá»­i"
+msgstr "「女の子」にメールしてください"
+
+msgid "Email đã được gửi"
+msgstr "メールが送信されました"
+
+msgid "Female"
+msgstr "女性"
+
+msgid "File khÃ´ng ÄÆ°á»£c há» trá»£. Vui lÃ²ng chá»n áº£nh hoáº·c video."
+msgstr "ファイルは同じではありません。ビデオをご覧ください。"
+
+msgid "File không được hỗ trợ. Vui lòng chọn ảnh hoặc video."
+msgstr "ファイルはサポートされていません。写真またはビデオを選択してください。"
+
+msgid "Follow"
+msgstr "フォローする"
+
+msgid "Follow Accepted"
+msgstr "フォロー承認済み"
+
+msgid "Follow Request"
+msgstr "フォローリクエスト"
+
+msgid "GPS"
+msgstr "GPS"
+
+msgid "Ghi nhá» ÄÄng nháº­p"
+msgstr "忘れずにログインしてください"
+
 msgid "Ghi nhớ đăng nhập"
 msgstr "忘れずにログインしてください"
+
+msgid "Ghi Ã¢m"
+msgstr "覚えておいてください"
+
+msgid "Ghi Ã¢m tin nháº¯n thoáº¡i"
+msgstr "伝言メッセージを録音する"
+
+msgid "Ghi âm"
+msgstr "記録"
+
+msgid "Ghi âm tin nhắn thoại"
+msgstr "音声メッセージを録音する"
+
+msgid "Ghim"
+msgstr "ピン留め"
+
+msgid "Giao diá»n"
+msgstr "コミュニケーション"
+
+msgid "Giao diá»n sÃ¡ng / tá»i"
+msgstr "お互いにコミュニケーションを取る"
+
+msgid "Giao diện"
+msgstr "インタフェース"
+
+msgid "Giao diện sáng / tối"
+msgstr "明暗インターフェース"
+
+msgid "Giá»i thiá»u"
+msgstr "価格が安い"
+
+msgid "Giá»i tÃ­nh"
+msgstr "セックス"
+
+msgid "Giá»¯ ghi Ã¢m Ã­t nháº¥t 1 giÃ¢y."
+msgstr "記録された価格は 1 秒未満です。"
+
+msgid "Giá»¯ máº­t kháº©u cá»§a báº¡n an toÃ n vÃ Äá»«ng chia sáº» vá»i ai."
+msgstr "安全で誰でもシェアできるので、お値段もリーズナブルです。"
+
+msgid "Giá»¯ vá» trÃ­ GPS cÅ© (chÃ­nh xÃ¡c hÆ¡n)."
+msgstr "価格と GPS 追跡が利用可能です (正確な場合のみ)。"
+
+msgid "Giới thiệu"
+msgstr "導入"
 
 msgid "Giới tính"
 msgstr "セックス"
 
+msgid "Giữ ghi âm ít nhất 1 giây."
+msgstr "少なくとも 1 秒間録音し続けます。"
+
+msgid "Giữ mật khẩu của bạn an toàn và đừng chia sẻ với ai."
+msgstr "パスワードは安全に保管し、誰とも共有しないでください。"
+
+msgid "Giữ vị trí GPS cũ (chính xác hơn)."
+msgstr "古い GPS 位置を保持します (より正確です)。"
+
+msgid "Gá»i thoáº¡i"
+msgstr "逃げる"
+
+msgid "Gá»i video"
+msgstr "ガイビデオ"
+
+msgid "Gá»¡ admin"
+msgstr "管理者様"
+
+msgid "Gá»­i bÃ¡o cÃ¡o"
+msgstr "レポートの提出"
+
+msgid "Gá»­i láº¡i email"
+msgstr "電子メールを送信する"
+
+msgid "Gá»­i láº¡i mÃ£"
+msgstr "この女の子は新人です"
+
+msgid "Gá»­i lá»i chÃ o Äá» báº¯t Äáº§u cuá»c trÃ² chuyá»n"
+msgstr "会話を始めるには挨拶をしましょう"
+
+msgid "Gá»­i tin nháº¯n"
+msgstr "メッセージを送信する"
+
+msgid "Gá»­i tin nháº¯n thoáº¡i"
+msgstr "女の子はセックスを信じている"
+
+msgid "Gá»­i tÃ³m táº¯t hÃ ng ngÃ y"
+msgstr "毎日の概要を送信する"
+
+msgid "Gọi thoại"
+msgstr "音声通話"
+
+msgid "Gọi video"
+msgstr "ビデオ通話"
+
+msgid "Gỡ admin"
+msgstr "管理者の削除"
+
 msgid "Gửi báo cáo"
 msgstr "レポートの提出"
+
+msgid "Gửi lại email"
+msgstr "メールを再送信する"
+
+msgid "Gửi lại mã"
+msgstr "コードを再送信する"
 
 msgid "Gửi lời chào để bắt đầu cuộc trò chuyện"
 msgstr "会話を始めるには挨拶をしましょう"
@@ -284,23 +1117,127 @@ msgstr "会話を始めるには挨拶をしましょう"
 msgid "Gửi tin nhắn"
 msgstr "メッセージを送信する"
 
+msgid "Gửi tin nhắn thoại"
+msgstr "音声メッセージを送信する"
+
 msgid "Gửi tóm tắt hàng ngày"
 msgstr "毎日の概要を送信する"
+
+msgid "Hate speech"
+msgstr "ヘイトスピーチ"
+
+msgid "Hiá»n máº­t kháº©u"
+msgstr "かなりクールです"
+
+msgid "Hiện mật khẩu"
+msgstr "パスワードを表示"
 
 msgid "Home"
 msgstr "家"
 
-msgid "Moora - Mạng xã hội chia sẻ khoảnh khắc"
-msgstr "Houshi - 瞬間を共有するためのソーシャル ネットワーク"
+msgid "HoÃ n tÃ¡c xÃ³a áº£nh"
+msgstr "構造を延期する"
+
+msgid "HoÃ n táº¥t"
+msgstr "完了"
+
+msgid "Hoàn tác xóa ảnh"
+msgstr "写真の削除を元に戻す"
+
+msgid "Hoàn tất"
+msgstr "完了"
+
+msgid "Hoáº¡t Äá»ng %(time)s trÆ°á»c"
+msgstr "オペレーション %(time)s 前"
+
+msgid "Hoáº¡t Äá»ng %(var)s trÆ°á»c"
+msgstr "化学物質 %(var)s in"
 
 msgid "Hoạt động %(time)s trước"
 msgstr "オペレーション %(time)s 前"
+
+msgid "HÃ ng Äá»£i bÃ¡o cÃ¡o bÃ i viáº¿t"
+msgstr "彼らはそれについて話し合わなければなりません。"
+
+msgid "HÃ ng Äá»£i bÃ¡o cÃ¡o ngÆ°á»i dÃ¹ng"
+msgstr "何人くらいの人が使っていますか？"
+
+msgid ""
+"HÃ£y má» email vÃ báº¥m vÃ o liÃªn káº¿t Äá» táº¡o máº­t kháº©u má»i. "
+"Äá»«ng quÃªn kiá»m tra cáº£ thÆ° má»¥c spam. Náº¿u báº¡n dÃ¹ng sá» "
+"Äiá»n thoáº¡i, hÃ£y quay láº¡i vÃ nháº­p SÄT Äá» nháº­n OTP."
+msgstr ""
+"詳細情報を取得するには、メールを開いてメールを更新してください。スパムマシンをチェックしてください。電話番号を使用する場合は、カードをダイヤルし、「設定」をタップして"
+" OTP を受信します。"
+
+msgid "HÃ¬nh áº£nh"
+msgstr "画像"
+
+msgid "HÃ´m nay"
+msgstr "今日"
+
+msgid ""
+"HÆ°á»ng dáº«n nhanh. Báº¥m tá»«ng chá»§ Äá» hoáº·c má» trang trá»£ giÃºp"
+" Äáº§y Äá»§."
+msgstr "すぐに終わりました。それを使ってお金を稼ぐことができます。"
+
+msgid "Hàng đợi báo cáo bài viết"
+msgstr "ポストレポートキュー"
+
+msgid "Hàng đợi báo cáo người dùng"
+msgstr "ユーザーレポートキュー"
+
+msgid "Há» thá»ng"
+msgstr "はぁ» た» ん"
+
+msgid "Há»"
+msgstr "はぁ»"
+
+msgid ""
+"Há» tÃªn vÃ tÃªn ngÆ°á»i dÃ¹ng dÃ¹ng Äá» má»i ngÆ°á»i tÃ¬m tháº¥y "
+"báº¡n."
+msgstr "何人くらいで利用したいですか？"
+
+msgid "Há» sÆ¡"
+msgstr "ファイル"
+
+msgid "Há»§y"
+msgstr "キャンセル"
+
+msgid "Há»§y liÃªn káº¿t %(name)s"
+msgstr "%(name)s のリンクを解除します"
+
+msgid "Há»§y liÃªn káº¿t %(var)s"
+msgstr "%(var)s の接続方法"
+
+msgid "Há»§y yÃªu cáº§u theo dÃµi"
+msgstr "これから何がしたいですか？"
+
+msgid ""
+"Hãy mở email và bấm vào liên kết để tạo mật khẩu mới. Đừng quên kiểm tra cả "
+"thư mục spam. Nếu bạn dùng số điện thoại, hãy quay lại và nhập SĐT để nhận "
+"OTP."
+msgstr ""
+"電子メールを開き、リンクをクリックして新しいパスワードを作成します。迷惑メールフォルダも忘れずにチェックしてください。電話番号を使用する場合は、戻って電話番号を入力して"
+" OTP を受信します。"
 
 msgid "Hình ảnh"
 msgstr "画像"
 
 msgid "Hôm nay"
 msgstr "今日"
+
+msgid "Hướng dẫn nhanh. Bấm từng chủ đề hoặc mở trang trợ giúp đầy đủ."
+msgstr "クイックガイド。各トピックをクリックするか、完全なヘルプ ページを開きます。"
+
+msgid "Hệ thống"
+msgstr "システム"
+
+msgid "Họ"
+msgstr "姓"
+
+msgid "Họ tên và tên người dùng dùng để mọi người tìm thấy bạn."
+msgstr "あなたのフルネームとユーザー名は、人々があなたを見つけやすくするために使用されます。"
 
 msgid "Hồ sơ"
 msgstr "ファイル"
@@ -311,12 +1248,55 @@ msgstr "キャンセル"
 msgid "Hủy liên kết %(name)s"
 msgstr "%(name)s のリンクを解除します"
 
+msgid "Hủy yêu cầu theo dõi"
+msgstr "追跡リクエストをキャンセルする"
+
+msgid "IP"
+msgstr "IP"
+
+msgid "If enabled, birth date is visible on your public profile."
+msgstr "有効にすると、公開プロフィールに生年月日が表示されます。"
+
+msgid "If enabled, gender is visible on your public profile."
+msgstr "有効にすると、公開プロフィールに性別が表示されます。"
+
+msgid "Image"
+msgstr "画像"
+
+msgid "Inappropriate content"
+msgstr "不適切なコンテンツ"
+
+msgid ""
+"Khi báº­t, báº¡n sáº½ cáº§n nháº­p mÃ£ xÃ¡c thá»±c tá»« á»©ng dá»¥ng (Google"
+" Authenticator, Authyâ¦) má»i khi ÄÄng nháº­p."
+msgstr ""
+"有効にすると、ログインするたびにアプリケーション (Google Authenticator、Authy...) "
+"から認証コードを入力する必要があります。"
+
 msgid ""
 "Khi bật, bạn sẽ cần nhập mã xác thực từ ứng dụng (Google Authenticator, "
 "Authy…) mỗi khi đăng nhập."
 msgstr ""
 "有効にすると、ログインするたびにアプリケーション (Google Authenticator、Authy...) "
 "から認証コードを入力する必要があります。"
+
+msgid ""
+"Khi cÃ³ ngÆ°á»i bÃ¬nh luáº­n bÃ i viáº¿t cá»§a báº¡n hoáº·c tráº£ lá»i "
+"bÃ¬nh luáº­n cá»§a báº¡n"
+msgstr "誰かがあなたの投稿にコメントしたとき、またはあなたのコメントに返信したとき"
+
+msgid "Khi cÃ³ ngÆ°á»i gá»­i tin nháº¯n cho báº¡n"
+msgstr "誰かがあなたにメッセージを送ったとき"
+
+msgid ""
+"Khi cÃ³ ngÆ°á»i nháº¯c Äáº¿n báº¡n trong bÃ i viáº¿t hoáº·c bÃ¬nh luáº­n"
+msgstr "誰かが投稿またはコメントであなたに言及したとき"
+
+msgid "Khi cÃ³ ngÆ°á»i theo dÃµi báº¡n"
+msgstr "誰かがあなたをフォローしたとき"
+
+msgid "Khi cÃ³ ngÆ°á»i thÃ­ch bÃ i viáº¿t hoáº·c bÃ¬nh luáº­n cá»§a báº¡n"
+msgstr "誰かがあなたの投稿やコメントに「いいね」をしたとき"
 
 msgid "Khi có người bình luận bài viết của bạn hoặc trả lời bình luận của bạn"
 msgstr "誰かがあなたの投稿にコメントしたとき、またはあなたのコメントに返信したとき"
@@ -333,11 +1313,102 @@ msgstr "誰かがあなたをフォローしたとき"
 msgid "Khi có người thích bài viết hoặc bình luận của bạn"
 msgstr "誰かがあなたの投稿やコメントに「いいね」をしたとき"
 
+msgid "Khi ngÆ°á»i láº¡ nháº¯n tin, yÃªu cáº§u sáº½ hiá»n á» ÄÃ¢y."
+msgstr "相手がメッセージを受信すると、メッセージが表示されます。"
+
+msgid "Khi người lạ nhắn tin, yêu cầu sẽ hiện ở đây."
+msgstr "見知らぬ人がテキストメッセージを送信すると、リクエストがここに表示されます。"
+
+msgid "KhÃ¡c"
+msgstr "他の"
+
+msgid "KhÃ´i phá»¥c truy cáº­p"
+msgstr "狩猟や釣りを避ける"
+
+msgid "KhÃ´i phá»¥c tÃ i khoáº£n"
+msgstr "アカウントの回復"
+
+msgid ""
+"KhÃ´ng báº¯t buá»c. Báº­t chia sáº» náº¿u muá»n hiá»n trÃªn trang cÃ¡ "
+"nhÃ¢n."
+msgstr "証拠はありません。ページに表示したいシェアの数は何ですか?"
+
+msgid ""
+"KhÃ´ng cÃ³ thiáº¿t bá» nÃ o khÃ¡c ÄÄng nháº­p vÃ o tÃ i khoáº£n cá»§a "
+"báº¡n."
+msgstr "他のデバイスはあなたのアカウントにログインしていません。"
+
+msgid "KhÃ´ng cÃ³ thiáº¿t bá» ÄÄng nháº­p nÃ o ÄÆ°á»£c ghi nháº­n"
+msgstr "ログインしているデバイスは記録されません"
+
+msgid "KhÃ´ng cÃ³ tin nháº¯n chá»"
+msgstr "ニュースはありません"
+
+msgid "KhÃ´ng gá»­i ÄÆ°á»£c tin nháº¯n thoáº¡i"
+msgstr "テキストメッセージを怖がらないでください"
+
+msgid "KhÃ´ng lÆ°u ÄÆ°á»£c vá» trÃ­."
+msgstr "問題も問題もありません。"
+
+msgid ""
+"KhÃ´ng láº¥y ÄÆ°á»£c GPS. Thá»­ láº¡i hoáº·c kiá»m tra quyá»n vá» trÃ­."
+msgstr "GPS サポートはありません。捜査や捜査をデジタル化しましょう。"
+
+msgid "KhÃ´ng nháº­n ÄÆ°á»£c gÃ¬?"
+msgstr "気に入らないですか？"
+
+msgid "KhÃ´ng thá» báº¯t Äáº§u ghi Ã¢m."
+msgstr "何も記録することはできません。"
+
+msgid "KhÃ´ng thá» cáº¯t áº£nh. Thá»­ láº¡i vá»i áº£nh khÃ¡c."
+msgstr "わからない。他の人たちと話しましょう。"
+
+msgid ""
+"KhÃ´ng thá» gá»­i tin nháº¯n vÃ¬ má»t trong hai ngÆ°á»i ÄÃ£ cháº·n "
+"ngÆ°á»i cÃ²n láº¡i."
+msgstr "どちらかがもう一方をブロックしているため、メッセージを送信できません。"
+
+msgid "KhÃ´ng thá» há»§y liÃªn káº¿t tÃ i khoáº£n."
+msgstr "アカウントのリンクを解除することはできません。"
+
+msgid "KhÃ´ng thá» láº¥y vá» trÃ­ hiá»n táº¡i."
+msgstr "もうそれを修正することは不可能です。"
+
+msgid "KhÃ´ng thá» nháº¯n tin (ÄÃ£ cháº·n)"
+msgstr "テキストメッセージを送信できません（ブロックされています）"
+
+msgid ""
+"KhÃ´ng thá» truy cáº­p micro. HÃ£y cho phÃ©p quyá»n micro rá»i thá»­ "
+"láº¡i."
+msgstr "マイクにアクセスできません。すぐにマイクを制御する許可を与えましょう。"
+
+msgid ""
+"KhÃ´ng thá» truy cáº­p vá» trÃ­. Vui lÃ²ng cho phÃ©p quyá»n Äá»nh vá»."
+msgstr "問題を追跡することは不可能です。許可をお願いします。"
+
+msgid "KhÃ´ng thá» Äáº·t láº¡i"
+msgstr "問題ない"
+
+msgid "KhÃ´ng thá»±c hiá»n ÄÆ°á»£c. Thá»­ láº¡i."
+msgstr "理解できません。それは» 残します。"
+
+msgid "KhÃ´ng tÃ¬m tháº¥y bÃ i viáº¿t."
+msgstr "記事が見つかりませんでした。"
+
+msgid "KhÃ´ng tÃ¬m tháº¥y ngÆ°á»i dÃ¹ng phÃ¹ há»£p."
+msgstr "毎日部屋を利用しないでください。"
+
 msgid "Khác"
 msgstr "他の"
 
+msgid "Khôi phục truy cập"
+msgstr "アクセスを復元する"
+
 msgid "Khôi phục tài khoản"
 msgstr "アカウントの回復"
+
+msgid "Không bắt buộc. Bật chia sẻ nếu muốn hiện trên trang cá nhân."
+msgstr "オプション。自分の個人ページに表示したい場合は、共有をオンにしてください。"
 
 msgid "Không có thiết bị nào khác đăng nhập vào tài khoản của bạn."
 msgstr "他のデバイスはあなたのアカウントにログインしていません。"
@@ -345,20 +1416,133 @@ msgstr "他のデバイスはあなたのアカウントにログインしてい
 msgid "Không có thiết bị đăng nhập nào được ghi nhận"
 msgstr "ログインしているデバイスは記録されません"
 
+msgid "Không có tin nhắn chờ"
+msgstr "待機中のメッセージはありません"
+
+msgid "Không gửi được tin nhắn thoại"
+msgstr "音声メッセージを送信できません"
+
+msgid "Không lưu được vị trí."
+msgstr "位置情報を保存できません。"
+
+msgid "Không lấy được GPS. Thử lại hoặc kiểm tra quyền vị trí."
+msgstr "GPSを取得できませんでした。もう一度試すか、位置情報の許可を確認してください。"
+
+msgid "Không nhận được gì?"
+msgstr "何も受け取れませんでしたか?"
+
+msgid "Không thể bắt đầu ghi âm."
+msgstr "録音を開始できません。"
+
+msgid "Không thể cắt ảnh. Thử lại với ảnh khác."
+msgstr "画像をトリミングすることはできません。別の写真でもう一度試してください。"
+
 msgid "Không thể gửi tin nhắn vì một trong hai người đã chặn người còn lại."
 msgstr "どちらかがもう一方をブロックしているため、メッセージを送信できません。"
 
 msgid "Không thể hủy liên kết tài khoản."
 msgstr "アカウントのリンクを解除することはできません。"
 
+msgid "Không thể lấy vị trí hiện tại."
+msgstr "現在位置を取得できません。"
+
 msgid "Không thể nhắn tin (đã chặn)"
 msgstr "テキストメッセージを送信できません（ブロックされています）"
+
+msgid "Không thể truy cập micro. Hãy cho phép quyền micro rồi thử lại."
+msgstr "マイクにアクセスできません。マイクのアクセス許可を許可して、もう一度お試しください。"
+
+msgid "Không thể truy cập vị trí. Vui lòng cho phép quyền định vị."
+msgstr "場所にアクセスできません。位置情報の許可を許可してください。"
+
+msgid "Không thể đặt lại"
+msgstr "リセットできません"
+
+msgid "Không thực hiện được. Thử lại."
+msgstr "できません。リトライ。"
 
 msgid "Không tìm thấy bài viết."
 msgstr "記事が見つかりませんでした。"
 
+msgid "Không tìm thấy người dùng phù hợp."
+msgstr "一致するユーザーは見つかりませんでした。"
+
+msgid "Kick"
+msgstr "キック"
+
+msgid "Kick %(name)s khỏi nhóm?"
+msgstr "%(name)s をグループから除外しますか?"
+
+msgid "Kick %(var)s khá»i nhÃ³m?"
+msgstr "%(var)s をかなりキックしますか?"
+
+msgid "Kiá»m tra há»p thÆ°"
+msgstr "それが本当かどうかを確認してください"
+
+msgid "Kiểm tra hộp thư"
+msgstr "メールボックスを確認してください"
+
+msgid "KÃ©o áº£nh Äá» Äáº·t vá» trÃ­"
+msgstr "Kéo áº£nh Äá» Äáº·t と"
+
+msgid "Káº¿t quáº£ sau"
+msgstr "それほど遠くないうちに"
+
+msgid "Káº¿t quáº£ trÆ°á»c"
+msgstr "もう手遅れです"
+
+msgid "Kéo thả hoặc chọn ảnh/video mới · tối đa 1GB/file"
+msgstr "ドラッグ アンド ドロップまたは新しい写真/ビデオを選択 · 最大 1GB/ファイル"
+
+msgid "Kéo ảnh để đặt vị trí"
+msgstr "写真をドラッグして位置を設定します"
+
+msgid "Kết quả sau"
+msgstr "以下の結果"
+
+msgid "Kết quả trước"
+msgstr "過去の結果"
+
+msgid "Kết thúc"
+msgstr "終わり"
+
+msgid "Like"
+msgstr "のように"
+
+msgid "LiÃªn káº¿t & máº¡ng xÃ£ há»i"
+msgstr "リンクとネットワークとは何ですか?"
+
+msgid "LiÃªn káº¿t háº¿t háº¡n"
+msgstr "リンクは利用できません"
+
+msgid "LiÃªn káº¿t máº¡ng xÃ£ há»i"
+msgstr "ソーシャルネットワークリンク"
+
+msgid ""
+"LiÃªn káº¿t nÃ y khÃ´ng há»£p lá» hoáº·c ÄÃ£ háº¿t háº¡n. HÃ£y yÃªu cáº§u "
+"má»t liÃªn káº¿t má»i Äá» tiáº¿p tá»¥c."
+msgstr "このつながりによって状況は変わりません。血を近づけてもらいましょう。"
+
+msgid ""
+"LiÃªn káº¿t ÄÃ£ ÄÆ°á»£c lÆ°u vÃ o Website. Chá» há» trá»£ Facebook, "
+"Twitter/X, Instagram vÃ LinkedIn trong danh sÃ¡ch máº¡ng xÃ£ há»i."
+msgstr ""
+"リンクはウェブサイトに保存されました。ソーシャル ネットワーク リストでは、Facebook、Twitter/X、Instagram、LinkedIn "
+"のみがサポートされています。"
+
+msgid "Liên kết & mạng xã hội"
+msgstr "リンクとソーシャルネットワーク"
+
+msgid "Liên kết hết hạn"
+msgstr "期限切れのリンク"
+
 msgid "Liên kết mạng xã hội"
 msgstr "ソーシャルネットワークリンク"
+
+msgid ""
+"Liên kết này không hợp lệ hoặc đã hết hạn. Hãy yêu cầu một liên kết mới để "
+"tiếp tục."
+msgstr "このリンクは無効であるか、有効期限が切れています。続行するには新しいリンクをリクエストしてください。"
 
 msgid ""
 "Liên kết đã được lưu vào Website. Chỉ hỗ trợ Facebook, Twitter/X, Instagram "
@@ -367,14 +1551,86 @@ msgstr ""
 "リンクはウェブサイトに保存されました。ソーシャル ネットワーク リストでは、Facebook、Twitter/X、Instagram、LinkedIn "
 "のみがサポートされています。"
 
+msgid "Loáº¡i file khÃ´ng ÄÆ°á»£c há» trá»£"
+msgstr "ファイルの削除は問題ありません。"
+
+msgid "Loáº¡i thÃ´ng bÃ¡o"
+msgstr "通知の種類"
+
+msgid "Loại file không được hỗ trợ"
+msgstr "サポートされていないファイル形式"
+
 msgid "Loại thông báo"
 msgstr "通知の種類"
+
+msgid "LÃ½ do bÃ¡o cÃ¡o"
+msgstr "報告理由"
+
+msgid "LÃ½ do xÃ³a tÃ i khoáº£n"
+msgstr "アカウント削除の理由"
+
+msgid "LÆ°u"
+msgstr "ルー"
+
+msgid "LÆ°u há» sÆ¡"
+msgstr "LÆ°u ha» sÆ¡"
+
+msgid "LÆ°u máº­t kháº©u má»i"
+msgstr "血はかなり良いです"
+
+msgid "LÆ°u ngÃ´n ngá»¯"
+msgstr "言語を保存する"
+
+msgid "LÆ°u thay Äá»i"
+msgstr "変更を保存する"
+
+msgid "LÆ°u thay Äá»i quyá»n riÃªng tÆ°"
+msgstr "プライバシーの変更を保存する"
+
+msgid "LÆ°u thay Äá»i thÃ´ng bÃ¡o"
+msgstr "通知の変更を保存する"
+
+msgid "LÆ°á»£t thÃ­ch"
+msgstr "いいね！"
+
+msgid "Lá»c thÃ´ng bÃ¡o"
+msgstr "ニュースを残します"
+
+msgid "Lá»i táº¯t kiá»m duyá»t"
+msgstr "そんなに悪くないよ"
+
+msgid "Lá»i khi gá»­i tin nháº¯n thoáº¡i"
+msgstr "女の子はいつセックスを信じますか?"
+
+msgid "Lá»i khi táº£i danh sÃ¡ch ngÆ°á»i theo dÃµi"
+msgstr "フォロワーリストの読み込みエラー"
+
+msgid "Lá»i khi táº£i danh sÃ¡ch Äang theo dÃµi"
+msgstr "追跡リストのロード中にエラーが発生しました"
+
+msgid "Lá»i khi táº£i lÃªn tá»p:"
+msgstr "ファイルのアップロード中にエラーが発生しました:"
+
+msgid "Lá»i káº¿t ná»i tá»i mÃ¡y chá»§. Vui lÃ²ng thá»­ láº¡i sau."
+msgstr "サーバーへの接続エラー。後でもう一度試してください。"
+
+msgid "Lá»i máº¡ng khi lÆ°u vá» trÃ­."
+msgstr "使用して成長するとクールダウンします。"
 
 msgid "Lý do báo cáo"
 msgstr "報告理由"
 
 msgid "Lý do xóa tài khoản"
 msgstr "アカウント削除の理由"
+
+msgid "Lưu"
+msgstr "保存"
+
+msgid "Lưu hồ sơ"
+msgstr "プロファイルの保存"
+
+msgid "Lưu mật khẩu mới"
+msgstr "新しいパスワードを保存する"
 
 msgid "Lưu ngôn ngữ"
 msgstr "言語を保存する"
@@ -391,6 +1647,15 @@ msgstr "通知の変更を保存する"
 msgid "Lượt thích"
 msgstr "いいね！"
 
+msgid "Lọc thông báo"
+msgstr "通知をフィルタリングする"
+
+msgid "Lối tắt kiểm duyệt"
+msgstr "検閲のショートカット"
+
+msgid "Lỗi khi gửi tin nhắn thoại"
+msgstr "音声メッセージ送信時のエラー"
+
 msgid "Lỗi khi tải danh sách người theo dõi"
 msgstr "フォロワーリストの読み込みエラー"
 
@@ -403,8 +1668,95 @@ msgstr "ファイルのアップロード中にエラーが発生しました:"
 msgid "Lỗi kết nối tới máy chủ. Vui lòng thử lại sau."
 msgstr "サーバーへの接続エラー。後でもう一度試してください。"
 
+msgid "Lỗi mạng khi lưu vị trí."
+msgstr "位置情報を保存するときにネットワークエラーが発生しました。"
+
+msgid "Male"
+msgstr "男"
+
+msgid "Mention"
+msgstr "言及"
+
 msgid "Menu"
 msgstr "メニュー"
+
+msgid "Message"
+msgstr "メッセージ"
+
+msgid "Moora - Máº¡ng xÃ£ há»i chia sáº» khoáº£nh kháº¯c"
+msgstr "Houshi - 瞬間を共有するためのソーシャル ネットワーク"
+
+msgid "Moora - Mạng xã hội chia sẻ khoảnh khắc"
+msgstr "Houshi - 瞬間を共有するためのソーシャル ネットワーク"
+
+msgid ""
+"Moora lÆ°u thiáº¿t bá» + vá» trÃ­ Äá» báº£o vá» tÃ i khoáº£n. Vá» trÃ­"
+" chÃ­nh xÃ¡c nháº¥t láº¥y tá»« GPS trÃ¬nh duyá»t (cáº§n báº¡n cho phÃ©p); "
+"náº¿u khÃ´ng sáº½ dÃ¹ng vá» trÃ­ theo IP (Äá» chÃ­nh xÃ¡c thÃ nh phá»)."
+msgstr ""
+"ムーラは良い子であり、子供でもあります。そして GPS ナビゲーション デバイス (顧客に販売)。使用しない場合は、IP で追跡する必要があります。"
+
+msgid ""
+"Moora lưu thiết bị + vị trí để bảo vệ tài khoản. Vị trí chính xác nhất lấy "
+"từ GPS trình duyệt (cần bạn cho phép); nếu không sẽ dùng vị trí theo IP (độ "
+"chính xác thành phố)."
+msgstr ""
+"Moora はアカウントを保護するためにデバイスと位置情報を保存します。ブラウザの GPS から取得された最も正確な位置 "
+"(許可が必要です);それ以外の場合は、IP 位置 (都市の精度) が使用されます。"
+
+msgid "Moora Äang closed beta â cáº§n mÃ£ má»i Äá» ÄÄng kÃ½."
+msgstr "Moora は現在クローズドベータ版ですが、まだオープンしています。"
+
+msgid "Moora đang closed beta — cần mã mời để đăng ký."
+msgstr "Moora はクローズド ベータ版です。サインアップするには招待コードが必要です。"
+
+msgid ""
+"MÃ£ 8 sá», hiá»u lá»±c 10 phÃºt. Sai quÃ¡ 5 láº§n sáº½ bá» khÃ³a táº¡m."
+msgstr "コード8時間、時間10分。葉の数が5枚というのは多すぎます。"
+
+msgid "MÃ£ má»i beta"
+msgstr "コードベータ版"
+
+msgid "MÃ£ xÃ¡c thá»±c"
+msgstr "コード=月±c"
+
+msgid "MÃ´ táº£ chi tiáº¿t"
+msgstr "詳細な説明"
+
+msgid "Máº­t kháº©u"
+msgstr "パスワード"
+
+msgid "Máº­t kháº©u má»i"
+msgstr "かなりクールです"
+
+msgid ""
+"Máº­t kháº©u má»i ÄÃ£ sáºµn sÃ ng. Báº¡n cÃ³ thá» ÄÄng nháº­p láº¡i "
+"ngay bÃ¢y giá»."
+msgstr "商品的にはかなりカッコいいです。この価格を利用する必要があります。"
+
+msgid "Máº­t kháº©u vÃ ÄÄng nháº­p"
+msgstr "パスワードとログイン"
+
+msgid "Máº­t kháº©u ÄÃ£ Äá»i"
+msgstr "かなりクールです"
+
+msgid "Má» Trung tÃ¢m trá»£ giÃºp"
+msgstr "センターはその犯罪に責任がある"
+
+msgid "Má»¥c cÃ i Äáº·t"
+msgstr "問題点は何ですか?"
+
+msgid "Má»¥c há» sÆ¡"
+msgstr "プロフィールセクション"
+
+msgid "Mã 8 số, hiệu lực 10 phút. Sai quá 5 lần sẽ bị khóa tạm."
+msgstr "8 桁のコード、有効期限は 10 分間です。 5回以上間違えると一時ロックされます。"
+
+msgid "Mã mời beta"
+msgstr "ベータ版の招待コード"
+
+msgid "Mã xác thực"
+msgstr "認証コード"
 
 msgid "Mô tả chi tiết"
 msgstr "詳細な説明"
@@ -412,14 +1764,70 @@ msgstr "詳細な説明"
 msgid "Mật khẩu"
 msgstr "パスワード"
 
+msgid "Mật khẩu mới"
+msgstr "新しいパスワード"
+
+msgid "Mật khẩu mới đã sẵn sàng. Bạn có thể đăng nhập lại ngay bây giờ."
+msgstr "新しいパスワードが準備できました。今すぐ再度ログインできます。"
+
 msgid "Mật khẩu và đăng nhập"
 msgstr "パスワードとログイン"
+
+msgid "Mật khẩu đã đổi"
+msgstr "パスワードが変更されました"
+
+msgid "Mở Trung tâm trợ giúp"
+msgstr "ヘルプセンターを開く"
+
+msgid "Mục cài đặt"
+msgstr "設定セクション"
 
 msgid "Mục hồ sơ"
 msgstr "プロフィールセクション"
 
 msgid "Nam"
 msgstr "男"
+
+msgid "NguyÃªn táº¯c cá»ng Äá»ng"
+msgstr "情報源"
+
+msgid "Nguyên tắc cộng đồng"
+msgstr "コミュニティガイドライン"
+
+msgid "NgÃ y sinh"
+msgstr "生年月日"
+
+msgid "NgÃ´n ngá»¯"
+msgstr "言語"
+
+msgid "NgÃ´n ngá»¯ hiá»n thá»"
+msgstr "表示言語"
+
+msgid "NgÆ°á»i báº¡n theo dÃµi"
+msgstr "人は時間に応じて売る"
+
+msgid "NgÆ°á»i dÃ¹ng"
+msgstr "ユーザー"
+
+msgid "NgÆ°á»i dÃ¹ng ÄÃ£ bá» cháº·n"
+msgstr "ユーザーがブロックされました"
+
+msgid ""
+"NgÆ°á»i nÃ y báº¡n chÆ°a theo dÃµi. Cháº¥p nháº­n Äá» tráº£ lá»i trong "
+"há»p thÆ° chÃ­nh, hoáº·c tá»« chá»i."
+msgstr "この人は指示に従う必要があります。左右の葉をメインルームに受け入れて協力しましょう。"
+
+msgid "NgÆ°á»i theo dÃµi"
+msgstr "人々もそれに続いていきます"
+
+msgid "NgÆ°á»i theo dÃµi (%(count)s)"
+msgstr "フォロワー (%(count)s)"
+
+msgid "NgÆ°á»i theo dÃµi (%(var)s)"
+msgstr "身長別の人物 (%(var)s)"
+
+msgid "NgÆ°á»i táº¡o"
+msgstr "NgÆ°á»i taо¡"
 
 msgid "Ngày sinh"
 msgstr "生年月日"
@@ -430,11 +1838,103 @@ msgstr "言語"
 msgid "Ngôn ngữ hiển thị"
 msgstr "表示言語"
 
+msgid "Người bạn theo dõi"
+msgstr "あなたがフォローしている人"
+
+msgid "Người dùng"
+msgstr "ユーザー"
+
 msgid "Người dùng đã bị chặn"
 msgstr "ユーザーがブロックされました"
 
+msgid ""
+"Người này bạn chưa theo dõi. Chấp nhận để trả lời trong hộp thư chính, hoặc "
+"từ chối."
+msgstr "この人はまだフォローしていません。メインの受信箱での返信を受け入れるか、拒否します。"
+
+msgid "Người theo dõi"
+msgstr "フォロワー"
+
 msgid "Người theo dõi (%(count)s)"
 msgstr "フォロワー (%(count)s)"
+
+msgid "Người tạo"
+msgstr "クリエイター"
+
+msgid "NhÃ³m má»i â gá»­i tin nháº¯n Äáº§u tiÃªn"
+msgstr "母親と女の子はお金を使うことを信じている"
+
+msgid "Nháº¥n Ã Äá» ÄÃ¡nh dáº¥u xÃ³a áº£nh/video hiá»n cÃ³."
+msgstr "必要な写真/ビデオをチェックしてください。"
+
+msgid "Nháº­n email tÃ³m táº¯t cÃ¡c hoáº¡t Äá»ng má»i ngÃ y"
+msgstr "日々の活動をまとめたメールを受け取る"
+
+msgid "Nháº­n thÃ´ng bÃ¡o ngay cáº£ khi khÃ´ng má» á»©ng dá»¥ng"
+msgstr "アプリを開いていないときでも通知を受け取ることができます"
+
+msgid "Nháº­n thÃ´ng bÃ¡o qua Äá»a chá» email cá»§a báº¡n"
+msgstr "メールアドレス経由で通知を受け取る"
+
+msgid "Nháº­n thÃ´ng bÃ¡o sau 30 ngÃ y khÃ´ng hoáº¡t Äá»ng"
+msgstr "30 日間操作がなかった場合に通知を受け取る"
+
+msgid "Nháº­p láº¡i máº­t kháº©u"
+msgstr "パスワードを再入力してください"
+
+msgid "Nháº­p láº¡i máº­t kháº©u má»i"
+msgstr "頬を汚すのはかなりクールです"
+
+msgid "Nháº­p mÃ£ OTP"
+msgstr "OTPコードをクリックします"
+
+msgid "Nháº­p mÃ£ má»i"
+msgstr "コードをクリックしてください"
+
+msgid "Nháº­p máº­t kháº©u cá»§a báº¡n"
+msgstr "パスワードを入力してください"
+
+msgid "Nháº­p máº­t kháº©u hoáº·c mÃ£ xÃ¡c thá»±c Äá» táº¯t 2FA:"
+msgstr "パスワードまたは認証コードを入力して 2FA をオフにします。"
+
+msgid "Nháº­p máº­t kháº©u Äá» xÃ¡c nháº­n"
+msgstr "確認のためにパスワードを入力してください"
+
+msgid "Nháº­p tin nháº¯n..."
+msgstr "メッセージを入力してください..."
+
+msgid "Nháº­p tÃªn ngÆ°á»i dÃ¹ng cá»§a báº¡n"
+msgstr "ユーザー名を入力してください"
+
+msgid "Nháº­p Äá»a chá» email cá»§a báº¡n"
+msgstr "メールアドレスを入力してください"
+
+msgid "Nháº¯c Äáº¿n"
+msgstr "言及された"
+
+msgid "Nháº¯n tin"
+msgstr "テキストメッセージ送信"
+
+msgid "Nháº¯n tin trá»±c tiáº¿p"
+msgstr "ダイレクトメッセージ"
+
+msgid "Nhá»¯ng ngÆ°á»i mÃ %(username)s Äang theo dÃµi"
+msgstr "%(ユーザー名)s さんがフォローしています"
+
+msgid "Nhá»¯ng ngÆ°á»i mÃ %(var)s Äang theo dÃµi"
+msgstr "コードに続く %(var) は何ですか?"
+
+msgid "Nhá»¯ng ngÆ°á»i Äang theo dÃµi %(username)s"
+msgstr "%(ユーザー名)s をフォローしている人"
+
+msgid "Nhá»¯ng ngÆ°á»i Äang theo dÃµi %(var)s"
+msgstr "人々がフォローしているものの長さ %(var)s"
+
+msgid "Nhóm mới — gửi tin nhắn đầu tiên"
+msgstr "新しいグループ — 最初のメッセージを送信"
+
+msgid "Nhấn × để đánh dấu xóa ảnh/video hiện có."
+msgstr "× を押して、既存の写真/ビデオの削除をマークします。"
 
 msgid "Nhận email tóm tắt các hoạt động mỗi ngày"
 msgstr "日々の活動をまとめたメールを受け取る"
@@ -450,6 +1950,15 @@ msgstr "30 日間操作がなかった場合に通知を受け取る"
 
 msgid "Nhập lại mật khẩu"
 msgstr "パスワードを再入力してください"
+
+msgid "Nhập lại mật khẩu mới"
+msgstr "新しいパスワードを再入力します"
+
+msgid "Nhập mã OTP"
+msgstr "OTPコードを入力してください"
+
+msgid "Nhập mã mời"
+msgstr "招待コードを入力してください"
 
 msgid "Nhập mật khẩu của bạn"
 msgstr "パスワードを入力してください"
@@ -484,8 +1993,62 @@ msgstr "%(ユーザー名)s さんがフォローしています"
 msgid "Những người đang theo dõi %(username)s"
 msgstr "%(ユーザー名)s をフォローしている人"
 
+msgid "NÃªn cÃ³ chá»¯ hoa, chá»¯ thÆ°á»ng, sá» vÃ kÃ½ tá»± Äáº·c biá»t."
+msgstr "花、ハーブ、花、その他の食材があります。"
+
+msgid ""
+"Náº¿u báº¡n khÃ´ng yÃªu cáº§u Äáº·t láº¡i máº­t kháº©u, hÃ£y bá» qua email"
+" nÃ y. Cáº£m Æ¡n báº¡n ÄÃ£ sá»­ dá»¥ng %(var)s! %(var)s"
+msgstr "詳細を尋ねたくない場合は、このメールでお知らせください。 %(var)s はいくらですか! %(var)s"
+
+msgid ""
+"Náº¿u sá» káº¿t thÃºc báº±ng <strong>%(var)s</strong> cÃ³ trÃªn Moora, "
+"báº¡n sáº½ nháº­n mÃ£ 8 sá» trong vÃ i phÃºt."
+msgstr ""
+"Moora に <strong>%(var)s</strong> があることが判明した場合、わずか数分で最大 8% を受け取ることができます。"
+
+msgid ""
+"Náº¿u Äá»a chá» email tá»n táº¡i trÃªn Moora, báº¡n sáº½ nháº­n ÄÆ°á»£c"
+" liÃªn káº¿t Äáº·t láº¡i máº­t kháº©u trong vÃ i phÃºt."
+msgstr "Moora にメール アドレスをお持ちの場合は、将来的により適切なリンクを見つけることができるでしょう。そして分。"
+
+msgid "Ná»i dung"
+msgstr "コンテンツ"
+
+msgid "Ná»i dung & cá»ng Äá»ng"
+msgstr "内容と規約"
+
+msgid "Ná»i dung khÃ´ng phÃ¹ há»£p"
+msgstr "不適切なコンテンツ"
+
+msgid "Ná»¯"
+msgstr "女性"
+
+msgid "Nên có chữ hoa, chữ thường, số và ký tự đặc biệt."
+msgstr "大文字、小文字、数字、特殊文字を使用する必要があります。"
+
+msgid ""
+"Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email này. Cảm ơn bạn đã "
+"sử dụng %(site_name)s! %(site_domain)s"
+msgstr ""
+"パスワードのリセットをリクエストしていない場合は、このメールを無視してください。 %(site_name)s をご利用いただきありがとうございます。 "
+"%(サイト_ドメイン)s"
+
+msgid ""
+"Nếu số kết thúc bằng <strong>%(hint)s</strong> có trên Moora, bạn sẽ nhận mã"
+" 8 số trong vài phút."
+msgstr "<strong>%(hint)s</strong> で終わる番号が Moora にある場合は、数分以内に 8 桁のコードを受け取ります。"
+
+msgid ""
+"Nếu địa chỉ email tồn tại trên Moora, bạn sẽ nhận được liên kết đặt lại mật "
+"khẩu trong vài phút."
+msgstr "電子メール アドレスが Moora に存在する場合は、数分以内にパスワード リセット リンクが届きます。"
+
 msgid "Nội dung"
 msgstr "コンテンツ"
+
+msgid "Nội dung & cộng đồng"
+msgstr "コンテンツとコミュニティ"
 
 msgid "Nội dung không phù hợp"
 msgstr "不適切なコンテンツ"
@@ -496,23 +2059,138 @@ msgstr "女性"
 msgid "Offline"
 msgstr "オフライン"
 
+msgid "Only me"
+msgstr "私だけ"
+
+msgid "Other"
+msgstr "他の"
+
+msgid "Phong admin"
+msgstr "管理室"
+
+msgid "PhÃ¡p lÃ½ & cá»ng Äá»ng"
+msgstr "食べ物と飲み物"
+
+msgid "PhÃ¢n trang thÃ´ng bÃ¡o"
+msgstr "通知のページネーション"
+
+msgid "PhÃ³ng to"
+msgstr "大きな部屋"
+
+msgid "PhÆ°Æ¡ng thá»©c nháº­n thÃ´ng bÃ¡o"
+msgstr "通知の受け取り方法"
+
+msgid "PhÆ°Æ¡ng thá»©c Äáº·t láº¡i"
+msgstr "一年のうち何ヶ月も"
+
+msgid "PhÆ°Æ¡ng tiá»n hiá»n táº¡i"
+msgstr "現在のメディア"
+
+msgid "Pháp lý & cộng đồng"
+msgstr "法務とコミュニティ"
+
 msgid "Phân trang thông báo"
 msgstr "通知のページネーション"
+
+msgid "Phóng to"
+msgstr "拡大する"
 
 msgid "Phương thức nhận thông báo"
 msgstr "通知の受け取り方法"
 
+msgid "Phương thức đặt lại"
+msgstr "リセット方法"
+
 msgid "Phương tiện hiện tại"
 msgstr "現在のメディア"
+
+msgid "Public"
+msgstr "公共"
+
+msgid "Quay láº¡i"
+msgstr "戻ってくる"
+
+msgid "Quay láº¡i danh má»¥c"
+msgstr "カードを回転させます"
+
+msgid "Quay láº¡i ÄÄng nháº­p"
+msgstr "葉を軽く回転させます"
 
 msgid "Quay lại"
 msgstr "戻ってくる"
 
+msgid "Quay lại danh mục"
+msgstr "カテゴリに戻る"
+
+msgid "Quay lại đăng nhập"
+msgstr "ログインに戻る"
+
+msgid "Quy táº¯c ÄÄng bÃ i vÃ táº£i dá»¯ liá»u cÃ¡ nhÃ¢n."
+msgstr "治療と治療の手順。"
+
+msgid "Quy táº¯c á»©ng xá»­ Äá» cá»ng Äá»ng an toÃ n vÃ tÃ´n trá»ng."
+msgstr "洗浄と消毒のプロセスは安全かつ効果的です。"
+
+msgid "Quy tắc đăng bài và tải dữ liệu cá nhân."
+msgstr "個人データの投稿およびダウンロードに関するルール。"
+
+msgid "Quy tắc ứng xử để cộng đồng an toàn và tôn trọng."
+msgstr "安全で敬意を持ったコミュニティのための行動規範。"
+
+msgid "Quyá»n riÃªng tÆ°"
+msgstr "プライバシー"
+
+msgid "Quyá»n riÃªng tÆ° & an toÃ n"
+msgstr "個人のプライバシーと安全性"
+
 msgid "Quyền riêng tư"
 msgstr "プライバシー"
 
+msgid "Quyền riêng tư & an toàn"
+msgstr "プライバシーと安全性"
+
+msgid "QuÃªn máº­t kháº©u?"
+msgstr "パスワードをお忘れですか？"
+
+msgid "Quáº£n lÃ½ bÃ i viáº¿t"
+msgstr "書くのが残念すぎる"
+
+msgid "Quáº£n lÃ½ bÃ¬nh luáº­n"
+msgstr "多すぎると問題になる"
+
+msgid "Quáº£n lÃ½ chat"
+msgstr "おしゃべりが多すぎる"
+
+msgid ""
+"Quáº£n lÃ½ cÃ i Äáº·t báº£o máº­t cho tÃ i khoáº£n cá»§a báº¡n. Báº­t xÃ¡c "
+"thá»±c hai yáº¿u tá» Äá» tÄng cÆ°á»ng báº£o máº­t."
+msgstr "アカウントのセキュリティ設定を管理します。セキュリティを強化するために 2 要素認証を有効にします。"
+
+msgid ""
+"Quáº£n lÃ½ cÃ¡c tÃ i khoáº£n máº¡ng xÃ£ há»i ÄÆ°á»£c liÃªn káº¿t vá»i tÃ "
+"i khoáº£n Moora cá»§a báº¡n"
+msgstr "あなたのMooraアカウントにリンクされたソーシャルメディアアカウントを管理します"
+
+msgid "Quáº£n lÃ½ danh sÃ¡ch ngÆ°á»i dÃ¹ng mÃ báº¡n ÄÃ£ cháº·n"
+msgstr "ブロックしたユーザーのリストを管理する"
+
+msgid "Quáº£n lÃ½ story"
+msgstr "トゥーンは物語です"
+
+msgid "Quáº¥y rá»i"
+msgstr "嫌がらせ"
+
 msgid "Quên mật khẩu?"
 msgstr "パスワードをお忘れですか？"
+
+msgid "Quản lý bài viết"
+msgstr "記事管理"
+
+msgid "Quản lý bình luận"
+msgstr "コメントの管理"
+
+msgid "Quản lý chat"
+msgstr "チャット管理"
 
 msgid ""
 "Quản lý cài đặt bảo mật cho tài khoản của bạn. Bật xác thực hai yếu tố để "
@@ -526,8 +2204,50 @@ msgstr "あなたのMooraアカウントにリンクされたソーシャルメ�
 msgid "Quản lý danh sách người dùng mà bạn đã chặn"
 msgstr "ブロックしたユーザーのリストを管理する"
 
+msgid "Quản lý story"
+msgstr "ストーリーを管理する"
+
 msgid "Quấy rối"
 msgstr "嫌がらせ"
+
+msgid "RiÃªng tÆ°"
+msgstr "その通り"
+
+msgid "Riêng tư"
+msgstr "プライベート"
+
+msgid "Rá»i nhÃ³m"
+msgstr "もう手遅れです"
+
+msgid "Rời nhóm"
+msgstr "グループを退会"
+
+msgid "Share"
+msgstr "共有"
+
+msgid "Spam"
+msgstr "スパム"
+
+msgid "Story Äang sá»ng"
+msgstr "物語の物語"
+
+msgid "Story đang sống"
+msgstr "物語は生きている"
+
+msgid "SÃ¡ng"
+msgstr "サング"
+
+msgid "Sáng"
+msgstr "明るい"
+
+msgid "Sáºµn sÃ ng táº£i xuá»ng"
+msgstr "ダウンロードの準備ができました"
+
+msgid "Sá» Äiá»n thoáº¡i"
+msgstr "電話番号"
+
+msgid "Sá»­ dá»¥ng # hashtag vÃ @ gáº¯n tháº» ngÆ°á»i Äang follow"
+msgstr "Sá» dá»¥ng # ハッシュタグと @ gá»￣n thaº» ngÆ°á»i Äang をフォローしてください"
 
 msgid "Sẵn sàng tải xuống"
 msgstr "ダウンロードの準備ができました"
@@ -535,11 +2255,68 @@ msgstr "ダウンロードの準備ができました"
 msgid "Số điện thoại"
 msgstr "電話番号"
 
+msgid "Sử dụng # hashtag và @ gắn thẻ người đang follow"
+msgstr "# ハッシュタグと @ タグを使用して、フォローしている人をタグ付けします"
+
+msgid "Tham gia cá»ng Äá»ng Moora ngay hÃ´m nay"
+msgstr "今すぐMooraコミュニティに参加してください"
+
 msgid "Tham gia cộng đồng Moora ngay hôm nay"
 msgstr "今すぐMooraコミュニティに参加してください"
 
-msgid "Theo dõi"
+msgid "Thay Äá»i chá» lÆ°u khi báº¡n nháº¥n nÃºt bÃªn pháº£i."
+msgstr "休憩を取得する回数を変更します。"
+
+msgid "Thay đổi chỉ lưu khi bạn nhấn nút bên phải."
+msgstr "変更は右ボタンを押した場合にのみ保存されます。"
+
+msgid "Theo IP"
+msgstr "IPによると"
+
+msgid "Theo dÃµi"
 msgstr "モニター"
+
+msgid ""
+"Theo dÃµi bÃ¡o cÃ¡o, tÃ i khoáº£n bá» háº¡n cháº¿ vÃ hoáº¡t Äá»ng gáº§n "
+"ÄÃ¢y â giá»ng bÃ n Äiá»u khiá»n kiá»m duyá»t máº¡ng xÃ£ há»i."
+msgstr "報道によると、商品を販売せず、適正な価格で販売しているとのことです。違いは何ですか?"
+
+msgid "Theo dÃµi láº¡i"
+msgstr "指示に従ってください"
+
+msgid "Theo dÃµi Äá» xem danh sÃ¡ch"
+msgstr "指示に従ってリストを表示します"
+
+msgid "Theo dõi"
+msgstr "フォロー"
+
+msgid ""
+"Theo dõi báo cáo, tài khoản bị hạn chế và hoạt động gần đây — giống bàn điều"
+" khiển kiểm duyệt mạng xã hội."
+msgstr "ソーシャル メディア モデレーション コンソールのように、レポート、制限されたアカウント、最近のアクティビティを監視します。"
+
+msgid "Theo dõi lại"
+msgstr "フォローバック"
+
+msgid "Theo dõi để xem danh sách"
+msgstr "フォローしてリストを表示"
+
+msgid ""
+"Thiáº¿t bá» cá»§a báº¡n ÄÃ£ ÄÄng nháº­p. Báº¡n cÃ³ thá» ÄÄng xuáº¥t "
+"khá»i cÃ¡c thiáº¿t bá» khÃ¡c tá»« ÄÃ¢y."
+msgstr "お使いのデバイスはサインインしています。ここから他のデバイスからサインアウトできます。"
+
+msgid "Thiáº¿t bá» hiá»n táº¡i"
+msgstr "現在の設備"
+
+msgid "Thiáº¿t bá» khÃ¡c"
+msgstr "その他の設備"
+
+msgid "Thiáº¿t bá» ÄÄng nháº­p"
+msgstr "ログインデバイス"
+
+msgid "Thiáº¿t láº­p xÃ¡c thá»±c hai yáº¿u tá»"
+msgstr "二要素認証を設定する"
 
 msgid ""
 "Thiết bị của bạn đã đăng nhập. Bạn có thể đăng xuất khỏi các thiết bị khác "
@@ -558,17 +2335,95 @@ msgstr "ログインデバイス"
 msgid "Thiết lập xác thực hai yếu tố"
 msgstr "二要素認証を設定する"
 
+msgid "ThÃ nh viÃªn"
+msgstr "メンバー"
+
+msgid "ThÃ nh viÃªn nhÃ³m"
+msgstr "スタッフ"
+
+msgid "ThÃªm"
+msgstr "もっと"
+
+msgid "ThÃªm báº¥t ká»³ liÃªn káº¿t máº¡ng xÃ£ há»i nÃ o cá»§a báº¡n"
+msgstr "ソーシャル メディアのリンクを追加します"
+
+msgid "ThÃªm thÃ nh viÃªn"
+msgstr "会員になる"
+
+msgid "ThÃªm vÃ o nhÃ³m"
+msgstr "家に行きます"
+
+msgid "ThÃªm áº£nh/video má»i"
+msgstr "新しい写真/ビデオを追加する"
+
+msgid "ThÃ´ng bÃ¡o"
+msgstr "通知"
+
+msgid "ThÃ´ng bÃ¡o há» thá»ng"
+msgstr "どのくらいの頻度で報告しますか？"
+
+msgid "ThÃ´ng bÃ¡o khi khÃ´ng hoáº¡t Äá»ng"
+msgstr "非アクティブ時の通知"
+
+msgid "ThÃ´ng bÃ¡o qua email"
+msgstr "メールによる通知"
+
+msgid "ThÃ´ng bÃ¡o Äáº©y"
+msgstr "プッシュ通知"
+
+msgid "ThÃ´ng tin cÆ¡ báº£n"
+msgstr "情報が売られている"
+
+msgid "ThÃ´ng tin liÃªn há»"
+msgstr "どのような情報があるのでしょうか?"
+
+msgid "ThÃ´ng tin liÃªn há» (cáº§n xÃ¡c thá»±c khi Äá»i)"
+msgstr "連絡先（交換時に認証が必要）"
+
+msgid "ThÃ´ng tin nhÃ³m"
+msgstr "良いニュースです"
+
+msgid "ThÃ´ng tin nÃ y hiá»n trÃªn trang há» sÆ¡ cÃ´ng khai cá»§a báº¡n."
+msgstr "この情報は販売者の Web サイトに表示されます。"
+
+msgid "Thành viên"
+msgstr "メンバー"
+
+msgid "Thành viên nhóm"
+msgstr "グループメンバー"
+
+msgid "Tháº» & Äá» cáº­p"
+msgstr "ター» & アー» キャスプ"
+
+msgid "Thá»ng kÃª bÃ¡o cÃ¡o"
+msgstr "レポート統計"
+
+msgid "Thá»ng kÃª bÃ¡o cÃ¡o chi tiáº¿t"
+msgstr "いくらかかりますか？"
+
+msgid "Thá»ng kÃª há» sÆ¡"
+msgstr "どれくらいかかりますか？"
+
 msgid "Thêm"
 msgstr "もっと"
 
 msgid "Thêm bất kỳ liên kết mạng xã hội nào của bạn"
 msgstr "ソーシャル メディアのリンクを追加します"
 
+msgid "Thêm thành viên"
+msgstr "メンバーを追加する"
+
+msgid "Thêm vào nhóm"
+msgstr "グループに追加"
+
 msgid "Thêm ảnh/video mới"
 msgstr "新しい写真/ビデオを追加する"
 
 msgid "Thông báo"
 msgstr "通知"
+
+msgid "Thông báo hệ thống"
+msgstr "システム通知"
 
 msgid "Thông báo khi không hoạt động"
 msgstr "非アクティブ時の通知"
@@ -579,26 +2434,155 @@ msgstr "メールによる通知"
 msgid "Thông báo đẩy"
 msgstr "プッシュ通知"
 
+msgid "Thông tin cơ bản"
+msgstr "基本情報"
+
+msgid "Thông tin liên hệ"
+msgstr "連絡先"
+
 msgid "Thông tin liên hệ (cần xác thực khi đổi)"
 msgstr "連絡先（交換時に認証が必要）"
+
+msgid "Thông tin nhóm"
+msgstr "グループ情報"
+
+msgid "Thông tin này hiện trên trang hồ sơ công khai của bạn."
+msgstr "この情報は公開プロフィール ページに表示されます。"
+
+msgid "Thẻ & đề cập"
+msgstr "タグとメンション"
 
 msgid "Thống kê báo cáo"
 msgstr "レポート統計"
 
+msgid "Thống kê báo cáo chi tiết"
+msgstr "詳細な統計レポート"
+
+msgid "Thống kê hồ sơ"
+msgstr "プロファイル統計"
+
+msgid "Tin nháº¯n"
+msgstr "メッセージ"
+
+msgid "Tin nháº¯n 24h"
+msgstr "ニュース24時間"
+
+msgid "Tin nháº¯n chá»"
+msgstr "良いニュースです"
+
+msgid "Tin nháº¯n chá» (requests)"
+msgstr "お知らせ（お願い）"
+
+msgid "Tin nháº¯n má»i"
+msgstr "良いニュースです"
+
+msgid "Tin nháº¯n thoáº¡i"
+msgstr "ニュース速報"
+
+msgid "Tin nháº¯n thoáº¡i quÃ¡ ngáº¯n."
+msgstr "ニュースは退屈だ。"
+
+msgid "Tin nháº¯n ÄÃ£ ÄÆ°á»£c thu há»i"
+msgstr "秋のお知らせ"
+
 msgid "Tin nhắn"
 msgstr "メッセージ"
 
-msgid "Trang chủ"
+msgid "Tin nhắn 24h"
+msgstr "24時間メッセージ"
+
+msgid "Tin nhắn chờ"
+msgstr "メッセージ待機中"
+
+msgid "Tin nhắn chờ (requests)"
+msgstr "メッセージ待機中 (リクエスト)"
+
+msgid "Tin nhắn mới"
+msgstr "新しいメッセージ"
+
+msgid "Tin nhắn thoại"
+msgstr "音声メッセージ"
+
+msgid "Tin nhắn thoại quá ngắn."
+msgstr "音声メッセージが短すぎます。"
+
+msgid "Tin nhắn đã được thu hồi"
+msgstr "メッセージは取り消されました"
+
+msgid "Tin tá»« ngÆ°á»i báº¡n chÆ°a theo dÃµi"
+msgstr "時間に応じて販売者にメッセージを送信する"
+
+msgid "Tin từ người bạn chưa theo dõi"
+msgstr "まだフォローしていない人からのニュース"
+
+msgid "Tiáº¿p tá»¥c"
+msgstr "終了»¥c"
+
+msgid "Tiếp tục"
+msgstr "続く"
+
+msgid "Trang chá»§"
 msgstr "ホームページ"
 
-msgid "Trang cá nhân"
+msgid "Trang chá»§ Moora"
+msgstr "トラン チャ»§ ムーラ"
+
+msgid "Trang chủ"
+msgstr "ホーム"
+
+msgid "Trang chủ Moora"
+msgstr "ムーラのホームページ"
+
+msgid "Trang cÃ¡ nhÃ¢n"
 msgstr "個人ページ"
+
+msgid "Trang cá nhân"
+msgstr "プロフィール"
 
 msgid "Trang sau"
 msgstr "次のページ"
 
+msgid "Trang trÆ°á»c"
+msgstr "前のページへ"
+
 msgid "Trang trước"
 msgstr "前のページへ"
+
+msgid "Trung tÃ¢m trá»£ giÃºp"
+msgstr "詐欺センター"
+
+msgid "Trung tÃ¢m váº­n hÃ nh Moora"
+msgstr "ムーラ ヘルス センター"
+
+msgid "Trung tâm trợ giúp"
+msgstr "ヘルプセンター"
+
+msgid "Trung tâm vận hành Moora"
+msgstr "ムーラ オペレーション センター"
+
+msgid "TrÃ¬nh duyá»t khÃ´ng há» trá»£ GPS."
+msgstr "GPS追跡は使用できません。"
+
+msgid "TrÃ¬nh duyá»t khÃ´ng há» trá»£ ghi Ã¢m."
+msgstr "記録を書く必要はありません。"
+
+msgid "TrÃ¬nh duyá»t khÃ´ng há» trá»£ Äá»nh vá» GPS."
+msgstr "ナビゲーションは GPS によって保護されていません。"
+
+msgid "TrÃ² chuyá»n má»i"
+msgstr "新しいチャット"
+
+msgid "Tráº£ lá»i"
+msgstr "返事"
+
+msgid "Trình duyệt không hỗ trợ GPS."
+msgstr "ブラウザはGPSをサポートしていません。"
+
+msgid "Trình duyệt không hỗ trợ ghi âm."
+msgstr "ブラウザは音声録音をサポートしていません。"
+
+msgid "Trình duyệt không hỗ trợ định vị GPS."
+msgstr "ブラウザは GPS 測位をサポートしていません。"
 
 msgid "Trò chuyện mới"
 msgstr "新しいチャット"
@@ -606,14 +2590,168 @@ msgstr "新しいチャット"
 msgid "Trả lời"
 msgstr "返事"
 
+msgid "TÃ i khoáº£n & há» sÆ¡"
+msgstr "ロックされています、何が起こっているのですか?"
+
+msgid "TÃ i khoáº£n bá» xÃ³a?"
+msgstr "アカウントが削除されましたか?"
+
+msgid "TÃ i khoáº£n giáº£ máº¡o"
+msgstr "偽のアカウント"
+
+msgid "TÃ i khoáº£n riÃªng tÆ°"
+msgstr "別途ロックさせていただきます"
+
+msgid "TÃ i khoáº£n riÃªng tÆ°, cháº·n/bÃ¡o cÃ¡o, thiáº¿t bá» ÄÄng nháº­p."
+msgstr "私も同じように自分自身を少しだけ閉じ込めます。"
+
+msgid "TÃ i khoáº£n Äang ÄÃ¬nh chá»"
+msgstr "プログラムをロックします"
+
+msgid "TÃ i khoáº£n ÄÃ£ xÃ³a má»m"
+msgstr "コードをロックします"
+
+msgid "TÃ i liá»u"
+msgstr "書類"
+
+msgid "TÃªn"
+msgstr "タン"
+
+msgid "TÃªn ngÆ°á»i dÃ¹ng"
+msgstr "ユーザー名"
+
+msgid "TÃªn ngÆ°á»i dÃ¹ng khÃ´ng há»£p lá»"
+msgstr "無効なユーザー名"
+
+msgid "TÃªn nhÃ³m"
+msgstr "名前"
+
+msgid "TÃªn ÄÃ£ ÄÆ°á»£c sá»­ dá»¥ng"
+msgstr "フルネーム"
+
+msgid "TÃ¬m hoáº·c chá»n Äá»a Äiá»m (tÃ¹y chá»n)"
+msgstr "違いを生む"
+
+msgid "TÃ¬m kiáº¿m"
+msgstr "検索"
+
+msgid "TÃ¬m kiáº¿m cuá»c trÃ² chuyá»n..."
+msgstr "チャットを検索..."
+
+msgid "TÃ¬m kiáº¿m tin nháº¯n"
+msgstr "ニュースを探す"
+
+msgid "TÃ¬m kiáº¿m..."
+msgstr "検索..."
+
+msgid "TÃ¬m theo tÃªn hoáº·c @username"
+msgstr "@ユーザー名をフォローしてください"
+
+msgid "TÃ¬m tin nháº¯n..."
+msgstr "お知らせがあります..."
+
+msgid ""
+"TÃ´i hiá»u ráº±ng sau 30 ngÃ y tÃ i khoáº£n sáº½ bá» xÃ³a vÄ©nh viá» n vÃ "
+"khÃ´ng thá» khÃ´i phá»¥c"
+msgstr "30 日後にアカウントは完全に削除され、復元できないことを理解しています"
+
+msgid "TÃ´i Äá»ng Ã½ vá»i"
+msgstr "同意します"
+
+msgid "TÃ¹y chá»nh cÃ¡ch báº¡n nháº­n thÃ´ng bÃ¡o tá»« Moora"
+msgstr "ホシからの通知の受け取り方法をカスタマイズする"
+
+msgid "TÃ¹y chá»nh thá»i gian ÄÃ¬nh chá»"
+msgstr "一時停止時間をカスタマイズする"
+
+msgid "TÃ¹y chá»nh thá»i gian ÄÃ¬nh chá» ngÆ°á»i dÃ¹ng bá» bÃ¡o cÃ¡o"
+msgstr "報告されるユーザーの一時停止時間をカスタマイズする"
+
+msgid "TÃ¹y chá»n thÃ´ng bÃ¡o khÃ¡c"
+msgstr "その他の通知オプション"
+
+msgid "Tài khoản & hồ sơ"
+msgstr "アカウントとプロフィール"
+
 msgid "Tài khoản bị xóa?"
 msgstr "アカウントが削除されましたか?"
 
 msgid "Tài khoản giả mạo"
 msgstr "偽のアカウント"
 
+msgid "Tài khoản riêng tư"
+msgstr "プライベートアカウント"
+
+msgid "Tài khoản riêng tư, chặn/báo cáo, thiết bị đăng nhập."
+msgstr "プライベートアカウント、ブロック/レポート、デバイスログイン。"
+
+msgid "Tài khoản đang đình chỉ"
+msgstr "アカウントが停止されています"
+
+msgid "Tài khoản đã xóa mềm"
+msgstr "アカウントがソフト削除されました"
+
 msgid "Tài liệu"
 msgstr "書類"
+
+msgid "Táº¡m biá»t má»t chÃºt"
+msgstr "そうなるかどうか見てみましょう"
+
+msgid "Táº¡o bÃ i viáº¿t"
+msgstr "記事を作成する"
+
+msgid "Táº¡o bÃ i viáº¿t má»i"
+msgstr "新しい記事を作成する"
+
+msgid "Táº¡o máº­t kháº©u má»i"
+msgstr "新しいパスワードを作成する"
+
+msgid "Táº¡o tÃ i khoáº£n má»i"
+msgstr "新しいアカウントを作成する"
+
+msgid "Táº£i xuá»ng"
+msgstr "ダウンロード"
+
+msgid ""
+"Táº£i xuá»ng báº£n sao dá»¯ liá»u cá»§a báº¡n, bao gá»m bÃ i viáº¿t, "
+"bÃ¬nh luáº­n, vÃ thÃ´ng tin cÃ¡ nhÃ¢n."
+msgstr "投稿、コメント、個人情報を含むデータのコピーをダウンロードします。"
+
+msgid "Táº£i xuá»ng dá»¯ liá»u"
+msgstr "データのダウンロード"
+
+msgid "Táº¥t cáº£"
+msgstr "た、t ca o£"
+
+msgid "Táº¯t bÃ¬nh luáº­n"
+msgstr "コメントをオフにする"
+
+msgid "Táº¯t thÃ´ng bÃ¡o"
+msgstr "すべてのレポート"
+
+msgid "Táº¯t xÃ¡c thá»±c hai yáº¿u tá»"
+msgstr "二要素認証をオフにする"
+
+msgid "Tá»i"
+msgstr "T»i"
+
+msgid "Tá»ng bÃ i viáº¿t"
+msgstr "それについて話しているんです"
+
+msgid "Tá»ng quan kiá»m duyá»t"
+msgstr "これは重要です"
+
+msgid "Tá»ng user"
+msgstr "すべてのユーザー"
+
+msgid "Tá»« chá»i"
+msgstr "ター»«チャ»イ"
+
+msgid "Tá»« chá»i tin nháº¯n nÃ y?"
+msgstr "誰がこれを信じるでしょうか？"
+
+msgid "Tên"
+msgstr "名前"
 
 msgid "Tên người dùng"
 msgstr "ユーザー名"
@@ -621,14 +2759,32 @@ msgstr "ユーザー名"
 msgid "Tên người dùng không hợp lệ"
 msgstr "無効なユーザー名"
 
+msgid "Tên nhóm"
+msgstr "グループ名"
+
+msgid "Tên đã được sử dụng"
+msgstr "その名前はすでに使用されています"
+
+msgid "Tìm hoặc chọn địa điểm (tùy chọn)"
+msgstr "場所を検索または選択します (オプション)"
+
 msgid "Tìm kiếm"
 msgstr "検索"
 
 msgid "Tìm kiếm cuộc trò chuyện..."
 msgstr "チャットを検索..."
 
+msgid "Tìm kiếm tin nhắn"
+msgstr "メッセージを検索する"
+
 msgid "Tìm kiếm..."
 msgstr "検索..."
+
+msgid "Tìm theo tên hoặc @username"
+msgstr "名前または@ユーザー名で検索"
+
+msgid "Tìm tin nhắn..."
+msgstr "メッセージを検索..."
 
 msgid ""
 "Tôi hiểu rằng sau 30 ngày tài khoản sẽ bị xóa vĩnh viễn và không thể khôi "
@@ -649,6 +2805,9 @@ msgstr "報告されるユーザーの一時停止時間をカスタマイズす
 
 msgid "Tùy chọn thông báo khác"
 msgstr "その他の通知オプション"
+
+msgid "Tạm biệt một chút"
+msgstr "しばらくさようなら"
 
 msgid "Tạo bài viết"
 msgstr "記事を作成する"
@@ -673,14 +2832,76 @@ msgstr "投稿、コメント、個人情報を含むデータのコピーをダ
 msgid "Tải xuống dữ liệu"
 msgstr "データのダウンロード"
 
+msgid "Tất cả"
+msgstr "全て"
+
 msgid "Tắt bình luận"
 msgstr "コメントをオフにする"
+
+msgid "Tắt thông báo"
+msgstr "通知をオフ"
 
 msgid "Tắt xác thực hai yếu tố"
 msgstr "二要素認証をオフにする"
 
+msgid "Tối"
+msgstr "暗い"
+
+msgid "Tổng bài viết"
+msgstr "総記事数"
+
+msgid "Tổng quan kiểm duyệt"
+msgstr "検閲の概要"
+
+msgid "Tổng user"
+msgstr "総ユーザー数"
+
+msgid "Từ chối"
+msgstr "拒否する"
+
+msgid "Từ chối tin nhắn này?"
+msgstr "このメッセージを拒否しますか?"
+
+msgid "User má»i 24h"
+msgstr "ユーザーは24時間対応しています"
+
+msgid "User mới 24h"
+msgstr "新規ユーザー24時間"
+
 msgid "Video"
 msgstr "ビデオ"
+
+msgid "Violence"
+msgstr "暴力"
+
+msgid ""
+"Việc xóa tài khoản là <strong>tạm thời</strong> trong vòng 30 ngày. Trong "
+"thời gian này, bạn có thể khôi phục lại tài khoản bằng cách đăng nhập lại "
+"hoặc sử dụng trang <a href=\"%(restore_url)s\" class=\"alert-link\">khôi "
+"phục tài khoản</a>. Sau 30 ngày, tài khoản và tất cả dữ liệu sẽ bị xóa vĩnh "
+"viễn."
+msgstr ""
+"アカウントの削除は 30 日間<strong>一時的</strong>です。この間に、再度ログインするか、<a "
+"href=\"%(restore_url)s\" class=\"alert-"
+"link\">アカウント回復ページ</a>を使用することで、アカウントを回復できます。 30 日後、アカウントとすべてのデータは完全に削除されます。"
+
+msgid "Vui lÃ²ng chá»n file áº£nh."
+msgstr "こちらのファイルをご確認ください。"
+
+msgid "Vui lÃ²ng chá»n lÃ½ do bÃ¡o cÃ¡o."
+msgstr "報告する理由を選択してください。"
+
+msgid "Vui lÃ²ng cung cáº¥p thÃªm thÃ´ng tin..."
+msgstr "さらに詳しい情報を提供してください..."
+
+msgid "Vui lÃ²ng kiá»m tra láº¡i cÃ¡c thÃ´ng tin bÃªn dÆ°á»i."
+msgstr "記載されている情報をご確認ください。"
+
+msgid "Vui lÃ²ng kiá»m tra láº¡i cÃ¡c trÆ°á»ng bá» lá»i bÃªn dÆ°á»i."
+msgstr "あなたが探している答えをぜひチェックしてください。"
+
+msgid "Vui lòng chọn file ảnh."
+msgstr "画像ファイルを選択してください。"
 
 msgid "Vui lòng chọn lý do báo cáo."
 msgstr "報告する理由を選択してください。"
@@ -688,23 +2909,147 @@ msgstr "報告する理由を選択してください。"
 msgid "Vui lòng cung cấp thêm thông tin..."
 msgstr "さらに詳しい情報を提供してください..."
 
+msgid "Vui lòng kiểm tra lại các thông tin bên dưới."
+msgstr "以下の情報をご確認ください。"
+
+msgid "Vui lòng kiểm tra lại các trường bị lỗi bên dưới."
+msgstr "以下のエラーフィールドを確認してください。"
+
+msgid "Vá» trang ÄÄng nháº­p"
+msgstr "ページを更新してください"
+
+msgid "Về trang đăng nhập"
+msgstr "ログインページに移動します"
+
+msgid "Website"
+msgstr "Webサイト"
+
+msgid "Who can see this post"
+msgstr "この投稿を閲覧できる人"
+
+msgid "Xem bÃ i viáº¿t gá»c"
+msgstr "元の記事を見る"
+
 msgid "Xem bài viết gốc"
 msgstr "元の記事を見る"
+
+msgid "Xem chi tiáº¿t"
+msgstr "詳細を見る"
 
 msgid "Xem chi tiết"
 msgstr "詳細を見る"
 
+msgid "Xem há» sÆ¡"
+msgstr "見てみましょう"
+
+msgid "Xem hồ sơ"
+msgstr "プロフィールを見る"
+
+msgid "Xem thá»ng kÃª bÃ¡o cÃ¡o"
+msgstr "レポート統計の表示"
+
 msgid "Xem thống kê báo cáo"
 msgstr "レポート統計の表示"
+
+msgid "Xem trÃªn báº£n Äá»"
+msgstr "ウェブサイトを見る"
+
+msgid "Xem trên bản đồ"
+msgstr "地図で見る"
+
+msgid "Xem táº¥t cáº£ thÃ´ng bÃ¡o"
+msgstr "すべてのお知らせを見る"
 
 msgid "Xem tất cả thông báo"
 msgstr "すべてのお知らせを見る"
 
+msgid "Xem áº£nh"
+msgstr "写真を見る"
+
+msgid "Xem áº£nh Äáº¡i diá»n"
+msgstr "「áº£nh Äáº¡i diá»n」を参照"
+
 msgid "Xem ảnh"
 msgstr "写真を見る"
 
+msgid "Xem ảnh đại diện"
+msgstr "代表写真を参照"
+
+msgid "Xong rá»i"
+msgstr "完了しました"
+
+msgid "Xong rồi"
+msgstr "終わり"
+
+msgid "XÃ¡c nháº­n"
+msgstr "受け入れてください"
+
+msgid "XÃ¡c nháº­n máº­t kháº©u"
+msgstr "パスワードを認証する"
+
+msgid "XÃ¡c thá»±c OTP"
+msgstr "OTPステータスを確認する"
+
+msgid "XÃ¡c thá»±c hai yáº¿u tá»"
+msgstr "二要素認証"
+
+msgid ""
+"XÃ¡c thá»±c hai yáº¿u tá» Äang <strong>báº­t</strong>. Báº¡n sáº½ cáº§n "
+"mÃ£ tá»« á»©ng dá»¥ng xÃ¡c thá»±c má»i khi ÄÄng nháº­p."
+msgstr "2 要素認証が<strong>オン</strong>になっています。ログインするたびに認証アプリのコードが必要になります。"
+
+msgid "XÃ¡c thá»±c sá» Äiá»n thoáº¡i"
+msgstr "状況の状況を判断する"
+
+msgid "XÃ³a"
+msgstr "消去"
+
+msgid "XÃ³a bÃ i viáº¿t"
+msgstr "投稿を削除する"
+
+msgid ""
+"XÃ³a chá» bÃªn mÃ¬nh? (OK = chá» mÃ¬nh, Cancel rá»i thá»­ láº¡i Äá» "
+"chá»n khÃ¡c)"
+msgstr "どうしたの？ (OK = 問題ありません。次のステップはキャンセルです)"
+
+msgid "XÃ³a cuá»c trÃ² chuyá»n"
+msgstr "チャットを削除する"
+
+msgid "XÃ³a phÃ­a mÃ¬nh"
+msgstr "スクリーンショット"
+
+msgid "XÃ³a phÃ­a ngÆ°á»i nháº­n"
+msgstr "邪魔にならないようにしてください"
+
+msgid "XÃ³a thÃ´ng bÃ¡o"
+msgstr "伝えられるところによると"
+
+msgid "XÃ³a tin nháº¯n"
+msgstr "ニュースです"
+
+msgid "XÃ³a tin nháº¯n nÃ y."
+msgstr "このニュースをチェックしてください。"
+
+msgid "XÃ³a tÃ i khoáº£n"
+msgstr "アカウントを削除する"
+
+msgid "XÃ³a táº¥t cáº£"
+msgstr "Xão¥t º£"
+
+msgid "XÃ³a áº£nh Äáº¡i diá»n"
+msgstr "どうしたの？"
+
+msgid "XÃ³a áº£nh Äáº¡i diá»n hiá»n táº¡i"
+msgstr "現在のアバターを削除"
+
+msgid "Xác nhận"
+msgstr "確認する"
+
 msgid "Xác nhận mật khẩu"
 msgstr "パスワードを認証する"
+
+msgid "Xác thực OTP"
+msgstr "OTP認証"
 
 msgid "Xác thực hai yếu tố"
 msgstr "二要素認証"
@@ -714,20 +3059,62 @@ msgid ""
 " thực mỗi khi đăng nhập."
 msgstr "2 要素認証が<strong>オン</strong>になっています。ログインするたびに認証アプリのコードが必要になります。"
 
+msgid "Xác thực số điện thoại"
+msgstr "電話番号を確認する"
+
 msgid "Xóa"
-msgstr "消去"
+msgstr "削除"
 
 msgid "Xóa bài viết"
 msgstr "投稿を削除する"
 
+msgid "Xóa chỉ bên mình? (OK = chỉ mình, Cancel rồi thử lại để chọn khác)"
+msgstr "あなたの側のスレッドを削除しますか？ (OK = 私だけ。キャンセルして、別の選択をやり直してください)"
+
 msgid "Xóa cuộc trò chuyện"
 msgstr "チャットを削除する"
+
+msgid "Xóa phía mình"
+msgstr "自分の側を削除します"
+
+msgid "Xóa phía người nhận"
+msgstr "受信者側を削除する"
+
+msgid "Xóa thông báo"
+msgstr "通知の削除"
+
+msgid "Xóa tin nhắn"
+msgstr "メッセージを削除する"
+
+msgid "Xóa tin nhắn này."
+msgstr "このメッセージを削除してください。"
 
 msgid "Xóa tài khoản"
 msgstr "アカウントを削除する"
 
+msgid "Xóa tất cả"
+msgstr "すべて削除"
+
+msgid "Xóa ảnh đại diện"
+msgstr "アバターの削除"
+
 msgid "Xóa ảnh đại diện hiện tại"
 msgstr "現在のアバターを削除"
+
+msgid "YÃªu cáº§u cá»§a báº¡n ÄÃ£ ÄÆ°á»£c ghi nháº­n."
+msgstr "あなたのリクエストは承認されました。"
+
+msgid "YÃªu cáº§u gáº§n ÄÃ¢y"
+msgstr "最近のリクエスト"
+
+msgid "YÃªu cáº§u liÃªn káº¿t má»i"
+msgstr "クールなリンクの要件"
+
+msgid "YÃªu cáº§u nháº¯n tin"
+msgstr "情報を受け取る必要があります"
+
+msgid "YÃªu cáº§u táº£i xuá»ng"
+msgstr "ダウンロードが必要です"
 
 msgid "Yêu cầu của bạn đã được ghi nhận."
 msgstr "あなたのリクエストは承認されました。"
@@ -735,14 +3122,116 @@ msgstr "あなたのリクエストは承認されました。"
 msgid "Yêu cầu gần đây"
 msgstr "最近のリクエスト"
 
+msgid "Yêu cầu liên kết mới"
+msgstr "新しいリンクリクエスト"
+
+msgid "Yêu cầu nhắn tin"
+msgstr "メッセージをリクエストする"
+
 msgid "Yêu cầu tải xuống"
 msgstr "ダウンロードが必要です"
+
+msgid "admin notes"
+msgstr "管理者メモ"
+
+msgid "audio"
+msgstr "オーディオ。オーディオ"
+
+msgid "bio"
+msgstr "バイオ"
+
+msgid "birth date"
+msgstr "生年月日"
+
+msgid "block"
+msgstr "ブロック。ブロック"
+
+msgid "block messages from non-followers"
+msgstr "フォロワー以外からのメッセージをブロックする"
+
+msgid "blocks"
+msgstr "ブロック。ブロック"
+
+msgid "bÃ i viáº¿t"
+msgstr "記事"
 
 msgid "bài viết"
 msgstr "記事"
 
+msgid "caption"
+msgstr "キャプション"
+
+msgid "comment like"
+msgstr "みたいなコメント"
+
+msgid "comment likes"
+msgstr "コメント「いいね！」"
+
+msgid "comment notifications"
+msgstr "コメント通知"
+
+msgid "cá»§a Moora"
+msgstr "by ホシ"
+
 msgid "của Moora"
 msgstr "by ホシ"
+
+msgid "deleted account"
+msgstr "削除されたアカウント"
+
+msgid "deleted at"
+msgstr "に削除されました"
+
+msgid "deletion reason"
+msgstr "削除理由"
+
+msgid "description"
+msgstr "説明"
+
+msgid "details"
+msgstr "詳細。詳細"
+
+msgid "email address"
+msgstr "電子メールアドレス"
+
+msgid "email notifications"
+msgstr "電子メール通知"
+
+msgid "facebook"
+msgstr "フェイスブック"
+
+msgid "file"
+msgstr "ファイル"
+
+msgid "follow notifications"
+msgstr "通知をフォローする"
+
+msgid "follow request"
+msgstr "リクエストをフォローする"
+
+msgid "follow requests"
+msgstr "リクエストをフォローする"
+
+msgid "following"
+msgstr "続く"
+
+msgid "followings"
+msgstr "フォロー中"
+
+msgid "gender"
+msgstr "性別"
+
+msgid "hide activity status"
+msgstr "アクティビティステータスを非表示にする"
+
+msgid "highlight"
+msgstr "ハイライト。ハイライト"
+
+msgid "hoáº·c tiáº¿p tá»¥c vá»i"
+msgstr "または続行してください"
+
+msgid "hoáº·c ÄÄng kÃ½ vá»i"
+msgstr "またはで登録してください"
 
 msgid "hoặc tiếp tục với"
 msgstr "または続行してください"
@@ -750,32 +3239,495 @@ msgstr "または続行してください"
 msgid "hoặc đăng ký với"
 msgstr "またはで登録してください"
 
+msgid "inactive notifications"
+msgstr "非アクティブな通知"
+
+msgid "instagram"
+msgstr "インスタグラム"
+
+msgid "language"
+msgstr "言語。言語"
+
+msgid "like"
+msgstr "のように"
+
+msgid "like notifications"
+msgstr "いいね通知"
+
+msgid "likes"
+msgstr "好き"
+
+msgid "linkedin"
+msgstr "リンクイン"
+
+msgid "location"
+msgstr "位置。位置"
+
+msgid "lÆ°á»£t thÃ­ch"
+msgstr "好き"
+
 msgid "lượt thích"
 msgstr "好き"
+
+msgid "media"
+msgstr "メディア。メディア"
+
+msgid "media type"
+msgstr "メディアタイプ"
+
+msgid "mention notifications"
+msgstr "メンション通知"
+
+msgid "message notifications"
+msgstr "メッセージ通知"
+
+msgid "ngÆ°á»i theo dÃµi"
+msgstr "フォロワー"
 
 msgid "người theo dõi"
 msgstr "フォロワー"
 
+msgid "order"
+msgstr "注文。注文"
+
+msgid "phone number"
+msgstr "電話番号"
+
+msgid "post media"
+msgstr "ポストメディア"
+
+msgid "post report"
+msgstr "ポストレポート"
+
+msgid "post reports"
+msgstr "レポートを投稿する"
+
+msgid "private account"
+msgstr "プライベートアカウント"
+
+msgid "push notifications"
+msgstr "プッシュ通知"
+
+msgid "reason"
+msgstr "理由。理由"
+
+msgid "resolved"
+msgstr "解決しました。解決済み"
+
+msgid "resolved at"
+msgstr "で解決されました"
+
+msgid "show birth date on profile"
+msgstr "プロフィールに生年月日を表示する"
+
+msgid "show gender on profile"
+msgstr "プロフィールに性別を表示する"
+
+msgid "stories"
+msgstr "物語。物語"
+
+msgid "story"
+msgstr "物語.物語"
+
+msgid "story view"
+msgstr "ストーリービュー"
+
+msgid "story views"
+msgstr "ストーリービュー"
+
+msgid "summary notifications"
+msgstr "概要通知"
+
+msgid "suspended account"
+msgstr "一時停止されたアカウント"
+
+msgid "suspension end date"
+msgstr "一時停止終了日"
+
+msgid "suspension reason"
+msgstr "停止理由"
+
+msgid "thÃ nh cÃ´ng."
+msgstr "成功。"
+
+msgid "thÃ nh viÃªn"
+msgstr "メンバー"
+
+msgid "thÃ´ng bÃ¡o chÆ°a Äá»c"
+msgstr "未読通知"
+
 msgid "thành công."
 msgstr "成功。"
+
+msgid "thành viên"
+msgstr "メンバー"
 
 msgid "thông báo chưa đọc"
 msgstr "未読通知"
 
+msgid "tin nháº¯n chÆ°a Äá»c"
+msgstr "ニュースだけ"
+
+msgid "tin nhắn chưa đọc"
+msgstr "未読メッセージ"
+
+msgid "twitter"
+msgstr "ツイッター"
+
+msgid "two-factor authentication"
+msgstr "二要素認証"
+
+msgid "two-factor secret"
+msgstr "二要素秘密"
+
+msgid "user"
+msgstr "ユーザー.ユーザー"
+
+msgid "user report"
+msgstr "ユーザーレポート"
+
+msgid "user reports"
+msgstr "ユーザーレポート"
+
+msgid "users"
+msgstr "ユーザー。ユーザー"
+
+msgid "valid report"
+msgstr "有効なレポート"
+
+msgid "verified account"
+msgstr "認証済みアカウント"
+
+msgid "video"
+msgstr "ビデオ"
+
+msgid "vÃ"
+msgstr "そして"
+
 msgid "và"
 msgstr "そして"
+
+msgid "website"
+msgstr "Webサイト"
+
+msgid "you@email.com"
+msgstr "you@email.com"
+
+msgid "Âm thanh"
+msgstr "音"
+
+msgid "Ãm thanh"
+msgstr "音です"
+
+msgid "Ãt nháº¥t 8 kÃ½ tá»±"
+msgstr "Ãt 8 キロダース»±"
+
+msgid "Äang ghi Ã¢m..."
+msgstr "録音中です..."
+
+msgid "Äang hoáº¡t Äá»ng"
+msgstr "アクティブ"
+
+msgid "Äang kiá»m traâ¦"
+msgstr "トラムを見ながら"
+
+msgid "Äang lÆ°u vá» trÃ­â¦"
+msgstr "ÄdÆ°u と » trÃâã"
+
+msgid "Äang lÆ°u..."
+msgstr "保存中..."
+
+msgid "Äang láº¥y GPS chÃ­nh xÃ¡câ¦"
+msgstr "正確なGPSナビゲーション"
+
+msgid "Äang theo dÃµi"
+msgstr "続く"
+
+msgid "Äang theo dÃµi (%(count)s)"
+msgstr "次の (%(count)s)"
+
+msgid "Äang theo dÃµi (%(var)s)"
+msgstr "長さ (%(var)s)"
+
+msgid "Äang tráº£ lá»i"
+msgstr "返信する"
+
+msgid "Äang táº£i bÃ i viáº¿t..."
+msgstr "記事を読み込んでいます..."
+
+msgid "Äang táº£i..."
+msgstr "読み込み中..."
+
+msgid "Äang xá»­ lÃ½"
+msgstr "処理"
+
+msgid "Äang xá»­ lÃ½..."
+msgstr "処理..."
+
+msgid "Äiá»u hÆ°á»ng nhanh"
+msgstr "クイックナビゲーション"
+
+msgid "Äiá»u khoáº£n dá»ch vá»¥"
+msgstr "問題を解決するにはどうすればよいですか?"
+
+msgid "Äiá»u khoáº£n sá»­ dá»¥ng"
+msgstr "利用規約"
+
+msgid "Äiá»u kiá»n sá»­ dá»¥ng tÃ i khoáº£n vÃ dá»ch vá»¥ Moora."
+msgstr "ムーラについてもっと知りましょう。"
+
+msgid "ÄÃ¡nh dáº¥u táº¥t cáº£ lÃ ÄÃ£ Äá»c"
+msgstr "すべて既読としてマークする"
+
+msgid "ÄÃ¡nh dáº¥u táº¥t cáº£ ÄÃ£ Äá»c"
+msgstr "ÄÃ¡nh Äº\\t Äº£ ÄÃ£ Äá»c"
+
+msgid "ÄÃ¢y lÃ tÃ i khoáº£n riÃªng tÆ°"
+msgstr "ÄÃ¢yyyyyyyyyyyyyyyyyyyyy Æ°"
+
+msgid "ÄÃ¢y lÃ tÃªn hiá»n táº¡i cá»§a báº¡n"
+msgstr "Äãy ã n Ä»n Äº¡n Ä»§ãn"
+
+msgid "ÄÃ£ bá» cháº·n"
+msgstr "ブロック解除されました"
+
+msgid "ÄÃ£ chia sáº»"
+msgstr "共有"
+
+msgid "ÄÃ£ chia sáº» má»t bÃ i viáº¿t"
+msgstr "「血を水と分かち合う」"
+
+msgid "ÄÃ£ chia sáº» má»t bÃ¬nh luáº­n"
+msgstr "「血を分かち合う」"
+
+msgid "ÄÃ£ cÃ³ tÃ i khoáº£n?"
+msgstr "すでにアカウントをお持ちですか?"
+
+msgid "ÄÃ£ cáº­p nháº­t GPS"
+msgstr "・GPSケーブル"
+
+msgid "ÄÃ£ cáº­p nháº­t bÃ i viáº¿t thÃ nh cÃ´ng!"
+msgstr "投稿が正常に更新されました。"
+
+msgid "ÄÃ£ cáº­p nháº­t ngÃ´n ngá»¯ hiá»n thá»."
+msgstr "最短のケーブルが表示されます。"
+
+msgid "ÄÃ£ ghim"
+msgstr "ÄÃ£ピン"
+
+msgid "ÄÃ£ gá»­i email"
+msgstr "電子メールを送信する"
+
+msgid "ÄÃ£ gá»­i yÃªu cáº§u"
+msgstr "女の子はあなたを愛しています"
+
+msgid "ÄÃ£ háº¿t háº¡n"
+msgstr "期限切れ"
+
+msgid "ÄÃ£ há»§y liÃªn káº¿t"
+msgstr "リンクされていない"
+
+msgid "ÄÃ£ lÆ°u"
+msgstr "保存されました"
+
+msgid "ÄÃ£ thÃ­ch"
+msgstr "気に入った"
+
+msgid "ÄÃ£ táº¯t thÃ´ng bÃ¡o"
+msgstr "数十の新聞"
+
+msgid "ÄÃ£ xÃ³a bÃ i viáº¿t thÃ nh cÃ´ng!"
+msgstr "投稿は正常に削除されました。"
+
+msgid "ÄÃ£ xáº£y ra lá»i khi bá» cháº·n ngÆ°á»i dÃ¹ng."
+msgstr "ユーザーのブロックを解除するときにエラーが発生しました。"
+
+msgid "ÄÃ£ xáº£y ra lá»i khi cháº·n ngÆ°á»i dÃ¹ng."
+msgstr "ユーザーのブロック中にエラーが発生しました。"
+
+msgid ""
+"ÄÃ£ xáº£y ra lá»i khi cháº·n ngÆ°á»i dÃ¹ng. Vui lÃ²ng thá»­ láº¡i sau."
+msgstr "ユーザーのブロック中にエラーが発生しました。後でもう一度試してください。"
+
+msgid "ÄÃ£ xáº£y ra lá»i khi gá»­i bÃ¡o cÃ¡o."
+msgstr "レポートの送信中にエラーが発生しました。"
+
+msgid "ÄÃ£ xáº£y ra lá»i khi gá»­i bÃ¡o cÃ¡o. Vui lÃ²ng thá»­ láº¡i sau."
+msgstr "レポートの送信中にエラーが発生しました。後でもう一度試してください。"
+
+msgid "ÄÃ£ xáº£y ra lá»i khi gá»­i yÃªu cáº§u."
+msgstr "リクエストの送信中にエラーが発生しました。"
+
+msgid "ÄÃ£ xáº£y ra lá»i khi há»§y liÃªn káº¿t."
+msgstr "リンクの解除中にエラーが発生しました。"
+
+msgid ""
+"ÄÃ£ xáº£y ra lá»i khi thá»±c hiá»n thao tÃ¡c. Vui lÃ²ng thá»­ láº¡i sau."
+msgstr "操作の実行中にエラーが発生しました。後でもう一度試してください。"
+
+msgid "ÄÃ£ xáº£y ra lá»i khi xÃ³a cuá»c trÃ² chuyá»n."
+msgstr "チャットの削除中にエラーが発生しました。"
+
+msgid "ÄÃ£ xáº£y ra lá»i khi ÄÄng xuáº¥t thiáº¿t bá»."
+msgstr "デバイスからのログアウト中にエラーが発生しました。"
+
+msgid "ÄÃ£ yÃªu cáº§u"
+msgstr "「リクエスト」"
+
+msgid ""
+"ÄÃ£ Äáº¡t giá»i háº¡n 3 tin nháº¯n chá». NgÆ°á»i nháº­n cáº§n cháº¥p "
+"nháº­n trÆ°á»c khi báº¡n gá»­i thÃªm."
+msgstr "「価格で」あと 3 メッセージ。人は疲れているときに自分自身を認識します。"
+
+msgid "ÄÃ£ Äá»i máº­t kháº©u"
+msgstr "かなりクール"
+
+msgid "ÄÃ³ng"
+msgstr "近い"
+
+msgid "ÄÄng kÃ½"
+msgstr "登録する"
+
+msgid "ÄÄng kÃ½ ngay"
+msgstr "今すぐ登録してください"
+
+msgid "ÄÄng kÃ½ vá»i Google"
+msgstr "Google に登録する"
+
+msgid "ÄÄng nháº­p"
+msgstr "ログイン"
+
+msgid "ÄÄng nháº­p báº±ng máº¡ng xÃ£ há»i"
+msgstr "ソーシャルネットワークを使用してログインする"
+
+msgid "ÄÄng nháº­p ngay"
+msgstr "今すぐサインイン"
+
+msgid "ÄÄng nháº­p vá»i Google"
+msgstr "Googleでサインイン"
+
+msgid "ÄÄng nháº­p Äá» tiáº¿p tá»¥c vá»i Moora"
+msgstr "ログインしてMooraを続ける"
+
+msgid "ÄÄng xuáº¥t"
+msgstr "サインアウト"
+
+msgid "ÄÄng xuáº¥t?"
+msgstr "生産？"
+
+msgid ""
+"Äáº£m báº£o sá»­ dá»¥ng máº­t kháº©u máº¡nh vÃ khÃ´ng sá»­ dá»¥ng láº¡i á»"
+" cÃ¡c trang web khÃ¡c"
+msgstr "必ず強力なパスワードを使用し、他のサイトで再利用しないでください。"
+
+msgid "Äáº·t láº¡i máº­t kháº©u"
+msgstr "かなりクールです"
+
+msgid "Äáº·t láº¡i máº­t kháº©u cho %(var)s"
+msgstr "%(var)s"
+
+msgid "Äáº·t láº¡i thÃ nh cÃ´ng"
+msgstr "ゆっくりしましょう"
+
+msgid "Äá»a Äiá»m"
+msgstr "位置"
+
+msgid ""
+"Äá»c cÃ¡c tÃ i liá»u quan trá»ng vá» cÃ¡ch dÃ¹ng Moora vÃ cÃ¡ch chÃºng "
+"tÃ´i báº£o vá» báº¡n."
+msgstr "Moora と当社の顧客の関連文書とアプリケーションについて説明します。"
+
+msgid "Äá»i"
+msgstr "変化"
+
+msgid ""
+"Äá»i SÄT sáº½ gá»­i mÃ£ xÃ¡c thá»±c vá» sá» hiá»n táº¡i (hoáº·c email "
+"náº¿u SMS khÃ´ng kháº£ dá»¥ng)."
+msgstr "電話番号を変更すると、現在の番号 (SMS が利用できない場合は電子メール) に確認コードが送信されます。"
+
+msgid "Äá»i email sáº½ gá»­i mÃ£ xÃ¡c thá»±c vá» email hiá»n táº¡i."
+msgstr "メールアドレスを変更すると、現在のメールアドレスに確認コードが送信されます。"
+
+msgid "Äá»i giao diá»n sÃ¡ng/tá»i"
+msgstr "連絡先番号/時間"
+
+msgid "Äá»i máº­t kháº©u"
+msgstr "パスワードを変更する"
+
+msgid "Äá»i áº£nh nhÃ³m"
+msgstr "ごめんなさい"
+
+msgid "Äá»i áº£nh Äáº¡i diá»n"
+msgstr "どうしたの？"
+
+msgid "Äá»£i thÃªm má»t lÃºc rá»i thá»­ láº¡i."
+msgstr "このゲームをプレイするのは本当に楽しいです。"
+
+msgid "Äang nháº­p..."
+msgstr "入っています..."
+
+msgid "Äang theo dÃµi"
+msgstr "đang theo dõi"
+
+msgid "Ít nhất 8 ký tự"
+msgstr "少なくとも 8 文字"
+
+msgid "áº¢nh"
+msgstr "画像"
+
+msgid "áº¢nh / video"
+msgstr "画像/ビデオ"
+
+msgid "áº¢nh sau khi cáº¯t vÆ°á»£t 5MB. HÃ£y thu nhá» khung hÆ¡n."
+msgstr "5MBダウンロード後の画像。もっとフレームを集めましょう。"
+
+msgid "áº¢nh tá»i Äa 5MB."
+msgstr "特徴 5MB。"
+
+msgid "áº¢nh Äang chá»nh"
+msgstr "ごめんなさい"
+
+msgid "áº¢nh Äáº¡i diá»n cá»§a %(var)s"
+msgstr "個体値の計算%(var)s"
+
+msgid "áº¢nh Äáº§y Äá»§"
+msgstr "全体写真"
+
+msgid "áº¨n lÆ°á»£t thÃ­ch"
+msgstr "いいねを非表示にする"
+
+msgid "á» láº¡i Moora"
+msgstr "ラライ・ムーラ"
+
+msgid "Đang ghi âm..."
+msgstr "録音中..."
 
 msgid "Đang hoạt động"
 msgstr "アクティブ"
 
+msgid "Đang kiểm tra…"
+msgstr "チェック中…"
+
+msgid "Đang kết nối..."
+msgstr "接続中..."
+
+msgid "Đang lưu vị trí…"
+msgstr "場所を保存中…"
+
 msgid "Đang lưu..."
 msgstr "保存中..."
 
+msgid "Đang lấy GPS chính xác…"
+msgstr "正確な GPS を取得しています…"
+
 msgid "Đang theo dõi"
-msgstr "続く"
+msgstr "フォロー中"
 
 msgid "Đang theo dõi (%(count)s)"
 msgstr "次の (%(count)s)"
+
+msgid "Đang trong cuộc gọi"
+msgstr "オンコール"
 
 msgid "Đang trả lời"
 msgstr "返信する"
@@ -792,14 +3744,32 @@ msgstr "処理"
 msgid "Đang xử lý..."
 msgstr "処理..."
 
+msgid "Đang đổ chuông..."
+msgstr "鳴っています..."
+
 msgid "Điều hướng nhanh"
 msgstr "クイックナビゲーション"
+
+msgid "Điều khoản dịch vụ"
+msgstr "利用規約"
 
 msgid "Điều khoản sử dụng"
 msgstr "利用規約"
 
+msgid "Điều kiện sử dụng tài khoản và dịch vụ Moora."
+msgstr "Moora アカウントとサービスの使用条件。"
+
 msgid "Đánh dấu tất cả là đã đọc"
 msgstr "すべて既読としてマークする"
+
+msgid "Đánh dấu tất cả đã đọc"
+msgstr "すべて既読としてマークする"
+
+msgid "Đây là tài khoản riêng tư"
+msgstr "これはプライベートアカウントです"
+
+msgid "Đây là tên hiện tại của bạn"
+msgstr "これがあなたの現在の名前です"
 
 msgid "Đã bỏ chặn"
 msgstr "ブロック解除されました"
@@ -807,11 +3777,32 @@ msgstr "ブロック解除されました"
 msgid "Đã chia sẻ"
 msgstr "共有"
 
+msgid "Đã chia sẻ một bài viết"
+msgstr "投稿をシェアしました"
+
+msgid "Đã chia sẻ một bình luận"
+msgstr "コメントを共有しました"
+
 msgid "Đã có tài khoản?"
 msgstr "すでにアカウントをお持ちですか?"
 
+msgid "Đã cập nhật GPS"
+msgstr "更新された GPS"
+
 msgid "Đã cập nhật bài viết thành công!"
 msgstr "投稿が正常に更新されました。"
+
+msgid "Đã cập nhật ngôn ngữ hiển thị."
+msgstr "表示言語を更新しました。"
+
+msgid "Đã ghim"
+msgstr "固定された"
+
+msgid "Đã gửi email"
+msgstr "メールを送信しました"
+
+msgid "Đã gửi yêu cầu"
+msgstr "リクエストを送信しました"
 
 msgid "Đã hết hạn"
 msgstr "期限切れ"
@@ -824,6 +3815,9 @@ msgstr "保存されました"
 
 msgid "Đã thích"
 msgstr "気に入った"
+
+msgid "Đã tắt thông báo"
+msgstr "通知がオフになっています"
 
 msgid "Đã xóa bài viết thành công!"
 msgstr "投稿は正常に削除されました。"
@@ -858,11 +3852,22 @@ msgstr "チャットの削除中にエラーが発生しました。"
 msgid "Đã xảy ra lỗi khi đăng xuất thiết bị."
 msgstr "デバイスからのログアウト中にエラーが発生しました。"
 
+msgid "Đã yêu cầu"
+msgstr "リクエスト済み"
+
+msgid ""
+"Đã đạt giới hạn 3 tin nhắn chờ. Người nhận cần chấp nhận trước khi bạn gửi "
+"thêm."
+msgstr "待機メッセージ 3 件の制限に達しました。さらに送信する前に、受信者が受け入れる必要があります。"
+
+msgid "Đã đổi mật khẩu"
+msgstr "パスワードが変更されました"
+
 msgid "Đóng"
 msgstr "近い"
 
 msgid "Đăng ký"
-msgstr "登録する"
+msgstr "登録"
 
 msgid "Đăng ký ngay"
 msgstr "今すぐ登録してください"
@@ -886,14 +3891,30 @@ msgid "Đăng nhập để tiếp tục với Moora"
 msgstr "ログインしてMooraを続ける"
 
 msgid "Đăng xuất"
-msgstr "サインアウト"
+msgstr "ログアウト"
+
+msgid "Đăng xuất?"
+msgstr "サインアウト？"
 
 msgid ""
 "Đảm bảo sử dụng mật khẩu mạnh và không sử dụng lại ở các trang web khác"
 msgstr "必ず強力なパスワードを使用し、他のサイトで再利用しないでください。"
 
+msgid "Đặt lại mật khẩu"
+msgstr "パスワードをリセットする"
+
+msgid "Đặt lại mật khẩu cho %(site_name)s"
+msgstr "%(site_name)s のパスワードをリセット"
+
+msgid "Đặt lại thành công"
+msgstr "正常にリセットされました"
+
 msgid "Địa điểm"
 msgstr "位置"
+
+msgid ""
+"Đọc các tài liệu quan trọng về cách dùng Moora và cách chúng tôi bảo vệ bạn."
+msgstr "Moora の使用方法と当社によるユーザーの保護方法に関する重要な文書をお読みください。"
 
 msgid "Đổi"
 msgstr "変化"
@@ -906,8 +3927,20 @@ msgstr "電話番号を変更すると、現在の番号 (SMS が利用できな
 msgid "Đổi email sẽ gửi mã xác thực về email hiện tại."
 msgstr "メールアドレスを変更すると、現在のメールアドレスに確認コードが送信されます。"
 
+msgid "Đổi giao diện sáng/tối"
+msgstr "明暗インターフェースを変更する"
+
 msgid "Đổi mật khẩu"
 msgstr "パスワードを変更する"
+
+msgid "Đổi ảnh nhóm"
+msgstr "集合写真を変更する"
+
+msgid "Đổi ảnh đại diện"
+msgstr "アバターの変更"
+
+msgid "Đợi thêm một lúc rồi thử lại."
+msgstr "しばらく待ってからもう一度試してください。"
 
 msgid "đang nhập..."
 msgstr "入っています..."
@@ -918,8 +3951,26 @@ msgstr "đang theo dõi"
 msgid "Ảnh"
 msgstr "画像"
 
+msgid "Ảnh / video"
+msgstr "写真/ビデオ"
+
+msgid "Ảnh sau khi cắt vượt 5MB. Hãy thu nhỏ khung hơn."
+msgstr "トリミング後の写真が5MBを超えています。枠を小さくしてみましょう。"
+
+msgid "Ảnh tối đa 5MB."
+msgstr "写真の最大サイズは5MBです。"
+
+msgid "Ảnh đang chỉnh"
+msgstr "写真は編集中です"
+
+msgid "Ảnh đại diện của %(username)s"
+msgstr "%(ユーザー名)s の代表的な写真"
+
 msgid "Ảnh đầy đủ"
 msgstr "全体写真"
 
 msgid "Ẩn lượt thích"
 msgstr "いいねを非表示にする"
+
+msgid "Ở lại Moora"
+msgstr "ムーラに泊まる"

@@ -7,7 +7,7 @@
 {% block body_class %} feed-layout{% endblock %}
 
 {% block extra_css %}
-<link href="{% static 'css/feed.css' %}?v=feed-tabs-soft-1" rel="stylesheet">
+<link href="{% static 'css/feed.css' %}?v=comments-ui-1" rel="stylesheet">
 <link href="{% static 'css/share_post_modal.css' %}" rel="stylesheet">
 {% include 'posts/includes/create_post_composer_assets.html' %}
 <style>
@@ -103,8 +103,8 @@
 <script>
 window.HOSHI_USER_SUGGESTIONS_URL = '{% url "posts:user_suggestions" %}';
 </script>
-<script src="{% static 'js/edit_caption_suggestions.js' %}?v=mention-clear-1"></script>
-<script src="{% static 'js/infinite_scroll.js' %}?v=comment-compose-fix-1"></script>
+<script src="{% static 'js/edit_caption_suggestions.js' %}?v=caret-visible-1"></script>
+<script src="{% static 'js/infinite_scroll.js' %}?v=comments-ui-1"></script>
 <script src="{% static 'js/share_post_modal.js' %}?v=no-as-new-1"></script>
 <script>
 window.currentUserId = '{{ request.user.id }}';

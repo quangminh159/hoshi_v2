@@ -8,7 +8,7 @@
                 <textarea id="caption"
                           name="caption"
                           class="form-control composer-textarea"
-                          rows="3"
+                          rows="2"
                           placeholder="Bạn đang nghĩ gì? Dùng #hashtag hoặc @tag..."></textarea>
                 <div id="suggestionBox"></div>
             </div>
@@ -55,9 +55,6 @@
                 </button>
             </div>
         </div>
-
-        <p class="upload-hint">Ảnh, video, nhạc hoặc ghi âm (tùy chọn) · hoặc chỉ đăng chữ · tối đa 1GB/file</p>
-
         <div class="extra-fields">
             <div class="visibility-field">
                 <label class="form-label small mb-1" for="post-visibility">
@@ -65,10 +62,10 @@
                 </label>
                 <select id="post-visibility" name="visibility" class="form-select form-select-sm post-visibility-select">
                     {% if request.user.is_account_private %}
-                    <option value="public" selected>Người theo dõi — ai đã được bạn duyệt theo dõi</option>
+                    <option value="public" selected>Người theo dõi</option>
                     <option value="only_me">Chỉ mình tôi</option>
                     {% else %}
-                    <option value="public" selected>Công khai — mọi người có thể xem</option>
+                    <option value="public" selected>Công khai</option>
                     <option value="only_me">Chỉ mình tôi</option>
                     {% endif %}
                 </select>

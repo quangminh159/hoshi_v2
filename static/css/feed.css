@@ -370,58 +370,155 @@
     color: var(--primary-color, #405de6) !important;
 }
 
-/* Comments — thụt vào so với nội dung bài */
-.feed-page .comments-section {
-    padding: 0 0.35rem 0.5rem 0.95rem;
+/* ========== Comments — hierarchy rõ, thread gọn ========== */
+.feed-page .comments-section,
+.post-detail-page .comments-section,
+.post-detail-comments-section {
+    padding: 0.15rem 0.5rem 0.35rem 0.95rem;
 }
 
-.feed-page .root-comments-list {
+.feed-page .root-comments-list,
+.post-detail-comments-list {
     display: flex;
     flex-direction: column;
-    gap: 0.35rem;
+    gap: 0;
 }
 
-.feed-page .root-comment {
+.feed-page .root-comment,
+.post-detail-page .root-comment,
+.post-detail-comments-list > .comment {
     font-size: 0.875rem;
     line-height: 1.45;
+    padding: 0.7rem 0 0.65rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    margin-bottom: 0 !important;
+}
+
+.feed-page .root-comment:last-child,
+.post-detail-page .root-comment:last-child {
+    border-bottom: none;
+    padding-bottom: 0.25rem;
 }
 
 .feed-page .root-comment-body {
-    padding-bottom: 0.15rem;
-}
-
-.feed-page .comment-replies-block {
-    margin-top: 0.35rem;
-    margin-left: 1.1rem;
-    margin-right: 0.15rem;
-    padding: 0.5rem 0.65rem 0.25rem 0.85rem;
-    border-left: 2px solid var(--border-color, #dbdbdb);
-    background: var(--surface-muted, #fafafa);
-    border-radius: 0 8px 8px 0;
-}
-
-.feed-page .comment-replies .reply-comment {
-    font-size: 0.8125rem;
-    line-height: 1.4;
-    padding-bottom: 0.35rem;
-}
-
-.feed-page .comment-replies .reply-comment:last-child {
     padding-bottom: 0;
 }
 
-.feed-page .comments-section .comment-like-button.text-primary span {
+.comment-header-row {
+    margin-bottom: 0.1rem;
+}
+
+.comment-username,
+.comments-section a.fw-bold,
+.feed-page .comments-section a.fw-bold,
+.post-detail-page .comments-section a.fw-bold {
+    font-size: 0.875rem;
+    font-weight: 650 !important;
+    color: var(--text-color, #1c1c1c) !important;
+    margin-right: 0.15rem;
+    text-decoration: none !important;
+}
+
+.comment-username:hover,
+.comments-section a.fw-bold:hover {
     color: var(--primary-color, #405de6) !important;
+}
+
+.comment-text {
+    margin-top: 0.2rem !important;
+    color: var(--text-color, #262626);
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+
+.comment-author-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.22rem;
+    margin-left: 0.2rem;
+    padding: 0.08rem 0.4rem;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    font-style: normal;
+    letter-spacing: 0.01em;
+    line-height: 1.2;
+    color: var(--primary-color, #405de6);
+    background: rgba(64, 93, 230, 0.1);
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.comment-author-badge i {
+    font-size: 0.58rem;
+    font-style: normal;
+    opacity: 0.9;
+}
+
+/* Thread phản hồi */
+.feed-page .comment-replies-block,
+.post-detail-page .comment-replies-block,
+.comment-replies-block {
+    margin: 0.55rem 0 0.1rem 0.35rem;
+    padding: 0.15rem 0 0.15rem 0.75rem;
+    border-left: 2px solid rgba(64, 93, 230, 0.28);
+    background: transparent;
+    border-radius: 0;
+    position: relative;
+}
+
+.feed-page .comment-replies,
+.comment-replies-block .comment-replies {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.feed-page .comment-replies .reply-comment,
+.comment-replies-block .reply-comment {
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    padding: 0.5rem 0.35rem 0.5rem 0.15rem;
+    margin: 0 !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    background: transparent;
+}
+
+.feed-page .comment-replies .reply-comment:last-child,
+.comment-replies-block .reply-comment:last-child {
+    border-bottom: none;
+    padding-bottom: 0.2rem;
+}
+
+.feed-page .comment-replies .reply-comment:first-child,
+.comment-replies-block .reply-comment:first-child {
+    padding-top: 0.15rem;
+}
+
+/* Meta: thời gian + actions */
+.comment-meta-row {
+    gap: 0.55rem !important;
+    margin-top: 0.35rem !important;
+    align-items: center;
+}
+
+.comment-meta-row .comment-time {
+    color: var(--light-text-color, #8e8e8e);
+    font-size: 0.75rem;
+    font-weight: 500;
 }
 
 .comment-meta-row .comment-action-btn {
     display: inline-flex;
     align-items: center;
-    gap: 0.25rem;
+    gap: 0.28rem;
     line-height: 1;
     text-decoration: none !important;
     color: var(--light-text-color, #8e8e8e) !important;
-    min-height: 1.25rem;
+    min-height: 1.35rem;
+    padding: 0.15rem 0.25rem !important;
+    border-radius: 6px;
+    transition: background 0.12s, color 0.12s;
 }
 
 .comment-meta-row .comment-action-btn i {
@@ -435,8 +532,8 @@
 
 .comment-meta-row .comment-likes-count,
 .comment-meta-row .comment-replies-count {
-    font-size: 0.75rem;
-    font-weight: 600;
+    font-size: 0.72rem;
+    font-weight: 650;
     color: inherit;
     min-width: 0.5rem;
 }
@@ -448,34 +545,78 @@
 
 .comment-meta-row .comment-action-btn:hover {
     color: var(--text-color, #262626) !important;
+    background: rgba(0, 0, 0, 0.04);
 }
 
 .comment-meta-row .comment-action-btn.is-liked:hover,
 .comment-meta-row .comment-action-btn.is-liked:hover i {
     color: #ed4956 !important;
+    background: rgba(237, 73, 86, 0.08);
 }
 
-.feed-page .comments-section a.fw-bold {
-    font-size: 0.875rem;
-    margin-right: 0.35rem;
+.feed-page .comments-section .comment-like-button.text-primary span {
+    color: var(--primary-color, #405de6) !important;
 }
 
 .feed-page .load-more-comments,
-.feed-page .load-more-replies {
+.feed-page .load-more-replies,
+.load-more-comments,
+.load-more-replies {
     font-size: 0.8125rem;
-    font-weight: 500;
+    font-weight: 600;
     text-decoration: none !important;
+    color: var(--primary-color, #405de6) !important;
 }
 
-.feed-page .load-more-comments {
-    margin-top: 0.35rem;
-    padding-left: 0;
+.feed-page .load-more-comments,
+.load-more-comments {
+    margin-top: 0.55rem;
+    padding: 0.25rem 0 !important;
 }
 
-.feed-page .load-more-replies {
-    display: block;
+.feed-page .load-more-replies,
+.load-more-replies {
+    display: inline-flex;
     margin-top: 0.35rem;
-    padding-left: 0.25rem;
+    margin-bottom: 0.1rem;
+    padding: 0.2rem 0 !important;
+}
+
+.feed-page .load-more-comments:hover,
+.feed-page .load-more-replies:hover,
+.load-more-comments:hover,
+.load-more-replies:hover {
+    color: #2f46c0 !important;
+    text-decoration: underline !important;
+}
+
+[data-bs-theme="dark"] .feed-page .root-comment,
+[data-bs-theme="dark"] .post-detail-page .root-comment,
+[data-bs-theme="dark"] .post-detail-comments-list > .comment {
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-bs-theme="dark"] .comment-replies-block {
+    border-left-color: rgba(138, 164, 255, 0.4);
+    background: transparent !important;
+}
+
+[data-bs-theme="dark"] .comment-replies-block .reply-comment {
+    border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+
+[data-bs-theme="dark"] .comment-username,
+[data-bs-theme="dark"] .comments-section a.fw-bold {
+    color: var(--text-color, #e4e4e7) !important;
+}
+
+[data-bs-theme="dark"] .comment-author-badge {
+    color: #8aa4ff;
+    background: rgba(138, 164, 255, 0.14);
+}
+
+[data-bs-theme="dark"] .comment-meta-row .comment-action-btn:hover {
+    background: rgba(255, 255, 255, 0.06);
 }
 
 .suggestion-dropdown {
@@ -1040,7 +1181,9 @@
     text-decoration: none !important;
 }
 
-/* Highlight @mention ngay trong ô nhập bình luận */
+/* Highlight @mention ngay trong ô nhập
+   Chữ + caret = textarea (luôn đúng chỗ).
+   Backdrop chỉ vẽ nền chip phía sau — lệch nhẹ nền còn chấp nhận được, không kéo caret. */
 .mention-input-wrap {
     position: relative;
     flex: 1 1 auto;
@@ -1057,7 +1200,8 @@
     bottom: 0;
     margin: 0;
     background: transparent;
-    color: var(--text-color, #262626);
+    color: transparent;
+    -webkit-text-fill-color: transparent;
     overflow: hidden;
     pointer-events: none;
     z-index: 0;
@@ -1071,35 +1215,36 @@
     z-index: 1;
     width: 100%;
     background: transparent !important;
-    color: transparent !important;
-    -webkit-text-fill-color: transparent !important;
+    /* Chữ hiện trên textarea — caret không còn lệch so với overlay */
+    color: var(--text-color, #262626) !important;
+    -webkit-text-fill-color: var(--text-color, #262626) !important;
     caret-color: #111 !important;
 }
 
-/* Placeholder vẫn hiện khi text transparent */
-.mention-input-field.form-control:placeholder-shown,
-.mention-input-wrap > textarea.mention-input-field:placeholder-shown,
-.mention-input-wrap > input.mention-input-field:placeholder-shown {
-    -webkit-text-fill-color: var(--light-text-color, #8e8e8e) !important;
+.mention-input-field.form-control::placeholder,
+.mention-input-wrap > textarea.mention-input-field::placeholder,
+.mention-input-wrap > input.mention-input-field::placeholder {
     color: var(--light-text-color, #8e8e8e) !important;
+    -webkit-text-fill-color: var(--light-text-color, #8e8e8e) !important;
+    opacity: 1;
 }
 
-.mention-input-field.form-control:not(:placeholder-shown),
-.mention-input-wrap > textarea.mention-input-field:not(:placeholder-shown),
-.mention-input-wrap > input.mention-input-field:not(:placeholder-shown) {
-    color: transparent !important;
-    -webkit-text-fill-color: transparent !important;
-}
-
-/* Chip trong ô nhập: chỉ đổi màu, KHÔNG đổi độ rộng chữ (tránh lệch caret) */
+/* Chip trong backdrop: chỉ hiện nền, chữ transparent (chữ thật ở textarea) */
 .mention-input-backdrop .mention-chip,
 .mention-input-backdrop .hashtag-chip {
-    color: #405de6;
-    font-weight: inherit;
-    background: rgba(64, 93, 230, 0.16);
+    color: transparent !important;
+    -webkit-text-fill-color: transparent !important;
+    font: inherit !important;
+    font-weight: inherit !important;
+    font-size: inherit !important;
+    line-height: inherit !important;
+    letter-spacing: inherit !important;
+    vertical-align: baseline;
+    background: rgba(64, 93, 230, 0.18);
     border-radius: 0.25em;
-    padding: 0;
-    border: 0;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
     display: inline;
     box-decoration-break: clone;
     -webkit-box-decoration-break: clone;
@@ -1122,7 +1267,8 @@
 }
 
 [data-bs-theme="dark"] .mention-input-backdrop {
-    color: #e4e4e7 !important;
+    color: transparent !important;
+    -webkit-text-fill-color: transparent !important;
 }
 
 [data-bs-theme="dark"] .mention-input-field.form-control,
@@ -1131,25 +1277,18 @@
 [data-bs-theme="dark"] .mention-input-wrap > input.mention-input-field {
     caret-color: #f4f4f5 !important;
     background: transparent !important;
-    color: transparent !important;
-    -webkit-text-fill-color: transparent !important;
+    color: #e4e4e7 !important;
+    -webkit-text-fill-color: #e4e4e7 !important;
 }
 
-[data-bs-theme="dark"] .mention-input-field.form-control:placeholder-shown,
-[data-bs-theme="dark"] .mention-input-wrap > textarea.mention-input-field:placeholder-shown,
-[data-bs-theme="dark"] .mention-input-wrap > input.mention-input-field:placeholder-shown {
+[data-bs-theme="dark"] .mention-input-field.form-control::placeholder,
+[data-bs-theme="dark"] .mention-input-wrap > textarea.mention-input-field::placeholder,
+[data-bs-theme="dark"] .mention-input-wrap > input.mention-input-field::placeholder {
     -webkit-text-fill-color: var(--light-text-color, #b8b8b8) !important;
     color: var(--light-text-color, #b8b8b8) !important;
 }
 
-[data-bs-theme="dark"] .mention-input-field.form-control:not(:placeholder-shown),
-[data-bs-theme="dark"] .mention-input-wrap > textarea.mention-input-field:not(:placeholder-shown),
-[data-bs-theme="dark"] .mention-input-wrap > input.mention-input-field:not(:placeholder-shown) {
-    color: transparent !important;
-    -webkit-text-fill-color: transparent !important;
-}
-
-/* Comment form: không để .form-control dark đè nền/chữ lên backdrop */
+/* Comment form: không để .form-control dark đè nền */
 [data-bs-theme="dark"] .add-comment-form .form-control,
 [data-bs-theme="dark"] .add-comment-form textarea,
 [data-bs-theme="dark"] .feed-page .add-comment-form .form-control,
@@ -1166,22 +1305,23 @@
 [data-bs-theme="dark"] .add-comment-form .mention-input-wrap > textarea.mention-input-field,
 [data-bs-theme="dark"] .feed-page .add-comment-form .mention-input-field.form-control,
 [data-bs-theme="dark"] .post-detail-page .add-comment-form .mention-input-field.form-control {
-    color: transparent !important;
-    -webkit-text-fill-color: transparent !important;
+    color: #e4e4e7 !important;
+    -webkit-text-fill-color: #e4e4e7 !important;
     background: transparent !important;
     caret-color: #f4f4f5 !important;
 }
 
-[data-bs-theme="dark"] .add-comment-form .mention-input-field.form-control:placeholder-shown,
-[data-bs-theme="dark"] .add-comment-form .mention-input-wrap > textarea.mention-input-field:placeholder-shown {
+[data-bs-theme="dark"] .add-comment-form .mention-input-field.form-control::placeholder,
+[data-bs-theme="dark"] .add-comment-form .mention-input-wrap > textarea.mention-input-field::placeholder {
     color: var(--light-text-color, #b8b8b8) !important;
     -webkit-text-fill-color: var(--light-text-color, #b8b8b8) !important;
 }
 
 [data-bs-theme="dark"] .mention-input-backdrop .mention-chip,
 [data-bs-theme="dark"] .mention-input-backdrop .hashtag-chip {
-    color: #8aa4ff;
-    background: rgba(138, 164, 255, 0.2);
+    color: transparent !important;
+    -webkit-text-fill-color: transparent !important;
+    background: rgba(138, 164, 255, 0.22);
     font-weight: inherit;
     padding: 0;
 }

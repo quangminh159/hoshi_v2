@@ -1,19 +1,96 @@
+%(count)s bÃ¬nh luáº­n
 %(count)s bình luận
+%(count)s lÆ°á»£t thÃ­ch
 %(count)s lượt thích
-%(counter)s cuộc trò chuyện{% plural %}%(counter)s cuộc trò chuyện
+%(counter)s cuá»c trÃ² chuyá»n
+%(counter)s cuộc trò chuyện
+%(counter)s cuộc trò chuyện%(counter)s cuộc trò chuyện
+%(counter)s tin nhắn mới%(counter)s tin nhắn mới
+%(time)s trÆ°á»c
 %(time)s trước
+%(username)s chÆ°a theo dÃµi ai.
 %(username)s chưa theo dõi ai.
+%(username)s ÄÃ£ chia sáº»
 %(username)s đã chia sẻ
-<!DOCTYPE html> <html> <head> <meta charset="UTF-8"> <title>Đặt lại mật khẩu cho %(site_name)s</title> <style type="text/css"> body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background-color: #f9f9f9; margin: 0; padding: 0; } .email-container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1); } .email-header { background-color: #3f51b5; color: white; padding: 20px 30px; text-align: center; } .email-body { padding: 30px; } .email-footer { text-align: center; padding: 20px 30px; background-color: #f5f5f5; font-size: 12px; color: #666; } .button { display: inline-block; background-color: #3f51b5; color: white; text-decoration: none; padding: 12px 25px; border-radius: 4px; font-weight: 500; margin: 20px 0; } .url-fallback { word-break: break-all; margin-top: 15px; font-size: 13px; color: #555; } </style> </head> <body> <div class="email-container"> <div class="email-header"> <h1>%(site_name)s</h1> </div> <div class="email-body"> <h2>Đặt lại mật khẩu của bạn</h2> <p>Chào bạn,</p> <p>Bạn nhận được email này vì bạn hoặc ai đó đã yêu cầu đặt lại mật khẩu cho tài khoản của bạn tại %(site_name)s.</p> <p>Để đặt lại mật khẩu của bạn, vui lòng nhấp vào nút bên dưới:</p> <div style="text-align: center;"> <a href="%(password_reset_url)s" class="button">Đặt lại mật khẩu</a> </div> <p class="url-fallback">Nếu nút không hoạt động, bạn có thể sao chép và dán liên kết này vào trình duyệt: <br>%(password_reset_url)s</p> <p>Nếu bạn không yêu cầu đặt lại mật khẩu, bạn có thể bỏ qua email này - tài khoản của bạn vẫn an toàn.</p> <p>Cảm ơn bạn,<br>Đội ngũ %(site_name)s</p> </div> <div class="email-footer"> <p>© %(site_name)s - %(site_domain)s</p> <p>Email này được gửi tự động, vui lòng không trả lời.</p> </div> </div> </body> </html>
+%(var)s bÃ¬nh luáº­n
+%(var)s chÆ°a theo dÃµi ai.
+%(var)s cuá»c trÃ² chuyá»n %(var)s cuá»c trÃ² chuyá»n
+%(var)s lÆ°á»£t thÃ­ch
+%(var)s tin nháº¯n má»i %(var)s tin nháº¯n má»i
+%(var)s trÆ°á»c
+%(var)s ÄÃ£ chia sáº»
+<strong>Cháº·n tin nháº¯n</strong> - Chá» nháº­n tin nháº¯n tá»« ngÆ°á»i báº¡n theo dÃµi
 <strong>Chặn tin nhắn</strong> - Chỉ nhận tin nhắn từ người bạn theo dõi
+<strong>TÃ i khoáº£n riÃªng tÆ°</strong> - Chá» nhá»¯ng ngÆ°á»i theo dÃµi má»i cÃ³ thá» xem bÃ i viáº¿t cá»§a báº¡n
+<strong>TÃ i khoáº£n riÃªng tÆ°</strong> - NgÆ°á»i khÃ¡c pháº£i gá»­i yÃªu cáº§u vÃ ÄÆ°á»£c báº¡n xÃ¡c nháº­n má»i theo dÃµi ÄÆ°á»£c; chá» ngÆ°á»i ÄÃ£ theo dÃµi má»i xem bÃ i viáº¿t cá»§a báº¡n
 <strong>Tài khoản riêng tư</strong> - Chỉ những người theo dõi mới có thể xem bài viết của bạn
+<strong>Tài khoản riêng tư</strong> - Người khác phải gửi yêu cầu và được bạn xác nhận mới theo dõi được; chỉ người đã theo dõi mới xem bài viết của bạn
+<strong>áº¨n tráº¡ng thÃ¡i hoáº¡t Äá»ng</strong> - KhÃ´ng hiá»n thá» tráº¡ng thÃ¡i hoáº¡t Äá»ng cá»§a báº¡n
 <strong>Ẩn trạng thái hoạt động</strong> - Không hiển thị trạng thái hoạt động của bạn
+Admin
+Audio
+Bao gá»m hÃ¬nh áº£nh vÃ video
 Bao gồm hình ảnh và video
+BÃ i viáº¿t
+BÃ i viáº¿t 24h
+BÃ¡o cÃ¡o
+BÃ¡o cÃ¡o bÃ i viáº¿t chá» xá»­ lÃ½
+BÃ¡o cÃ¡o user chá» xá»­ lÃ½
+BÃ¬nh luáº­n
+BÃ¬nh luáº­n 24h
+BÆ°á»c cuá»i
 Bài viết
+Bài viết 24h
 Báo cáo
+Báo cáo bài viết chờ xử lý
+Báo cáo user chờ xử lý
+Báº¡n chÆ°a cháº·n ngÆ°á»i dÃ¹ng nÃ o.
+Báº¡n chÆ°a lÆ°u bÃ i viáº¿t nÃ o.
+Báº¡n cháº¯c muá»n rá»i nhÃ³m nÃ y?
+Báº¡n cÃ³ cháº¯c cháº¯n muá»n bá» cháº·n
+Báº¡n cÃ³ cháº¯c cháº¯n muá»n cháº·n
+Báº¡n cÃ³ cháº¯c cháº¯n muá»n há»§y liÃªn káº¿t vá»i
+Báº¡n cÃ³ cháº¯c cháº¯n muá»n há»§y theo dÃµi
+Báº¡n cÃ³ cháº¯c cháº¯n muá»n xoÃ¡ bÃ i viáº¿t nÃ y khÃ´ng?
+Báº¡n cÃ³ cháº¯c cháº¯n muá»n xÃ³a bÃ i viáº¿t nÃ y khÃ´ng?
+Báº¡n cÃ³ cháº¯c cháº¯n muá»n xÃ³a phÆ°Æ¡ng tiá»n nÃ y khÃ´ng?
+Báº¡n cÃ³ cháº¯c cháº¯n muá»n xÃ³a tin nháº¯n nÃ y khÃ´ng?
+Báº¡n cÃ³ cháº¯c cháº¯n muá»n xÃ³a tÃ i khoáº£n?
+Báº¡n cÃ³ cháº¯c cháº¯n muá»n ÄÄng xuáº¥t khá»i thiáº¿t bá» nÃ y?
+Báº¡n cÃ³ cháº¯c muá»n xÃ³a cuá»c trÃ² chuyá»n nÃ y? HÃ nh Äá»ng nÃ y khÃ´ng thá» hoÃ n tÃ¡c.
+Báº¡n cÃ³ cháº¯c muá»n ÄÄng xuáº¥t khá»i tÃ i khoáº£n trÃªn thiáº¿t bá» nÃ y?
+Báº¡n cÃ³ thá» chá»n nhiá»u áº£nh hoáº·c video cÃ¹ng lÃºc.
+Báº¡n cÃ³ thá» ÄÄng nháº­p vÃ o Moora báº±ng máº­t kháº©u má»i ngay bÃ¢y giá».
+Báº¡n khÃ´ng cÃ³ quyá»n chá»nh sá»­a bÃ i viáº¿t nÃ y.
+Báº¡n khÃ´ng cÃ³ quyá»n xÃ³a bÃ i viáº¿t nÃ y.
+Báº¡n khÃ´ng cÃ³ thÃ´ng bÃ¡o nÃ o
+Báº¡n khÃ´ng cÃ³ thÃ´ng bÃ¡o nÃ o.
+Báº¡n luÃ´n cÃ³ thá» ÄÄng nháº­p láº¡i báº¥t cá»© lÃºc nÃ o.
+Báº¡n sáº½ khÃ´ng tháº¥y bÃ i viáº¿t cá»§a há» vÃ há» khÃ´ng thá» tÆ°Æ¡ng tÃ¡c vá»i báº¡n.
+Báº¡n Äang nghÄ© gÃ¬?
+Báº¡n Äang ÄÄng nháº­p vá»i <strong>@%(var)s</strong>. Báº¡n cÃ³ cháº¯c muá»n rá»i khá»i Moora trÃªn thiáº¿t bá» nÃ y?
+Báº¡n ÄÃ£ cháº·n
+Báº¡n ÄÃ£ gá»­i Äá»§ %(var)s tin. Chá» ngÆ°á»i nháº­n cháº¥p nháº­n Äá» nháº¯n tiáº¿p.
+Báº¡n ÄÃ£ tá»« chá»i quyá»n vá» trÃ­. Chá» dÃ¹ng vá» trÃ­ theo IP.
+Báº¡n ÄÃ£ xem háº¿t thÃ´ng bÃ¡o
+Báº¡n ÄÃ£ xem háº¿t táº¥t cáº£ bÃ i viáº¿t
+Báº¡n:
+Báº£n Äá»
+Báº£ng tin
+Báº£o máº­t
+Báº­t thÃ´ng bÃ¡o
+Báº¯t Äáº§u cuá»c trÃ² chuyá»n...
+Báº¯t Äáº§u trÃ² chuyá»n vá»i báº¡n bÃ¨ ngay hÃ´m nay
+Bá» cháº·n tá»« %(date)s
+Bá» cháº·n tá»« %(var)s
+Bá» cháº·n
+Bá» ghim
 Bình luận
+Bình luận 24h
+Bước cuối
 Bạn chưa chặn người dùng nào.
 Bạn chưa lưu bài viết nào.
+Bạn chắc muốn rời nhóm này?
 Bạn có chắc chắn muốn bỏ chặn
 Bạn có chắc chắn muốn chặn
 Bạn có chắc chắn muốn hủy liên kết với
@@ -25,25 +102,90 @@ Bạn có chắc chắn muốn xóa tin nhắn này không?
 Bạn có chắc chắn muốn xóa tài khoản?
 Bạn có chắc chắn muốn đăng xuất khỏi thiết bị này?
 Bạn có chắc muốn xóa cuộc trò chuyện này? Hành động này không thể hoàn tác.
+Bạn có chắc muốn đăng xuất khỏi tài khoản trên thiết bị này?
 Bạn có thể chọn nhiều ảnh hoặc video cùng lúc.
+Bạn có thể đăng nhập vào Moora bằng mật khẩu mới ngay bây giờ.
 Bạn không có quyền chỉnh sửa bài viết này.
 Bạn không có quyền xóa bài viết này.
 Bạn không có thông báo nào
 Bạn không có thông báo nào.
+Bạn luôn có thể đăng nhập lại bất cứ lúc nào.
 Bạn sẽ không thấy bài viết của họ và họ không thể tương tác với bạn.
 Bạn đang nghĩ gì?
+Bạn đang đăng nhập với <strong>@%(name)s</strong>. Bạn có chắc muốn rời khỏi Moora trên thiết bị này?
 Bạn đã chặn
+Bạn đã gửi đủ %(max)s tin. Chờ người nhận chấp nhận để nhắn tiếp.
+Bạn đã từ chối quyền vị trí. Chỉ dùng vị trí theo IP.
+Bạn đã xem hết thông báo
 Bạn đã xem hết tất cả bài viết
 Bạn:
+Bản đồ
 Bảng tin
 Bảo mật
+Bật thông báo
 Bắt đầu cuộc trò chuyện...
 Bắt đầu trò chuyện với bạn bè ngay hôm nay
 Bị chặn từ %(date)s
 Bỏ chặn
+Bỏ ghim
+Chi tiáº¿t cuá»c trÃ² chuyá»n
 Chi tiết cuộc trò chuyện
+Chia sáº» giá»i tÃ­nh trÃªn trang cÃ¡ nhÃ¢n
+Chia sáº» ngÃ y sinh trÃªn trang cÃ¡ nhÃ¢n
+Chia sẻ giới tính trên trang cá nhân
+Chia sẻ ngày sinh trên trang cá nhân
+ChÃ o báº¡n tá»« %(var)s! Báº¡n nháº­n ÄÆ°á»£c email nÃ y vÃ¬ báº¡n hoáº·c ai ÄÃ³ ÄÃ£ yÃªu cáº§u Äáº·t láº¡i máº­t kháº©u cho tÃ i khoáº£n cá»§a báº¡n. Náº¿u ÄÃ¢y khÃ´ng pháº£i lÃ báº¡n, báº¡n cÃ³ thá» bá» qua email nÃ y. Äá» Äáº·t láº¡i máº­t kháº©u, vui lÃ²ng nháº¥p vÃ o liÃªn káº¿t bÃªn dÆ°á»i:
+ChÃ o má»«ng trá» láº¡i!
+ChÃ­nh sÃ¡ch báº£o máº­t
+ChÃ­nh sÃ¡ch quyá»n riÃªng tÆ°
+ChÃºng tÃ´i sáº½ gá»­i liÃªn káº¿t Äáº·t láº¡i máº­t kháº©u.
+ChÆ°a cÃ³ ai theo dÃµi %(username)s.
+ChÆ°a cÃ³ ai theo dÃµi %(var)s.
+ChÆ°a cÃ³ bÃ i viáº¿t nÃ o ÄÆ°á»£c chia sáº».
+ChÆ°a cÃ³ bÃ i viáº¿t nÃ o Äá» hiá»n thá»
+ChÆ°a cÃ³ bÃ i viáº¿t nÃ o.
+ChÆ°a cÃ³ cuá»c trÃ² chuyá»n nÃ o
+ChÆ°a cÃ³ tin nháº¯n
+ChÆ°a cÃ³ tin nháº¯n nÃ o
+ChÆ°a cÃ³ tÃ i khoáº£n máº¡ng xÃ£ há»i nÃ o ÄÆ°á»£c liÃªn káº¿t.
+ChÆ°a cÃ³ tÃ i khoáº£n?
+ChÆ°a cáº­p nháº­t
+Chào bạn từ %(site_name)s! Bạn nhận được email này vì bạn hoặc ai đó đã yêu cầu đặt lại mật khẩu cho tài khoản của bạn. Nếu đây không phải là bạn, bạn có thể bỏ qua email này. Để đặt lại mật khẩu, vui lòng nhấp vào liên kết bên dưới:
 Chào mừng trở lại!
+Cháº¥p nháº­n
+Cháº¥p nháº­n Äá» chuyá»n vÃ o há»p thÆ° chÃ­nh. Tá»« chá»i sáº½ áº©n cuá»c trÃ² chuyá»n nÃ y.
+Cháº·n
+Cháº·n má»i (7 ngÃ y)
+Cháº¿ Äá» mÃ u
+Cháº¿ Äá» xem
+Cháº¿ Äá» xem báº£ng tin
+Chá» há» trá»£ Facebook, Twitter/X, Instagram vÃ LinkedIn.
+Chá» mÃ¬nh báº¡n xem ÄÆ°á»£c
+Chá» mÃ¬nh tÃ´i
+Chá» ngÆ°á»i theo dÃµi ÄÃ£ duyá»t má»i xem ÄÆ°á»£c
+Chá» nhá»¯ng ngÆ°á»i theo dÃµi má»i cÃ³ thá» xem bÃ i viáº¿t cá»§a tÃ i khoáº£n nÃ y. HÃ£y theo dÃµi Äá» xem ná»i dung.
+Chá»nh há» sÆ¡, máº­t kháº©u, xÃ³a / khÃ´i phá»¥c tÃ i khoáº£n.
+Chá»nh khung áº£nh Äáº¡i diá»n
+Chá»nh sá»­a
+Chá»nh sá»­a bÃ i viáº¿t
+Chá»nh sá»­a há» sÆ¡
+Chá»n cháº¿ Äá» sÃ¡ng, tá»i hoáº·c theo há» thá»ng. TÃ¹y chá»n ÄÆ°á»£c lÆ°u trÃªn thiáº¿t bá» nÃ y.
+Chá»n cÃ¡c tÃ¹y chá»n quyá»n riÃªng tÆ° báº±ng cÃ¡ch báº­t/táº¯t cÃ´ng táº¯c bÃªn dÆ°á»i.
+Chá»n email hoáº·c sá» Äiá»n thoáº¡i ÄÃ£ liÃªn káº¿t vá»i tÃ i khoáº£n. SÄT há» trá»£ má»i quá»c gia.
+Chá»n giao diá»n
+Chá»n giá»i tÃ­nh
+Chá»n lÃ½ do
+Chá»n mÃ£ quá»c gia rá»i nháº­p sá» Äiá»n thoáº¡i (há» trá»£ má»i quá»c gia).
+Chá»n mÃ£ quá»c gia rá»i nháº­p sá» â há» trá»£ má»i quá»c gia.
+Chá»n máº­t kháº©u máº¡nh vÃ dá» nhá» vá»i báº¡n. Sau ÄÃ³ báº¡n cÃ³ thá» ÄÄng nháº­p láº¡i ngay.
+Chá»n má»t má»¥c bÃªn trÃ¡i Äá» xem vÃ chá»nh cÃ i Äáº·t.
+Chá»n má»t má»¥c Äá» má» chi tiáº¿t.
+Chá»n ngÃ y sinh cá»§a báº¡n
+Chá»n ngÃ´n ngá»¯ hiá»n thá» cho tÃ i khoáº£n cá»§a báº¡n. TÃ¹y chá»n nÃ y sáº½ ÄÆ°á»£c lÆ°u vÃ Ã¡p dá»¥ng má»i khi báº¡n ÄÄng nháº­p.
+Chá»n tÃªn ngÆ°á»i dÃ¹ng cá»§a báº¡n
 Chính sách bảo mật
+Chính sách quyền riêng tư
+Chúng tôi sẽ gửi liên kết đặt lại mật khẩu.
 Chưa có ai theo dõi %(username)s.
 Chưa có bài viết nào được chia sẻ.
 Chưa có bài viết nào để hiển thị
@@ -54,93 +196,409 @@ Chưa có tin nhắn nào
 Chưa có tài khoản mạng xã hội nào được liên kết.
 Chưa có tài khoản?
 Chưa cập nhật
+Chấp nhận
+Chấp nhận để chuyển vào hộp thư chính. Từ chối sẽ ẩn cuộc trò chuyện này.
 Chặn
+Chặn mới (7 ngày)
+Chế độ màu
+Chế độ xem
 Chế độ xem bảng tin
 Chỉ hỗ trợ Facebook, Twitter/X, Instagram và LinkedIn.
+Chỉ mình bạn xem được
+Chỉ mình tôi
+Chỉ người theo dõi đã duyệt mới xem được
+Chỉ những người theo dõi mới có thể xem bài viết của tài khoản này. Hãy theo dõi để xem nội dung.
+Chỉnh hồ sơ, mật khẩu, xóa / khôi phục tài khoản.
+Chỉnh khung ảnh đại diện
 Chỉnh sửa
 Chỉnh sửa bài viết
 Chỉnh sửa hồ sơ
+Chọn chế độ sáng, tối hoặc theo hệ thống. Tùy chọn được lưu trên thiết bị này.
 Chọn các tùy chọn quyền riêng tư bằng cách bật/tắt công tắc bên dưới.
+Chọn email hoặc số điện thoại đã liên kết với tài khoản. SĐT hỗ trợ mọi quốc gia.
+Chọn giao diện
 Chọn giới tính
 Chọn lý do
 Chọn mã quốc gia rồi nhập số điện thoại (hỗ trợ mọi quốc gia).
+Chọn mã quốc gia rồi nhập số — hỗ trợ mọi quốc gia.
+Chọn mật khẩu mạnh và dễ nhớ với bạn. Sau đó bạn có thể đăng nhập lại ngay.
+Chọn một mục bên trái để xem và chỉnh cài đặt.
+Chọn một mục để mở chi tiết.
 Chọn ngày sinh của bạn
 Chọn ngôn ngữ hiển thị cho tài khoản của bạn. Tùy chọn này sẽ được lưu và áp dụng mỗi khi bạn đăng nhập.
 Chọn tên người dùng của bạn
+Comment
+Comment Reply
+Cuá»c trÃ² chuyá»n
+Cuộc gọi thoại
+Cuộc gọi video
+Cuộc trò chuyện
+CÃ i Äáº·t
+CÃ i Äáº·t báº£o máº­t
+CÃ i Äáº·t ngÃ´n ngá»¯
+CÃ i Äáº·t quyá»n riÃªng tÆ°
+CÃ i Äáº·t thÃ´ng bÃ¡o
+CÃ i Äáº·t tÃ i khoáº£n
+CÃ¡ nhÃ¢n
+CÃ¡ch chÃºng tÃ´i thu tháº­p, dÃ¹ng vÃ báº£o vá» dá»¯ liá»u cá»§a báº¡n.
+CÃ¢u há»i thÆ°á»ng gáº·p vÃ hÆ°á»ng dáº«n dÃ¹ng Moora.
+CÃ²n %(var)s/%(var)s tin nháº¯n trÆ°á»c khi ngÆ°á»i nháº­n cháº¥p nháº­n.
+CÃ³ lá»i xáº£y ra khi cáº­p nháº­t bÃ i viáº¿t.
+CÃ³ lá»i xáº£y ra khi táº£i danh sÃ¡ch ngÆ°á»i theo dÃµi.
+CÃ³ lá»i xáº£y ra khi táº£i danh sÃ¡ch Äang theo dÃµi.
+CÃ³ lá»i xáº£y ra khi xoÃ¡ bÃ i viáº¿t.
+CÃ³ lá»i xáº£y ra khi xÃ³a bÃ i viáº¿t.
+CÃ³ thá» dÃ¹ng tÃªn nÃ y
+CÃ´ng khai
 Cài đặt
 Cài đặt bảo mật
 Cài đặt ngôn ngữ
 Cài đặt quyền riêng tư
 Cài đặt thông báo
 Cài đặt tài khoản
+Cá nhân
+Cách chúng tôi thu thập, dùng và bảo vệ dữ liệu của bạn.
+Cáº£m Æ¡n báº¡n ÄÃ£ bÃ¡o cÃ¡o. ChÃºng tÃ´i sáº½ xem xÃ©t ná»i dung nÃ y trong thá»i gian sá»m nháº¥t.
+Cáº£nh bÃ¡o
+Cáº§n Ã­t nháº¥t 3 kÃ½ tá»±
+Cáº­p nháº­t vá» trÃ­ chÃ­nh xÃ¡c (GPS)
+Câu hỏi thường gặp và hướng dẫn dùng Moora.
+Còn %(remaining)s/%(max)s tin nhắn trước khi người nhận chấp nhận.
 Có lỗi xảy ra khi cập nhật bài viết.
 Có lỗi xảy ra khi tải danh sách người theo dõi.
 Có lỗi xảy ra khi tải danh sách đang theo dõi.
 Có lỗi xảy ra khi xoá bài viết.
 Có lỗi xảy ra khi xóa bài viết.
+Có thể dùng tên này
+Công khai
 Cảm ơn bạn đã báo cáo. Chúng tôi sẽ xem xét nội dung này trong thời gian sớm nhất.
 Cảnh báo
+Cần ít nhất 3 ký tự
+Cập nhật vị trí chính xác (GPS)
+DÃ nh cho báº¡n
+DÃ¡n URL Äáº§y Äá»§. Äá» trá»ng náº¿u khÃ´ng dÃ¹ng.
+DÃ¹ng #hashtag hoáº·c @tag ngÆ°á»i Äang follow...
+DÃ¹ng email / SÄT khÃ¡c
+DÃ¹ng vá» trÃ­ hiá»n táº¡i
+DÃ¹ng áº£nh nÃ y
 Dành cho bạn
+Dán URL đầy đủ. Để trống nếu không dùng.
+Dùng #hashtag hoặc @tag người đang follow...
+Dùng email / SĐT khác
+Dùng vị trí hiện tại
+Dùng ảnh này
 Email
 Email / Gmail
+Email vÃ SÄT dÃ¹ng Äá» báº£o máº­t / khÃ´i phá»¥c tÃ i khoáº£n. Äá»i qua xÃ¡c thá»±c OTP.
+Email và SĐT dùng để bảo mật / khôi phục tài khoản. Đổi qua xác thực OTP.
+Email ÄÃ£ ÄÆ°á»£c gá»­i
+Email đã được gửi
+Female
+File khÃ´ng ÄÆ°á»£c há» trá»£. Vui lÃ²ng chá»n áº£nh hoáº·c video.
+File không được hỗ trợ. Vui lòng chọn ảnh hoặc video.
+Follow
+Follow Accepted
+Follow Request
+GPS
+Ghi nhá» ÄÄng nháº­p
 Ghi nhớ đăng nhập
+Ghi Ã¢m
+Ghi Ã¢m tin nháº¯n thoáº¡i
+Ghi âm
+Ghi âm tin nhắn thoại
+Ghim
+Giao diá»n
+Giao diá»n sÃ¡ng / tá»i
+Giao diện
+Giao diện sáng / tối
+Giá»i thiá»u
+Giá»i tÃ­nh
+Giá»¯ ghi Ã¢m Ã­t nháº¥t 1 giÃ¢y.
+Giá»¯ máº­t kháº©u cá»§a báº¡n an toÃ n vÃ Äá»«ng chia sáº» vá»i ai.
+Giá»¯ vá» trÃ­ GPS cÅ© (chÃ­nh xÃ¡c hÆ¡n).
+Giới thiệu
 Giới tính
+Giữ ghi âm ít nhất 1 giây.
+Giữ mật khẩu của bạn an toàn và đừng chia sẻ với ai.
+Giữ vị trí GPS cũ (chính xác hơn).
+Gá»i thoáº¡i
+Gá»i video
+Gá»¡ admin
+Gá»­i bÃ¡o cÃ¡o
+Gá»­i láº¡i email
+Gá»­i láº¡i mÃ£
+Gá»­i lá»i chÃ o Äá» báº¯t Äáº§u cuá»c trÃ² chuyá»n
+Gá»­i tin nháº¯n
+Gá»­i tin nháº¯n thoáº¡i
+Gá»­i tÃ³m táº¯t hÃ ng ngÃ y
+Gọi thoại
+Gọi video
+Gỡ admin
 Gửi báo cáo
+Gửi lại email
+Gửi lại mã
 Gửi lời chào để bắt đầu cuộc trò chuyện
 Gửi tin nhắn
+Gửi tin nhắn thoại
 Gửi tóm tắt hàng ngày
+Hate speech
+Hiá»n máº­t kháº©u
+Hiện mật khẩu
 Home
-Moora - Mạng xã hội chia sẻ khoảnh khắc
+HoÃ n tÃ¡c xÃ³a áº£nh
+HoÃ n táº¥t
+Hoàn tác xóa ảnh
+Hoàn tất
+Hoáº¡t Äá»ng %(time)s trÆ°á»c
+Hoáº¡t Äá»ng %(var)s trÆ°á»c
 Hoạt động %(time)s trước
+HÃ ng Äá»£i bÃ¡o cÃ¡o bÃ i viáº¿t
+HÃ ng Äá»£i bÃ¡o cÃ¡o ngÆ°á»i dÃ¹ng
+HÃ£y má» email vÃ báº¥m vÃ o liÃªn káº¿t Äá» táº¡o máº­t kháº©u má»i. Äá»«ng quÃªn kiá»m tra cáº£ thÆ° má»¥c spam. Náº¿u báº¡n dÃ¹ng sá» Äiá»n thoáº¡i, hÃ£y quay láº¡i vÃ nháº­p SÄT Äá» nháº­n OTP.
+HÃ¬nh áº£nh
+HÃ´m nay
+HÆ°á»ng dáº«n nhanh. Báº¥m tá»«ng chá»§ Äá» hoáº·c má» trang trá»£ giÃºp Äáº§y Äá»§.
+Hàng đợi báo cáo bài viết
+Hàng đợi báo cáo người dùng
+Há» thá»ng
+Há»
+Há» tÃªn vÃ tÃªn ngÆ°á»i dÃ¹ng dÃ¹ng Äá» má»i ngÆ°á»i tÃ¬m tháº¥y báº¡n.
+Há» sÆ¡
+Há»§y
+Há»§y liÃªn káº¿t %(name)s
+Há»§y liÃªn káº¿t %(var)s
+Há»§y yÃªu cáº§u theo dÃµi
+Hãy mở email và bấm vào liên kết để tạo mật khẩu mới. Đừng quên kiểm tra cả thư mục spam. Nếu bạn dùng số điện thoại, hãy quay lại và nhập SĐT để nhận OTP.
 Hình ảnh
 Hôm nay
+Hướng dẫn nhanh. Bấm từng chủ đề hoặc mở trang trợ giúp đầy đủ.
+Hệ thống
+Họ
+Họ tên và tên người dùng dùng để mọi người tìm thấy bạn.
 Hồ sơ
 Hủy
 Hủy liên kết %(name)s
+Hủy yêu cầu theo dõi
+IP
+If enabled, birth date is visible on your public profile.
+If enabled, gender is visible on your public profile.
+Image
+Inappropriate content
+Khi báº­t, báº¡n sáº½ cáº§n nháº­p mÃ£ xÃ¡c thá»±c tá»« á»©ng dá»¥ng (Google Authenticator, Authyâ¦) má»i khi ÄÄng nháº­p.
 Khi bật, bạn sẽ cần nhập mã xác thực từ ứng dụng (Google Authenticator, Authy…) mỗi khi đăng nhập.
+Khi cÃ³ ngÆ°á»i bÃ¬nh luáº­n bÃ i viáº¿t cá»§a báº¡n hoáº·c tráº£ lá»i bÃ¬nh luáº­n cá»§a báº¡n
+Khi cÃ³ ngÆ°á»i gá»­i tin nháº¯n cho báº¡n
+Khi cÃ³ ngÆ°á»i nháº¯c Äáº¿n báº¡n trong bÃ i viáº¿t hoáº·c bÃ¬nh luáº­n
+Khi cÃ³ ngÆ°á»i theo dÃµi báº¡n
+Khi cÃ³ ngÆ°á»i thÃ­ch bÃ i viáº¿t hoáº·c bÃ¬nh luáº­n cá»§a báº¡n
 Khi có người bình luận bài viết của bạn hoặc trả lời bình luận của bạn
 Khi có người gửi tin nhắn cho bạn
 Khi có người nhắc đến bạn trong bài viết hoặc bình luận
 Khi có người theo dõi bạn
 Khi có người thích bài viết hoặc bình luận của bạn
+Khi ngÆ°á»i láº¡ nháº¯n tin, yÃªu cáº§u sáº½ hiá»n á» ÄÃ¢y.
+Khi người lạ nhắn tin, yêu cầu sẽ hiện ở đây.
+KhÃ¡c
+KhÃ´i phá»¥c truy cáº­p
+KhÃ´i phá»¥c tÃ i khoáº£n
+KhÃ´ng báº¯t buá»c. Báº­t chia sáº» náº¿u muá»n hiá»n trÃªn trang cÃ¡ nhÃ¢n.
+KhÃ´ng cÃ³ thiáº¿t bá» nÃ o khÃ¡c ÄÄng nháº­p vÃ o tÃ i khoáº£n cá»§a báº¡n.
+KhÃ´ng cÃ³ thiáº¿t bá» ÄÄng nháº­p nÃ o ÄÆ°á»£c ghi nháº­n
+KhÃ´ng cÃ³ tin nháº¯n chá»
+KhÃ´ng gá»­i ÄÆ°á»£c tin nháº¯n thoáº¡i
+KhÃ´ng lÆ°u ÄÆ°á»£c vá» trÃ­.
+KhÃ´ng láº¥y ÄÆ°á»£c GPS. Thá»­ láº¡i hoáº·c kiá»m tra quyá»n vá» trÃ­.
+KhÃ´ng nháº­n ÄÆ°á»£c gÃ¬?
+KhÃ´ng thá» báº¯t Äáº§u ghi Ã¢m.
+KhÃ´ng thá» cáº¯t áº£nh. Thá»­ láº¡i vá»i áº£nh khÃ¡c.
+KhÃ´ng thá» gá»­i tin nháº¯n vÃ¬ má»t trong hai ngÆ°á»i ÄÃ£ cháº·n ngÆ°á»i cÃ²n láº¡i.
+KhÃ´ng thá» há»§y liÃªn káº¿t tÃ i khoáº£n.
+KhÃ´ng thá» láº¥y vá» trÃ­ hiá»n táº¡i.
+KhÃ´ng thá» nháº¯n tin (ÄÃ£ cháº·n)
+KhÃ´ng thá» truy cáº­p micro. HÃ£y cho phÃ©p quyá»n micro rá»i thá»­ láº¡i.
+KhÃ´ng thá» truy cáº­p vá» trÃ­. Vui lÃ²ng cho phÃ©p quyá»n Äá»nh vá».
+KhÃ´ng thá» Äáº·t láº¡i
+KhÃ´ng thá»±c hiá»n ÄÆ°á»£c. Thá»­ láº¡i.
+KhÃ´ng tÃ¬m tháº¥y bÃ i viáº¿t.
+KhÃ´ng tÃ¬m tháº¥y ngÆ°á»i dÃ¹ng phÃ¹ há»£p.
 Khác
+Khôi phục truy cập
 Khôi phục tài khoản
+Không bắt buộc. Bật chia sẻ nếu muốn hiện trên trang cá nhân.
 Không có thiết bị nào khác đăng nhập vào tài khoản của bạn.
 Không có thiết bị đăng nhập nào được ghi nhận
+Không có tin nhắn chờ
+Không gửi được tin nhắn thoại
+Không lưu được vị trí.
+Không lấy được GPS. Thử lại hoặc kiểm tra quyền vị trí.
+Không nhận được gì?
+Không thể bắt đầu ghi âm.
+Không thể cắt ảnh. Thử lại với ảnh khác.
 Không thể gửi tin nhắn vì một trong hai người đã chặn người còn lại.
 Không thể hủy liên kết tài khoản.
+Không thể lấy vị trí hiện tại.
 Không thể nhắn tin (đã chặn)
+Không thể truy cập micro. Hãy cho phép quyền micro rồi thử lại.
+Không thể truy cập vị trí. Vui lòng cho phép quyền định vị.
+Không thể đặt lại
+Không thực hiện được. Thử lại.
 Không tìm thấy bài viết.
+Không tìm thấy người dùng phù hợp.
+Kick
+Kick %(name)s khỏi nhóm?
+Kick %(var)s khá»i nhÃ³m?
+Kiá»m tra há»p thÆ°
+Kiểm tra hộp thư
+KÃ©o áº£nh Äá» Äáº·t vá» trÃ­
+Káº¿t quáº£ sau
+Káº¿t quáº£ trÆ°á»c
+Kéo thả hoặc chọn ảnh/video mới · tối đa 1GB/file
+Kéo ảnh để đặt vị trí
+Kết quả sau
+Kết quả trước
+Kết thúc
+Like
+LiÃªn káº¿t & máº¡ng xÃ£ há»i
+LiÃªn káº¿t háº¿t háº¡n
+LiÃªn káº¿t máº¡ng xÃ£ há»i
+LiÃªn káº¿t nÃ y khÃ´ng há»£p lá» hoáº·c ÄÃ£ háº¿t háº¡n. HÃ£y yÃªu cáº§u má»t liÃªn káº¿t má»i Äá» tiáº¿p tá»¥c.
+LiÃªn káº¿t ÄÃ£ ÄÆ°á»£c lÆ°u vÃ o Website. Chá» há» trá»£ Facebook, Twitter/X, Instagram vÃ LinkedIn trong danh sÃ¡ch máº¡ng xÃ£ há»i.
+Liên kết & mạng xã hội
+Liên kết hết hạn
 Liên kết mạng xã hội
+Liên kết này không hợp lệ hoặc đã hết hạn. Hãy yêu cầu một liên kết mới để tiếp tục.
 Liên kết đã được lưu vào Website. Chỉ hỗ trợ Facebook, Twitter/X, Instagram và LinkedIn trong danh sách mạng xã hội.
+Loáº¡i file khÃ´ng ÄÆ°á»£c há» trá»£
+Loáº¡i thÃ´ng bÃ¡o
+Loại file không được hỗ trợ
 Loại thông báo
+LÃ½ do bÃ¡o cÃ¡o
+LÃ½ do xÃ³a tÃ i khoáº£n
+LÆ°u
+LÆ°u há» sÆ¡
+LÆ°u máº­t kháº©u má»i
+LÆ°u ngÃ´n ngá»¯
+LÆ°u thay Äá»i
+LÆ°u thay Äá»i quyá»n riÃªng tÆ°
+LÆ°u thay Äá»i thÃ´ng bÃ¡o
+LÆ°á»£t thÃ­ch
+Lá»c thÃ´ng bÃ¡o
+Lá»i táº¯t kiá»m duyá»t
+Lá»i khi gá»­i tin nháº¯n thoáº¡i
+Lá»i khi táº£i danh sÃ¡ch ngÆ°á»i theo dÃµi
+Lá»i khi táº£i danh sÃ¡ch Äang theo dÃµi
+Lá»i khi táº£i lÃªn tá»p:
+Lá»i káº¿t ná»i tá»i mÃ¡y chá»§. Vui lÃ²ng thá»­ láº¡i sau.
+Lá»i máº¡ng khi lÆ°u vá» trÃ­.
 Lý do báo cáo
 Lý do xóa tài khoản
+Lưu
+Lưu hồ sơ
+Lưu mật khẩu mới
 Lưu ngôn ngữ
 Lưu thay đổi
 Lưu thay đổi quyền riêng tư
 Lưu thay đổi thông báo
 Lượt thích
+Lọc thông báo
+Lối tắt kiểm duyệt
+Lỗi khi gửi tin nhắn thoại
 Lỗi khi tải danh sách người theo dõi
 Lỗi khi tải danh sách đang theo dõi
 Lỗi khi tải lên tệp:
 Lỗi kết nối tới máy chủ. Vui lòng thử lại sau.
+Lỗi mạng khi lưu vị trí.
+Male
+Mention
 Menu
+Message
+Moora - Máº¡ng xÃ£ há»i chia sáº» khoáº£nh kháº¯c
+Moora - Mạng xã hội chia sẻ khoảnh khắc
+Moora lÆ°u thiáº¿t bá» + vá» trÃ­ Äá» báº£o vá» tÃ i khoáº£n. Vá» trÃ­ chÃ­nh xÃ¡c nháº¥t láº¥y tá»« GPS trÃ¬nh duyá»t (cáº§n báº¡n cho phÃ©p); náº¿u khÃ´ng sáº½ dÃ¹ng vá» trÃ­ theo IP (Äá» chÃ­nh xÃ¡c thÃ nh phá»).
+Moora lưu thiết bị + vị trí để bảo vệ tài khoản. Vị trí chính xác nhất lấy từ GPS trình duyệt (cần bạn cho phép); nếu không sẽ dùng vị trí theo IP (độ chính xác thành phố).
+Moora Äang closed beta â cáº§n mÃ£ má»i Äá» ÄÄng kÃ½.
+Moora đang closed beta — cần mã mời để đăng ký.
+MÃ£ 8 sá», hiá»u lá»±c 10 phÃºt. Sai quÃ¡ 5 láº§n sáº½ bá» khÃ³a táº¡m.
+MÃ£ má»i beta
+MÃ£ xÃ¡c thá»±c
+MÃ´ táº£ chi tiáº¿t
+Máº­t kháº©u
+Máº­t kháº©u má»i
+Máº­t kháº©u má»i ÄÃ£ sáºµn sÃ ng. Báº¡n cÃ³ thá» ÄÄng nháº­p láº¡i ngay bÃ¢y giá».
+Máº­t kháº©u vÃ ÄÄng nháº­p
+Máº­t kháº©u ÄÃ£ Äá»i
+Má» Trung tÃ¢m trá»£ giÃºp
+Má»¥c cÃ i Äáº·t
+Má»¥c há» sÆ¡
+Mã 8 số, hiệu lực 10 phút. Sai quá 5 lần sẽ bị khóa tạm.
+Mã mời beta
+Mã xác thực
 Mô tả chi tiết
 Mật khẩu
+Mật khẩu mới
+Mật khẩu mới đã sẵn sàng. Bạn có thể đăng nhập lại ngay bây giờ.
 Mật khẩu và đăng nhập
+Mật khẩu đã đổi
+Mở Trung tâm trợ giúp
+Mục cài đặt
 Mục hồ sơ
 Nam
+NguyÃªn táº¯c cá»ng Äá»ng
+Nguyên tắc cộng đồng
+NgÃ y sinh
+NgÃ´n ngá»¯
+NgÃ´n ngá»¯ hiá»n thá»
+NgÆ°á»i báº¡n theo dÃµi
+NgÆ°á»i dÃ¹ng
+NgÆ°á»i dÃ¹ng ÄÃ£ bá» cháº·n
+NgÆ°á»i nÃ y báº¡n chÆ°a theo dÃµi. Cháº¥p nháº­n Äá» tráº£ lá»i trong há»p thÆ° chÃ­nh, hoáº·c tá»« chá»i.
+NgÆ°á»i theo dÃµi
+NgÆ°á»i theo dÃµi (%(count)s)
+NgÆ°á»i theo dÃµi (%(var)s)
+NgÆ°á»i táº¡o
 Ngày sinh
 Ngôn ngữ
 Ngôn ngữ hiển thị
+Người bạn theo dõi
+Người dùng
 Người dùng đã bị chặn
+Người này bạn chưa theo dõi. Chấp nhận để trả lời trong hộp thư chính, hoặc từ chối.
+Người theo dõi
 Người theo dõi (%(count)s)
+Người tạo
+NhÃ³m má»i â gá»­i tin nháº¯n Äáº§u tiÃªn
+Nháº¥n Ã Äá» ÄÃ¡nh dáº¥u xÃ³a áº£nh/video hiá»n cÃ³.
+Nháº­n email tÃ³m táº¯t cÃ¡c hoáº¡t Äá»ng má»i ngÃ y
+Nháº­n thÃ´ng bÃ¡o ngay cáº£ khi khÃ´ng má» á»©ng dá»¥ng
+Nháº­n thÃ´ng bÃ¡o qua Äá»a chá» email cá»§a báº¡n
+Nháº­n thÃ´ng bÃ¡o sau 30 ngÃ y khÃ´ng hoáº¡t Äá»ng
+Nháº­p láº¡i máº­t kháº©u
+Nháº­p láº¡i máº­t kháº©u má»i
+Nháº­p mÃ£ OTP
+Nháº­p mÃ£ má»i
+Nháº­p máº­t kháº©u cá»§a báº¡n
+Nháº­p máº­t kháº©u hoáº·c mÃ£ xÃ¡c thá»±c Äá» táº¯t 2FA:
+Nháº­p máº­t kháº©u Äá» xÃ¡c nháº­n
+Nháº­p tin nháº¯n...
+Nháº­p tÃªn ngÆ°á»i dÃ¹ng cá»§a báº¡n
+Nháº­p Äá»a chá» email cá»§a báº¡n
+Nháº¯c Äáº¿n
+Nháº¯n tin
+Nháº¯n tin trá»±c tiáº¿p
+Nhá»¯ng ngÆ°á»i mÃ %(username)s Äang theo dÃµi
+Nhá»¯ng ngÆ°á»i mÃ %(var)s Äang theo dÃµi
+Nhá»¯ng ngÆ°á»i Äang theo dÃµi %(username)s
+Nhá»¯ng ngÆ°á»i Äang theo dÃµi %(var)s
+Nhóm mới — gửi tin nhắn đầu tiên
+Nhấn × để đánh dấu xóa ảnh/video hiện có.
 Nhận email tóm tắt các hoạt động mỗi ngày
 Nhận thông báo ngay cả khi không mở ứng dụng
 Nhận thông báo qua địa chỉ email của bạn
 Nhận thông báo sau 30 ngày không hoạt động
 Nhập lại mật khẩu
+Nhập lại mật khẩu mới
+Nhập mã OTP
+Nhập mã mời
 Nhập mật khẩu của bạn
 Nhập mật khẩu hoặc mã xác thực để tắt 2FA:
 Nhập mật khẩu để xác nhận
@@ -152,59 +610,266 @@ Nhắn tin
 Nhắn tin trực tiếp
 Những người mà %(username)s đang theo dõi
 Những người đang theo dõi %(username)s
+NÃªn cÃ³ chá»¯ hoa, chá»¯ thÆ°á»ng, sá» vÃ kÃ½ tá»± Äáº·c biá»t.
+Náº¿u báº¡n khÃ´ng yÃªu cáº§u Äáº·t láº¡i máº­t kháº©u, hÃ£y bá» qua email nÃ y. Cáº£m Æ¡n báº¡n ÄÃ£ sá»­ dá»¥ng %(var)s! %(var)s
+Náº¿u sá» káº¿t thÃºc báº±ng <strong>%(var)s</strong> cÃ³ trÃªn Moora, báº¡n sáº½ nháº­n mÃ£ 8 sá» trong vÃ i phÃºt.
+Náº¿u Äá»a chá» email tá»n táº¡i trÃªn Moora, báº¡n sáº½ nháº­n ÄÆ°á»£c liÃªn káº¿t Äáº·t láº¡i máº­t kháº©u trong vÃ i phÃºt.
+Ná»i dung
+Ná»i dung & cá»ng Äá»ng
+Ná»i dung khÃ´ng phÃ¹ há»£p
+Ná»¯
+Nên có chữ hoa, chữ thường, số và ký tự đặc biệt.
+Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email này. Cảm ơn bạn đã sử dụng %(site_name)s! %(site_domain)s
+Nếu số kết thúc bằng <strong>%(hint)s</strong> có trên Moora, bạn sẽ nhận mã 8 số trong vài phút.
+Nếu địa chỉ email tồn tại trên Moora, bạn sẽ nhận được liên kết đặt lại mật khẩu trong vài phút.
 Nội dung
+Nội dung & cộng đồng
 Nội dung không phù hợp
 Nữ
 Offline
+Only me
+Other
+Phong admin
+PhÃ¡p lÃ½ & cá»ng Äá»ng
+PhÃ¢n trang thÃ´ng bÃ¡o
+PhÃ³ng to
+PhÆ°Æ¡ng thá»©c nháº­n thÃ´ng bÃ¡o
+PhÆ°Æ¡ng thá»©c Äáº·t láº¡i
+PhÆ°Æ¡ng tiá»n hiá»n táº¡i
+Pháp lý & cộng đồng
 Phân trang thông báo
+Phóng to
 Phương thức nhận thông báo
+Phương thức đặt lại
 Phương tiện hiện tại
+Public
+Quay láº¡i
+Quay láº¡i danh má»¥c
+Quay láº¡i ÄÄng nháº­p
 Quay lại
+Quay lại danh mục
+Quay lại đăng nhập
+Quy táº¯c ÄÄng bÃ i vÃ táº£i dá»¯ liá»u cÃ¡ nhÃ¢n.
+Quy táº¯c á»©ng xá»­ Äá» cá»ng Äá»ng an toÃ n vÃ tÃ´n trá»ng.
+Quy tắc đăng bài và tải dữ liệu cá nhân.
+Quy tắc ứng xử để cộng đồng an toàn và tôn trọng.
+Quyá»n riÃªng tÆ°
+Quyá»n riÃªng tÆ° & an toÃ n
 Quyền riêng tư
+Quyền riêng tư & an toàn
+QuÃªn máº­t kháº©u?
+Quáº£n lÃ½ bÃ i viáº¿t
+Quáº£n lÃ½ bÃ¬nh luáº­n
+Quáº£n lÃ½ chat
+Quáº£n lÃ½ cÃ i Äáº·t báº£o máº­t cho tÃ i khoáº£n cá»§a báº¡n. Báº­t xÃ¡c thá»±c hai yáº¿u tá» Äá» tÄng cÆ°á»ng báº£o máº­t.
+Quáº£n lÃ½ cÃ¡c tÃ i khoáº£n máº¡ng xÃ£ há»i ÄÆ°á»£c liÃªn káº¿t vá»i tÃ i khoáº£n Moora cá»§a báº¡n
+Quáº£n lÃ½ danh sÃ¡ch ngÆ°á»i dÃ¹ng mÃ báº¡n ÄÃ£ cháº·n
+Quáº£n lÃ½ story
+Quáº¥y rá»i
 Quên mật khẩu?
+Quản lý bài viết
+Quản lý bình luận
+Quản lý chat
 Quản lý cài đặt bảo mật cho tài khoản của bạn. Bật xác thực hai yếu tố để tăng cường bảo mật.
 Quản lý các tài khoản mạng xã hội được liên kết với tài khoản Moora của bạn
 Quản lý danh sách người dùng mà bạn đã chặn
+Quản lý story
 Quấy rối
+RiÃªng tÆ°
+Riêng tư
+Rá»i nhÃ³m
+Rời nhóm
+Share
+Spam
+Story Äang sá»ng
+Story đang sống
+SÃ¡ng
+Sáng
+Sáºµn sÃ ng táº£i xuá»ng
+Sá» Äiá»n thoáº¡i
+Sá»­ dá»¥ng # hashtag vÃ @ gáº¯n tháº» ngÆ°á»i Äang follow
 Sẵn sàng tải xuống
 Số điện thoại
+Sử dụng # hashtag và @ gắn thẻ người đang follow
+Tham gia cá»ng Äá»ng Moora ngay hÃ´m nay
 Tham gia cộng đồng Moora ngay hôm nay
+Thay Äá»i chá» lÆ°u khi báº¡n nháº¥n nÃºt bÃªn pháº£i.
+Thay đổi chỉ lưu khi bạn nhấn nút bên phải.
+Theo IP
+Theo dÃµi
+Theo dÃµi bÃ¡o cÃ¡o, tÃ i khoáº£n bá» háº¡n cháº¿ vÃ hoáº¡t Äá»ng gáº§n ÄÃ¢y â giá»ng bÃ n Äiá»u khiá»n kiá»m duyá»t máº¡ng xÃ£ há»i.
+Theo dÃµi láº¡i
+Theo dÃµi Äá» xem danh sÃ¡ch
 Theo dõi
+Theo dõi báo cáo, tài khoản bị hạn chế và hoạt động gần đây — giống bàn điều khiển kiểm duyệt mạng xã hội.
+Theo dõi lại
+Theo dõi để xem danh sách
+Thiáº¿t bá» cá»§a báº¡n ÄÃ£ ÄÄng nháº­p. Báº¡n cÃ³ thá» ÄÄng xuáº¥t khá»i cÃ¡c thiáº¿t bá» khÃ¡c tá»« ÄÃ¢y.
+Thiáº¿t bá» hiá»n táº¡i
+Thiáº¿t bá» khÃ¡c
+Thiáº¿t bá» ÄÄng nháº­p
+Thiáº¿t láº­p xÃ¡c thá»±c hai yáº¿u tá»
 Thiết bị của bạn đã đăng nhập. Bạn có thể đăng xuất khỏi các thiết bị khác từ đây.
 Thiết bị hiện tại
 Thiết bị khác
 Thiết bị đăng nhập
 Thiết lập xác thực hai yếu tố
+ThÃ nh viÃªn
+ThÃ nh viÃªn nhÃ³m
+ThÃªm
+ThÃªm báº¥t ká»³ liÃªn káº¿t máº¡ng xÃ£ há»i nÃ o cá»§a báº¡n
+ThÃªm thÃ nh viÃªn
+ThÃªm vÃ o nhÃ³m
+ThÃªm áº£nh/video má»i
+ThÃ´ng bÃ¡o
+ThÃ´ng bÃ¡o há» thá»ng
+ThÃ´ng bÃ¡o khi khÃ´ng hoáº¡t Äá»ng
+ThÃ´ng bÃ¡o qua email
+ThÃ´ng bÃ¡o Äáº©y
+ThÃ´ng tin cÆ¡ báº£n
+ThÃ´ng tin liÃªn há»
+ThÃ´ng tin liÃªn há» (cáº§n xÃ¡c thá»±c khi Äá»i)
+ThÃ´ng tin nhÃ³m
+ThÃ´ng tin nÃ y hiá»n trÃªn trang há» sÆ¡ cÃ´ng khai cá»§a báº¡n.
+Thành viên
+Thành viên nhóm
+Tháº» & Äá» cáº­p
+Thá»ng kÃª bÃ¡o cÃ¡o
+Thá»ng kÃª bÃ¡o cÃ¡o chi tiáº¿t
+Thá»ng kÃª há» sÆ¡
 Thêm
 Thêm bất kỳ liên kết mạng xã hội nào của bạn
+Thêm thành viên
+Thêm vào nhóm
 Thêm ảnh/video mới
 Thông báo
+Thông báo hệ thống
 Thông báo khi không hoạt động
 Thông báo qua email
 Thông báo đẩy
+Thông tin cơ bản
+Thông tin liên hệ
 Thông tin liên hệ (cần xác thực khi đổi)
+Thông tin nhóm
+Thông tin này hiện trên trang hồ sơ công khai của bạn.
+Thẻ & đề cập
 Thống kê báo cáo
+Thống kê báo cáo chi tiết
+Thống kê hồ sơ
+Tin nháº¯n
+Tin nháº¯n 24h
+Tin nháº¯n chá»
+Tin nháº¯n chá» (requests)
+Tin nháº¯n má»i
+Tin nháº¯n thoáº¡i
+Tin nháº¯n thoáº¡i quÃ¡ ngáº¯n.
+Tin nháº¯n ÄÃ£ ÄÆ°á»£c thu há»i
 Tin nhắn
+Tin nhắn 24h
+Tin nhắn chờ
+Tin nhắn chờ (requests)
+Tin nhắn mới
+Tin nhắn thoại
+Tin nhắn thoại quá ngắn.
+Tin nhắn đã được thu hồi
+Tin tá»« ngÆ°á»i báº¡n chÆ°a theo dÃµi
+Tin từ người bạn chưa theo dõi
+Tiáº¿p tá»¥c
+Tiếp tục
+Trang chá»§
+Trang chá»§ Moora
 Trang chủ
+Trang chủ Moora
+Trang cÃ¡ nhÃ¢n
 Trang cá nhân
 Trang sau
+Trang trÆ°á»c
 Trang trước
+Trung tÃ¢m trá»£ giÃºp
+Trung tÃ¢m váº­n hÃ nh Moora
+Trung tâm trợ giúp
+Trung tâm vận hành Moora
+TrÃ¬nh duyá»t khÃ´ng há» trá»£ GPS.
+TrÃ¬nh duyá»t khÃ´ng há» trá»£ ghi Ã¢m.
+TrÃ¬nh duyá»t khÃ´ng há» trá»£ Äá»nh vá» GPS.
+TrÃ² chuyá»n má»i
+Tráº£ lá»i
+Trình duyệt không hỗ trợ GPS.
+Trình duyệt không hỗ trợ ghi âm.
+Trình duyệt không hỗ trợ định vị GPS.
 Trò chuyện mới
 Trả lời
+TÃ i khoáº£n & há» sÆ¡
+TÃ i khoáº£n bá» xÃ³a?
+TÃ i khoáº£n giáº£ máº¡o
+TÃ i khoáº£n riÃªng tÆ°
+TÃ i khoáº£n riÃªng tÆ°, cháº·n/bÃ¡o cÃ¡o, thiáº¿t bá» ÄÄng nháº­p.
+TÃ i khoáº£n Äang ÄÃ¬nh chá»
+TÃ i khoáº£n ÄÃ£ xÃ³a má»m
+TÃ i liá»u
+TÃªn
+TÃªn ngÆ°á»i dÃ¹ng
+TÃªn ngÆ°á»i dÃ¹ng khÃ´ng há»£p lá»
+TÃªn nhÃ³m
+TÃªn ÄÃ£ ÄÆ°á»£c sá»­ dá»¥ng
+TÃ¬m hoáº·c chá»n Äá»a Äiá»m (tÃ¹y chá»n)
+TÃ¬m kiáº¿m
+TÃ¬m kiáº¿m cuá»c trÃ² chuyá»n...
+TÃ¬m kiáº¿m tin nháº¯n
+TÃ¬m kiáº¿m...
+TÃ¬m theo tÃªn hoáº·c @username
+TÃ¬m tin nháº¯n...
+TÃ´i hiá»u ráº±ng sau 30 ngÃ y tÃ i khoáº£n sáº½ bá» xÃ³a vÄ©nh viá» n vÃ khÃ´ng thá» khÃ´i phá»¥c
+TÃ´i Äá»ng Ã½ vá»i
+TÃ¹y chá»nh cÃ¡ch báº¡n nháº­n thÃ´ng bÃ¡o tá»« Moora
+TÃ¹y chá»nh thá»i gian ÄÃ¬nh chá»
+TÃ¹y chá»nh thá»i gian ÄÃ¬nh chá» ngÆ°á»i dÃ¹ng bá» bÃ¡o cÃ¡o
+TÃ¹y chá»n thÃ´ng bÃ¡o khÃ¡c
+Tài khoản & hồ sơ
 Tài khoản bị xóa?
 Tài khoản giả mạo
+Tài khoản riêng tư
+Tài khoản riêng tư, chặn/báo cáo, thiết bị đăng nhập.
+Tài khoản đang đình chỉ
+Tài khoản đã xóa mềm
 Tài liệu
+Táº¡m biá»t má»t chÃºt
+Táº¡o bÃ i viáº¿t
+Táº¡o bÃ i viáº¿t má»i
+Táº¡o máº­t kháº©u má»i
+Táº¡o tÃ i khoáº£n má»i
+Táº£i xuá»ng
+Táº£i xuá»ng báº£n sao dá»¯ liá»u cá»§a báº¡n, bao gá»m bÃ i viáº¿t, bÃ¬nh luáº­n, vÃ thÃ´ng tin cÃ¡ nhÃ¢n.
+Táº£i xuá»ng dá»¯ liá»u
+Táº¥t cáº£
+Táº¯t bÃ¬nh luáº­n
+Táº¯t thÃ´ng bÃ¡o
+Táº¯t xÃ¡c thá»±c hai yáº¿u tá»
+Tá»i
+Tá»ng bÃ i viáº¿t
+Tá»ng quan kiá»m duyá»t
+Tá»ng user
+Tá»« chá»i
+Tá»« chá»i tin nháº¯n nÃ y?
+Tên
 Tên người dùng
 Tên người dùng không hợp lệ
+Tên nhóm
+Tên đã được sử dụng
+Tìm hoặc chọn địa điểm (tùy chọn)
 Tìm kiếm
 Tìm kiếm cuộc trò chuyện...
+Tìm kiếm tin nhắn
 Tìm kiếm...
+Tìm theo tên hoặc @username
+Tìm tin nhắn...
 Tôi hiểu rằng sau 30 ngày tài khoản sẽ bị xóa vĩnh viễn và không thể khôi phục
 Tôi đồng ý với
 Tùy chỉnh cách bạn nhận thông báo từ Moora
 Tùy chỉnh thời gian đình chỉ
 Tùy chỉnh thời gian đình chỉ người dùng bị báo cáo
 Tùy chọn thông báo khác
+Tạm biệt một chút
 Tạo bài viết
 Tạo bài viết mới
 Tạo mật khẩu mới
@@ -212,57 +877,327 @@ Tạo tài khoản mới
 Tải xuống
 Tải xuống bản sao dữ liệu của bạn, bao gồm bài viết, bình luận, và thông tin cá nhân.
 Tải xuống dữ liệu
+Tất cả
 Tắt bình luận
+Tắt thông báo
 Tắt xác thực hai yếu tố
+Tối
+Tổng bài viết
+Tổng quan kiểm duyệt
+Tổng user
+Từ chối
+Từ chối tin nhắn này?
+User má»i 24h
+User mới 24h
 Video
+Violence
 Việc xóa tài khoản là <strong>tạm thời</strong> trong vòng 30 ngày. Trong thời gian này, bạn có thể khôi phục lại tài khoản bằng cách đăng nhập lại hoặc sử dụng trang <a href="%(restore_url)s" class="alert-link">khôi phục tài khoản</a>. Sau 30 ngày, tài khoản và tất cả dữ liệu sẽ bị xóa vĩnh viễn.
+Vui lÃ²ng chá»n file áº£nh.
+Vui lÃ²ng chá»n lÃ½ do bÃ¡o cÃ¡o.
+Vui lÃ²ng cung cáº¥p thÃªm thÃ´ng tin...
+Vui lÃ²ng kiá»m tra láº¡i cÃ¡c thÃ´ng tin bÃªn dÆ°á»i.
+Vui lÃ²ng kiá»m tra láº¡i cÃ¡c trÆ°á»ng bá» lá»i bÃªn dÆ°á»i.
+Vui lòng chọn file ảnh.
 Vui lòng chọn lý do báo cáo.
 Vui lòng cung cấp thêm thông tin...
+Vui lòng kiểm tra lại các thông tin bên dưới.
+Vui lòng kiểm tra lại các trường bị lỗi bên dưới.
+Vá» trang ÄÄng nháº­p
+Về trang đăng nhập
+Website
+Who can see this post
+Xem bÃ i viáº¿t gá»c
 Xem bài viết gốc
+Xem chi tiáº¿t
 Xem chi tiết
+Xem há» sÆ¡
+Xem hồ sơ
+Xem thá»ng kÃª bÃ¡o cÃ¡o
 Xem thống kê báo cáo
+Xem trÃªn báº£n Äá»
+Xem trên bản đồ
+Xem táº¥t cáº£ thÃ´ng bÃ¡o
 Xem tất cả thông báo
+Xem áº£nh
+Xem áº£nh Äáº¡i diá»n
 Xem ảnh
+Xem ảnh đại diện
+Xong rá»i
+Xong rồi
+XÃ¡c nháº­n
+XÃ¡c nháº­n máº­t kháº©u
+XÃ¡c thá»±c OTP
+XÃ¡c thá»±c hai yáº¿u tá»
+XÃ¡c thá»±c hai yáº¿u tá» Äang <strong>báº­t</strong>. Báº¡n sáº½ cáº§n mÃ£ tá»« á»©ng dá»¥ng xÃ¡c thá»±c má»i khi ÄÄng nháº­p.
+XÃ¡c thá»±c sá» Äiá»n thoáº¡i
+XÃ³a
+XÃ³a bÃ i viáº¿t
+XÃ³a chá» bÃªn mÃ¬nh? (OK = chá» mÃ¬nh, Cancel rá»i thá»­ láº¡i Äá» chá»n khÃ¡c)
+XÃ³a cuá»c trÃ² chuyá»n
+XÃ³a phÃ­a mÃ¬nh
+XÃ³a phÃ­a ngÆ°á»i nháº­n
+XÃ³a thÃ´ng bÃ¡o
+XÃ³a tin nháº¯n
+XÃ³a tin nháº¯n nÃ y.
+XÃ³a tÃ i khoáº£n
+XÃ³a táº¥t cáº£
+XÃ³a áº£nh Äáº¡i diá»n
+XÃ³a áº£nh Äáº¡i diá»n hiá»n táº¡i
+Xác nhận
 Xác nhận mật khẩu
+Xác thực OTP
 Xác thực hai yếu tố
 Xác thực hai yếu tố đang <strong>bật</strong>. Bạn sẽ cần mã từ ứng dụng xác thực mỗi khi đăng nhập.
+Xác thực số điện thoại
 Xóa
 Xóa bài viết
+Xóa chỉ bên mình? (OK = chỉ mình, Cancel rồi thử lại để chọn khác)
 Xóa cuộc trò chuyện
+Xóa phía mình
+Xóa phía người nhận
+Xóa thông báo
+Xóa tin nhắn
+Xóa tin nhắn này.
 Xóa tài khoản
+Xóa tất cả
+Xóa ảnh đại diện
 Xóa ảnh đại diện hiện tại
+YÃªu cáº§u cá»§a báº¡n ÄÃ£ ÄÆ°á»£c ghi nháº­n.
+YÃªu cáº§u gáº§n ÄÃ¢y
+YÃªu cáº§u liÃªn káº¿t má»i
+YÃªu cáº§u nháº¯n tin
+YÃªu cáº§u táº£i xuá»ng
 Yêu cầu của bạn đã được ghi nhận.
 Yêu cầu gần đây
+Yêu cầu liên kết mới
+Yêu cầu nhắn tin
 Yêu cầu tải xuống
+admin notes
+audio
+bio
+birth date
+block
+block messages from non-followers
+blocks
+bÃ i viáº¿t
 bài viết
+caption
+comment like
+comment likes
+comment notifications
+cá»§a Moora
 của Moora
+deleted account
+deleted at
+deletion reason
+description
+details
+email address
+email notifications
+facebook
+file
+follow notifications
+follow request
+follow requests
+following
+followings
+gender
+hide activity status
+highlight
+hoáº·c tiáº¿p tá»¥c vá»i
+hoáº·c ÄÄng kÃ½ vá»i
 hoặc tiếp tục với
 hoặc đăng ký với
+inactive notifications
+instagram
+language
+like
+like notifications
+likes
+linkedin
+location
+lÆ°á»£t thÃ­ch
 lượt thích
+media
+media type
+mention notifications
+message notifications
+ngÆ°á»i theo dÃµi
 người theo dõi
+order
+phone number
+post media
+post report
+post reports
+private account
+push notifications
+reason
+resolved
+resolved at
+show birth date on profile
+show gender on profile
+stories
+story
+story view
+story views
+summary notifications
+suspended account
+suspension end date
+suspension reason
+thÃ nh cÃ´ng.
+thÃ nh viÃªn
+thÃ´ng bÃ¡o chÆ°a Äá»c
 thành công.
+thành viên
 thông báo chưa đọc
+tin nháº¯n chÆ°a Äá»c
+tin nhắn chưa đọc
+twitter
+two-factor authentication
+two-factor secret
+user
+user report
+user reports
+users
+valid report
+verified account
+video
+vÃ
 và
+website
+you@email.com
+Âm thanh
+Ãm thanh
+Ãt nháº¥t 8 kÃ½ tá»±
+Äang ghi Ã¢m...
+Äang hoáº¡t Äá»ng
+Äang kiá»m traâ¦
+Äang lÆ°u vá» trÃ­â¦
+Äang lÆ°u...
+Äang láº¥y GPS chÃ­nh xÃ¡câ¦
+Äang theo dÃµi
+Äang theo dÃµi (%(count)s)
+Äang theo dÃµi (%(var)s)
+Äang tráº£ lá»i
+Äang táº£i bÃ i viáº¿t...
+Äang táº£i...
+Äang xá»­ lÃ½
+Äang xá»­ lÃ½...
+Äiá»u hÆ°á»ng nhanh
+Äiá»u khoáº£n dá»ch vá»¥
+Äiá»u khoáº£n sá»­ dá»¥ng
+Äiá»u kiá»n sá»­ dá»¥ng tÃ i khoáº£n vÃ dá»ch vá»¥ Moora.
+ÄÃ¡nh dáº¥u táº¥t cáº£ lÃ ÄÃ£ Äá»c
+ÄÃ¡nh dáº¥u táº¥t cáº£ ÄÃ£ Äá»c
+ÄÃ¢y lÃ tÃ i khoáº£n riÃªng tÆ°
+ÄÃ¢y lÃ tÃªn hiá»n táº¡i cá»§a báº¡n
+ÄÃ£ bá» cháº·n
+ÄÃ£ chia sáº»
+ÄÃ£ chia sáº» má»t bÃ i viáº¿t
+ÄÃ£ chia sáº» má»t bÃ¬nh luáº­n
+ÄÃ£ cÃ³ tÃ i khoáº£n?
+ÄÃ£ cáº­p nháº­t GPS
+ÄÃ£ cáº­p nháº­t bÃ i viáº¿t thÃ nh cÃ´ng!
+ÄÃ£ cáº­p nháº­t ngÃ´n ngá»¯ hiá»n thá».
+ÄÃ£ ghim
+ÄÃ£ gá»­i email
+ÄÃ£ gá»­i yÃªu cáº§u
+ÄÃ£ háº¿t háº¡n
+ÄÃ£ há»§y liÃªn káº¿t
+ÄÃ£ lÆ°u
+ÄÃ£ thÃ­ch
+ÄÃ£ táº¯t thÃ´ng bÃ¡o
+ÄÃ£ xÃ³a bÃ i viáº¿t thÃ nh cÃ´ng!
+ÄÃ£ xáº£y ra lá»i khi bá» cháº·n ngÆ°á»i dÃ¹ng.
+ÄÃ£ xáº£y ra lá»i khi cháº·n ngÆ°á»i dÃ¹ng.
+ÄÃ£ xáº£y ra lá»i khi cháº·n ngÆ°á»i dÃ¹ng. Vui lÃ²ng thá»­ láº¡i sau.
+ÄÃ£ xáº£y ra lá»i khi gá»­i bÃ¡o cÃ¡o.
+ÄÃ£ xáº£y ra lá»i khi gá»­i bÃ¡o cÃ¡o. Vui lÃ²ng thá»­ láº¡i sau.
+ÄÃ£ xáº£y ra lá»i khi gá»­i yÃªu cáº§u.
+ÄÃ£ xáº£y ra lá»i khi há»§y liÃªn káº¿t.
+ÄÃ£ xáº£y ra lá»i khi thá»±c hiá»n thao tÃ¡c. Vui lÃ²ng thá»­ láº¡i sau.
+ÄÃ£ xáº£y ra lá»i khi xÃ³a cuá»c trÃ² chuyá»n.
+ÄÃ£ xáº£y ra lá»i khi ÄÄng xuáº¥t thiáº¿t bá».
+ÄÃ£ yÃªu cáº§u
+ÄÃ£ Äáº¡t giá»i háº¡n 3 tin nháº¯n chá». NgÆ°á»i nháº­n cáº§n cháº¥p nháº­n trÆ°á»c khi báº¡n gá»­i thÃªm.
+ÄÃ£ Äá»i máº­t kháº©u
+ÄÃ³ng
+ÄÄng kÃ½
+ÄÄng kÃ½ ngay
+ÄÄng kÃ½ vá»i Google
+ÄÄng nháº­p
+ÄÄng nháº­p báº±ng máº¡ng xÃ£ há»i
+ÄÄng nháº­p ngay
+ÄÄng nháº­p vá»i Google
+ÄÄng nháº­p Äá» tiáº¿p tá»¥c vá»i Moora
+ÄÄng xuáº¥t
+ÄÄng xuáº¥t?
+Äáº£m báº£o sá»­ dá»¥ng máº­t kháº©u máº¡nh vÃ khÃ´ng sá»­ dá»¥ng láº¡i á» cÃ¡c trang web khÃ¡c
+Äáº·t láº¡i máº­t kháº©u
+Äáº·t láº¡i máº­t kháº©u cho %(var)s
+Äáº·t láº¡i thÃ nh cÃ´ng
+Äá»a Äiá»m
+Äá»c cÃ¡c tÃ i liá»u quan trá»ng vá» cÃ¡ch dÃ¹ng Moora vÃ cÃ¡ch chÃºng tÃ´i báº£o vá» báº¡n.
+Äá»i
+Äá»i SÄT sáº½ gá»­i mÃ£ xÃ¡c thá»±c vá» sá» hiá»n táº¡i (hoáº·c email náº¿u SMS khÃ´ng kháº£ dá»¥ng).
+Äá»i email sáº½ gá»­i mÃ£ xÃ¡c thá»±c vá» email hiá»n táº¡i.
+Äá»i giao diá»n sÃ¡ng/tá»i
+Äá»i máº­t kháº©u
+Äá»i áº£nh nhÃ³m
+Äá»i áº£nh Äáº¡i diá»n
+Äá»£i thÃªm má»t lÃºc rá»i thá»­ láº¡i.
+Äang nháº­p...
+Äang theo dÃµi
+Ít nhất 8 ký tự
+áº¢nh
+áº¢nh / video
+áº¢nh sau khi cáº¯t vÆ°á»£t 5MB. HÃ£y thu nhá» khung hÆ¡n.
+áº¢nh tá»i Äa 5MB.
+áº¢nh Äang chá»nh
+áº¢nh Äáº¡i diá»n cá»§a %(var)s
+áº¢nh Äáº§y Äá»§
+áº¨n lÆ°á»£t thÃ­ch
+á» láº¡i Moora
+Đang ghi âm...
 Đang hoạt động
+Đang kiểm tra…
+Đang kết nối...
+Đang lưu vị trí…
 Đang lưu...
+Đang lấy GPS chính xác…
 Đang theo dõi
 Đang theo dõi (%(count)s)
+Đang trong cuộc gọi
 Đang trả lời
 Đang tải bài viết...
 Đang tải...
 Đang xử lý
 Đang xử lý...
+Đang đổ chuông...
 Điều hướng nhanh
+Điều khoản dịch vụ
 Điều khoản sử dụng
+Điều kiện sử dụng tài khoản và dịch vụ Moora.
 Đánh dấu tất cả là đã đọc
+Đánh dấu tất cả đã đọc
+Đây là tài khoản riêng tư
+Đây là tên hiện tại của bạn
 Đã bỏ chặn
 Đã chia sẻ
+Đã chia sẻ một bài viết
+Đã chia sẻ một bình luận
 Đã có tài khoản?
+Đã cập nhật GPS
 Đã cập nhật bài viết thành công!
+Đã cập nhật ngôn ngữ hiển thị.
+Đã ghim
+Đã gửi email
+Đã gửi yêu cầu
 Đã hết hạn
 Đã hủy liên kết
 Đã lưu
 Đã thích
+Đã tắt thông báo
 Đã xóa bài viết thành công!
 Đã xảy ra lỗi khi bỏ chặn người dùng.
 Đã xảy ra lỗi khi chặn người dùng.
@@ -274,6 +1209,9 @@ và
 Đã xảy ra lỗi khi thực hiện thao tác. Vui lòng thử lại sau.
 Đã xảy ra lỗi khi xóa cuộc trò chuyện.
 Đã xảy ra lỗi khi đăng xuất thiết bị.
+Đã yêu cầu
+Đã đạt giới hạn 3 tin nhắn chờ. Người nhận cần chấp nhận trước khi bạn gửi thêm.
+Đã đổi mật khẩu
 Đóng
 Đăng ký
 Đăng ký ngay
@@ -284,14 +1222,29 @@ và
 Đăng nhập với Google
 Đăng nhập để tiếp tục với Moora
 Đăng xuất
+Đăng xuất?
 Đảm bảo sử dụng mật khẩu mạnh và không sử dụng lại ở các trang web khác
+Đặt lại mật khẩu
+Đặt lại mật khẩu cho %(site_name)s
+Đặt lại thành công
 Địa điểm
+Đọc các tài liệu quan trọng về cách dùng Moora và cách chúng tôi bảo vệ bạn.
 Đổi
 Đổi SĐT sẽ gửi mã xác thực về số hiện tại (hoặc email nếu SMS không khả dụng).
 Đổi email sẽ gửi mã xác thực về email hiện tại.
+Đổi giao diện sáng/tối
 Đổi mật khẩu
+Đổi ảnh nhóm
+Đổi ảnh đại diện
+Đợi thêm một lúc rồi thử lại.
 đang nhập...
 đang theo dõi
 Ảnh
+Ảnh / video
+Ảnh sau khi cắt vượt 5MB. Hãy thu nhỏ khung hơn.
+Ảnh tối đa 5MB.
+Ảnh đang chỉnh
+Ảnh đại diện của %(username)s
 Ảnh đầy đủ
 Ẩn lượt thích
+Ở lại Moora

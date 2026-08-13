@@ -75,8 +75,9 @@
 
 .composer-row {
     display: flex;
+    align-items: flex-start;
     gap: 0.75rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0.65rem;
 }
 
 .composer-avatar {
@@ -86,6 +87,7 @@
     object-fit: cover;
     flex-shrink: 0;
     border: 2px solid #f0f0f0;
+    margin-top: 0.15rem;
 }
 
 .composer-input-wrap {
@@ -115,52 +117,21 @@
 .composer-textarea {
     border: none;
     resize: none;
-    padding: 0.25rem 0;
+    padding: 0.2rem 0;
     font-size: 1rem;
-    line-height: 1.5;
-    min-height: 72px;
+    line-height: 1.45;
+    min-height: 52px;
+    max-height: 200px;
     box-shadow: none;
     background: transparent;
+    color: var(--text-color, #262626);
+    caret-color: #111;
 }
 
+/* Composer không dùng mention overlay — bỏ rule làm phình cao / chữ transparent */
 .composer-input-wrap .mention-input-wrap {
     width: 100%;
-    min-height: 72px;
-}
-
-.composer-input-wrap .mention-input-backdrop {
-    color: var(--text-color, #262626);
-}
-
-.composer-input-wrap .composer-textarea.mention-input-field {
-    background: transparent !important;
-    color: transparent !important;
-    -webkit-text-fill-color: transparent !important;
-    caret-color: #111 !important;
-    min-height: 72px;
-}
-
-.composer-input-wrap .mention-input-backdrop .mention-chip,
-.composer-input-wrap .mention-input-backdrop .hashtag-chip {
-    color: #405de6;
-    font-weight: inherit;
-    padding: 0;
-    background: rgba(64, 93, 230, 0.16);
-    border-radius: 0.25em;
-}
-
-[data-bs-theme="dark"] .composer-input-wrap .mention-input-backdrop {
-    color: #e4e4e7;
-}
-
-[data-bs-theme="dark"] .composer-input-wrap .composer-textarea.mention-input-field {
-    caret-color: #f4f4f5 !important;
-}
-
-[data-bs-theme="dark"] .composer-input-wrap .mention-input-backdrop .mention-chip,
-[data-bs-theme="dark"] .composer-input-wrap .mention-input-backdrop .hashtag-chip {
-    color: #8aa4ff;
-    background: rgba(138, 164, 255, 0.2);
+    min-height: 0;
 }
 
 .composer-textarea:focus {
@@ -170,17 +141,13 @@
 
 .composer-textarea::placeholder {
     color: #a8a8a8;
+    line-height: inherit;
+    opacity: 1;
 }
 
-/* Placeholder vẫn hiện khi text transparent */
-.composer-textarea.mention-input-field:placeholder-shown {
-    -webkit-text-fill-color: #a8a8a8 !important;
-    color: #a8a8a8 !important;
-}
-
-.composer-textarea.mention-input-field:not(:placeholder-shown) {
-    -webkit-text-fill-color: transparent !important;
-    color: transparent !important;
+[data-bs-theme="dark"] .composer-textarea {
+    color: #e4e4e7;
+    caret-color: #f4f4f5;
 }
 
 .upload-zone {

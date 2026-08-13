@@ -1,33 +1,97 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: hoshi\n"
+"Project-Id-Version: moora\n"
 "Language: ko\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "%(count)s bÃ¬nh luáº­n"
+msgstr "%(count)개의 댓글"
 
 msgid "%(count)s bình luận"
 msgstr "%(count)개의 댓글"
 
+msgid "%(count)s lÆ°á»£t thÃ­ch"
+msgstr "%(count)개의 좋아요"
+
 msgid "%(count)s lượt thích"
 msgstr "%(count)개의 좋아요"
 
+msgid "%(counter)s cuá»c trÃ² chuyá»n"
+msgstr "%(counter)s 대화"
+
 msgid "%(counter)s cuộc trò chuyện"
-msgstr "%(counter)s 대화{% plural %}%(counter)s 대화"
+msgstr "%(counter)s 대화"
+
+msgid "%(counter)s cuộc trò chuyện%(counter)s cuộc trò chuyện"
+msgstr "%(counter)s 대화%(counter)s 대화"
+
+msgid "%(counter)s tin nhắn mới%(counter)s tin nhắn mới"
+msgstr "%(counter)s 새 메시지%(counter)s 새 메시지"
+
+msgid "%(time)s trÆ°á»c"
+msgstr "%(시간)초 전"
 
 msgid "%(time)s trước"
 msgstr "%(시간)초 전"
 
+msgid "%(username)s chÆ°a theo dÃµi ai."
+msgstr "%(username)s님은 아직 팔로우하는 사람이 없습니다."
+
 msgid "%(username)s chưa theo dõi ai."
 msgstr "%(username)s님은 아직 팔로우하는 사람이 없습니다."
+
+msgid "%(username)s ÄÃ£ chia sáº»"
+msgstr "%(사용자 이름)님이 공유했습니다"
 
 msgid "%(username)s đã chia sẻ"
 msgstr "%(사용자 이름)님이 공유했습니다"
 
+msgid "%(var)s bÃ¬nh luáº­n"
+msgstr "%(var)s 수식"
+
+msgid "%(var)s chÆ°a theo dÃµi ai."
+msgstr "%(var)s는 모든 사람을 팔로우합니다."
+
+msgid "%(var)s cuá»c trÃ² chuyá»n %(var)s cuá»c trÃ² chuyá»n"
+msgstr "%(var)s 전환 %(var)s 전환"
+
+msgid "%(var)s lÆ°á»£t thÃ­ch"
+msgstr "%(var)s는 다음과 같습니다"
+
+msgid "%(var)s tin nháº¯n má»i %(var)s tin nháº¯n má»i"
+msgstr "%(var)s 뉴스 %(var)s 뉴스"
+
+msgid "%(var)s trÆ°á»c"
+msgstr "%(var)s trÆ°á»c"
+
+msgid "%(var)s ÄÃ£ chia sáº»"
+msgstr "%(var)s Ã£ share°»"
+
+msgid ""
+"<strong>Cháº·n tin nháº¯n</strong> - Chá» nháº­n tin nháº¯n tá»« ngÆ°á»i "
+"báº¡n theo dÃµi"
+msgstr "<strong>메시지 차단</strong> - 내가 팔로우하는 사람들의 메시지만 받습니다."
+
 msgid ""
 "<strong>Chặn tin nhắn</strong> - Chỉ nhận tin nhắn từ người bạn theo dõi"
 msgstr "<strong>메시지 차단</strong> - 내가 팔로우하는 사람들의 메시지만 받습니다."
+
+msgid ""
+"<strong>TÃ i khoáº£n riÃªng tÆ°</strong> - Chá» nhá»¯ng ngÆ°á»i theo dÃµi "
+"má»i cÃ³ thá» xem bÃ i viáº¿t cá»§a báº¡n"
+msgstr "<strong>비공개 계정</strong> - 내 팔로어만 내 게시물을 볼 수 있습니다."
+
+msgid ""
+"<strong>TÃ i khoáº£n riÃªng tÆ°</strong> - NgÆ°á»i khÃ¡c pháº£i gá»­i yÃªu "
+"cáº§u vÃ ÄÆ°á»£c báº¡n xÃ¡c nháº­n má»i theo dÃµi ÄÆ°á»£c; chá» ngÆ°á»i"
+" ÄÃ£ theo dÃµi má»i xem bÃ i viáº¿t cá»§a báº¡n"
+msgstr ""
+"<strong>나 자신을 가두는 중입니다</strong> - 사람들은 소녀들의 선호도를 발견하고 시간이 지남에 따라 그들이 무엇을 보고 "
+"있는지 확인합니다. ÃÆ°á»£c; 당신이 무엇을 하고 있는지 보려면 나를 따라오세요."
 
 msgid ""
 "<strong>Tài khoản riêng tư</strong> - Chỉ những người theo dõi mới có thể "
@@ -35,27 +99,227 @@ msgid ""
 msgstr "<strong>비공개 계정</strong> - 내 팔로어만 내 게시물을 볼 수 있습니다."
 
 msgid ""
+"<strong>Tài khoản riêng tư</strong> - Người khác phải gửi yêu cầu và được "
+"bạn xác nhận mới theo dõi được; chỉ người đã theo dõi mới xem bài viết của "
+"bạn"
+msgstr ""
+"<strong>비공개 계정</strong> - 다른 사람들이 팔로우하려면 요청을 보내고 귀하의 확인을 받아야 합니다. 팔로어만 게시물을 "
+"볼 수 있습니다."
+
+msgid ""
+"<strong>áº¨n tráº¡ng thÃ¡i hoáº¡t Äá»ng</strong> - KhÃ´ng hiá»n thá» "
+"tráº¡ng thÃ¡i hoáº¡t Äá»ng cá»§a báº¡n"
+msgstr "<strong>활동 상태 숨기기</strong> - 활동 상태를 표시하지 않습니다."
+
+msgid ""
 "<strong>Ẩn trạng thái hoạt động</strong> - Không hiển thị trạng thái hoạt "
 "động của bạn"
 msgstr "<strong>활동 상태 숨기기</strong> - 활동 상태를 표시하지 않습니다."
 
+msgid "Admin"
+msgstr "관리자"
+
+msgid "Audio"
+msgstr "오디오"
+
+msgid "Bao gá»m hÃ¬nh áº£nh vÃ video"
+msgstr "이미지와 비디오가 포함되어 있습니다."
+
 msgid "Bao gồm hình ảnh và video"
 msgstr "이미지와 비디오가 포함되어 있습니다."
+
+msgid "BÃ i viáº¿t"
+msgstr "기사"
+
+msgid "BÃ i viáº¿t 24h"
+msgstr "24시간 서비스"
+
+msgid "BÃ¡o cÃ¡o"
+msgstr "보고서"
+
+msgid "BÃ¡o cÃ¡o bÃ i viáº¿t chá» xá»­ lÃ½"
+msgstr "이 문제를 해결해야 한다는 것이 사실입니까?"
+
+msgid "BÃ¡o cÃ¡o user chá» xá»­ lÃ½"
+msgstr "사용자는 몇 명인가요?"
+
+msgid "BÃ¬nh luáº­n"
+msgstr "논평"
+
+msgid "BÃ¬nh luáº­n 24h"
+msgstr "24시간 알람"
+
+msgid "BÆ°á»c cuá»i"
+msgstr "BÆ°á»c of»i"
 
 msgid "Bài viết"
 msgstr "기사"
 
+msgid "Bài viết 24h"
+msgstr "24시간 기사"
+
 msgid "Báo cáo"
 msgstr "보고서"
 
+msgid "Báo cáo bài viết chờ xử lý"
+msgstr "대기 중인 게시물 신고"
+
+msgid "Báo cáo user chờ xử lý"
+msgstr "사용자 신고 보류 중"
+
+msgid "Báº¡n chÆ°a cháº·n ngÆ°á»i dÃ¹ng nÃ o."
+msgstr "아직 차단한 사용자가 없습니다."
+
+msgid "Báº¡n chÆ°a lÆ°u bÃ i viáº¿t nÃ o."
+msgstr "아직 저장한 게시물이 없습니다."
+
+msgid "Báº¡n cháº¯c muá»n rá»i nhÃ³m nÃ y?"
+msgstr "몇 명을 원하시나요?"
+
+msgid "Báº¡n cÃ³ cháº¯c cháº¯n muá»n bá» cháº·n"
+msgstr "차단을 해제하시겠습니까?"
+
+msgid "Báº¡n cÃ³ cháº¯c cháº¯n muá»n cháº·n"
+msgstr "정말 차단하시겠습니까?"
+
+msgid "Báº¡n cÃ³ cháº¯c cháº¯n muá»n há»§y liÃªn káº¿t vá»i"
+msgstr "정말로 와 연결을 해제하시겠습니까?"
+
+msgid "Báº¡n cÃ³ cháº¯c cháº¯n muá»n há»§y theo dÃµi"
+msgstr "팔로우를 취소하시겠습니까?"
+
+msgid "Báº¡n cÃ³ cháº¯c cháº¯n muá»n xoÃ¡ bÃ i viáº¿t nÃ y khÃ´ng?"
+msgstr "이 게시물을 삭제하시겠습니까?"
+
+msgid "Báº¡n cÃ³ cháº¯c cháº¯n muá»n xÃ³a bÃ i viáº¿t nÃ y khÃ´ng?"
+msgstr "이 게시물을 삭제하시겠습니까?"
+
+msgid "Báº¡n cÃ³ cháº¯c cháº¯n muá»n xÃ³a phÆ°Æ¡ng tiá»n nÃ y khÃ´ng?"
+msgstr "이 미디어를 삭제하시겠습니까?"
+
+msgid "Báº¡n cÃ³ cháº¯c cháº¯n muá»n xÃ³a tin nháº¯n nÃ y khÃ´ng?"
+msgstr "이 메시지를 삭제하시겠습니까?"
+
+msgid "Báº¡n cÃ³ cháº¯c cháº¯n muá»n xÃ³a tÃ i khoáº£n?"
+msgstr "정말로 계정을 삭제하시겠습니까?"
+
+msgid "Báº¡n cÃ³ cháº¯c cháº¯n muá»n ÄÄng xuáº¥t khá»i thiáº¿t bá» nÃ y?"
+msgstr "이 기기에서 로그아웃하시겠습니까?"
+
+msgid ""
+"Báº¡n cÃ³ cháº¯c muá»n xÃ³a cuá»c trÃ² chuyá»n nÃ y? HÃ nh Äá»ng nÃ y "
+"khÃ´ng thá» hoÃ n tÃ¡c."
+msgstr "이 대화를 삭제하시겠습니까? 이 작업은 취소할 수 없습니다."
+
+msgid ""
+"Báº¡n cÃ³ cháº¯c muá»n ÄÄng xuáº¥t khá»i tÃ i khoáº£n trÃªn thiáº¿t bá»"
+" nÃ y?"
+msgstr "이 제품을 제거하는 방법을 알고 있습니까?"
+
+msgid "Báº¡n cÃ³ thá» chá»n nhiá»u áº£nh hoáº·c video cÃ¹ng lÃºc."
+msgstr "여러 개의 사진이나 비디오를 동시에 선택할 수 있습니다."
+
+msgid ""
+"Báº¡n cÃ³ thá» ÄÄng nháº­p vÃ o Moora báº±ng máº­t kháº©u má»i ngay bÃ¢y"
+" giá»."
+msgstr "당신은 돈이 많고, 무라가 이 가격에 피를 꽤 많이 파는군요."
+
+msgid "Báº¡n khÃ´ng cÃ³ quyá»n chá»nh sá»­a bÃ i viáº¿t nÃ y."
+msgstr "이 글을 편집할 수 있는 권한이 없습니다."
+
+msgid "Báº¡n khÃ´ng cÃ³ quyá»n xÃ³a bÃ i viáº¿t nÃ y."
+msgstr "이 게시물을 삭제할 권한이 없습니다."
+
+msgid "Báº¡n khÃ´ng cÃ³ thÃ´ng bÃ¡o nÃ o"
+msgstr "알림이 없습니다"
+
+msgid "Báº¡n khÃ´ng cÃ³ thÃ´ng bÃ¡o nÃ o."
+msgstr "알림이 없습니다."
+
+msgid "Báº¡n luÃ´n cÃ³ thá» ÄÄng nháº­p láº¡i báº¥t cá»© lÃºc nÃ o."
+msgstr "라이스페이퍼 판매는 언제든지 가능합니다."
+
+msgid ""
+"Báº¡n sáº½ khÃ´ng tháº¥y bÃ i viáº¿t cá»§a há» vÃ há» khÃ´ng thá» tÆ°Æ¡ng"
+" tÃ¡c vá»i báº¡n."
+msgstr "귀하는 해당 사용자의 게시물을 볼 수 없으며 해당 사용자는 귀하와 상호작용할 수 없습니다."
+
+msgid "Báº¡n Äang nghÄ© gÃ¬?"
+msgstr "당신은 무엇을 생각하고 있습니까?"
+
+msgid ""
+"Báº¡n Äang ÄÄng nháº­p vá»i <strong>@%(var)s</strong>. Báº¡n cÃ³ cháº¯c "
+"muá»n rá»i khá»i Moora trÃªn thiáº¿t bá» nÃ y?"
+msgstr "<strong>@%(var)s</strong>를 사용할 수 있습니다. 이 양식의 Moora에 대해 질문이 있습니까?"
+
+msgid "Báº¡n ÄÃ£ cháº·n"
+msgstr "차단했습니다"
+
+msgid ""
+"Báº¡n ÄÃ£ gá»­i Äá»§ %(var)s tin. Chá» ngÆ°á»i nháº­n cháº¥p nháº­n "
+"Äá» nháº¯n tiáº¿p."
+msgstr "%(var)s을 세는 중입니다. 받아주신다면 받아주세요."
+
+msgid ""
+"Báº¡n ÄÃ£ tá»« chá»i quyá»n vá» trÃ­. Chá» dÃ¹ng vá» trÃ­ theo IP."
+msgstr "지금까지 기다려야합니다. IP로 업데이트하는 데 사용할 수 없습니다."
+
+msgid "Báº¡n ÄÃ£ xem háº¿t thÃ´ng bÃ¡o"
+msgstr "모든 소식을 보실 수 있습니다"
+
+msgid "Báº¡n ÄÃ£ xem háº¿t táº¥t cáº£ bÃ i viáº¿t"
+msgstr "모든 기사를 읽었습니다."
+
+msgid "Báº¡n:"
+msgstr "친구:"
+
+msgid "Báº£n Äá»"
+msgstr "Baº£n Áá»"
+
+msgid "Báº£ng tin"
+msgstr "게시판"
+
+msgid "Báº£o máº­t"
+msgstr "보안"
+
+msgid "Báº­t thÃ´ng bÃ¡o"
+msgstr "거의 매달"
+
+msgid "Báº¯t Äáº§u cuá»c trÃ² chuyá»n..."
+msgstr "대화를 시작하세요..."
+
+msgid "Báº¯t Äáº§u trÃ² chuyá»n vá»i báº¡n bÃ¨ ngay hÃ´m nay"
+msgstr "오늘부터 친구들과 채팅을 시작해 보세요"
+
+msgid "Bá» cháº·n tá»« %(date)s"
+msgstr "%(date)s부터 차단됨"
+
+msgid "Bá» cháº·n tá»« %(var)s"
+msgstr "Ba» cháú·n ta»« %(var)s"
+
+msgid "Bá» cháº·n"
+msgstr "차단 해제"
+
+msgid "Bá» ghim"
+msgstr "바»핀"
+
 msgid "Bình luận"
 msgstr "논평"
+
+msgid "Bình luận 24h"
+msgstr "댓글 24시간"
+
+msgid "Bước cuối"
+msgstr "마지막 단계"
 
 msgid "Bạn chưa chặn người dùng nào."
 msgstr "아직 차단한 사용자가 없습니다."
 
 msgid "Bạn chưa lưu bài viết nào."
 msgstr "아직 저장한 게시물이 없습니다."
+
+msgid "Bạn chắc muốn rời nhóm này?"
+msgstr "이 그룹에서 탈퇴하시겠습니까?"
 
 msgid "Bạn có chắc chắn muốn bỏ chặn"
 msgstr "차단을 해제하시겠습니까?"
@@ -91,8 +355,14 @@ msgid ""
 "Bạn có chắc muốn xóa cuộc trò chuyện này? Hành động này không thể hoàn tác."
 msgstr "이 대화를 삭제하시겠습니까? 이 작업은 취소할 수 없습니다."
 
+msgid "Bạn có chắc muốn đăng xuất khỏi tài khoản trên thiết bị này?"
+msgstr "이 기기의 계정에서 로그아웃하시겠습니까?"
+
 msgid "Bạn có thể chọn nhiều ảnh hoặc video cùng lúc."
 msgstr "여러 개의 사진이나 비디오를 동시에 선택할 수 있습니다."
+
+msgid "Bạn có thể đăng nhập vào Moora bằng mật khẩu mới ngay bây giờ."
+msgstr "이제 새로운 비밀번호로 Moora에 로그인하실 수 있습니다."
 
 msgid "Bạn không có quyền chỉnh sửa bài viết này."
 msgstr "이 글을 편집할 수 있는 권한이 없습니다."
@@ -106,14 +376,31 @@ msgstr "알림이 없습니다"
 msgid "Bạn không có thông báo nào."
 msgstr "알림이 없습니다."
 
+msgid "Bạn luôn có thể đăng nhập lại bất cứ lúc nào."
+msgstr "언제든지 다시 로그인하실 수 있습니다."
+
 msgid "Bạn sẽ không thấy bài viết của họ và họ không thể tương tác với bạn."
 msgstr "귀하는 해당 사용자의 게시물을 볼 수 없으며 해당 사용자는 귀하와 상호작용할 수 없습니다."
 
 msgid "Bạn đang nghĩ gì?"
 msgstr "당신은 무엇을 생각하고 있습니까?"
 
+msgid ""
+"Bạn đang đăng nhập với <strong>@%(name)s</strong>. Bạn có chắc muốn rời khỏi"
+" Moora trên thiết bị này?"
+msgstr "귀하는 <strong>@%(name)s</strong>(으)로 로그인되어 있습니다. 이 기기에 Moora를 남겨두시겠습니까?"
+
 msgid "Bạn đã chặn"
 msgstr "차단했습니다"
+
+msgid "Bạn đã gửi đủ %(max)s tin. Chờ người nhận chấp nhận để nhắn tiếp."
+msgstr "%(max)s개의 메시지를 충분히 보냈습니다. 메시지 전송을 계속하려면 수신자가 수락할 때까지 기다리세요."
+
+msgid "Bạn đã từ chối quyền vị trí. Chỉ dùng vị trí theo IP."
+msgstr "위치 권한을 거부했습니다. IP로만 위치를 사용하세요."
+
+msgid "Bạn đã xem hết thông báo"
+msgstr "모든 알림을 확인했습니다."
 
 msgid "Bạn đã xem hết tất cả bài viết"
 msgstr "모든 기사를 읽었습니다."
@@ -121,11 +408,17 @@ msgstr "모든 기사를 읽었습니다."
 msgid "Bạn:"
 msgstr "친구:"
 
+msgid "Bản đồ"
+msgstr "지도"
+
 msgid "Bảng tin"
 msgstr "게시판"
 
 msgid "Bảo mật"
 msgstr "보안"
+
+msgid "Bật thông báo"
+msgstr "알림 켜기"
 
 msgid "Bắt đầu cuộc trò chuyện..."
 msgstr "대화를 시작하세요..."
@@ -139,14 +432,212 @@ msgstr "%(date)s부터 차단됨"
 msgid "Bỏ chặn"
 msgstr "차단 해제"
 
+msgid "Bỏ ghim"
+msgstr "고정 해제"
+
+msgid "Chi tiáº¿t cuá»c trÃ² chuyá»n"
+msgstr "채팅 세부정보"
+
 msgid "Chi tiết cuộc trò chuyện"
 msgstr "채팅 세부정보"
+
+msgid "Chia sáº» giá»i tÃ­nh trÃªn trang cÃ¡ nhÃ¢n"
+msgstr "귀하의 페이지에서 제품 가격을 공유하십시오."
+
+msgid "Chia sáº» ngÃ y sinh trÃªn trang cÃ¡ nhÃ¢n"
+msgstr "페이지에서 생일을 공유하세요"
+
+msgid "Chia sẻ giới tính trên trang cá nhân"
+msgstr "개인 페이지에 성별을 공유하세요"
+
+msgid "Chia sẻ ngày sinh trên trang cá nhân"
+msgstr "개인 페이지에 생년월일을 공유하세요"
+
+msgid ""
+"ChÃ o báº¡n tá»« %(var)s! Báº¡n nháº­n ÄÆ°á»£c email nÃ y vÃ¬ báº¡n hoáº·c "
+"ai ÄÃ³ ÄÃ£ yÃªu cáº§u Äáº·t láº¡i máº­t kháº©u cho tÃ i khoáº£n cá»§a "
+"báº¡n. Náº¿u ÄÃ¢y khÃ´ng pháº£i lÃ báº¡n, báº¡n cÃ³ thá» bá» qua email nÃ"
+" y. Äá» Äáº·t láº¡i máº­t kháº©u, vui lÃ²ng nháº¥p vÃ o liÃªn káº¿t bÃªn "
+"dÆ°á»i:"
+msgstr ""
+"%(var)s을(를) 확인해 보세요! 당신은 이 이메일을 수락하고 필요한 사람에게 판매해야 합니다. 반. 그렇지 않은 경우 이 이메일을 "
+"통해 저에게 연락해 주시기 바랍니다. 정말 멋지네요. 여기를 클릭하고 여기를 클릭하세요."
+
+msgid "ChÃ o má»«ng trá» láº¡i!"
+msgstr "돌아온 것을 환영합니다!"
+
+msgid "ChÃ­nh sÃ¡ch báº£o máº­t"
+msgstr "개인 정보 보호 정책"
+
+msgid "ChÃ­nh sÃ¡ch quyá»n riÃªng tÆ°"
+msgstr "개별 정책 수립"
+
+msgid "ChÃºng tÃ´i sáº½ gá»­i liÃªn káº¿t Äáº·t láº¡i máº­t kháº©u."
+msgstr "우리는 당신에게 많은 돈을 줄 것입니다."
+
+msgid "ChÆ°a cÃ³ ai theo dÃµi %(username)s."
+msgstr "아직 %(username)s을(를) 팔로우하는 사람이 없습니다."
+
+msgid "ChÆ°a cÃ³ ai theo dÃµi %(var)s."
+msgstr "%(var)s을(를) 팔로우하는 사람이 없습니다."
+
+msgid "ChÆ°a cÃ³ bÃ i viáº¿t nÃ o ÄÆ°á»£c chia sáº»."
+msgstr "아직 공유된 게시물이 없습니다."
+
+msgid "ChÆ°a cÃ³ bÃ i viáº¿t nÃ o Äá» hiá»n thá»"
+msgstr "아직 표시할 게시물이 없습니다."
+
+msgid "ChÆ°a cÃ³ bÃ i viáº¿t nÃ o."
+msgstr "아직 게시물이 없습니다."
+
+msgid "ChÆ°a cÃ³ cuá»c trÃ² chuyá»n nÃ o"
+msgstr "아직 대화가 없습니다"
+
+msgid "ChÆ°a cÃ³ tin nháº¯n"
+msgstr "아직 메시지가 없습니다"
+
+msgid "ChÆ°a cÃ³ tin nháº¯n nÃ o"
+msgstr "아직 메시지가 없습니다"
+
+msgid "ChÆ°a cÃ³ tÃ i khoáº£n máº¡ng xÃ£ há»i nÃ o ÄÆ°á»£c liÃªn káº¿t."
+msgstr "아직 연결된 소셜 미디어 계정이 없습니다."
+
+msgid "ChÆ°a cÃ³ tÃ i khoáº£n?"
+msgstr "아직 계정이 없나요?"
+
+msgid "ChÆ°a cáº­p nháº­t"
+msgstr "아직 업데이트되지 않았습니다."
+
+msgid ""
+"Chào bạn từ %(site_name)s! Bạn nhận được email này vì bạn hoặc ai đó đã yêu "
+"cầu đặt lại mật khẩu cho tài khoản của bạn. Nếu đây không phải là bạn, bạn "
+"có thể bỏ qua email này. Để đặt lại mật khẩu, vui lòng nhấp vào liên kết bên"
+" dưới:"
+msgstr ""
+"%(site_name)s에서 안녕하세요! 귀하 또는 다른 사람이 귀하의 계정에 대한 비밀번호 재설정을 요청했기 때문에 이 이메일을 "
+"받았습니다. 본인이 아닌 경우 이 이메일을 무시해도 됩니다. 비밀번호를 재설정하려면 아래 링크를 클릭하세요."
 
 msgid "Chào mừng trở lại!"
 msgstr "돌아온 것을 환영합니다!"
 
+msgid "Cháº¥p nháº­n"
+msgstr "확인해 보세요"
+
+msgid ""
+"Cháº¥p nháº­n Äá» chuyá»n vÃ o há»p thÆ° chÃ­nh. Tá»« chá»i sáº½ áº©n "
+"cuá»c trÃ² chuyá»n nÃ y."
+msgstr "기본 위치로 전환하려면 여기를 클릭하세요. 이 전환의 결과는 무엇입니까?"
+
+msgid "Cháº·n"
+msgstr "차단하다"
+
+msgid "Cháº·n má»i (7 ngÃ y)"
+msgstr "어머니날(7일)"
+
+msgid "Cháº¿ Äá» mÃ u"
+msgstr "확인해 보세요"
+
+msgid "Cháº¿ Äá» xem"
+msgstr "보자"
+
+msgid "Cháº¿ Äá» xem báº£ng tin"
+msgstr "게시판 보기"
+
+msgid "Chá» há» trá»£ Facebook, Twitter/X, Instagram vÃ LinkedIn."
+msgstr "Facebook, Twitter/X, Instagram 및 LinkedIn만 지원합니다."
+
+msgid "Chá» mÃ¬nh báº¡n xem ÄÆ°á»£c"
+msgstr "화면을 보자"
+
+msgid "Chá» mÃ¬nh tÃ´i"
+msgstr "죄송합니다"
+
+msgid "Chá» ngÆ°á»i theo dÃµi ÄÃ£ duyá»t má»i xem ÄÆ°á»£c"
+msgstr "이 영상은 여기서만 보실 수 있습니다."
+
+msgid ""
+"Chá» nhá»¯ng ngÆ°á»i theo dÃµi má»i cÃ³ thá» xem bÃ i viáº¿t cá»§a tÃ i "
+"khoáº£n nÃ y. HÃ£y theo dÃµi Äá» xem ná»i dung."
+msgstr "이번 강좌의 결과를 살펴보겠습니다. 링크를 따라가시면 내용을 보실 수 있습니다."
+
+msgid "Chá»nh há» sÆ¡, máº­t kháº©u, xÃ³a / khÃ´i phá»¥c tÃ i khoáº£n."
+msgstr "무슨 일이야, 무슨 일이야, 무슨 일이야?"
+
+msgid "Chá»nh khung áº£nh Äáº¡i diá»n"
+msgstr "프레임을 고치는 방법?"
+
+msgid "Chá»nh sá»­a"
+msgstr "편집하다"
+
+msgid "Chá»nh sá»­a bÃ i viáº¿t"
+msgstr "기사 편집"
+
+msgid "Chá»nh sá»­a há» sÆ¡"
+msgstr "프로필 수정"
+
+msgid ""
+"Chá»n cháº¿ Äá» sÃ¡ng, tá»i hoáº·c theo há» thá»ng. TÃ¹y chá»n "
+"ÄÆ°á»£c lÆ°u trÃªn thiáº¿t bá» nÃ y."
+msgstr "다양한 방식으로 변화하고 재생성됩니다. 여기서는 그렇지 않습니다."
+
+msgid ""
+"Chá»n cÃ¡c tÃ¹y chá»n quyá»n riÃªng tÆ° báº±ng cÃ¡ch báº­t/táº¯t cÃ´ng "
+"táº¯c bÃªn dÆ°á»i."
+msgstr "아래 스위치를 전환하여 개인정보 보호 옵션을 선택하세요."
+
+msgid ""
+"Chá»n email hoáº·c sá» Äiá»n thoáº¡i ÄÃ£ liÃªn káº¿t vá»i tÃ i "
+"khoáº£n. SÄT há» trá»£ má»i quá»c gia."
+msgstr "키를 제거하기 위해 파일을 이메일로 보내지 마십시오. SäT도 나쁘지 않습니다."
+
+msgid "Chá»n giao diá»n"
+msgstr "소통하지 마세요"
+
+msgid "Chá»n giá»i tÃ­nh"
+msgstr "성별을 선택하세요"
+
+msgid "Chá»n lÃ½ do"
+msgstr "이유를 선택하세요"
+
+msgid ""
+"Chá»n mÃ£ quá»c gia rá»i nháº­p sá» Äiá»n thoáº¡i (há» trá»£ má»i "
+"quá»c gia)."
+msgstr "국가번호를 선택한 후 전화번호를 입력하세요. (모든 국가 지원)"
+
+msgid ""
+"Chá»n mÃ£ quá»c gia rá»i nháº­p sá» â há» trá»£ má»i quá»c gia."
+msgstr "가격이 너무 저렴해도 가격이 너무 저렴해요."
+
+msgid ""
+"Chá»n máº­t kháº©u máº¡nh vÃ dá» nhá» vá»i báº¡n. Sau ÄÃ³ báº¡n cÃ³ "
+"thá» ÄÄng nháº­p láº¡i ngay."
+msgstr "꽤 피에 굶주려 있고 다루기가 쉽습니다. 그 후에는 즉시 버튼을 클릭해야 합니다."
+
+msgid "Chá»n má»t má»¥c bÃªn trÃ¡i Äá» xem vÃ chá»nh cÃ i Äáº·t."
+msgstr "여기에 있는 코드를 확인하고 확인해 보세요."
+
+msgid "Chá»n má»t má»¥c Äá» má» chi tiáº¿t."
+msgstr "자세한 내용을 확인하세요."
+
+msgid "Chá»n ngÃ y sinh cá»§a báº¡n"
+msgstr "생년월일을 선택하세요"
+
+msgid ""
+"Chá»n ngÃ´n ngá»¯ hiá»n thá» cho tÃ i khoáº£n cá»§a báº¡n. TÃ¹y chá»n nÃ"
+" y sáº½ ÄÆ°á»£c lÆ°u vÃ Ã¡p dá»¥ng má»i khi báº¡n ÄÄng nháº­p."
+msgstr "계정의 표시 언어를 선택하세요. 이 기본 설정은 로그인할 때마다 저장되고 적용됩니다."
+
+msgid "Chá»n tÃªn ngÆ°á»i dÃ¹ng cá»§a báº¡n"
+msgstr "사용자 이름을 선택하세요"
+
 msgid "Chính sách bảo mật"
 msgstr "개인 정보 보호 정책"
+
+msgid "Chính sách quyền riêng tư"
+msgstr "개인 정보 보호 정책"
+
+msgid "Chúng tôi sẽ gửi liên kết đặt lại mật khẩu."
+msgstr "비밀번호 재설정 링크를 보내드리겠습니다."
 
 msgid "Chưa có ai theo dõi %(username)s."
 msgstr "아직 %(username)s을(를) 팔로우하는 사람이 없습니다."
@@ -178,14 +669,50 @@ msgstr "아직 계정이 없나요?"
 msgid "Chưa cập nhật"
 msgstr "아직 업데이트되지 않았습니다."
 
+msgid "Chấp nhận"
+msgstr "수용하다"
+
+msgid ""
+"Chấp nhận để chuyển vào hộp thư chính. Từ chối sẽ ẩn cuộc trò chuyện này."
+msgstr "기본 사서함으로 전송하려면 수락하세요. 거절하면 이 대화가 숨겨집니다."
+
 msgid "Chặn"
 msgstr "차단하다"
+
+msgid "Chặn mới (7 ngày)"
+msgstr "새 블록(7일)"
+
+msgid "Chế độ màu"
+msgstr "컬러 모드"
+
+msgid "Chế độ xem"
+msgstr "보기 모드"
 
 msgid "Chế độ xem bảng tin"
 msgstr "게시판 보기"
 
 msgid "Chỉ hỗ trợ Facebook, Twitter/X, Instagram và LinkedIn."
 msgstr "Facebook, Twitter/X, Instagram 및 LinkedIn만 지원합니다."
+
+msgid "Chỉ mình bạn xem được"
+msgstr "오직 당신만이 볼 수 있습니다"
+
+msgid "Chỉ mình tôi"
+msgstr "나만"
+
+msgid "Chỉ người theo dõi đã duyệt mới xem được"
+msgstr "승인된 팔로어만 볼 수 있습니다."
+
+msgid ""
+"Chỉ những người theo dõi mới có thể xem bài viết của tài khoản này. Hãy theo"
+" dõi để xem nội dung."
+msgstr "팔로워만 이 계정의 게시물을 볼 수 있습니다. 내용을 계속 지켜봐 주시기 바랍니다."
+
+msgid "Chỉnh hồ sơ, mật khẩu, xóa / khôi phục tài khoản."
+msgstr "프로필, 비밀번호를 수정하고 계정을 삭제/복원하세요."
+
+msgid "Chỉnh khung ảnh đại diện"
+msgstr "대표 이미지 프레임 조정"
 
 msgid "Chỉnh sửa"
 msgstr "편집하다"
@@ -196,8 +723,21 @@ msgstr "기사 편집"
 msgid "Chỉnh sửa hồ sơ"
 msgstr "프로필 수정"
 
+msgid ""
+"Chọn chế độ sáng, tối hoặc theo hệ thống. Tùy chọn được lưu trên thiết bị "
+"này."
+msgstr "밝음, 어두움 또는 시스템 모드를 선택하십시오. 환경설정이 이 기기에 저장되었습니다."
+
 msgid "Chọn các tùy chọn quyền riêng tư bằng cách bật/tắt công tắc bên dưới."
 msgstr "아래 스위치를 전환하여 개인정보 보호 옵션을 선택하세요."
+
+msgid ""
+"Chọn email hoặc số điện thoại đã liên kết với tài khoản. SĐT hỗ trợ mọi quốc"
+" gia."
+msgstr "계정과 연결된 이메일이나 전화번호를 선택하세요. 전화번호는 모든 국가를 지원합니다."
+
+msgid "Chọn giao diện"
+msgstr "인터페이스 선택"
 
 msgid "Chọn giới tính"
 msgstr "성별을 선택하세요"
@@ -207,6 +747,19 @@ msgstr "이유를 선택하세요"
 
 msgid "Chọn mã quốc gia rồi nhập số điện thoại (hỗ trợ mọi quốc gia)."
 msgstr "국가번호를 선택한 후 전화번호를 입력하세요. (모든 국가 지원)"
+
+msgid "Chọn mã quốc gia rồi nhập số — hỗ trợ mọi quốc gia."
+msgstr "국가 코드를 선택한 다음 번호를 입력하세요. 모든 국가가 지원됩니다."
+
+msgid ""
+"Chọn mật khẩu mạnh và dễ nhớ với bạn. Sau đó bạn có thể đăng nhập lại ngay."
+msgstr "강력하고 기억하기 쉬운 비밀번호를 선택하세요. 그런 다음 즉시 다시 로그인할 수 있습니다."
+
+msgid "Chọn một mục bên trái để xem và chỉnh cài đặt."
+msgstr "설정을 확인하고 조정하려면 왼쪽 항목을 선택하세요."
+
+msgid "Chọn một mục để mở chi tiết."
+msgstr "세부정보를 열려면 항목을 선택하세요."
 
 msgid "Chọn ngày sinh của bạn"
 msgstr "생년월일을 선택하세요"
@@ -219,8 +772,79 @@ msgstr "계정의 표시 언어를 선택하세요. 이 기본 설정은 로그�
 msgid "Chọn tên người dùng của bạn"
 msgstr "사용자 이름을 선택하세요"
 
-msgid "Cài đặt"
+msgid "Comment"
+msgstr "논평"
+
+msgid "Comment Reply"
+msgstr "댓글 답글"
+
+msgid "Cuá»c trÃ² chuyá»n"
+msgstr "변환 과정"
+
+msgid "Cuộc gọi thoại"
+msgstr "음성 통화"
+
+msgid "Cuộc gọi video"
+msgstr "영상통화"
+
+msgid "Cuộc trò chuyện"
+msgstr "대화"
+
+msgid "CÃ i Äáº·t"
 msgstr "환경"
+
+msgid "CÃ i Äáº·t báº£o máº­t"
+msgstr "보안 설정"
+
+msgid "CÃ i Äáº·t ngÃ´n ngá»¯"
+msgstr "언어 설정"
+
+msgid "CÃ i Äáº·t quyá»n riÃªng tÆ°"
+msgstr "개인정보 설정"
+
+msgid "CÃ i Äáº·t thÃ´ng bÃ¡o"
+msgstr "알림 설정"
+
+msgid "CÃ i Äáº·t tÃ i khoáº£n"
+msgstr "계정 설정"
+
+msgid "CÃ¡ nhÃ¢n"
+msgstr "할 수 있다"
+
+msgid ""
+"CÃ¡ch chÃºng tÃ´i thu tháº­p, dÃ¹ng vÃ báº£o vá» dá»¯ liá»u cá»§a báº¡n."
+msgstr "우리는 재료를 수집, 사용 및 판매합니다."
+
+msgid "CÃ¢u há»i thÆ°á»ng gáº·p vÃ hÆ°á»ng dáº«n dÃ¹ng Moora."
+msgstr "무라에는 이용할 수 있는 장소와 장소가 많이 있습니다."
+
+msgid ""
+"CÃ²n %(var)s/%(var)s tin nháº¯n trÆ°á»c khi ngÆ°á»i nháº­n cháº¥p nháº­n."
+msgstr "사용자가 메시지를 받을 때 메시지를 받으려면 %(var)s/%(var)s가 필요합니다."
+
+msgid "CÃ³ lá»i xáº£y ra khi cáº­p nháº­t bÃ i viáº¿t."
+msgstr "게시물을 업데이트하는 중에 오류가 발생했습니다."
+
+msgid "CÃ³ lá»i xáº£y ra khi táº£i danh sÃ¡ch ngÆ°á»i theo dÃµi."
+msgstr "팔로어 목록을 로드하는 중에 오류가 발생했습니다."
+
+msgid "CÃ³ lá»i xáº£y ra khi táº£i danh sÃ¡ch Äang theo dÃµi."
+msgstr "추적 목록을 로드하는 동안 오류가 발생했습니다."
+
+msgid "CÃ³ lá»i xáº£y ra khi xoÃ¡ bÃ i viáº¿t."
+msgstr "게시물을 삭제하는 중에 오류가 발생했습니다."
+
+msgid "CÃ³ lá»i xáº£y ra khi xÃ³a bÃ i viáº¿t."
+msgstr "게시물을 삭제하는 중에 오류가 발생했습니다."
+
+msgid "CÃ³ thá» dÃ¹ng tÃªn nÃ y"
+msgstr "이 이름을 어떻게 사용할 수 있나요?"
+
+msgid "CÃ´ng khai"
+msgstr "또한 선언"
+
+msgid "Cài đặt"
+msgstr "설정"
 
 msgid "Cài đặt bảo mật"
 msgstr "보안 설정"
@@ -237,6 +861,32 @@ msgstr "알림 설정"
 msgid "Cài đặt tài khoản"
 msgstr "계정 설정"
 
+msgid "Cá nhân"
+msgstr "개인"
+
+msgid "Cách chúng tôi thu thập, dùng và bảo vệ dữ liệu của bạn."
+msgstr "귀하의 데이터를 수집, 사용 및 보호하는 방법."
+
+msgid ""
+"Cáº£m Æ¡n báº¡n ÄÃ£ bÃ¡o cÃ¡o. ChÃºng tÃ´i sáº½ xem xÃ©t ná»i dung nÃ y "
+"trong thá»i gian sá»m nháº¥t."
+msgstr "신고해 주셔서 감사합니다. 최대한 빨리 이 내용을 검토하겠습니다."
+
+msgid "Cáº£nh bÃ¡o"
+msgstr "경고"
+
+msgid "Cáº§n Ã­t nháº¥t 3 kÃ½ tá»±"
+msgstr "최대 3 다스"
+
+msgid "Cáº­p nháº­t vá» trÃ­ chÃ­nh xÃ¡c (GPS)"
+msgstr "정확한 신호(GPS)"
+
+msgid "Câu hỏi thường gặp và hướng dẫn dùng Moora."
+msgstr "Moora 사용에 관해 자주 묻는 질문과 지침입니다."
+
+msgid "Còn %(remaining)s/%(max)s tin nhắn trước khi người nhận chấp nhận."
+msgstr "수신자가 수락하기까지 %(remaining)s/%(max)s개의 메시지가 남아 있습니다."
+
 msgid "Có lỗi xảy ra khi cập nhật bài viết."
 msgstr "게시물을 업데이트하는 중에 오류가 발생했습니다."
 
@@ -252,6 +902,12 @@ msgstr "게시물을 삭제하는 중에 오류가 발생했습니다."
 msgid "Có lỗi xảy ra khi xóa bài viết."
 msgstr "게시물을 삭제하는 중에 오류가 발생했습니다."
 
+msgid "Có thể dùng tên này"
+msgstr "이 이름을 사용할 수 있습니다."
+
+msgid "Công khai"
+msgstr "공공의"
+
 msgid ""
 "Cảm ơn bạn đã báo cáo. Chúng tôi sẽ xem xét nội dung này trong thời gian sớm"
 " nhất."
@@ -260,8 +916,47 @@ msgstr "신고해 주셔서 감사합니다. 최대한 빨리 이 내용을 검�
 msgid "Cảnh báo"
 msgstr "경고"
 
-msgid "Dành cho bạn"
+msgid "Cần ít nhất 3 ký tự"
+msgstr "3자 이상이 필요합니다."
+
+msgid "Cập nhật vị trí chính xác (GPS)"
+msgstr "정확한 위치 업데이트(GPS)"
+
+msgid "DÃ nh cho báº¡n"
 msgstr "당신을 위한"
+
+msgid "DÃ¡n URL Äáº§y Äá»§. Äá» trá»ng náº¿u khÃ´ng dÃ¹ng."
+msgstr "URL을 입력하세요. 얼음은 더 이상 사용되지 않습니다."
+
+msgid "DÃ¹ng #hashtag hoáº·c @tag ngÆ°á»i Äang follow..."
+msgstr "#해시태그를 사용하여 팔로우하세요."
+
+msgid "DÃ¹ng email / SÄT khÃ¡c"
+msgstr "다른 이메일/전화번호 사용"
+
+msgid "DÃ¹ng vá» trÃ­ hiá»n táº¡i"
+msgstr "사용 및 지원"
+
+msgid "DÃ¹ng áº£nh nÃ y"
+msgstr "이 조명을 사용하세요"
+
+msgid "Dành cho bạn"
+msgstr "추천"
+
+msgid "Dán URL đầy đủ. Để trống nếu không dùng."
+msgstr "전체 URL을 붙여넣으세요. 사용하지 않을 경우 공백으로 남겨두세요."
+
+msgid "Dùng #hashtag hoặc @tag người đang follow..."
+msgstr "팔로우하는 사람에게 #해시태그 또는 @태그를 사용하세요."
+
+msgid "Dùng email / SĐT khác"
+msgstr "다른 이메일/전화번호 사용"
+
+msgid "Dùng vị trí hiện tại"
+msgstr "현재 위치 사용"
+
+msgid "Dùng ảnh này"
+msgstr "이 사진을 사용하세요"
 
 msgid "Email"
 msgstr "이메일"
@@ -269,14 +964,152 @@ msgstr "이메일"
 msgid "Email / Gmail"
 msgstr "이메일/지메일"
 
+msgid ""
+"Email vÃ SÄT dÃ¹ng Äá» báº£o máº­t / khÃ´i phá»¥c tÃ i khoáº£n. Äá»i "
+"qua xÃ¡c thá»±c OTP."
+msgstr "비밀번호를 판매/발견하기 위한 이메일 및 전화번호. OTP를 통해 OTP를 확인하세요."
+
+msgid ""
+"Email và SĐT dùng để bảo mật / khôi phục tài khoản. Đổi qua xác thực OTP."
+msgstr "이메일과 전화번호는 계정 보안/복구를 위해 사용됩니다. OTP 인증으로 변경하세요."
+
+msgid "Email ÄÃ£ ÄÆ°á»£c gá»­i"
+msgstr "이메일 äÃ£ äÆ°á»£c girl"
+
+msgid "Email đã được gửi"
+msgstr "이메일이 전송되었습니다"
+
+msgid "Female"
+msgstr "여성"
+
+msgid "File khÃ´ng ÄÆ°á»£c há» trá»£. Vui lÃ²ng chá»n áº£nh hoáº·c video."
+msgstr "파일이 동일하지 않습니다. 영상을 시청해주세요."
+
+msgid "File không được hỗ trợ. Vui lòng chọn ảnh hoặc video."
+msgstr "파일은 지원되지 않습니다. 사진이나 영상을 선택해주세요."
+
+msgid "Follow"
+msgstr "따르다"
+
+msgid "Follow Accepted"
+msgstr "팔로우수락됨"
+
+msgid "Follow Request"
+msgstr "요청 따르기"
+
+msgid "GPS"
+msgstr "GPS"
+
+msgid "Ghi nhá» ÄÄng nháº­p"
+msgstr "로그인을 기억하세요"
+
 msgid "Ghi nhớ đăng nhập"
 msgstr "로그인을 기억하세요"
+
+msgid "Ghi Ã¢m"
+msgstr "기억해?"
+
+msgid "Ghi Ã¢m tin nháº¯n thoáº¡i"
+msgstr "메시지 메시지 녹음"
+
+msgid "Ghi âm"
+msgstr "기록"
+
+msgid "Ghi âm tin nhắn thoại"
+msgstr "음성 메시지 녹음"
+
+msgid "Ghim"
+msgstr "고정"
+
+msgid "Giao diá»n"
+msgstr "의사소통"
+
+msgid "Giao diá»n sÃ¡ng / tá»i"
+msgstr "서로 소통하다"
+
+msgid "Giao diện"
+msgstr "인터페이스"
+
+msgid "Giao diện sáng / tối"
+msgstr "밝음/어두움 인터페이스"
+
+msgid "Giá»i thiá»u"
+msgstr "가격이 저렴하다"
+
+msgid "Giá»i tÃ­nh"
+msgstr "섹스"
+
+msgid "Giá»¯ ghi Ã¢m Ã­t nháº¥t 1 giÃ¢y."
+msgstr "기록된 가격은 1초 미만입니다."
+
+msgid "Giá»¯ máº­t kháº©u cá»§a báº¡n an toÃ n vÃ Äá»«ng chia sáº» vá»i ai."
+msgstr "안전하고 누구와도 공유할 수 있기 때문에 가격이 상당히 합리적입니다."
+
+msgid "Giá»¯ vá» trÃ­ GPS cÅ© (chÃ­nh xÃ¡c hÆ¡n)."
+msgstr "가격 및 GPS 추적이 가능합니다(정확한 경우에만)."
+
+msgid "Giới thiệu"
+msgstr "소개하다"
 
 msgid "Giới tính"
 msgstr "섹스"
 
+msgid "Giữ ghi âm ít nhất 1 giây."
+msgstr "1초 이상 계속 녹음하세요."
+
+msgid "Giữ mật khẩu của bạn an toàn và đừng chia sẻ với ai."
+msgstr "비밀번호를 안전하게 보관하고 누구와도 공유하지 마세요."
+
+msgid "Giữ vị trí GPS cũ (chính xác hơn)."
+msgstr "기존 GPS 위치를 유지합니다(더 정확함)."
+
+msgid "Gá»i thoáº¡i"
+msgstr "탈출하다"
+
+msgid "Gá»i video"
+msgstr "Ga»i 비디오"
+
+msgid "Gá»¡ admin"
+msgstr "Gá»¡ 관리자"
+
+msgid "Gá»­i bÃ¡o cÃ¡o"
+msgstr "보고서 제출"
+
+msgid "Gá»­i láº¡i email"
+msgstr "이메일 보내기"
+
+msgid "Gá»­i láº¡i mÃ£"
+msgstr "이 여자는 새로운 거야"
+
+msgid "Gá»­i lá»i chÃ o Äá» báº¯t Äáº§u cuá»c trÃ² chuyá»n"
+msgstr "대화를 시작하려면 인사하세요."
+
+msgid "Gá»­i tin nháº¯n"
+msgstr "메시지 보내기"
+
+msgid "Gá»­i tin nháº¯n thoáº¡i"
+msgstr "여자들은 섹스를 믿는다"
+
+msgid "Gá»­i tÃ³m táº¯t hÃ ng ngÃ y"
+msgstr "일일 요약 보내기"
+
+msgid "Gọi thoại"
+msgstr "음성 통화"
+
+msgid "Gọi video"
+msgstr "영상 통화"
+
+msgid "Gỡ admin"
+msgstr "관리자 삭제"
+
 msgid "Gửi báo cáo"
 msgstr "보고서 제출"
+
+msgid "Gửi lại email"
+msgstr "이메일 재전송"
+
+msgid "Gửi lại mã"
+msgstr "코드 재전송"
 
 msgid "Gửi lời chào để bắt đầu cuộc trò chuyện"
 msgstr "대화를 시작하려면 인사하세요."
@@ -284,23 +1117,127 @@ msgstr "대화를 시작하려면 인사하세요."
 msgid "Gửi tin nhắn"
 msgstr "메시지 보내기"
 
+msgid "Gửi tin nhắn thoại"
+msgstr "음성 메시지 보내기"
+
 msgid "Gửi tóm tắt hàng ngày"
 msgstr "일일 요약 보내기"
+
+msgid "Hate speech"
+msgstr "증오심 표현"
+
+msgid "Hiá»n máº­t kháº©u"
+msgstr "꽤 멋지다"
+
+msgid "Hiện mật khẩu"
+msgstr "비밀번호 표시"
 
 msgid "Home"
 msgstr "집"
 
-msgid "Moora - Mạng xã hội chia sẻ khoảnh khắc"
-msgstr "Moora - 순간을 공유하는 소셜 네트워크"
+msgid "HoÃ n tÃ¡c xÃ³a áº£nh"
+msgstr "구조를 연기하다"
+
+msgid "HoÃ n táº¥t"
+msgstr "완전한"
+
+msgid "Hoàn tác xóa ảnh"
+msgstr "사진 삭제 취소"
+
+msgid "Hoàn tất"
+msgstr "완전한"
+
+msgid "Hoáº¡t Äá»ng %(time)s trÆ°á»c"
+msgstr "%(time)s 전 작업"
+
+msgid "Hoáº¡t Äá»ng %(var)s trÆ°á»c"
+msgstr "화학 물질 %(var)s"
 
 msgid "Hoạt động %(time)s trước"
 msgstr "%(time)s 전 작업"
+
+msgid "HÃ ng Äá»£i bÃ¡o cÃ¡o bÃ i viáº¿t"
+msgstr "그들은 그것에 대해 이야기해야 합니다."
+
+msgid "HÃ ng Äá»£i bÃ¡o cÃ¡o ngÆ°á»i dÃ¹ng"
+msgstr "얼마나 많은 사람들이 그것을 사용합니까?"
+
+msgid ""
+"HÃ£y má» email vÃ báº¥m vÃ o liÃªn káº¿t Äá» táº¡o máº­t kháº©u má»i. "
+"Äá»«ng quÃªn kiá»m tra cáº£ thÆ° má»¥c spam. Náº¿u báº¡n dÃ¹ng sá» "
+"Äiá»n thoáº¡i, hÃ£y quay láº¡i vÃ nháº­p SÄT Äá» nháº­n OTP."
+msgstr ""
+"더 많은 정보를 얻으려면 이메일을 열고 이메일을 업데이트하세요. 스팸 기계를 확인하세요. 전화번호를 사용하려면 카드에 전화를 걸고 "
+"SäT를 탭하여 OTP를 받으세요."
+
+msgid "HÃ¬nh áº£nh"
+msgstr "영상"
+
+msgid "HÃ´m nay"
+msgstr "오늘"
+
+msgid ""
+"HÆ°á»ng dáº«n nhanh. Báº¥m tá»«ng chá»§ Äá» hoáº·c má» trang trá»£ giÃºp"
+" Äáº§y Äá»§."
+msgstr "빨리 끝났어요. 당신은 돈을 벌기 위해 그것을 사용할 수 있습니다."
+
+msgid "Hàng đợi báo cáo bài viết"
+msgstr "게시물 보고서 대기열"
+
+msgid "Hàng đợi báo cáo người dùng"
+msgstr "사용자 신고 대기열"
+
+msgid "Há» thá»ng"
+msgstr "하»탕»앙"
+
+msgid "Há»"
+msgstr "하아\""
+
+msgid ""
+"Há» tÃªn vÃ tÃªn ngÆ°á»i dÃ¹ng dÃ¹ng Äá» má»i ngÆ°á»i tÃ¬m tháº¥y "
+"báº¡n."
+msgstr "몇 명이나 이용하시겠습니까?"
+
+msgid "Há» sÆ¡"
+msgstr "파일"
+
+msgid "Há»§y"
+msgstr "취소"
+
+msgid "Há»§y liÃªn káº¿t %(name)s"
+msgstr "%(name)s 연결 해제"
+
+msgid "Há»§y liÃªn káº¿t %(var)s"
+msgstr "%(var)s 연결 방법"
+
+msgid "Há»§y yÃªu cáº§u theo dÃµi"
+msgstr "이제부터 무엇을 원하시나요?"
+
+msgid ""
+"Hãy mở email và bấm vào liên kết để tạo mật khẩu mới. Đừng quên kiểm tra cả "
+"thư mục spam. Nếu bạn dùng số điện thoại, hãy quay lại và nhập SĐT để nhận "
+"OTP."
+msgstr ""
+"이메일을 열고 링크를 클릭하여 새 비밀번호를 만드세요. 스팸 폴더도 확인하는 것을 잊지 마세요. 전화번호를 사용하는 경우 뒤로 돌아가서 "
+"전화번호를 입력하면 OTP를 받을 수 있습니다."
 
 msgid "Hình ảnh"
 msgstr "영상"
 
 msgid "Hôm nay"
 msgstr "오늘"
+
+msgid "Hướng dẫn nhanh. Bấm từng chủ đề hoặc mở trang trợ giúp đầy đủ."
+msgstr "빠른 가이드. 각 항목을 클릭하거나 전체 도움말 페이지를 엽니다."
+
+msgid "Hệ thống"
+msgstr "체계"
+
+msgid "Họ"
+msgstr "성"
+
+msgid "Họ tên và tên người dùng dùng để mọi người tìm thấy bạn."
+msgstr "귀하의 전체 이름과 사용자 이름은 사람들이 귀하를 찾는 데 사용됩니다."
 
 msgid "Hồ sơ"
 msgstr "파일"
@@ -311,11 +1248,53 @@ msgstr "취소"
 msgid "Hủy liên kết %(name)s"
 msgstr "%(name)s 연결 해제"
 
+msgid "Hủy yêu cầu theo dõi"
+msgstr "추적 요청 취소"
+
+msgid "IP"
+msgstr "IP"
+
+msgid "If enabled, birth date is visible on your public profile."
+msgstr "활성화하면 생년월일이 공개 프로필에 표시됩니다."
+
+msgid "If enabled, gender is visible on your public profile."
+msgstr "활성화하면 공개 프로필에 성별이 표시됩니다."
+
+msgid "Image"
+msgstr "영상"
+
+msgid "Inappropriate content"
+msgstr "부적절한 콘텐츠"
+
+msgid ""
+"Khi báº­t, báº¡n sáº½ cáº§n nháº­p mÃ£ xÃ¡c thá»±c tá»« á»©ng dá»¥ng (Google"
+" Authenticator, Authyâ¦) má»i khi ÄÄng nháº­p."
+msgstr ""
+"활성화하면 로그인할 때마다 애플리케이션(Google Authenticator, Authy...)에서 인증 코드를 입력해야 합니다."
+
 msgid ""
 "Khi bật, bạn sẽ cần nhập mã xác thực từ ứng dụng (Google Authenticator, "
 "Authy…) mỗi khi đăng nhập."
 msgstr ""
 "활성화하면 로그인할 때마다 애플리케이션(Google Authenticator, Authy...)에서 인증 코드를 입력해야 합니다."
+
+msgid ""
+"Khi cÃ³ ngÆ°á»i bÃ¬nh luáº­n bÃ i viáº¿t cá»§a báº¡n hoáº·c tráº£ lá»i "
+"bÃ¬nh luáº­n cá»§a báº¡n"
+msgstr "누군가가 내 게시물에 댓글을 달거나 내 댓글에 답글을 달 때"
+
+msgid "Khi cÃ³ ngÆ°á»i gá»­i tin nháº¯n cho báº¡n"
+msgstr "누군가 당신에게 메시지를 보낼 때"
+
+msgid ""
+"Khi cÃ³ ngÆ°á»i nháº¯c Äáº¿n báº¡n trong bÃ i viáº¿t hoáº·c bÃ¬nh luáº­n"
+msgstr "누군가가 게시물이나 댓글에서 귀하를 언급할 때"
+
+msgid "Khi cÃ³ ngÆ°á»i theo dÃµi báº¡n"
+msgstr "누군가 당신을 따라오면"
+
+msgid "Khi cÃ³ ngÆ°á»i thÃ­ch bÃ i viáº¿t hoáº·c bÃ¬nh luáº­n cá»§a báº¡n"
+msgstr "누군가가 귀하의 게시물이나 댓글에 좋아요를 누른 경우"
 
 msgid "Khi có người bình luận bài viết của bạn hoặc trả lời bình luận của bạn"
 msgstr "누군가가 내 게시물에 댓글을 달거나 내 댓글에 답글을 달 때"
@@ -332,11 +1311,102 @@ msgstr "누군가 당신을 따라오면"
 msgid "Khi có người thích bài viết hoặc bình luận của bạn"
 msgstr "누군가가 귀하의 게시물이나 댓글에 좋아요를 누른 경우"
 
+msgid "Khi ngÆ°á»i láº¡ nháº¯n tin, yÃªu cáº§u sáº½ hiá»n á» ÄÃ¢y."
+msgstr "상대방이 메시지를 받으면 메시지가 표시됩니다."
+
+msgid "Khi người lạ nhắn tin, yêu cầu sẽ hiện ở đây."
+msgstr "낯선 사람이 문자 메시지를 보내면 여기에 요청이 표시됩니다."
+
+msgid "KhÃ¡c"
+msgstr "다른"
+
+msgid "KhÃ´i phá»¥c truy cáº­p"
+msgstr "사냥과 낚시를 피하세요"
+
+msgid "KhÃ´i phá»¥c tÃ i khoáº£n"
+msgstr "계정 복구"
+
+msgid ""
+"KhÃ´ng báº¯t buá»c. Báº­t chia sáº» náº¿u muá»n hiá»n trÃªn trang cÃ¡ "
+"nhÃ¢n."
+msgstr "증거가 없습니다. 귀하의 페이지에 몇 개의 공유를 표시하시겠습니까?"
+
+msgid ""
+"KhÃ´ng cÃ³ thiáº¿t bá» nÃ o khÃ¡c ÄÄng nháº­p vÃ o tÃ i khoáº£n cá»§a "
+"báº¡n."
+msgstr "다른 장치는 귀하의 계정에 로그인되어 있지 않습니다."
+
+msgid "KhÃ´ng cÃ³ thiáº¿t bá» ÄÄng nháº­p nÃ o ÄÆ°á»£c ghi nháº­n"
+msgstr "로그인된 장치가 기록되지 않았습니다."
+
+msgid "KhÃ´ng cÃ³ tin nháº¯n chá»"
+msgstr "소식이 없습니다"
+
+msgid "KhÃ´ng gá»­i ÄÆ°á»£c tin nháº¯n thoáº¡i"
+msgstr "문자 메시지를 두려워하지 마세요"
+
+msgid "KhÃ´ng lÆ°u ÄÆ°á»£c vá» trÃ­."
+msgstr "문제도 문제도 없습니다."
+
+msgid ""
+"KhÃ´ng láº¥y ÄÆ°á»£c GPS. Thá»­ láº¡i hoáº·c kiá»m tra quyá»n vá» trÃ­."
+msgstr "GPS를 지원하지 않습니다. 수사와 수사를 디지털화하자."
+
+msgid "KhÃ´ng nháº­n ÄÆ°á»£c gÃ¬?"
+msgstr "마음에 들지 않나요?"
+
+msgid "KhÃ´ng thá» báº¯t Äáº§u ghi Ã¢m."
+msgstr "아무것도 녹음할 수 없습니다."
+
+msgid "KhÃ´ng thá» cáº¯t áº£nh. Thá»­ láº¡i vá»i áº£nh khÃ¡c."
+msgstr "확실하지 않습니다. 다른 사람들과 이야기해 봅시다."
+
+msgid ""
+"KhÃ´ng thá» gá»­i tin nháº¯n vÃ¬ má»t trong hai ngÆ°á»i ÄÃ£ cháº·n "
+"ngÆ°á»i cÃ²n láº¡i."
+msgstr "한 사람이 다른 사람을 차단했기 때문에 메시지를 보낼 수 없습니다."
+
+msgid "KhÃ´ng thá» há»§y liÃªn káº¿t tÃ i khoáº£n."
+msgstr "계정은 연결 해제할 수 없습니다."
+
+msgid "KhÃ´ng thá» láº¥y vá» trÃ­ hiá»n táº¡i."
+msgstr "더 이상 고칠 수 없습니다."
+
+msgid "KhÃ´ng thá» nháº¯n tin (ÄÃ£ cháº·n)"
+msgstr "문자 메시지를 보낼 수 없습니다(차단됨)"
+
+msgid ""
+"KhÃ´ng thá» truy cáº­p micro. HÃ£y cho phÃ©p quyá»n micro rá»i thá»­ "
+"láº¡i."
+msgstr "마이크에 액세스할 수 없습니다. 마이크를 매우 빠르게 제어할 수 있는 권한을 부여해 보겠습니다."
+
+msgid ""
+"KhÃ´ng thá» truy cáº­p vá» trÃ­. Vui lÃ²ng cho phÃ©p quyá»n Äá»nh vá»."
+msgstr "문제를 추적하는 것은 불가능합니다. 허락해 주십시오."
+
+msgid "KhÃ´ng thá» Äáº·t láº¡i"
+msgstr "괜찮아요"
+
+msgid "KhÃ´ng thá»±c hiá»n ÄÆ°á»£c. Thá»­ láº¡i."
+msgstr "이해할 수 없습니다. 그» 나뭇잎°¡i."
+
+msgid "KhÃ´ng tÃ¬m tháº¥y bÃ i viáº¿t."
+msgstr "기사를 찾을 수 없습니다."
+
+msgid "KhÃ´ng tÃ¬m tháº¥y ngÆ°á»i dÃ¹ng phÃ¹ há»£p."
+msgstr "매일 방을 이용하지 마십시오."
+
 msgid "Khác"
 msgstr "다른"
 
+msgid "Khôi phục truy cập"
+msgstr "액세스 복원"
+
 msgid "Khôi phục tài khoản"
 msgstr "계정 복구"
+
+msgid "Không bắt buộc. Bật chia sẻ nếu muốn hiện trên trang cá nhân."
+msgstr "선택 과목. 개인 페이지에 표시하려면 공유를 켜십시오."
 
 msgid "Không có thiết bị nào khác đăng nhập vào tài khoản của bạn."
 msgstr "다른 장치는 귀하의 계정에 로그인되어 있지 않습니다."
@@ -344,20 +1414,133 @@ msgstr "다른 장치는 귀하의 계정에 로그인되어 있지 않습니다
 msgid "Không có thiết bị đăng nhập nào được ghi nhận"
 msgstr "로그인된 장치가 기록되지 않았습니다."
 
+msgid "Không có tin nhắn chờ"
+msgstr "대기 중인 메시지 없음"
+
+msgid "Không gửi được tin nhắn thoại"
+msgstr "음성 메시지를 보낼 수 없습니다"
+
+msgid "Không lưu được vị trí."
+msgstr "위치를 저장할 수 없습니다."
+
+msgid "Không lấy được GPS. Thử lại hoặc kiểm tra quyền vị trí."
+msgstr "GPS를 얻을 수 없습니다. 다시 시도하거나 위치 권한을 확인하세요."
+
+msgid "Không nhận được gì?"
+msgstr "아무것도 받지 못하셨나요?"
+
+msgid "Không thể bắt đầu ghi âm."
+msgstr "녹화를 시작할 수 없습니다."
+
+msgid "Không thể cắt ảnh. Thử lại với ảnh khác."
+msgstr "이미지를 자를 수 없습니다. 다른 사진으로 다시 시도해 보세요."
+
 msgid "Không thể gửi tin nhắn vì một trong hai người đã chặn người còn lại."
 msgstr "한 사람이 다른 사람을 차단했기 때문에 메시지를 보낼 수 없습니다."
 
 msgid "Không thể hủy liên kết tài khoản."
 msgstr "계정은 연결 해제할 수 없습니다."
 
+msgid "Không thể lấy vị trí hiện tại."
+msgstr "현재 위치를 가져올 수 없습니다."
+
 msgid "Không thể nhắn tin (đã chặn)"
 msgstr "문자 메시지를 보낼 수 없습니다(차단됨)"
+
+msgid "Không thể truy cập micro. Hãy cho phép quyền micro rồi thử lại."
+msgstr "마이크에 액세스할 수 없습니다. 마이크 권한을 허용한 후 다시 시도해 주세요."
+
+msgid "Không thể truy cập vị trí. Vui lòng cho phép quyền định vị."
+msgstr "위치에 접근할 수 없습니다. 위치 권한을 허용해주세요."
+
+msgid "Không thể đặt lại"
+msgstr "재설정할 수 없습니다"
+
+msgid "Không thực hiện được. Thử lại."
+msgstr "할 수 없습니다. 다시 해 보다."
 
 msgid "Không tìm thấy bài viết."
 msgstr "기사를 찾을 수 없습니다."
 
+msgid "Không tìm thấy người dùng phù hợp."
+msgstr "일치하는 사용자가 없습니다."
+
+msgid "Kick"
+msgstr "차기"
+
+msgid "Kick %(name)s khỏi nhóm?"
+msgstr "%(name)s을(를) 그룹에서 추방하시겠습니까?"
+
+msgid "Kick %(var)s khá»i nhÃ³m?"
+msgstr "%(var)s을 꽤 많이 걷어차셨나요?"
+
+msgid "Kiá»m tra há»p thÆ°"
+msgstr "사실인지 아닌지 확인해보세요"
+
+msgid "Kiểm tra hộp thư"
+msgstr "우편함을 확인하세요"
+
+msgid "KÃ©o áº£nh Äá» Äáº·t vá» trÃ­"
+msgstr "KÃ©o áú£nh āá» Ãáú·t 및"
+
+msgid "Káº¿t quáº£ sau"
+msgstr "얼마 지나지 않아"
+
+msgid "Káº¿t quáº£ trÆ°á»c"
+msgstr "너무 늦었어"
+
+msgid "Kéo thả hoặc chọn ảnh/video mới · tối đa 1GB/file"
+msgstr "드래그 앤 드롭 또는 새 사진/비디오 선택 · 최대 1GB/파일"
+
+msgid "Kéo ảnh để đặt vị trí"
+msgstr "사진을 드래그하여 위치를 설정하세요."
+
+msgid "Kết quả sau"
+msgstr "다음 결과"
+
+msgid "Kết quả trước"
+msgstr "이전 결과"
+
+msgid "Kết thúc"
+msgstr "끝"
+
+msgid "Like"
+msgstr "좋다"
+
+msgid "LiÃªn káº¿t & máº¡ng xÃ£ há»i"
+msgstr "링크와 네트워크란 무엇인가요?"
+
+msgid "LiÃªn káº¿t háº¿t háº¡n"
+msgstr "링크를 사용할 수 없습니다."
+
+msgid "LiÃªn káº¿t máº¡ng xÃ£ há»i"
+msgstr "소셜 네트워크 링크"
+
+msgid ""
+"LiÃªn káº¿t nÃ y khÃ´ng há»£p lá» hoáº·c ÄÃ£ háº¿t háº¡n. HÃ£y yÃªu cáº§u "
+"má»t liÃªn káº¿t má»i Äá» tiáº¿p tá»¥c."
+msgstr "이 연결은 상황을 바꾸지 않습니다. 피가 서로 가깝게 유지되도록 요청합시다."
+
+msgid ""
+"LiÃªn káº¿t ÄÃ£ ÄÆ°á»£c lÆ°u vÃ o Website. Chá» há» trá»£ Facebook, "
+"Twitter/X, Instagram vÃ LinkedIn trong danh sÃ¡ch máº¡ng xÃ£ há»i."
+msgstr ""
+"링크가 웹사이트에 저장되었습니다. 소셜 네트워크 목록에서는 Facebook, Twitter/X, Instagram 및 LinkedIn만 "
+"지원됩니다."
+
+msgid "Liên kết & mạng xã hội"
+msgstr "링크 및 소셜 네트워크"
+
+msgid "Liên kết hết hạn"
+msgstr "만료된 링크"
+
 msgid "Liên kết mạng xã hội"
 msgstr "소셜 네트워크 링크"
+
+msgid ""
+"Liên kết này không hợp lệ hoặc đã hết hạn. Hãy yêu cầu một liên kết mới để "
+"tiếp tục."
+msgstr "이 링크는 유효하지 않거나 만료되었습니다. 계속하려면 새 링크를 요청하세요."
 
 msgid ""
 "Liên kết đã được lưu vào Website. Chỉ hỗ trợ Facebook, Twitter/X, Instagram "
@@ -366,14 +1549,86 @@ msgstr ""
 "링크가 웹사이트에 저장되었습니다. 소셜 네트워크 목록에서는 Facebook, Twitter/X, Instagram 및 LinkedIn만 "
 "지원됩니다."
 
+msgid "Loáº¡i file khÃ´ng ÄÆ°á»£c há» trá»£"
+msgstr "파일을 삭제하는 것은 문제가 되지 않습니다."
+
+msgid "Loáº¡i thÃ´ng bÃ¡o"
+msgstr "알림 유형"
+
+msgid "Loại file không được hỗ trợ"
+msgstr "지원되지 않는 파일 형식"
+
 msgid "Loại thông báo"
 msgstr "알림 유형"
+
+msgid "LÃ½ do bÃ¡o cÃ¡o"
+msgstr "신고 이유"
+
+msgid "LÃ½ do xÃ³a tÃ i khoáº£n"
+msgstr "계정 삭제 이유"
+
+msgid "LÆ°u"
+msgstr "뤼°u"
+
+msgid "LÆ°u há» sÆ¡"
+msgstr "LÆ°u ha» sÆ¡"
+
+msgid "LÆ°u máº­t kháº©u má»i"
+msgstr "혈액이 꽤 좋아"
+
+msgid "LÆ°u ngÃ´n ngá»¯"
+msgstr "언어 저장"
+
+msgid "LÆ°u thay Äá»i"
+msgstr "변경사항 저장"
+
+msgid "LÆ°u thay Äá»i quyá»n riÃªng tÆ°"
+msgstr "개인정보 보호 변경사항 저장"
+
+msgid "LÆ°u thay Äá»i thÃ´ng bÃ¡o"
+msgstr "알림 변경 사항 저장"
+
+msgid "LÆ°á»£t thÃ­ch"
+msgstr "좋아요"
+
+msgid "Lá»c thÃ´ng bÃ¡o"
+msgstr "소식을 남긴다"
+
+msgid "Lá»i táº¯t kiá»m duyá»t"
+msgstr "그렇게 나쁘지는 않아요"
+
+msgid "Lá»i khi gá»­i tin nháº¯n thoáº¡i"
+msgstr "여자는 언제 섹스를 믿나요?"
+
+msgid "Lá»i khi táº£i danh sÃ¡ch ngÆ°á»i theo dÃµi"
+msgstr "팔로어 목록을 로드하는 중에 오류가 발생했습니다."
+
+msgid "Lá»i khi táº£i danh sÃ¡ch Äang theo dÃµi"
+msgstr "추적 목록을 로드하는 중 오류가 발생했습니다."
+
+msgid "Lá»i khi táº£i lÃªn tá»p:"
+msgstr "파일 업로드 오류:"
+
+msgid "Lá»i káº¿t ná»i tá»i mÃ¡y chá»§. Vui lÃ²ng thá»­ láº¡i sau."
+msgstr "서버에 연결하는 중에 오류가 발생했습니다. 나중에 다시 시도해 주세요."
+
+msgid "Lá»i máº¡ng khi lÆ°u vá» trÃ­."
+msgstr "사용하고 성장하면 냉각됩니다."
 
 msgid "Lý do báo cáo"
 msgstr "신고 이유"
 
 msgid "Lý do xóa tài khoản"
 msgstr "계정 삭제 이유"
+
+msgid "Lưu"
+msgstr "구하다"
+
+msgid "Lưu hồ sơ"
+msgstr "프로필 저장"
+
+msgid "Lưu mật khẩu mới"
+msgstr "새 비밀번호 저장"
 
 msgid "Lưu ngôn ngữ"
 msgstr "언어 저장"
@@ -390,6 +1645,15 @@ msgstr "알림 변경 사항 저장"
 msgid "Lượt thích"
 msgstr "좋아요"
 
+msgid "Lọc thông báo"
+msgstr "알림 필터링"
+
+msgid "Lối tắt kiểm duyệt"
+msgstr "검열 단축키"
+
+msgid "Lỗi khi gửi tin nhắn thoại"
+msgstr "음성 메시지를 보내는 중 오류가 발생했습니다."
+
 msgid "Lỗi khi tải danh sách người theo dõi"
 msgstr "팔로어 목록을 로드하는 중에 오류가 발생했습니다."
 
@@ -402,8 +1666,94 @@ msgstr "파일 업로드 오류:"
 msgid "Lỗi kết nối tới máy chủ. Vui lòng thử lại sau."
 msgstr "서버에 연결하는 중에 오류가 발생했습니다. 나중에 다시 시도해 주세요."
 
+msgid "Lỗi mạng khi lưu vị trí."
+msgstr "위치를 저장하는 중에 네트워크 오류가 발생했습니다."
+
+msgid "Male"
+msgstr "남성"
+
+msgid "Mention"
+msgstr "언급하다"
+
 msgid "Menu"
 msgstr "메뉴"
+
+msgid "Message"
+msgstr "메시지"
+
+msgid "Moora - Máº¡ng xÃ£ há»i chia sáº» khoáº£nh kháº¯c"
+msgstr "Moora - 순간을 공유하는 소셜 네트워크"
+
+msgid "Moora - Mạng xã hội chia sẻ khoảnh khắc"
+msgstr "Moora - 순간을 공유하는 소셜 네트워크"
+
+msgid ""
+"Moora lÆ°u thiáº¿t bá» + vá» trÃ­ Äá» báº£o vá» tÃ i khoáº£n. Vá» trÃ­"
+" chÃ­nh xÃ¡c nháº¥t láº¥y tá»« GPS trÃ¬nh duyá»t (cáº§n báº¡n cho phÃ©p); "
+"náº¿u khÃ´ng sáº½ dÃ¹ng vá» trÃ­ theo IP (Äá» chÃ­nh xÃ¡c thÃ nh phá»)."
+msgstr "무라는 착한 소녀+아이입니다. 그리고 GPS 내비게이션 장치(고객에게 판매); 사용하지 않을 경우 IP로 추적해야 합니다."
+
+msgid ""
+"Moora lưu thiết bị + vị trí để bảo vệ tài khoản. Vị trí chính xác nhất lấy "
+"từ GPS trình duyệt (cần bạn cho phép); nếu không sẽ dùng vị trí theo IP (độ "
+"chính xác thành phố)."
+msgstr ""
+"Moora는 계정을 보호하기 위해 기기와 위치를 저장합니다. 브라우저 GPS에서 가져온 가장 정확한 위치(귀하의 허가 필요) 그렇지 "
+"않으면 IP 위치(도시 정밀도)가 사용됩니다."
+
+msgid "Moora Äang closed beta â cáº§n mÃ£ má»i Äá» ÄÄng kÃ½."
+msgstr "Moora는 현재 비공개 베타 버전이지만 아직 열려 있습니다."
+
+msgid "Moora đang closed beta — cần mã mời để đăng ký."
+msgstr "Moora는 비공개 베타 버전입니다. 가입하려면 초대 코드가 필요합니다."
+
+msgid ""
+"MÃ£ 8 sá», hiá»u lá»±c 10 phÃºt. Sai quÃ¡ 5 láº§n sáº½ bá» khÃ³a táº¡m."
+msgstr "코드는 8시간, 시간은 10분입니다. 잘못된 개수의 5개 잎은 너무 많습니다."
+
+msgid "MÃ£ má»i beta"
+msgstr "코드 베타"
+
+msgid "MÃ£ xÃ¡c thá»±c"
+msgstr "코드=월±c"
+
+msgid "MÃ´ táº£ chi tiáº¿t"
+msgstr "자세한 설명"
+
+msgid "Máº­t kháº©u"
+msgstr "비밀번호"
+
+msgid "Máº­t kháº©u má»i"
+msgstr "꽤 멋지다"
+
+msgid ""
+"Máº­t kháº©u má»i ÄÃ£ sáºµn sÃ ng. Báº¡n cÃ³ thá» ÄÄng nháº­p láº¡i "
+"ngay bÃ¢y giá»."
+msgstr "제품과 함께하니 참 좋네요. 이 가격을 활용해야합니다."
+
+msgid "Máº­t kháº©u vÃ ÄÄng nháº­p"
+msgstr "비밀번호 및 로그인"
+
+msgid "Máº­t kháº©u ÄÃ£ Äá»i"
+msgstr "꽤 멋지다"
+
+msgid "Má» Trung tÃ¢m trá»£ giÃºp"
+msgstr "센터가 범죄에 책임이 있다"
+
+msgid "Má»¥c cÃ i Äáº·t"
+msgstr "문제는 무엇입니까?"
+
+msgid "Má»¥c há» sÆ¡"
+msgstr "프로필 섹션"
+
+msgid "Mã 8 số, hiệu lực 10 phút. Sai quá 5 lần sẽ bị khóa tạm."
+msgstr "8자리 코드로 10분간 유효합니다. 5회 이상 틀리면 일시적으로 잠깁니다."
+
+msgid "Mã mời beta"
+msgstr "베타 초대 코드"
+
+msgid "Mã xác thực"
+msgstr "인증코드"
 
 msgid "Mô tả chi tiết"
 msgstr "자세한 설명"
@@ -411,14 +1761,70 @@ msgstr "자세한 설명"
 msgid "Mật khẩu"
 msgstr "비밀번호"
 
+msgid "Mật khẩu mới"
+msgstr "새 비밀번호"
+
+msgid "Mật khẩu mới đã sẵn sàng. Bạn có thể đăng nhập lại ngay bây giờ."
+msgstr "새 비밀번호가 준비되었습니다. 이제 다시 로그인하실 수 있습니다."
+
 msgid "Mật khẩu và đăng nhập"
 msgstr "비밀번호 및 로그인"
+
+msgid "Mật khẩu đã đổi"
+msgstr "비밀번호가 변경되었습니다."
+
+msgid "Mở Trung tâm trợ giúp"
+msgstr "도움말 센터 열기"
+
+msgid "Mục cài đặt"
+msgstr "설정 섹션"
 
 msgid "Mục hồ sơ"
 msgstr "프로필 섹션"
 
 msgid "Nam"
 msgstr "남성"
+
+msgid "NguyÃªn táº¯c cá»ng Äá»ng"
+msgstr "정보 출처"
+
+msgid "Nguyên tắc cộng đồng"
+msgstr "커뮤니티 가이드라인"
+
+msgid "NgÃ y sinh"
+msgstr "생일"
+
+msgid "NgÃ´n ngá»¯"
+msgstr "언어"
+
+msgid "NgÃ´n ngá»¯ hiá»n thá»"
+msgstr "표시 언어"
+
+msgid "NgÆ°á»i báº¡n theo dÃµi"
+msgstr "사람은 시간에 맞춰 팔아요"
+
+msgid "NgÆ°á»i dÃ¹ng"
+msgstr "사용자"
+
+msgid "NgÆ°á»i dÃ¹ng ÄÃ£ bá» cháº·n"
+msgstr "사용자가 차단되었습니다"
+
+msgid ""
+"NgÆ°á»i nÃ y báº¡n chÆ°a theo dÃµi. Cháº¥p nháº­n Äá» tráº£ lá»i trong "
+"há»p thÆ° chÃ­nh, hoáº·c tá»« chá»i."
+msgstr "이 사람은 지침을 따라야 합니다. 메인룸에서 왼쪽, 오른쪽 나뭇잎을 받아 함께 작업해보자."
+
+msgid "NgÆ°á»i theo dÃµi"
+msgstr "사람들이 따라오네요"
+
+msgid "NgÆ°á»i theo dÃµi (%(count)s)"
+msgstr "팔로어(%(count)s)"
+
+msgid "NgÆ°á»i theo dÃµi (%(var)s)"
+msgstr "길이별 인원(%(var)s)"
+
+msgid "NgÆ°á»i táº¡o"
+msgstr "NgÆ°á»i taº¡o"
 
 msgid "Ngày sinh"
 msgstr "생일"
@@ -429,11 +1835,103 @@ msgstr "언어"
 msgid "Ngôn ngữ hiển thị"
 msgstr "표시 언어"
 
+msgid "Người bạn theo dõi"
+msgstr "내가 팔로우하는 사람"
+
+msgid "Người dùng"
+msgstr "사용자"
+
 msgid "Người dùng đã bị chặn"
 msgstr "사용자가 차단되었습니다"
 
+msgid ""
+"Người này bạn chưa theo dõi. Chấp nhận để trả lời trong hộp thư chính, hoặc "
+"từ chối."
+msgstr "아직 팔로우하지 않은 사람입니다. 기본 받은 편지함에서 답장을 수락하거나 거부하세요."
+
+msgid "Người theo dõi"
+msgstr "추종자"
+
 msgid "Người theo dõi (%(count)s)"
 msgstr "팔로어(%(count)s)"
+
+msgid "Người tạo"
+msgstr "창조자"
+
+msgid "NhÃ³m má»i â gá»­i tin nháº¯n Äáº§u tiÃªn"
+msgstr "엄마와 소녀는 돈을 쓴다고 믿는다"
+
+msgid "Nháº¥n Ã Äá» ÄÃ¡nh dáº¥u xÃ³a áº£nh/video hiá»n cÃ³."
+msgstr "필요한 사진/동영상을 확인해보세요."
+
+msgid "Nháº­n email tÃ³m táº¯t cÃ¡c hoáº¡t Äá»ng má»i ngÃ y"
+msgstr "일일 활동을 요약한 이메일을 받습니다."
+
+msgid "Nháº­n thÃ´ng bÃ¡o ngay cáº£ khi khÃ´ng má» á»©ng dá»¥ng"
+msgstr "앱을 열지 않고도 알림을 받을 수 있습니다."
+
+msgid "Nháº­n thÃ´ng bÃ¡o qua Äá»a chá» email cá»§a báº¡n"
+msgstr "이메일 주소를 통해 알림 받기"
+
+msgid "Nháº­n thÃ´ng bÃ¡o sau 30 ngÃ y khÃ´ng hoáº¡t Äá»ng"
+msgstr "30일 동안 활동이 없으면 알림 받기"
+
+msgid "Nháº­p láº¡i máº­t kháº©u"
+msgstr "비밀번호를 다시 입력하세요."
+
+msgid "Nháº­p láº¡i máº­t kháº©u má»i"
+msgstr "뺨을 스머징하는 것은 꽤 멋지다."
+
+msgid "Nháº­p mÃ£ OTP"
+msgstr "OTP 코드를 클릭하세요"
+
+msgid "Nháº­p mÃ£ má»i"
+msgstr "코드를 클릭하세요"
+
+msgid "Nháº­p máº­t kháº©u cá»§a báº¡n"
+msgstr "비밀번호를 입력하세요"
+
+msgid "Nháº­p máº­t kháº©u hoáº·c mÃ£ xÃ¡c thá»±c Äá» táº¯t 2FA:"
+msgstr "2FA를 끄려면 비밀번호 또는 인증 코드를 입력하세요."
+
+msgid "Nháº­p máº­t kháº©u Äá» xÃ¡c nháº­n"
+msgstr "확인을 위해 비밀번호를 입력하세요"
+
+msgid "Nháº­p tin nháº¯n..."
+msgstr "메시지를 입력하세요..."
+
+msgid "Nháº­p tÃªn ngÆ°á»i dÃ¹ng cá»§a báº¡n"
+msgstr "사용자 이름을 입력하세요"
+
+msgid "Nháº­p Äá»a chá» email cá»§a báº¡n"
+msgstr "이메일 주소를 입력하세요"
+
+msgid "Nháº¯c Äáº¿n"
+msgstr "말하는"
+
+msgid "Nháº¯n tin"
+msgstr "문자 메시지"
+
+msgid "Nháº¯n tin trá»±c tiáº¿p"
+msgstr "다이렉트 메시지"
+
+msgid "Nhá»¯ng ngÆ°á»i mÃ %(username)s Äang theo dÃµi"
+msgstr "%(username)s님이 팔로우하고 있습니다."
+
+msgid "Nhá»¯ng ngÆ°á»i mÃ %(var)s Äang theo dÃµi"
+msgstr "코드 다음의 %(var)s는 무엇입니까?"
+
+msgid "Nhá»¯ng ngÆ°á»i Äang theo dÃµi %(username)s"
+msgstr "%(username)s을(를) 팔로우하는 사람들"
+
+msgid "Nhá»¯ng ngÆ°á»i Äang theo dÃµi %(var)s"
+msgstr "%(var)s 길이를 팔로우하는 사람들은 누구인가요?"
+
+msgid "Nhóm mới — gửi tin nhắn đầu tiên"
+msgstr "새 그룹 — 첫 번째 메시지 보내기"
+
+msgid "Nhấn × để đánh dấu xóa ảnh/video hiện có."
+msgstr "×를 눌러 기존 사진/비디오 삭제를 표시합니다."
 
 msgid "Nhận email tóm tắt các hoạt động mỗi ngày"
 msgstr "일일 활동을 요약한 이메일을 받습니다."
@@ -449,6 +1947,15 @@ msgstr "30일 동안 활동이 없으면 알림 받기"
 
 msgid "Nhập lại mật khẩu"
 msgstr "비밀번호를 다시 입력하세요."
+
+msgid "Nhập lại mật khẩu mới"
+msgstr "새 비밀번호를 다시 입력하세요."
+
+msgid "Nhập mã OTP"
+msgstr "OTP 코드를 입력하세요"
+
+msgid "Nhập mã mời"
+msgstr "초대코드를 입력하세요"
 
 msgid "Nhập mật khẩu của bạn"
 msgstr "비밀번호를 입력하세요"
@@ -483,8 +1990,64 @@ msgstr "%(username)s님이 팔로우하고 있습니다."
 msgid "Những người đang theo dõi %(username)s"
 msgstr "%(username)s을(를) 팔로우하는 사람들"
 
+msgid "NÃªn cÃ³ chá»¯ hoa, chá»¯ thÆ°á»ng, sá» vÃ kÃ½ tá»± Äáº·c biá»t."
+msgstr "꽃, 허브, 꽃 및 기타 재료가 있습니다."
+
+msgid ""
+"Náº¿u báº¡n khÃ´ng yÃªu cáº§u Äáº·t láº¡i máº­t kháº©u, hÃ£y bá» qua email"
+" nÃ y. Cáº£m Æ¡n báº¡n ÄÃ£ sá»­ dá»¥ng %(var)s! %(var)s"
+msgstr "더 많은 정보를 요청하고 싶지 않다면 이 이메일을 통해 알려주시기 바랍니다. 얼마나 %(var)s! %(var)s"
+
+msgid ""
+"Náº¿u sá» káº¿t thÃºc báº±ng <strong>%(var)s</strong> cÃ³ trÃªn Moora, "
+"báº¡n sáº½ nháº­n mÃ£ 8 sá» trong vÃ i phÃºt."
+msgstr ""
+"Moora에 <strong>%(var)s</strong>이(가) 있다는 사실을 알게 되면 단 몇 분 안에 최대 8%를 받으실 수 "
+"있습니다."
+
+msgid ""
+"Náº¿u Äá»a chá» email tá»n táº¡i trÃªn Moora, báº¡n sáº½ nháº­n ÄÆ°á»£c"
+" liÃªn káº¿t Äáº·t láº¡i máº­t kháº©u trong vÃ i phÃºt."
+msgstr "Moora에 이메일 주소가 있으면 나중에 더 나은 링크를 찾을 수 있을 것입니다. 그리고 분."
+
+msgid "Ná»i dung"
+msgstr "콘텐츠"
+
+msgid "Ná»i dung & cá»ng Äá»ng"
+msgstr "목차 및 약관"
+
+msgid "Ná»i dung khÃ´ng phÃ¹ há»£p"
+msgstr "부적절한 콘텐츠"
+
+msgid "Ná»¯"
+msgstr "여성"
+
+msgid "Nên có chữ hoa, chữ thường, số và ký tự đặc biệt."
+msgstr "대문자, 소문자, 숫자, 특수문자가 있어야 합니다."
+
+msgid ""
+"Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email này. Cảm ơn bạn đã "
+"sử dụng %(site_name)s! %(site_domain)s"
+msgstr ""
+"비밀번호 재설정을 요청하지 않으셨다면 이 이메일을 무시하세요. %(site_name)s을(를) 이용해 주셔서 감사합니다! "
+"%(site_domain)s"
+
+msgid ""
+"Nếu số kết thúc bằng <strong>%(hint)s</strong> có trên Moora, bạn sẽ nhận mã"
+" 8 số trong vài phút."
+msgstr ""
+"<strong>%(hint)s</strong>로 끝나는 번호가 Moora에 있는 경우 몇 분 내에 8자리 코드를 받게 됩니다."
+
+msgid ""
+"Nếu địa chỉ email tồn tại trên Moora, bạn sẽ nhận được liên kết đặt lại mật "
+"khẩu trong vài phút."
+msgstr "Moora에 해당 이메일 주소가 존재하는 경우 몇 분 내에 비밀번호 재설정 링크를 받게 됩니다."
+
 msgid "Nội dung"
 msgstr "콘텐츠"
+
+msgid "Nội dung & cộng đồng"
+msgstr "콘텐츠 및 커뮤니티"
 
 msgid "Nội dung không phù hợp"
 msgstr "부적절한 콘텐츠"
@@ -495,23 +2058,138 @@ msgstr "여성"
 msgid "Offline"
 msgstr "오프라인"
 
+msgid "Only me"
+msgstr "나만"
+
+msgid "Other"
+msgstr "다른"
+
+msgid "Phong admin"
+msgstr "관리실"
+
+msgid "PhÃ¡p lÃ½ & cá»ng Äá»ng"
+msgstr "음식 및 음료"
+
+msgid "PhÃ¢n trang thÃ´ng bÃ¡o"
+msgstr "알림 페이지 매김"
+
+msgid "PhÃ³ng to"
+msgstr "큰 방"
+
+msgid "PhÆ°Æ¡ng thá»©c nháº­n thÃ´ng bÃ¡o"
+msgstr "알림 수신 방법"
+
+msgid "PhÆ°Æ¡ng thá»©c Äáº·t láº¡i"
+msgstr "올해의 달과 달"
+
+msgid "PhÆ°Æ¡ng tiá»n hiá»n táº¡i"
+msgstr "현재 미디어"
+
+msgid "Pháp lý & cộng đồng"
+msgstr "법률 및 커뮤니티"
+
 msgid "Phân trang thông báo"
 msgstr "알림 페이지 매김"
+
+msgid "Phóng to"
+msgstr "크게 하다"
 
 msgid "Phương thức nhận thông báo"
 msgstr "알림 수신 방법"
 
+msgid "Phương thức đặt lại"
+msgstr "재설정 방법"
+
 msgid "Phương tiện hiện tại"
 msgstr "현재 미디어"
+
+msgid "Public"
+msgstr "공공의"
+
+msgid "Quay láº¡i"
+msgstr "돌아와"
+
+msgid "Quay láº¡i danh má»¥c"
+msgstr "카드를 돌리세요"
+
+msgid "Quay láº¡i ÄÄng nháº­p"
+msgstr "나뭇잎을 가볍게 돌려보세요."
 
 msgid "Quay lại"
 msgstr "돌아와"
 
+msgid "Quay lại danh mục"
+msgstr "카테고리로 돌아가기"
+
+msgid "Quay lại đăng nhập"
+msgstr "로그인으로 돌아가기"
+
+msgid "Quy táº¯c ÄÄng bÃ i vÃ táº£i dá»¯ liá»u cÃ¡ nhÃ¢n."
+msgstr "치료 및 치료 절차."
+
+msgid "Quy táº¯c á»©ng xá»­ Äá» cá»ng Äá»ng an toÃ n vÃ tÃ´n trá»ng."
+msgstr "청소 및 소독 과정은 안전하고 효과적입니다."
+
+msgid "Quy tắc đăng bài và tải dữ liệu cá nhân."
+msgstr "개인 데이터 게시 및 다운로드 규칙."
+
+msgid "Quy tắc ứng xử để cộng đồng an toàn và tôn trọng."
+msgstr "안전하고 존중받는 커뮤니티를 위한 행동 강령입니다."
+
+msgid "Quyá»n riÃªng tÆ°"
+msgstr "은둔"
+
+msgid "Quyá»n riÃªng tÆ° & an toÃ n"
+msgstr "개인정보 보호 및 안전"
+
 msgid "Quyền riêng tư"
 msgstr "은둔"
 
+msgid "Quyền riêng tư & an toàn"
+msgstr "개인정보 보호 및 안전"
+
+msgid "QuÃªn máº­t kháº©u?"
+msgstr "비밀번호를 잊으셨나요?"
+
+msgid "Quáº£n lÃ½ bÃ i viáº¿t"
+msgstr "쓰기엔 너무 아까워"
+
+msgid "Quáº£n lÃ½ bÃ¬nh luáº­n"
+msgstr "너무 많으면 문제"
+
+msgid "Quáº£n lÃ½ chat"
+msgstr "채팅이 너무 많아요"
+
+msgid ""
+"Quáº£n lÃ½ cÃ i Äáº·t báº£o máº­t cho tÃ i khoáº£n cá»§a báº¡n. Báº­t xÃ¡c "
+"thá»±c hai yáº¿u tá» Äá» tÄng cÆ°á»ng báº£o máº­t."
+msgstr "계정의 보안 설정을 관리하세요. 보안을 강화하려면 2단계 인증을 활성화하세요."
+
+msgid ""
+"Quáº£n lÃ½ cÃ¡c tÃ i khoáº£n máº¡ng xÃ£ há»i ÄÆ°á»£c liÃªn káº¿t vá»i tÃ "
+"i khoáº£n Moora cá»§a báº¡n"
+msgstr "Moora 계정에 연결된 소셜 미디어 계정을 관리하세요"
+
+msgid "Quáº£n lÃ½ danh sÃ¡ch ngÆ°á»i dÃ¹ng mÃ báº¡n ÄÃ£ cháº·n"
+msgstr "차단한 사용자 목록 관리"
+
+msgid "Quáº£n lÃ½ story"
+msgstr "To°£n은 이야기입니다"
+
+msgid "Quáº¥y rá»i"
+msgstr "괴롭힘"
+
 msgid "Quên mật khẩu?"
 msgstr "비밀번호를 잊으셨나요?"
+
+msgid "Quản lý bài viết"
+msgstr "기사 관리"
+
+msgid "Quản lý bình luận"
+msgstr "댓글 관리"
+
+msgid "Quản lý chat"
+msgstr "채팅 관리"
 
 msgid ""
 "Quản lý cài đặt bảo mật cho tài khoản của bạn. Bật xác thực hai yếu tố để "
@@ -525,8 +2203,50 @@ msgstr "Moora 계정에 연결된 소셜 미디어 계정을 관리하세요"
 msgid "Quản lý danh sách người dùng mà bạn đã chặn"
 msgstr "차단한 사용자 목록 관리"
 
+msgid "Quản lý story"
+msgstr "스토리 관리"
+
 msgid "Quấy rối"
 msgstr "괴롭힘"
+
+msgid "RiÃªng tÆ°"
+msgstr "정확히"
+
+msgid "Riêng tư"
+msgstr "사적인"
+
+msgid "Rá»i nhÃ³m"
+msgstr "너무 늦었어"
+
+msgid "Rời nhóm"
+msgstr "그룹 나가기"
+
+msgid "Share"
+msgstr "공유하다"
+
+msgid "Spam"
+msgstr "스팸"
+
+msgid "Story Äang sá»ng"
+msgstr "이야기의 이야기"
+
+msgid "Story đang sống"
+msgstr "이야기가 살아있다"
+
+msgid "SÃ¡ng"
+msgstr "상"
+
+msgid "Sáng"
+msgstr "밝은"
+
+msgid "Sáºµn sÃ ng táº£i xuá»ng"
+msgstr "다운로드 준비 완료"
+
+msgid "Sá» Äiá»n thoáº¡i"
+msgstr "전화 번호"
+
+msgid "Sá»­ dá»¥ng # hashtag vÃ @ gáº¯n tháº» ngÆ°á»i Äang follow"
+msgstr "Sá» dá»¥ng # 해시태그 및 @ gá̆n thaº» ngÆ°á»i äang 팔로우"
 
 msgid "Sẵn sàng tải xuống"
 msgstr "다운로드 준비 완료"
@@ -534,11 +2254,68 @@ msgstr "다운로드 준비 완료"
 msgid "Số điện thoại"
 msgstr "전화 번호"
 
+msgid "Sử dụng # hashtag và @ gắn thẻ người đang follow"
+msgstr "#해시태그를 사용하고 팔로우하는 사람을 @태그하세요."
+
+msgid "Tham gia cá»ng Äá»ng Moora ngay hÃ´m nay"
+msgstr "지금 Moora 커뮤니티에 가입하세요"
+
 msgid "Tham gia cộng đồng Moora ngay hôm nay"
 msgstr "지금 Moora 커뮤니티에 가입하세요"
 
-msgid "Theo dõi"
+msgid "Thay Äá»i chá» lÆ°u khi báº¡n nháº¥n nÃºt bÃªn pháº£i."
+msgstr "휴식시간을 받는 횟수를 변경합니다."
+
+msgid "Thay đổi chỉ lưu khi bạn nhấn nút bên phải."
+msgstr "변경 사항은 오른쪽 버튼을 누를 때만 저장됩니다."
+
+msgid "Theo IP"
+msgstr "IP에 따르면"
+
+msgid "Theo dÃµi"
 msgstr "감시 장치"
+
+msgid ""
+"Theo dÃµi bÃ¡o cÃ¡o, tÃ i khoáº£n bá» háº¡n cháº¿ vÃ hoáº¡t Äá»ng gáº§n "
+"ÄÃ¢y â giá»ng bÃ n Äiá»u khiá»n kiá»m duyá»t máº¡ng xÃ£ há»i."
+msgstr "보도에 따르면 해당 제품을 판매하지 않고 합리적인 가격에 판매하고 있다고 합니다. 차이점은 무엇입니까?"
+
+msgid "Theo dÃµi láº¡i"
+msgstr "지침을 따르십시오."
+
+msgid "Theo dÃµi Äá» xem danh sÃ¡ch"
+msgstr "목록을 보려면 지침을 따르세요."
+
+msgid "Theo dõi"
+msgstr "팔로우"
+
+msgid ""
+"Theo dõi báo cáo, tài khoản bị hạn chế và hoạt động gần đây — giống bàn điều"
+" khiển kiểm duyệt mạng xã hội."
+msgstr "소셜 미디어 조정 콘솔과 같은 보고서, 제한된 계정 및 최근 활동을 모니터링하세요."
+
+msgid "Theo dõi lại"
+msgstr "팔로우"
+
+msgid "Theo dõi để xem danh sách"
+msgstr "목록을 보려면 팔로우하세요."
+
+msgid ""
+"Thiáº¿t bá» cá»§a báº¡n ÄÃ£ ÄÄng nháº­p. Báº¡n cÃ³ thá» ÄÄng xuáº¥t "
+"khá»i cÃ¡c thiáº¿t bá» khÃ¡c tá»« ÄÃ¢y."
+msgstr "귀하의 장치는 로그인되어 있습니다. 여기에서 다른 장치에서 로그아웃할 수 있습니다."
+
+msgid "Thiáº¿t bá» hiá»n táº¡i"
+msgstr "현재 장비"
+
+msgid "Thiáº¿t bá» khÃ¡c"
+msgstr "기타 장비"
+
+msgid "Thiáº¿t bá» ÄÄng nháº­p"
+msgstr "로그인 장치"
+
+msgid "Thiáº¿t láº­p xÃ¡c thá»±c hai yáº¿u tá»"
+msgstr "이중 인증 설정"
 
 msgid ""
 "Thiết bị của bạn đã đăng nhập. Bạn có thể đăng xuất khỏi các thiết bị khác "
@@ -557,17 +2334,95 @@ msgstr "로그인 장치"
 msgid "Thiết lập xác thực hai yếu tố"
 msgstr "이중 인증 설정"
 
+msgid "ThÃ nh viÃªn"
+msgstr "회원"
+
+msgid "ThÃ nh viÃªn nhÃ³m"
+msgstr "직원"
+
+msgid "ThÃªm"
+msgstr "더"
+
+msgid "ThÃªm báº¥t ká»³ liÃªn káº¿t máº¡ng xÃ£ há»i nÃ o cá»§a báº¡n"
+msgstr "소셜 미디어 링크를 추가하세요."
+
+msgid "ThÃªm thÃ nh viÃªn"
+msgstr "회원가입"
+
+msgid "ThÃªm vÃ o nhÃ³m"
+msgstr "집으로 가세요"
+
+msgid "ThÃªm áº£nh/video má»i"
+msgstr "새 사진/비디오 추가"
+
+msgid "ThÃ´ng bÃ¡o"
+msgstr "공고"
+
+msgid "ThÃ´ng bÃ¡o há» thá»ng"
+msgstr "얼마나 자주 보고합니까?"
+
+msgid "ThÃ´ng bÃ¡o khi khÃ´ng hoáº¡t Äá»ng"
+msgstr "비활성 시 알림"
+
+msgid "ThÃ´ng bÃ¡o qua email"
+msgstr "이메일을 통한 알림"
+
+msgid "ThÃ´ng bÃ¡o Äáº©y"
+msgstr "푸시 알림"
+
+msgid "ThÃ´ng tin cÆ¡ báº£n"
+msgstr "정보가 판매되었습니다"
+
+msgid "ThÃ´ng tin liÃªn há»"
+msgstr "어떤 정보가 있나요?"
+
+msgid "ThÃ´ng tin liÃªn há» (cáº§n xÃ¡c thá»±c khi Äá»i)"
+msgstr "연락처 (교환시 인증 필요)"
+
+msgid "ThÃ´ng tin nhÃ³m"
+msgstr "좋은 소식"
+
+msgid "ThÃ´ng tin nÃ y hiá»n trÃªn trang há» sÆ¡ cÃ´ng khai cá»§a báº¡n."
+msgstr "이 정보는 판매자 웹사이트에 표시됩니다."
+
+msgid "Thành viên"
+msgstr "회원"
+
+msgid "Thành viên nhóm"
+msgstr "그룹 회원"
+
+msgid "Tháº» & Äá» cáº­p"
+msgstr "Tha°» & āá» ca°p"
+
+msgid "Thá»ng kÃª bÃ¡o cÃ¡o"
+msgstr "보고서 통계"
+
+msgid "Thá»ng kÃª bÃ¡o cÃ¡o chi tiáº¿t"
+msgstr "비용은 얼마입니까?"
+
+msgid "Thá»ng kÃª há» sÆ¡"
+msgstr "얼마나 걸릴까요?"
+
 msgid "Thêm"
 msgstr "더"
 
 msgid "Thêm bất kỳ liên kết mạng xã hội nào của bạn"
 msgstr "소셜 미디어 링크를 추가하세요."
 
+msgid "Thêm thành viên"
+msgstr "회원 추가"
+
+msgid "Thêm vào nhóm"
+msgstr "그룹에 추가"
+
 msgid "Thêm ảnh/video mới"
 msgstr "새 사진/비디오 추가"
 
 msgid "Thông báo"
-msgstr "공고"
+msgstr "알림"
+
+msgid "Thông báo hệ thống"
+msgstr "시스템 알림"
 
 msgid "Thông báo khi không hoạt động"
 msgstr "비활성 시 알림"
@@ -578,26 +2433,155 @@ msgstr "이메일을 통한 알림"
 msgid "Thông báo đẩy"
 msgstr "푸시 알림"
 
+msgid "Thông tin cơ bản"
+msgstr "기본정보"
+
+msgid "Thông tin liên hệ"
+msgstr "연락처 정보"
+
 msgid "Thông tin liên hệ (cần xác thực khi đổi)"
 msgstr "연락처 (교환시 인증 필요)"
+
+msgid "Thông tin nhóm"
+msgstr "그룹 정보"
+
+msgid "Thông tin này hiện trên trang hồ sơ công khai của bạn."
+msgstr "이 정보는 공개 프로필 페이지에 표시됩니다."
+
+msgid "Thẻ & đề cập"
+msgstr "태그 및 멘션"
 
 msgid "Thống kê báo cáo"
 msgstr "보고서 통계"
 
+msgid "Thống kê báo cáo chi tiết"
+msgstr "상세한 통계 보고서"
+
+msgid "Thống kê hồ sơ"
+msgstr "프로필 통계"
+
+msgid "Tin nháº¯n"
+msgstr "메시지"
+
+msgid "Tin nháº¯n 24h"
+msgstr "24시간 뉴스"
+
+msgid "Tin nháº¯n chá»"
+msgstr "좋은 소식"
+
+msgid "Tin nháº¯n chá» (requests)"
+msgstr "뉴스(요청)"
+
+msgid "Tin nháº¯n má»i"
+msgstr "좋은 소식"
+
+msgid "Tin nháº¯n thoáº¡i"
+msgstr "속보"
+
+msgid "Tin nháº¯n thoáº¡i quÃ¡ ngáº¯n."
+msgstr "뉴스가 지루해요."
+
+msgid "Tin nháº¯n ÄÃ£ ÄÆ°á»£c thu há»i"
+msgstr "가을의 소식"
+
 msgid "Tin nhắn"
 msgstr "메시지"
 
-msgid "Trang chủ"
+msgid "Tin nhắn 24h"
+msgstr "24시간 메시지"
+
+msgid "Tin nhắn chờ"
+msgstr "메시지 대기 중"
+
+msgid "Tin nhắn chờ (requests)"
+msgstr "메시지 대기(요청)"
+
+msgid "Tin nhắn mới"
+msgstr "새 메시지"
+
+msgid "Tin nhắn thoại"
+msgstr "음성 메시지"
+
+msgid "Tin nhắn thoại quá ngắn."
+msgstr "음성 메시지가 너무 짧습니다."
+
+msgid "Tin nhắn đã được thu hồi"
+msgstr "메시지가 회수되었습니다."
+
+msgid "Tin tá»« ngÆ°á»i báº¡n chÆ°a theo dÃµi"
+msgstr "시간에 맞춰 판매자에게 메시지 보내기"
+
+msgid "Tin từ người bạn chưa theo dõi"
+msgstr "아직 팔로우하지 않은 사람의 소식"
+
+msgid "Tiáº¿p tá»¥c"
+msgstr "Tiáú¿p ta»\\c"
+
+msgid "Tiếp tục"
+msgstr "계속하다"
+
+msgid "Trang chá»§"
 msgstr "홈페이지"
 
-msgid "Trang cá nhân"
+msgid "Trang chá»§ Moora"
+msgstr "Trang chá»§ Moora"
+
+msgid "Trang chủ"
+msgstr "홈"
+
+msgid "Trang chủ Moora"
+msgstr "무라 홈페이지"
+
+msgid "Trang cÃ¡ nhÃ¢n"
 msgstr "개인 페이지"
+
+msgid "Trang cá nhân"
+msgstr "프로필"
 
 msgid "Trang sau"
 msgstr "다음 페이지"
 
+msgid "Trang trÆ°á»c"
+msgstr "이전 페이지"
+
 msgid "Trang trước"
 msgstr "이전 페이지"
+
+msgid "Trung tÃ¢m trá»£ giÃºp"
+msgstr "사기센터"
+
+msgid "Trung tÃ¢m váº­n hÃ nh Moora"
+msgstr "무라헬스센터"
+
+msgid "Trung tâm trợ giúp"
+msgstr "도움말 센터"
+
+msgid "Trung tâm vận hành Moora"
+msgstr "무라 운영센터"
+
+msgid "TrÃ¬nh duyá»t khÃ´ng há» trá»£ GPS."
+msgstr "GPS 추적을 사용할 수 없습니다."
+
+msgid "TrÃ¬nh duyá»t khÃ´ng há» trá»£ ghi Ã¢m."
+msgstr "기록을 작성할 필요가 없습니다."
+
+msgid "TrÃ¬nh duyá»t khÃ´ng há» trá»£ Äá»nh vá» GPS."
+msgstr "내비게이션은 GPS로 보호되지 않습니다."
+
+msgid "TrÃ² chuyá»n má»i"
+msgstr "새 채팅"
+
+msgid "Tráº£ lá»i"
+msgstr "회신하다"
+
+msgid "Trình duyệt không hỗ trợ GPS."
+msgstr "브라우저가 GPS를 지원하지 않습니다."
+
+msgid "Trình duyệt không hỗ trợ ghi âm."
+msgstr "브라우저는 오디오 녹음을 지원하지 않습니다."
+
+msgid "Trình duyệt không hỗ trợ định vị GPS."
+msgstr "브라우저는 GPS 포지셔닝을 지원하지 않습니다."
 
 msgid "Trò chuyện mới"
 msgstr "새 채팅"
@@ -605,14 +2589,168 @@ msgstr "새 채팅"
 msgid "Trả lời"
 msgstr "회신하다"
 
+msgid "TÃ i khoáº£n & há» sÆ¡"
+msgstr "잠겼는데 무슨 일이에요?"
+
+msgid "TÃ i khoáº£n bá» xÃ³a?"
+msgstr "계정이 삭제되었나요?"
+
+msgid "TÃ i khoáº£n giáº£ máº¡o"
+msgstr "가짜 계정"
+
+msgid "TÃ i khoáº£n riÃªng tÆ°"
+msgstr "따로 잠글게요"
+
+msgid "TÃ i khoáº£n riÃªng tÆ°, cháº·n/bÃ¡o cÃ¡o, thiáº¿t bá» ÄÄng nháº­p."
+msgstr "저도 같은 방식으로 조금만 잠그겠습니다."
+
+msgid "TÃ i khoáº£n Äang ÄÃ¬nh chá»"
+msgstr "프로그램을 잠그네요"
+
+msgid "TÃ i khoáº£n ÄÃ£ xÃ³a má»m"
+msgstr "나는 코드를 잠근다"
+
+msgid "TÃ i liá»u"
+msgstr "문서"
+
+msgid "TÃªn"
+msgstr "틴"
+
+msgid "TÃªn ngÆ°á»i dÃ¹ng"
+msgstr "사용자 이름"
+
+msgid "TÃªn ngÆ°á»i dÃ¹ng khÃ´ng há»£p lá»"
+msgstr "잘못된 사용자 이름"
+
+msgid "TÃªn nhÃ³m"
+msgstr "이름"
+
+msgid "TÃªn ÄÃ£ ÄÆ°á»£c sá»­ dá»¥ng"
+msgstr "이름"
+
+msgid "TÃ¬m hoáº·c chá»n Äá»a Äiá»m (tÃ¹y chá»n)"
+msgstr "변화를 만들어 보세요"
+
+msgid "TÃ¬m kiáº¿m"
+msgstr "찾다"
+
+msgid "TÃ¬m kiáº¿m cuá»c trÃ² chuyá»n..."
+msgstr "채팅 검색..."
+
+msgid "TÃ¬m kiáº¿m tin nháº¯n"
+msgstr "뉴스를 찾아보세요"
+
+msgid "TÃ¬m kiáº¿m..."
+msgstr "찾다..."
+
+msgid "TÃ¬m theo tÃªn hoáº·c @username"
+msgstr "@사용자 이름 팔로우"
+
+msgid "TÃ¬m tin nháº¯n..."
+msgstr "소식좀..."
+
+msgid ""
+"TÃ´i hiá»u ráº±ng sau 30 ngÃ y tÃ i khoáº£n sáº½ bá» xÃ³a vÄ©nh viá» n vÃ "
+"khÃ´ng thá» khÃ´i phá»¥c"
+msgstr "30일 후에는 계정이 영구적으로 삭제되며 복원할 수 없다는 점을 이해합니다."
+
+msgid "TÃ´i Äá»ng Ã½ vá»i"
+msgstr "나는 동의한다"
+
+msgid "TÃ¹y chá»nh cÃ¡ch báº¡n nháº­n thÃ´ng bÃ¡o tá»« Moora"
+msgstr "Moora로부터 알림을 받는 방법을 맞춤설정하세요."
+
+msgid "TÃ¹y chá»nh thá»i gian ÄÃ¬nh chá»"
+msgstr "정지 시간 맞춤설정"
+
+msgid "TÃ¹y chá»nh thá»i gian ÄÃ¬nh chá» ngÆ°á»i dÃ¹ng bá» bÃ¡o cÃ¡o"
+msgstr "보고된 사용자 정지 시간 맞춤설정"
+
+msgid "TÃ¹y chá»n thÃ´ng bÃ¡o khÃ¡c"
+msgstr "추가 알림 옵션"
+
+msgid "Tài khoản & hồ sơ"
+msgstr "계정 및 프로필"
+
 msgid "Tài khoản bị xóa?"
 msgstr "계정이 삭제되었나요?"
 
 msgid "Tài khoản giả mạo"
 msgstr "가짜 계정"
 
+msgid "Tài khoản riêng tư"
+msgstr "비공개 계정"
+
+msgid "Tài khoản riêng tư, chặn/báo cáo, thiết bị đăng nhập."
+msgstr "비공개 계정, 차단/신고, 기기 로그인."
+
+msgid "Tài khoản đang đình chỉ"
+msgstr "계정이 정지되었습니다"
+
+msgid "Tài khoản đã xóa mềm"
+msgstr "계정 소프트 삭제됨"
+
 msgid "Tài liệu"
 msgstr "문서"
+
+msgid "Táº¡m biá»t má»t chÃºt"
+msgstr "그것이 사실인지 보자"
+
+msgid "Táº¡o bÃ i viáº¿t"
+msgstr "기사 작성"
+
+msgid "Táº¡o bÃ i viáº¿t má»i"
+msgstr "새 기사 만들기"
+
+msgid "Táº¡o máº­t kháº©u má»i"
+msgstr "새 비밀번호 만들기"
+
+msgid "Táº¡o tÃ i khoáº£n má»i"
+msgstr "새 계정 만들기"
+
+msgid "Táº£i xuá»ng"
+msgstr "다운로드"
+
+msgid ""
+"Táº£i xuá»ng báº£n sao dá»¯ liá»u cá»§a báº¡n, bao gá»m bÃ i viáº¿t, "
+"bÃ¬nh luáº­n, vÃ thÃ´ng tin cÃ¡ nhÃ¢n."
+msgstr "게시물, 댓글, 개인 정보를 포함한 데이터 사본을 다운로드하세요."
+
+msgid "Táº£i xuá»ng dá»¯ liá»u"
+msgstr "데이터 다운로드"
+
+msgid "Táº¥t cáº£"
+msgstr "Tá°₩t ca°₩"
+
+msgid "Táº¯t bÃ¬nh luáº­n"
+msgstr "댓글 끄기"
+
+msgid "Táº¯t thÃ´ng bÃ¡o"
+msgstr "모든 보고서"
+
+msgid "Táº¯t xÃ¡c thá»±c hai yáº¿u tá»"
+msgstr "이중 인증 끄기"
+
+msgid "Tá»i"
+msgstr "티»i"
+
+msgid "Tá»ng bÃ i viáº¿t"
+msgstr "나는 그것에 대해 이야기하고있다"
+
+msgid "Tá»ng quan kiá»m duyá»t"
+msgstr "이것은 중요하다"
+
+msgid "Tá»ng user"
+msgstr "모든 사용자"
+
+msgid "Tá»« chá»i"
+msgstr "Tá»« cha»i"
+
+msgid "Tá»« chá»i tin nháº¯n nÃ y?"
+msgstr "누가 이것을 믿을 것인가?"
+
+msgid "Tên"
+msgstr "이름"
 
 msgid "Tên người dùng"
 msgstr "사용자 이름"
@@ -620,14 +2758,32 @@ msgstr "사용자 이름"
 msgid "Tên người dùng không hợp lệ"
 msgstr "잘못된 사용자 이름"
 
+msgid "Tên nhóm"
+msgstr "그룹 이름"
+
+msgid "Tên đã được sử dụng"
+msgstr "이미 사용 중인 이름입니다."
+
+msgid "Tìm hoặc chọn địa điểm (tùy chọn)"
+msgstr "위치 찾기 또는 선택(선택사항)"
+
 msgid "Tìm kiếm"
 msgstr "찾다"
 
 msgid "Tìm kiếm cuộc trò chuyện..."
 msgstr "채팅 검색..."
 
+msgid "Tìm kiếm tin nhắn"
+msgstr "메시지 검색"
+
 msgid "Tìm kiếm..."
 msgstr "찾다..."
+
+msgid "Tìm theo tên hoặc @username"
+msgstr "이름 또는 @사용자 이름으로 검색"
+
+msgid "Tìm tin nhắn..."
+msgstr "메시지 찾기..."
 
 msgid ""
 "Tôi hiểu rằng sau 30 ngày tài khoản sẽ bị xóa vĩnh viễn và không thể khôi "
@@ -648,6 +2804,9 @@ msgstr "보고된 사용자 정지 시간 맞춤설정"
 
 msgid "Tùy chọn thông báo khác"
 msgstr "추가 알림 옵션"
+
+msgid "Tạm biệt một chút"
+msgstr "잠시만 안녕"
 
 msgid "Tạo bài viết"
 msgstr "기사 작성"
@@ -672,14 +2831,76 @@ msgstr "게시물, 댓글, 개인 정보를 포함한 데이터 사본을 다운
 msgid "Tải xuống dữ liệu"
 msgstr "데이터 다운로드"
 
+msgid "Tất cả"
+msgstr "모두"
+
 msgid "Tắt bình luận"
 msgstr "댓글 끄기"
+
+msgid "Tắt thông báo"
+msgstr "알림 끄기"
 
 msgid "Tắt xác thực hai yếu tố"
 msgstr "이중 인증 끄기"
 
+msgid "Tối"
+msgstr "어두운"
+
+msgid "Tổng bài viết"
+msgstr "총 기사"
+
+msgid "Tổng quan kiểm duyệt"
+msgstr "검열 개요"
+
+msgid "Tổng user"
+msgstr "총 사용자"
+
+msgid "Từ chối"
+msgstr "거절하다"
+
+msgid "Từ chối tin nhắn này?"
+msgstr "이 메시지를 거부하시겠습니까?"
+
+msgid "User má»i 24h"
+msgstr "사용자는 24시간 열려있습니다"
+
+msgid "User mới 24h"
+msgstr "신규 사용자 24시간"
+
 msgid "Video"
 msgstr "동영상"
+
+msgid "Violence"
+msgstr "폭행"
+
+msgid ""
+"Việc xóa tài khoản là <strong>tạm thời</strong> trong vòng 30 ngày. Trong "
+"thời gian này, bạn có thể khôi phục lại tài khoản bằng cách đăng nhập lại "
+"hoặc sử dụng trang <a href=\"%(restore_url)s\" class=\"alert-link\">khôi "
+"phục tài khoản</a>. Sau 30 ngày, tài khoản và tất cả dữ liệu sẽ bị xóa vĩnh "
+"viễn."
+msgstr ""
+"계정 삭제는 30일 동안 <strong>일시적</strong>입니다. 이 기간 동안 다시 로그인하거나 <a "
+"href=\"%(restore_url)s\" class=\"alert-link\">계정 복구 페이지</a>를 사용하여 계정을 복원할 수 "
+"있습니다. 30일 후에는 계정과 모든 데이터가 영구적으로 삭제됩니다."
+
+msgid "Vui lÃ²ng chá»n file áº£nh."
+msgstr "여기에서 파일을 확인해주세요."
+
+msgid "Vui lÃ²ng chá»n lÃ½ do bÃ¡o cÃ¡o."
+msgstr "신고 사유를 선택해 주세요."
+
+msgid "Vui lÃ²ng cung cáº¥p thÃªm thÃ´ng tin..."
+msgstr "더 많은 정보를 제공해 주세요..."
+
+msgid "Vui lÃ²ng kiá»m tra láº¡i cÃ¡c thÃ´ng tin bÃªn dÆ°á»i."
+msgstr "제공된 정보를 확인하시기 바랍니다."
+
+msgid "Vui lÃ²ng kiá»m tra láº¡i cÃ¡c trÆ°á»ng bá» lá»i bÃªn dÆ°á»i."
+msgstr "원하는 답변을 자유롭게 확인해 보세요."
+
+msgid "Vui lòng chọn file ảnh."
+msgstr "이미지 파일을 선택해주세요."
 
 msgid "Vui lòng chọn lý do báo cáo."
 msgstr "신고 사유를 선택해 주세요."
@@ -687,23 +2908,147 @@ msgstr "신고 사유를 선택해 주세요."
 msgid "Vui lòng cung cấp thêm thông tin..."
 msgstr "더 많은 정보를 제공해 주세요..."
 
+msgid "Vui lòng kiểm tra lại các thông tin bên dưới."
+msgstr "아래 정보를 확인해주세요."
+
+msgid "Vui lòng kiểm tra lại các trường bị lỗi bên dưới."
+msgstr "아래의 오류 필드를 확인하세요."
+
+msgid "Vá» trang ÄÄng nháº­p"
+msgstr "페이지를 업데이트해주세요"
+
+msgid "Về trang đăng nhập"
+msgstr "로그인 페이지로 이동"
+
+msgid "Website"
+msgstr "웹사이트"
+
+msgid "Who can see this post"
+msgstr "이 게시물을 볼 수 있는 사람"
+
+msgid "Xem bÃ i viáº¿t gá»c"
+msgstr "원본 기사 보기"
+
 msgid "Xem bài viết gốc"
 msgstr "원본 기사 보기"
+
+msgid "Xem chi tiáº¿t"
+msgstr "세부정보 보기"
 
 msgid "Xem chi tiết"
 msgstr "세부정보 보기"
 
+msgid "Xem há» sÆ¡"
+msgstr "보자"
+
+msgid "Xem hồ sơ"
+msgstr "프로필 보기"
+
+msgid "Xem thá»ng kÃª bÃ¡o cÃ¡o"
+msgstr "보고서 통계 보기"
+
 msgid "Xem thống kê báo cáo"
 msgstr "보고서 통계 보기"
+
+msgid "Xem trÃªn báº£n Äá»"
+msgstr "웹사이트 보기"
+
+msgid "Xem trên bản đồ"
+msgstr "지도에서 보기"
+
+msgid "Xem táº¥t cáº£ thÃ´ng bÃ¡o"
+msgstr "모든 공지사항 보기"
 
 msgid "Xem tất cả thông báo"
 msgstr "모든 공지사항 보기"
 
+msgid "Xem áº£nh"
+msgstr "사진 보기"
+
+msgid "Xem áº£nh Äáº¡i diá»n"
+msgstr "á°£nh āá°¡i dián을 참조하세요."
+
 msgid "Xem ảnh"
 msgstr "사진 보기"
 
+msgid "Xem ảnh đại diện"
+msgstr "대표사진 보기"
+
+msgid "Xong rá»i"
+msgstr "끝났어"
+
+msgid "Xong rồi"
+msgstr "완료"
+
+msgid "XÃ¡c nháº­n"
+msgstr "받아주세요"
+
+msgid "XÃ¡c nháº­n máº­t kháº©u"
+msgstr "비밀번호 확인"
+
+msgid "XÃ¡c thá»±c OTP"
+msgstr "OTP 상태 확인"
+
+msgid "XÃ¡c thá»±c hai yáº¿u tá»"
+msgstr "이중 인증"
+
+msgid ""
+"XÃ¡c thá»±c hai yáº¿u tá» Äang <strong>báº­t</strong>. Báº¡n sáº½ cáº§n "
+"mÃ£ tá»« á»©ng dá»¥ng xÃ¡c thá»±c má»i khi ÄÄng nháº­p."
+msgstr "이중 인증이 <strong>켜져</strong> 있습니다. 로그인할 때마다 인증 앱의 코드가 필요합니다."
+
+msgid "XÃ¡c thá»±c sá» Äiá»n thoáº¡i"
+msgstr "상황의 상태 판단"
+
+msgid "XÃ³a"
+msgstr "지우다"
+
+msgid "XÃ³a bÃ i viáº¿t"
+msgstr "게시물 삭제"
+
+msgid ""
+"XÃ³a chá» bÃªn mÃ¬nh? (OK = chá» mÃ¬nh, Cancel rá»i thá»­ láº¡i Äá» "
+"chá»n khÃ¡c)"
+msgstr "왜 그래? (OK = 괜찮습니다. 다음 단계는 취소입니다)"
+
+msgid "XÃ³a cuá»c trÃ² chuyá»n"
+msgstr "채팅 삭제"
+
+msgid "XÃ³a phÃ­a mÃ¬nh"
+msgstr "스크린샷"
+
+msgid "XÃ³a phÃ­a ngÆ°á»i nháº­n"
+msgstr "비켜가세요"
+
+msgid "XÃ³a thÃ´ng bÃ¡o"
+msgstr "보도에 따르면"
+
+msgid "XÃ³a tin nháº¯n"
+msgstr "뉴스는 다음과 같습니다"
+
+msgid "XÃ³a tin nháº¯n nÃ y."
+msgstr "이 소식을 확인해 보세요."
+
+msgid "XÃ³a tÃ i khoáº£n"
+msgstr "계정 삭제"
+
+msgid "XÃ³a táº¥t cáº£"
+msgstr "XÃ³a°\\t °£"
+
+msgid "XÃ³a áº£nh Äáº¡i diá»n"
+msgstr "무슨 일이야?"
+
+msgid "XÃ³a áº£nh Äáº¡i diá»n hiá»n táº¡i"
+msgstr "현재 아바타 삭제"
+
+msgid "Xác nhận"
+msgstr "확인하다"
+
 msgid "Xác nhận mật khẩu"
 msgstr "비밀번호 확인"
+
+msgid "Xác thực OTP"
+msgstr "OTP 인증"
 
 msgid "Xác thực hai yếu tố"
 msgstr "이중 인증"
@@ -713,20 +3058,62 @@ msgid ""
 " thực mỗi khi đăng nhập."
 msgstr "이중 인증이 <strong>켜져</strong> 있습니다. 로그인할 때마다 인증 앱의 코드가 필요합니다."
 
+msgid "Xác thực số điện thoại"
+msgstr "전화번호 확인"
+
 msgid "Xóa"
-msgstr "지우다"
+msgstr "삭제"
 
 msgid "Xóa bài viết"
 msgstr "게시물 삭제"
 
+msgid "Xóa chỉ bên mình? (OK = chỉ mình, Cancel rồi thử lại để chọn khác)"
+msgstr "옆에서 대화목록을 삭제하시겠습니까? (확인 = 나만, 취소하고 다른 것을 다시 선택해 보세요)"
+
 msgid "Xóa cuộc trò chuyện"
 msgstr "채팅 삭제"
+
+msgid "Xóa phía mình"
+msgstr "당신의 측면을 삭제"
+
+msgid "Xóa phía người nhận"
+msgstr "수신자 측 삭제"
+
+msgid "Xóa thông báo"
+msgstr "알림 삭제"
+
+msgid "Xóa tin nhắn"
+msgstr "메시지 삭제"
+
+msgid "Xóa tin nhắn này."
+msgstr "이 메시지를 삭제하세요."
 
 msgid "Xóa tài khoản"
 msgstr "계정 삭제"
 
+msgid "Xóa tất cả"
+msgstr "모두 삭제"
+
+msgid "Xóa ảnh đại diện"
+msgstr "아바타 삭제"
+
 msgid "Xóa ảnh đại diện hiện tại"
 msgstr "현재 아바타 삭제"
+
+msgid "YÃªu cáº§u cá»§a báº¡n ÄÃ£ ÄÆ°á»£c ghi nháº­n."
+msgstr "귀하의 요청이 승인되었습니다."
+
+msgid "YÃªu cáº§u gáº§n ÄÃ¢y"
+msgstr "최근 요청"
+
+msgid "YÃªu cáº§u liÃªn káº¿t má»i"
+msgstr "쿨링크 요구사항"
+
+msgid "YÃªu cáº§u nháº¯n tin"
+msgstr "정보를 받아야 합니다."
+
+msgid "YÃªu cáº§u táº£i xuá»ng"
+msgstr "다운로드 필요"
 
 msgid "Yêu cầu của bạn đã được ghi nhận."
 msgstr "귀하의 요청이 승인되었습니다."
@@ -734,14 +3121,116 @@ msgstr "귀하의 요청이 승인되었습니다."
 msgid "Yêu cầu gần đây"
 msgstr "최근 요청"
 
+msgid "Yêu cầu liên kết mới"
+msgstr "새 링크 요청"
+
+msgid "Yêu cầu nhắn tin"
+msgstr "메시지 요청"
+
 msgid "Yêu cầu tải xuống"
 msgstr "다운로드 필요"
+
+msgid "admin notes"
+msgstr "관리자 메모"
+
+msgid "audio"
+msgstr "오디오. 오디오"
+
+msgid "bio"
+msgstr "바이오"
+
+msgid "birth date"
+msgstr "생년월일"
+
+msgid "block"
+msgstr "차단하다. 차단하다"
+
+msgid "block messages from non-followers"
+msgstr "팔로어가 아닌 사람의 메시지 차단"
+
+msgid "blocks"
+msgstr "블록. 블록"
+
+msgid "bÃ i viáº¿t"
+msgstr "기사"
 
 msgid "bài viết"
 msgstr "기사"
 
+msgid "caption"
+msgstr "표제"
+
+msgid "comment like"
+msgstr "댓글 같은"
+
+msgid "comment likes"
+msgstr "댓글 좋아요"
+
+msgid "comment notifications"
+msgstr "댓글 알림"
+
+msgid "cá»§a Moora"
+msgstr "호시로"
+
 msgid "của Moora"
 msgstr "호시로"
+
+msgid "deleted account"
+msgstr "삭제된 계정"
+
+msgid "deleted at"
+msgstr "삭제된 시간"
+
+msgid "deletion reason"
+msgstr "삭제 이유"
+
+msgid "description"
+msgstr "설명"
+
+msgid "details"
+msgstr "세부. 세부"
+
+msgid "email address"
+msgstr "이메일 주소"
+
+msgid "email notifications"
+msgstr "이메일 알림"
+
+msgid "facebook"
+msgstr "페이스북"
+
+msgid "file"
+msgstr "파일"
+
+msgid "follow notifications"
+msgstr "알림을 따르다"
+
+msgid "follow request"
+msgstr "요청을 따르세요"
+
+msgid "follow requests"
+msgstr "요청을 따르다"
+
+msgid "following"
+msgstr "수행원"
+
+msgid "followings"
+msgstr "팔로어"
+
+msgid "gender"
+msgstr "성별"
+
+msgid "hide activity status"
+msgstr "활동 상태 숨기기"
+
+msgid "highlight"
+msgstr "가장 밝은 부분. 가장 밝은 부분"
+
+msgid "hoáº·c tiáº¿p tá»¥c vá»i"
+msgstr "아니면 계속"
+
+msgid "hoáº·c ÄÄng kÃ½ vá»i"
+msgstr "또는 등록"
 
 msgid "hoặc tiếp tục với"
 msgstr "아니면 계속"
@@ -749,32 +3238,495 @@ msgstr "아니면 계속"
 msgid "hoặc đăng ký với"
 msgstr "또는 등록"
 
+msgid "inactive notifications"
+msgstr "비활성 알림"
+
+msgid "instagram"
+msgstr "인스타그램"
+
+msgid "language"
+msgstr "언어. 언어"
+
+msgid "like"
+msgstr "좋다"
+
+msgid "like notifications"
+msgstr "알림처럼"
+
+msgid "likes"
+msgstr "좋아한다"
+
+msgid "linkedin"
+msgstr "링크드인"
+
+msgid "location"
+msgstr "위치. 위치"
+
+msgid "lÆ°á»£t thÃ­ch"
+msgstr "좋아한다"
+
 msgid "lượt thích"
 msgstr "좋아한다"
+
+msgid "media"
+msgstr "메디아. 메디아"
+
+msgid "media type"
+msgstr "미디어 유형"
+
+msgid "mention notifications"
+msgstr "알림 언급"
+
+msgid "message notifications"
+msgstr "메시지 알림"
+
+msgid "ngÆ°á»i theo dÃµi"
+msgstr "추종자"
 
 msgid "người theo dõi"
 msgstr "추종자"
 
+msgid "order"
+msgstr "주문하다. 주문하다"
+
+msgid "phone number"
+msgstr "전화 번호"
+
+msgid "post media"
+msgstr "포스트 미디어"
+
+msgid "post report"
+msgstr "보고서 게시"
+
+msgid "post reports"
+msgstr "보고서 게시"
+
+msgid "private account"
+msgstr "개인 계정"
+
+msgid "push notifications"
+msgstr "푸시 알림"
+
+msgid "reason"
+msgstr "이유. 이유"
+
+msgid "resolved"
+msgstr "해결되었습니다. 해결됨"
+
+msgid "resolved at"
+msgstr "해결된 시간"
+
+msgid "show birth date on profile"
+msgstr "프로필에 생년월일 표시"
+
+msgid "show gender on profile"
+msgstr "프로필에 성별 표시"
+
+msgid "stories"
+msgstr "이야기. 이야기"
+
+msgid "story"
+msgstr "스토리.스토리"
+
+msgid "story view"
+msgstr "스토리 뷰"
+
+msgid "story views"
+msgstr "스토리 조회수"
+
+msgid "summary notifications"
+msgstr "요약 알림"
+
+msgid "suspended account"
+msgstr "정지된 계정"
+
+msgid "suspension end date"
+msgstr "정지 종료일"
+
+msgid "suspension reason"
+msgstr "정지 사유"
+
+msgid "thÃ nh cÃ´ng."
+msgstr "성공."
+
+msgid "thÃ nh viÃªn"
+msgstr "회원"
+
+msgid "thÃ´ng bÃ¡o chÆ°a Äá»c"
+msgstr "읽지 않은 알림"
+
 msgid "thành công."
 msgstr "성공."
+
+msgid "thành viên"
+msgstr "회원"
 
 msgid "thông báo chưa đọc"
 msgstr "읽지 않은 알림"
 
+msgid "tin nháº¯n chÆ°a Äá»c"
+msgstr "유일한 뉴스"
+
+msgid "tin nhắn chưa đọc"
+msgstr "읽지 않은 메시지"
+
+msgid "twitter"
+msgstr "지저귀다"
+
+msgid "two-factor authentication"
+msgstr "이중 인증"
+
+msgid "two-factor secret"
+msgstr "이중 요소 비밀"
+
+msgid "user"
+msgstr "사용자.사용자"
+
+msgid "user report"
+msgstr "사용자 보고서"
+
+msgid "user reports"
+msgstr "사용자 보고서"
+
+msgid "users"
+msgstr "사용자. 사용자"
+
+msgid "valid report"
+msgstr "유효한 보고서"
+
+msgid "verified account"
+msgstr "확인된 계정"
+
+msgid "video"
+msgstr "동영상"
+
+msgid "vÃ"
+msgstr "그리고"
+
 msgid "và"
 msgstr "그리고"
+
+msgid "website"
+msgstr "웹사이트"
+
+msgid "you@email.com"
+msgstr "you@email.com"
+
+msgid "Âm thanh"
+msgstr "소리"
+
+msgid "Ãm thanh"
+msgstr "소리야"
+
+msgid "Ãt nháº¥t 8 kÃ½ tá»±"
+msgstr "Ãt 8,000개»±"
+
+msgid "Äang ghi Ã¢m..."
+msgstr "녹음중..."
+
+msgid "Äang hoáº¡t Äá»ng"
+msgstr "활동적인"
+
+msgid "Äang kiá»m traâ¦"
+msgstr "트램을 바라보며"
+
+msgid "Äang lÆ°u vá» trÃ­â¦"
+msgstr "ÉdÆ°u 및 » trÃâ¦"
+
+msgid "Äang lÆ°u..."
+msgstr "절약..."
+
+msgid "Äang láº¥y GPS chÃ­nh xÃ¡câ¦"
+msgstr "정확한 GPS 내비게이션"
+
+msgid "Äang theo dÃµi"
+msgstr "수행원"
+
+msgid "Äang theo dÃµi (%(count)s)"
+msgstr "팔로잉(%(count)s)"
+
+msgid "Äang theo dÃµi (%(var)s)"
+msgstr "길이(%(var)s)"
+
+msgid "Äang tráº£ lá»i"
+msgstr "답장하다"
+
+msgid "Äang táº£i bÃ i viáº¿t..."
+msgstr "기사 로드 중..."
+
+msgid "Äang táº£i..."
+msgstr "로드 중..."
+
+msgid "Äang xá»­ lÃ½"
+msgstr "처리"
+
+msgid "Äang xá»­ lÃ½..."
+msgstr "처리 중..."
+
+msgid "Äiá»u hÆ°á»ng nhanh"
+msgstr "빠른 탐색"
+
+msgid "Äiá»u khoáº£n dá»ch vá»¥"
+msgstr "문제를 해결하는 방법?"
+
+msgid "Äiá»u khoáº£n sá»­ dá»¥ng"
+msgstr "이용약관"
+
+msgid "Äiá»u kiá»n sá»­ dá»¥ng tÃ i khoáº£n vÃ dá»ch vá»¥ Moora."
+msgstr "무라에 대해 자세히 알아보세요."
+
+msgid "ÄÃ¡nh dáº¥u táº¥t cáº£ lÃ ÄÃ£ Äá»c"
+msgstr "모두 읽음으로 표시"
+
+msgid "ÄÃ¡nh dáº¥u táº¥t cáº£ ÄÃ£ Äá»c"
+msgstr "äÃ¡nh Ã€€t Ã°£ äÃ£ äá»c"
+
+msgid "ÄÃ¢y lÃ tÃ i khoáº£n riÃªng tÆ°"
+msgstr "äÃ¢yyyyyyyyyyyyyyyyyyyyy Æ°"
+
+msgid "ÄÃ¢y lÃ tÃªn hiá»n táº¡i cá»§a báº¡n"
+msgstr "äÃ¢y Ãªn Ã»n Ã¡n ä»§Ã¡n"
+
+msgid "ÄÃ£ bá» cháº·n"
+msgstr "차단 해제됨"
+
+msgid "ÄÃ£ chia sáº»"
+msgstr "공유됨"
+
+msgid "ÄÃ£ chia sáº» má»t bÃ i viáº¿t"
+msgstr "Ã£ 물과 혈액을 공유"
+
+msgid "ÄÃ£ chia sáº» má»t bÃ¬nh luáº­n"
+msgstr "äÃ£ 피를 공유"
+
+msgid "ÄÃ£ cÃ³ tÃ i khoáº£n?"
+msgstr "이미 계정이 있나요?"
+
+msgid "ÄÃ£ cáº­p nháº­t GPS"
+msgstr "Ã£ GPS 케이블"
+
+msgid "ÄÃ£ cáº­p nháº­t bÃ i viáº¿t thÃ nh cÃ´ng!"
+msgstr "게시물이 업데이트되었습니다."
+
+msgid "ÄÃ£ cáº­p nháº­t ngÃ´n ngá»¯ hiá»n thá»."
+msgstr "가장 짧은 케이블이 나타납니다."
+
+msgid "ÄÃ£ ghim"
+msgstr "Ã£ 핀"
+
+msgid "ÄÃ£ gá»­i email"
+msgstr "이메일 보내기"
+
+msgid "ÄÃ£ gá»­i yÃªu cáº§u"
+msgstr "그 소녀는 당신을 사랑합니다"
+
+msgid "ÄÃ£ háº¿t háº¡n"
+msgstr "만료됨"
+
+msgid "ÄÃ£ há»§y liÃªn káº¿t"
+msgstr "연결 해제됨"
+
+msgid "ÄÃ£ lÆ°u"
+msgstr "저장됨"
+
+msgid "ÄÃ£ thÃ­ch"
+msgstr "좋아요를 누른"
+
+msgid "ÄÃ£ táº¯t thÃ´ng bÃ¡o"
+msgstr "äÃ£ 수십 개의 신문"
+
+msgid "ÄÃ£ xÃ³a bÃ i viáº¿t thÃ nh cÃ´ng!"
+msgstr "게시물이 삭제되었습니다."
+
+msgid "ÄÃ£ xáº£y ra lá»i khi bá» cháº·n ngÆ°á»i dÃ¹ng."
+msgstr "사용자 차단을 해제하는 중에 오류가 발생했습니다."
+
+msgid "ÄÃ£ xáº£y ra lá»i khi cháº·n ngÆ°á»i dÃ¹ng."
+msgstr "사용자를 차단하는 중에 오류가 발생했습니다."
+
+msgid ""
+"ÄÃ£ xáº£y ra lá»i khi cháº·n ngÆ°á»i dÃ¹ng. Vui lÃ²ng thá»­ láº¡i sau."
+msgstr "사용자를 차단하는 중에 오류가 발생했습니다. 나중에 다시 시도해 주세요."
+
+msgid "ÄÃ£ xáº£y ra lá»i khi gá»­i bÃ¡o cÃ¡o."
+msgstr "보고서를 보내는 동안 오류가 발생했습니다."
+
+msgid "ÄÃ£ xáº£y ra lá»i khi gá»­i bÃ¡o cÃ¡o. Vui lÃ²ng thá»­ láº¡i sau."
+msgstr "보고서를 보내는 동안 오류가 발생했습니다. 나중에 다시 시도해 주세요."
+
+msgid "ÄÃ£ xáº£y ra lá»i khi gá»­i yÃªu cáº§u."
+msgstr "요청을 보내는 동안 오류가 발생했습니다."
+
+msgid "ÄÃ£ xáº£y ra lá»i khi há»§y liÃªn káº¿t."
+msgstr "연결을 해제하는 중에 오류가 발생했습니다."
+
+msgid ""
+"ÄÃ£ xáº£y ra lá»i khi thá»±c hiá»n thao tÃ¡c. Vui lÃ²ng thá»­ láº¡i sau."
+msgstr "작업을 수행하는 동안 오류가 발생했습니다. 나중에 다시 시도해 주세요."
+
+msgid "ÄÃ£ xáº£y ra lá»i khi xÃ³a cuá»c trÃ² chuyá»n."
+msgstr "채팅을 삭제하는 중에 오류가 발생했습니다."
+
+msgid "ÄÃ£ xáº£y ra lá»i khi ÄÄng xuáº¥t thiáº¿t bá»."
+msgstr "기기에서 로그아웃하는 중 오류가 발생했습니다."
+
+msgid "ÄÃ£ yÃªu cáº§u"
+msgstr "Ã £ 요청"
+
+msgid ""
+"ÄÃ£ Äáº¡t giá»i háº¡n 3 tin nháº¯n chá». NgÆ°á»i nháº­n cáº§n cháº¥p "
+"nháº­n trÆ°á»c khi báº¡n gá»­i thÃªm."
+msgstr "메시지 3개를 더 구매하려면 가격을 책정하지 마세요. 사람들은 피곤할 때 자신을 인식합니다."
+
+msgid "ÄÃ£ Äá»i máº­t kháº©u"
+msgstr "꽤 멋지다"
+
+msgid "ÄÃ³ng"
+msgstr "닫다"
+
+msgid "ÄÄng kÃ½"
+msgstr "등록하다"
+
+msgid "ÄÄng kÃ½ ngay"
+msgstr "지금 등록하세요"
+
+msgid "ÄÄng kÃ½ vá»i Google"
+msgstr "Google에 가입"
+
+msgid "ÄÄng nháº­p"
+msgstr "로그인"
+
+msgid "ÄÄng nháº­p báº±ng máº¡ng xÃ£ há»i"
+msgstr "소셜 네트워크를 사용하여 로그인"
+
+msgid "ÄÄng nháº­p ngay"
+msgstr "지금 로그인하세요"
+
+msgid "ÄÄng nháº­p vá»i Google"
+msgstr "Google로 로그인"
+
+msgid "ÄÄng nháº­p Äá» tiáº¿p tá»¥c vá»i Moora"
+msgstr "Moora를 계속하려면 로그인하세요."
+
+msgid "ÄÄng xuáº¥t"
+msgstr "로그아웃"
+
+msgid "ÄÄng xuáº¥t?"
+msgstr "생산?"
+
+msgid ""
+"Äáº£m báº£o sá»­ dá»¥ng máº­t kháº©u máº¡nh vÃ khÃ´ng sá»­ dá»¥ng láº¡i á»"
+" cÃ¡c trang web khÃ¡c"
+msgstr "강력한 비밀번호를 사용하고 다른 사이트에서 재사용하지 마세요."
+
+msgid "Äáº·t láº¡i máº­t kháº©u"
+msgstr "꽤 멋지다"
+
+msgid "Äáº·t láº¡i máº­t kháº©u cho %(var)s"
+msgstr "%(var)s"
+
+msgid "Äáº·t láº¡i thÃ nh cÃ´ng"
+msgstr "편하게 생각하자"
+
+msgid "Äá»a Äiá»m"
+msgstr "위치"
+
+msgid ""
+"Äá»c cÃ¡c tÃ i liá»u quan trá»ng vá» cÃ¡ch dÃ¹ng Moora vÃ cÃ¡ch chÃºng "
+"tÃ´i báº£o vá» báº¡n."
+msgstr "Moora와 고객의 관련 문서 및 응용 프로그램에 대해 논의합니다."
+
+msgid "Äá»i"
+msgstr "변화"
+
+msgid ""
+"Äá»i SÄT sáº½ gá»­i mÃ£ xÃ¡c thá»±c vá» sá» hiá»n táº¡i (hoáº·c email "
+"náº¿u SMS khÃ´ng kháº£ dá»¥ng)."
+msgstr "전화번호를 변경하면 현재 전화번호(또는 SMS를 사용할 수 없는 경우 이메일)로 인증 코드가 전송됩니다."
+
+msgid "Äá»i email sáº½ gá»­i mÃ£ xÃ¡c thá»±c vá» email hiá»n táº¡i."
+msgstr "이메일을 변경하면 현재 이메일로 인증 코드가 전송됩니다."
+
+msgid "Äá»i giao diá»n sÃ¡ng/tá»i"
+msgstr "연락번호/시간"
+
+msgid "Äá»i máº­t kháº©u"
+msgstr "비밀번호 변경"
+
+msgid "Äá»i áº£nh nhÃ³m"
+msgstr "죄송합니다"
+
+msgid "Äá»i áº£nh Äáº¡i diá»n"
+msgstr "무슨 일이야?"
+
+msgid "Äá»£i thÃªm má»t lÃºc rá»i thá»­ láº¡i."
+msgstr "이 게임을 플레이하는 것은 정말 멋진 일입니다."
+
+msgid "Äang nháº­p..."
+msgstr "들어가다..."
+
+msgid "Äang theo dÃµi"
+msgstr "팔로우 중입니다"
+
+msgid "Ít nhất 8 ký tự"
+msgstr "8자 이상"
+
+msgid "áº¢nh"
+msgstr "영상"
+
+msgid "áº¢nh / video"
+msgstr "이미지/비디오"
+
+msgid "áº¢nh sau khi cáº¯t vÆ°á»£t 5MB. HÃ£y thu nhá» khung hÆ¡n."
+msgstr "5MB를 다운로드한 후의 이미지입니다. 더 많은 프레임을 수집해 봅시다."
+
+msgid "áº¢nh tá»i Äa 5MB."
+msgstr "특징 5MB."
+
+msgid "áº¢nh Äang chá»nh"
+msgstr "죄송합니다"
+
+msgid "áº¢nh Äáº¡i diá»n cá»§a %(var)s"
+msgstr "개별 값 %(var)s 계산"
+
+msgid "áº¢nh Äáº§y Äá»§"
+msgstr "전체 사진"
+
+msgid "áº¨n lÆ°á»£t thÃ­ch"
+msgstr "좋아요 숨기기"
+
+msgid "á» láº¡i Moora"
+msgstr "á» laº¡i 무라"
+
+msgid "Đang ghi âm..."
+msgstr "녹음..."
 
 msgid "Đang hoạt động"
 msgstr "활동적인"
 
+msgid "Đang kiểm tra…"
+msgstr "확인 중…"
+
+msgid "Đang kết nối..."
+msgstr "연결 중..."
+
+msgid "Đang lưu vị trí…"
+msgstr "위치 저장 중…"
+
 msgid "Đang lưu..."
 msgstr "절약..."
 
+msgid "Đang lấy GPS chính xác…"
+msgstr "정확한 GPS를 얻는 중…"
+
 msgid "Đang theo dõi"
-msgstr "수행원"
+msgstr "팔로잉"
 
 msgid "Đang theo dõi (%(count)s)"
 msgstr "팔로잉(%(count)s)"
+
+msgid "Đang trong cuộc gọi"
+msgstr "통화 중"
 
 msgid "Đang trả lời"
 msgstr "답장하다"
@@ -791,14 +3743,32 @@ msgstr "처리"
 msgid "Đang xử lý..."
 msgstr "처리 중..."
 
+msgid "Đang đổ chuông..."
+msgstr "울리는..."
+
 msgid "Điều hướng nhanh"
 msgstr "빠른 탐색"
+
+msgid "Điều khoản dịch vụ"
+msgstr "서비스 약관"
 
 msgid "Điều khoản sử dụng"
 msgstr "이용약관"
 
+msgid "Điều kiện sử dụng tài khoản và dịch vụ Moora."
+msgstr "Moora 계정 및 서비스 이용 조건."
+
 msgid "Đánh dấu tất cả là đã đọc"
 msgstr "모두 읽음으로 표시"
+
+msgid "Đánh dấu tất cả đã đọc"
+msgstr "모두 읽음으로 표시"
+
+msgid "Đây là tài khoản riêng tư"
+msgstr "비공개 계정입니다"
+
+msgid "Đây là tên hiện tại của bạn"
+msgstr "현재 이름입니다"
 
 msgid "Đã bỏ chặn"
 msgstr "차단 해제됨"
@@ -806,11 +3776,32 @@ msgstr "차단 해제됨"
 msgid "Đã chia sẻ"
 msgstr "공유됨"
 
+msgid "Đã chia sẻ một bài viết"
+msgstr "게시물을 공유했습니다"
+
+msgid "Đã chia sẻ một bình luận"
+msgstr "댓글을 공유했습니다"
+
 msgid "Đã có tài khoản?"
 msgstr "이미 계정이 있나요?"
 
+msgid "Đã cập nhật GPS"
+msgstr "업데이트된 GPS"
+
 msgid "Đã cập nhật bài viết thành công!"
 msgstr "게시물이 업데이트되었습니다."
+
+msgid "Đã cập nhật ngôn ngữ hiển thị."
+msgstr "표시 언어가 업데이트되었습니다."
+
+msgid "Đã ghim"
+msgstr "고정됨"
+
+msgid "Đã gửi email"
+msgstr "이메일이 전송되었습니다"
+
+msgid "Đã gửi yêu cầu"
+msgstr "요청이 전송되었습니다."
 
 msgid "Đã hết hạn"
 msgstr "만료됨"
@@ -823,6 +3814,9 @@ msgstr "저장됨"
 
 msgid "Đã thích"
 msgstr "좋아요를 누른"
+
+msgid "Đã tắt thông báo"
+msgstr "알림이 꺼졌습니다"
 
 msgid "Đã xóa bài viết thành công!"
 msgstr "게시물이 삭제되었습니다."
@@ -857,11 +3851,22 @@ msgstr "채팅을 삭제하는 중에 오류가 발생했습니다."
 msgid "Đã xảy ra lỗi khi đăng xuất thiết bị."
 msgstr "기기에서 로그아웃하는 중 오류가 발생했습니다."
 
+msgid "Đã yêu cầu"
+msgstr "요청됨"
+
+msgid ""
+"Đã đạt giới hạn 3 tin nhắn chờ. Người nhận cần chấp nhận trước khi bạn gửi "
+"thêm."
+msgstr "대기 메시지 한도인 3개에 도달했습니다. 더 보내기 전에 수신자가 수락해야 합니다."
+
+msgid "Đã đổi mật khẩu"
+msgstr "비밀번호가 변경되었습니다."
+
 msgid "Đóng"
 msgstr "닫다"
 
 msgid "Đăng ký"
-msgstr "등록하다"
+msgstr "회원가입"
 
 msgid "Đăng ký ngay"
 msgstr "지금 등록하세요"
@@ -887,12 +3892,28 @@ msgstr "Moora를 계속하려면 로그인하세요."
 msgid "Đăng xuất"
 msgstr "로그아웃"
 
+msgid "Đăng xuất?"
+msgstr "로그아웃하시겠습니까?"
+
 msgid ""
 "Đảm bảo sử dụng mật khẩu mạnh và không sử dụng lại ở các trang web khác"
 msgstr "강력한 비밀번호를 사용하고 다른 사이트에서 재사용하지 마세요."
 
+msgid "Đặt lại mật khẩu"
+msgstr "비밀번호 재설정"
+
+msgid "Đặt lại mật khẩu cho %(site_name)s"
+msgstr "%(site_name)s의 비밀번호 재설정"
+
+msgid "Đặt lại thành công"
+msgstr "재설정이 완료되었습니다."
+
 msgid "Địa điểm"
 msgstr "위치"
+
+msgid ""
+"Đọc các tài liệu quan trọng về cách dùng Moora và cách chúng tôi bảo vệ bạn."
+msgstr "Moora 사용 방법과 당사가 귀하를 보호하는 방법에 대한 중요한 문서를 읽어보세요."
 
 msgid "Đổi"
 msgstr "변화"
@@ -905,8 +3926,20 @@ msgstr "전화번호를 변경하면 현재 전화번호(또는 SMS를 사용할
 msgid "Đổi email sẽ gửi mã xác thực về email hiện tại."
 msgstr "이메일을 변경하면 현재 이메일로 인증 코드가 전송됩니다."
 
+msgid "Đổi giao diện sáng/tối"
+msgstr "밝음/어두움 인터페이스 변경"
+
 msgid "Đổi mật khẩu"
 msgstr "비밀번호 변경"
+
+msgid "Đổi ảnh nhóm"
+msgstr "단체 사진 변경"
+
+msgid "Đổi ảnh đại diện"
+msgstr "아바타 변경"
+
+msgid "Đợi thêm một lúc rồi thử lại."
+msgstr "잠시 기다렸다가 다시 시도해 보세요."
 
 msgid "đang nhập..."
 msgstr "들어가다..."
@@ -917,8 +3950,26 @@ msgstr "팔로우 중입니다"
 msgid "Ảnh"
 msgstr "영상"
 
+msgid "Ảnh / video"
+msgstr "사진/비디오"
+
+msgid "Ảnh sau khi cắt vượt 5MB. Hãy thu nhỏ khung hơn."
+msgstr "자른 후 사진이 5MB를 초과합니다. 프레임을 더 작게 만들어 보겠습니다."
+
+msgid "Ảnh tối đa 5MB."
+msgstr "최대 사진 크기는 5MB입니다."
+
+msgid "Ảnh đang chỉnh"
+msgstr "사진을 편집하는 중입니다."
+
+msgid "Ảnh đại diện của %(username)s"
+msgstr "%(username)s의 대표 사진"
+
 msgid "Ảnh đầy đủ"
 msgstr "전체 사진"
 
 msgid "Ẩn lượt thích"
 msgstr "좋아요 숨기기"
+
+msgid "Ở lại Moora"
+msgstr "무라에서 숙박하세요"

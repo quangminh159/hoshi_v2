@@ -1,33 +1,97 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: hoshi\n"
+"Project-Id-Version: moora\n"
 "Language: zh-Hans\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "%(count)s bÃ¬nh luáº­n"
+msgstr "%(count)s 条评论"
 
 msgid "%(count)s bình luận"
 msgstr "%(count)s 条评论"
 
+msgid "%(count)s lÆ°á»£t thÃ­ch"
+msgstr "%(count)s 赞"
+
 msgid "%(count)s lượt thích"
 msgstr "%(count)s 赞"
 
-msgid "%(counter)s cuộc trò chuyện"
+msgid "%(counter)s cuá»c trÃ² chuyá»n"
 msgstr "%(counter)s 个对话{% 复数 %}%(counter)s 个对话"
+
+msgid "%(counter)s cuộc trò chuyện"
+msgstr "%(counter)s 对话"
+
+msgid "%(counter)s cuộc trò chuyện%(counter)s cuộc trò chuyện"
+msgstr "%(counter)s 个对话%(counter)s 个对话"
+
+msgid "%(counter)s tin nhắn mới%(counter)s tin nhắn mới"
+msgstr "%(counter)s 新消息%(counter)s 新消息"
+
+msgid "%(time)s trÆ°á»c"
+msgstr "%(时间)s 前"
 
 msgid "%(time)s trước"
 msgstr "%(时间)s 前"
 
+msgid "%(username)s chÆ°a theo dÃµi ai."
+msgstr "%(username)s 尚未关注任何人。"
+
 msgid "%(username)s chưa theo dõi ai."
 msgstr "%(username)s 尚未关注任何人。"
+
+msgid "%(username)s ÄÃ£ chia sáº»"
+msgstr "%(用户名)s 已共享"
 
 msgid "%(username)s đã chia sẻ"
 msgstr "%(用户名)s 已共享"
 
+msgid "%(var)s bÃ¬nh luáº­n"
+msgstr "%(var)s 公式"
+
+msgid "%(var)s chÆ°a theo dÃµi ai."
+msgstr "%(var)s 只关注任何人。"
+
+msgid "%(var)s cuá»c trÃ² chuyá»n %(var)s cuá»c trÃ² chuyá»n"
+msgstr "%(var)s 次转化 %(var)s 次转化"
+
+msgid "%(var)s lÆ°á»£t thÃ­ch"
+msgstr "%(var)s 就像"
+
+msgid "%(var)s tin nháº¯n má»i %(var)s tin nháº¯n má»i"
+msgstr "%(var)s 新闻 %(var)s 新闻"
+
+msgid "%(var)s trÆ°á»c"
+msgstr "%(var)s trÆ°á»c"
+
+msgid "%(var)s ÄÃ£ chia sáº»"
+msgstr "%(var)s 共享°»"
+
+msgid ""
+"<strong>Cháº·n tin nháº¯n</strong> - Chá» nháº­n tin nháº¯n tá»« ngÆ°á»i "
+"báº¡n theo dÃµi"
+msgstr "<strong>阻止消息</strong> - 只接收来自您关注的人的消息"
+
 msgid ""
 "<strong>Chặn tin nhắn</strong> - Chỉ nhận tin nhắn từ người bạn theo dõi"
 msgstr "<strong>阻止消息</strong> - 只接收来自您关注的人的消息"
+
+msgid ""
+"<strong>TÃ i khoáº£n riÃªng tÆ°</strong> - Chá» nhá»¯ng ngÆ°á»i theo dÃµi "
+"má»i cÃ³ thá» xem bÃ i viáº¿t cá»§a báº¡n"
+msgstr "<strong>私人帐户</strong> - 只有您的关注者才能看到您的帖子"
+
+msgid ""
+"<strong>TÃ i khoáº£n riÃªng tÆ°</strong> - NgÆ°á»i khÃ¡c pháº£i gá»­i yÃªu "
+"cáº§u vÃ ÄÆ°á»£c báº¡n xÃ¡c nháº­n má»i theo dÃµi ÄÆ°á»£c; chá» ngÆ°á»i"
+" ÄÃ£ theo dÃµi má»i xem bÃ i viáº¿t cá»§a báº¡n"
+msgstr ""
+"<strong>我把自己锁在里面</strong> - 人们会发现女孩的喜好，并随着时间的推移了解她们所看到的东西。 "
+"α°α°c;请跟着我看看你在做什么。"
 
 msgid ""
 "<strong>Tài khoản riêng tư</strong> - Chỉ những người theo dõi mới có thể "
@@ -35,27 +99,225 @@ msgid ""
 msgstr "<strong>私人帐户</strong> - 只有您的关注者才能看到您的帖子"
 
 msgid ""
+"<strong>Tài khoản riêng tư</strong> - Người khác phải gửi yêu cầu và được "
+"bạn xác nhận mới theo dõi được; chỉ người đã theo dõi mới xem bài viết của "
+"bạn"
+msgstr "<strong>私人帐户</strong> - 其他人必须发送请求并得到您的确认才能关注；只有关注者才能看到您的帖子"
+
+msgid ""
+"<strong>áº¨n tráº¡ng thÃ¡i hoáº¡t Äá»ng</strong> - KhÃ´ng hiá»n thá» "
+"tráº¡ng thÃ¡i hoáº¡t Äá»ng cá»§a báº¡n"
+msgstr "<strong>隐藏活动状态</strong> - 不显示您的活动状态"
+
+msgid ""
 "<strong>Ẩn trạng thái hoạt động</strong> - Không hiển thị trạng thái hoạt "
 "động của bạn"
 msgstr "<strong>隐藏活动状态</strong> - 不显示您的活动状态"
 
+msgid "Admin"
+msgstr "行政"
+
+msgid "Audio"
+msgstr "声音的"
+
+msgid "Bao gá»m hÃ¬nh áº£nh vÃ video"
+msgstr "包括图像和视频"
+
 msgid "Bao gồm hình ảnh và video"
 msgstr "包括图像和视频"
+
+msgid "BÃ i viáº¿t"
+msgstr "文章"
+
+msgid "BÃ i viáº¿t 24h"
+msgstr "24小时服务"
+
+msgid "BÃ¡o cÃ¡o"
+msgstr "报告"
+
+msgid "BÃ¡o cÃ¡o bÃ i viáº¿t chá» xá»­ lÃ½"
+msgstr "你真的必须处理这个问题吗？"
+
+msgid "BÃ¡o cÃ¡o user chá» xá»­ lÃ½"
+msgstr "有多少用户？"
+
+msgid "BÃ¬nh luáº­n"
+msgstr "评论"
+
+msgid "BÃ¬nh luáº­n 24h"
+msgstr "24小时报警"
+
+msgid "BÆ°á»c cuá»i"
+msgstr "BÆ°á»c of»i"
 
 msgid "Bài viết"
 msgstr "文章"
 
+msgid "Bài viết 24h"
+msgstr "24小时文章"
+
 msgid "Báo cáo"
 msgstr "报告"
 
+msgid "Báo cáo bài viết chờ xử lý"
+msgstr "报告待处理的帖子"
+
+msgid "Báo cáo user chờ xử lý"
+msgstr "用户报告待处理"
+
+msgid "Báº¡n chÆ°a cháº·n ngÆ°á»i dÃ¹ng nÃ o."
+msgstr "您尚未阻止任何用户。"
+
+msgid "Báº¡n chÆ°a lÆ°u bÃ i viáº¿t nÃ o."
+msgstr "您尚未保存任何帖子。"
+
+msgid "Báº¡n cháº¯c muá»n rá»i nhÃ³m nÃ y?"
+msgstr "你想要几个人？"
+
+msgid "Báº¡n cÃ³ cháº¯c cháº¯n muá»n bá» cháº·n"
+msgstr "您确定要解锁吗"
+
+msgid "Báº¡n cÃ³ cháº¯c cháº¯n muá»n cháº·n"
+msgstr "您确定要阻止吗"
+
+msgid "Báº¡n cÃ³ cháº¯c cháº¯n muá»n há»§y liÃªn káº¿t vá»i"
+msgstr "您确定要取消链接吗"
+
+msgid "Báº¡n cÃ³ cháº¯c cháº¯n muá»n há»§y theo dÃµi"
+msgstr "您确定要取消关注吗？"
+
+msgid "Báº¡n cÃ³ cháº¯c cháº¯n muá»n xoÃ¡ bÃ i viáº¿t nÃ y khÃ´ng?"
+msgstr "您确定要删除此帖子吗？"
+
+msgid "Báº¡n cÃ³ cháº¯c cháº¯n muá»n xÃ³a bÃ i viáº¿t nÃ y khÃ´ng?"
+msgstr "您确定要删除此帖子吗？"
+
+msgid "Báº¡n cÃ³ cháº¯c cháº¯n muá»n xÃ³a phÆ°Æ¡ng tiá»n nÃ y khÃ´ng?"
+msgstr "您确定要删除该媒体吗？"
+
+msgid "Báº¡n cÃ³ cháº¯c cháº¯n muá»n xÃ³a tin nháº¯n nÃ y khÃ´ng?"
+msgstr "您确定要删除此消息吗？"
+
+msgid "Báº¡n cÃ³ cháº¯c cháº¯n muá»n xÃ³a tÃ i khoáº£n?"
+msgstr "您确定要删除您的帐户吗？"
+
+msgid "Báº¡n cÃ³ cháº¯c cháº¯n muá»n ÄÄng xuáº¥t khá»i thiáº¿t bá» nÃ y?"
+msgstr "您确定要退出此设备吗？"
+
+msgid ""
+"Báº¡n cÃ³ cháº¯c muá»n xÃ³a cuá»c trÃ² chuyá»n nÃ y? HÃ nh Äá»ng nÃ y "
+"khÃ´ng thá» hoÃ n tÃ¡c."
+msgstr "您确定要删除此对话吗？此操作无法撤消。"
+
+msgid ""
+"Báº¡n cÃ³ cháº¯c muá»n ÄÄng xuáº¥t khá»i tÃ i khoáº£n trÃªn thiáº¿t bá»"
+" nÃ y?"
+msgstr "您知道如何摆脱该产品吗？"
+
+msgid "Báº¡n cÃ³ thá» chá»n nhiá»u áº£nh hoáº·c video cÃ¹ng lÃºc."
+msgstr "您可以同时选择多张照片或视频。"
+
+msgid ""
+"Báº¡n cÃ³ thá» ÄÄng nháº­p vÃ o Moora báº±ng máº­t kháº©u má»i ngay bÃ¢y"
+" giá»."
+msgstr "你有很多钱，穆拉以这个价格出售相当多的血液。"
+
+msgid "Báº¡n khÃ´ng cÃ³ quyá»n chá»nh sá»­a bÃ i viáº¿t nÃ y."
+msgstr "您没有编辑这篇文章的权限。"
+
+msgid "Báº¡n khÃ´ng cÃ³ quyá»n xÃ³a bÃ i viáº¿t nÃ y."
+msgstr "您无权删除此帖子。"
+
+msgid "Báº¡n khÃ´ng cÃ³ thÃ´ng bÃ¡o nÃ o"
+msgstr "您没有任何通知"
+
+msgid "Báº¡n khÃ´ng cÃ³ thÃ´ng bÃ¡o nÃ o."
+msgstr "您没有任何通知。"
+
+msgid "Báº¡n luÃ´n cÃ³ thá» ÄÄng nháº­p láº¡i báº¥t cá»© lÃºc nÃ o."
+msgstr "宣纸的销售随时可以进行。"
+
+msgid ""
+"Báº¡n sáº½ khÃ´ng tháº¥y bÃ i viáº¿t cá»§a há» vÃ há» khÃ´ng thá» tÆ°Æ¡ng"
+" tÃ¡c vá»i báº¡n."
+msgstr "您不会看到他们的帖子，他们也无法与您互动。"
+
+msgid "Báº¡n Äang nghÄ© gÃ¬?"
+msgstr "你在想什么？"
+
+msgid ""
+"Báº¡n Äang ÄÄng nháº­p vá»i <strong>@%(var)s</strong>. Báº¡n cÃ³ cháº¯c "
+"muá»n rá»i khá»i Moora trÃªn thiáº¿t bá» nÃ y?"
+msgstr "您可以使用<strong>@%(var)s</strong>。您对本表格中的 Moora 有任何疑问吗？"
+
+msgid "Báº¡n ÄÃ£ cháº·n"
+msgstr "你已屏蔽"
+
+msgid ""
+"Báº¡n ÄÃ£ gá»­i Äá»§ %(var)s tin. Chá» ngÆ°á»i nháº­n cháº¥p nháº­n "
+"Äá» nháº¯n tiáº¿p."
+msgstr "计算 %(var)s 相信。如果您接受，请接受。"
+
+msgid ""
+"Báº¡n ÄÃ£ tá»« chá»i quyá»n vá» trÃ­. Chá» dÃ¹ng vá» trÃ­ theo IP."
+msgstr "你必须等到现在。不能用于通过IP 进行更新。"
+
+msgid "Báº¡n ÄÃ£ xem háº¿t thÃ´ng bÃ¡o"
+msgstr "你可以看到所有的新闻"
+
+msgid "Báº¡n ÄÃ£ xem háº¿t táº¥t cáº£ bÃ i viáº¿t"
+msgstr "您已阅读所有文章"
+
+msgid "Báº¡n:"
+msgstr "朋友："
+
+msgid "Báº£n Äá»"
+msgstr "巴恩阿阿"
+
+msgid "Báº£ng tin"
+msgstr "留言板"
+
+msgid "Báº£o máº­t"
+msgstr "安全"
+
+msgid "Báº­t thÃ´ng bÃ¡o"
+msgstr "几乎每个月"
+
+msgid "Báº¯t Äáº§u cuá»c trÃ² chuyá»n..."
+msgstr "开始对话..."
+
+msgid "Báº¯t Äáº§u trÃ² chuyá»n vá»i báº¡n bÃ¨ ngay hÃ´m nay"
+msgstr "今天开始与朋友聊天"
+
+msgid "Bá» cháº·n tá»« %(date)s"
+msgstr "已于 %(date)s 屏蔽"
+
+msgid "Bá» cháº·n tá»« %(var)s"
+msgstr "Ba» cháº·n ta»« %(var)s"
+
+msgid "Bá» cháº·n"
+msgstr "解锁"
+
+msgid "Bá» ghim"
+msgstr "巴»针"
+
 msgid "Bình luận"
 msgstr "评论"
+
+msgid "Bình luận 24h"
+msgstr "评论24小时"
+
+msgid "Bước cuối"
+msgstr "最后一步"
 
 msgid "Bạn chưa chặn người dùng nào."
 msgstr "您尚未阻止任何用户。"
 
 msgid "Bạn chưa lưu bài viết nào."
 msgstr "您尚未保存任何帖子。"
+
+msgid "Bạn chắc muốn rời nhóm này?"
+msgstr "您确定要离开该群组吗？"
 
 msgid "Bạn có chắc chắn muốn bỏ chặn"
 msgstr "您确定要解锁吗"
@@ -91,8 +353,14 @@ msgid ""
 "Bạn có chắc muốn xóa cuộc trò chuyện này? Hành động này không thể hoàn tác."
 msgstr "您确定要删除此对话吗？此操作无法撤消。"
 
+msgid "Bạn có chắc muốn đăng xuất khỏi tài khoản trên thiết bị này?"
+msgstr "您确定要在此设备上注销您的帐户吗？"
+
 msgid "Bạn có thể chọn nhiều ảnh hoặc video cùng lúc."
 msgstr "您可以同时选择多张照片或视频。"
+
+msgid "Bạn có thể đăng nhập vào Moora bằng mật khẩu mới ngay bây giờ."
+msgstr "您现在可以使用新密码登录 Moora。"
 
 msgid "Bạn không có quyền chỉnh sửa bài viết này."
 msgstr "您没有编辑这篇文章的权限。"
@@ -106,14 +374,31 @@ msgstr "您没有任何通知"
 msgid "Bạn không có thông báo nào."
 msgstr "您没有任何通知。"
 
+msgid "Bạn luôn có thể đăng nhập lại bất cứ lúc nào."
+msgstr "您可以随时重新登录。"
+
 msgid "Bạn sẽ không thấy bài viết của họ và họ không thể tương tác với bạn."
 msgstr "您不会看到他们的帖子，他们也无法与您互动。"
 
 msgid "Bạn đang nghĩ gì?"
 msgstr "你在想什么？"
 
+msgid ""
+"Bạn đang đăng nhập với <strong>@%(name)s</strong>. Bạn có chắc muốn rời khỏi"
+" Moora trên thiết bị này?"
+msgstr "您以<strong>@%(name)s</strong>身份登录。您确定要将 Moora 留在该设备上吗？"
+
 msgid "Bạn đã chặn"
 msgstr "你已屏蔽"
+
+msgid "Bạn đã gửi đủ %(max)s tin. Chờ người nhận chấp nhận để nhắn tiếp."
+msgstr "您已发送了足够的 %(max)s 条消息。等待收件人接受以继续发送消息。"
+
+msgid "Bạn đã từ chối quyền vị trí. Chỉ dùng vị trí theo IP."
+msgstr "您已拒绝位置权限。仅使用 IP 位置。"
+
+msgid "Bạn đã xem hết thông báo"
+msgstr "您已看到所有通知"
 
 msgid "Bạn đã xem hết tất cả bài viết"
 msgstr "您已阅读所有文章"
@@ -121,11 +406,17 @@ msgstr "您已阅读所有文章"
 msgid "Bạn:"
 msgstr "朋友："
 
+msgid "Bản đồ"
+msgstr "地图"
+
 msgid "Bảng tin"
 msgstr "留言板"
 
 msgid "Bảo mật"
 msgstr "安全"
+
+msgid "Bật thông báo"
+msgstr "开启通知"
 
 msgid "Bắt đầu cuộc trò chuyện..."
 msgstr "开始对话..."
@@ -139,14 +430,212 @@ msgstr "已于 %(date)s 屏蔽"
 msgid "Bỏ chặn"
 msgstr "解锁"
 
+msgid "Bỏ ghim"
+msgstr "取消置顶"
+
+msgid "Chi tiáº¿t cuá»c trÃ² chuyá»n"
+msgstr "聊天详情"
+
 msgid "Chi tiết cuộc trò chuyện"
 msgstr "聊天详情"
+
+msgid "Chia sáº» giá»i tÃ­nh trÃªn trang cÃ¡ nhÃ¢n"
+msgstr "在您的页面上分享产品的价格。"
+
+msgid "Chia sáº» ngÃ y sinh trÃªn trang cÃ¡ nhÃ¢n"
+msgstr "在您的页面上分享您的生日"
+
+msgid "Chia sẻ giới tính trên trang cá nhân"
+msgstr "在您的个人页面上分享您的性别"
+
+msgid "Chia sẻ ngày sinh trên trang cá nhân"
+msgstr "在您的个人页面上分享您的出生日期"
+
+msgid ""
+"ChÃ o báº¡n tá»« %(var)s! Báº¡n nháº­n ÄÆ°á»£c email nÃ y vÃ¬ báº¡n hoáº·c "
+"ai ÄÃ³ ÄÃ£ yÃªu cáº§u Äáº·t láº¡i máº­t kháº©u cho tÃ i khoáº£n cá»§a "
+"báº¡n. Náº¿u ÄÃ¢y khÃ´ng pháº£i lÃ báº¡n, báº¡n cÃ³ thá» bá» qua email nÃ"
+" y. Äá» Äáº·t láº¡i máº­t kháº©u, vui lÃ²ng nháº¥p vÃ o liÃªn káº¿t bÃªn "
+"dÆ°á»i:"
+msgstr ""
+"查看 %(var)s！您应该接受这封电子邮件并将其出售给任何需要它的人。 "
+"baº¡n。如果不是这种情况，您应该通过此电子邮件与我联系。非常酷，请点击这里，点击这里："
+
+msgid "ChÃ o má»«ng trá» láº¡i!"
+msgstr "欢迎回来！"
+
+msgid "ChÃ­nh sÃ¡ch báº£o máº­t"
+msgstr "隐私政策"
+
+msgid "ChÃ­nh sÃ¡ch quyá»n riÃªng tÆ°"
+msgstr "个人政策制定"
+
+msgid "ChÃºng tÃ´i sáº½ gá»­i liÃªn káº¿t Äáº·t láº¡i máº­t kháº©u."
+msgstr "我们会给你很多钱。"
+
+msgid "ChÆ°a cÃ³ ai theo dÃµi %(username)s."
+msgstr "尚未有人关注 %(username)s。"
+
+msgid "ChÆ°a cÃ³ ai theo dÃµi %(var)s."
+msgstr "没有人关注 %(var)s。"
+
+msgid "ChÆ°a cÃ³ bÃ i viáº¿t nÃ o ÄÆ°á»£c chia sáº»."
+msgstr "还没有分享帖子。"
+
+msgid "ChÆ°a cÃ³ bÃ i viáº¿t nÃ o Äá» hiá»n thá»"
+msgstr "还没有可显示的帖子"
+
+msgid "ChÆ°a cÃ³ bÃ i viáº¿t nÃ o."
+msgstr "还没有帖子。"
+
+msgid "ChÆ°a cÃ³ cuá»c trÃ² chuyá»n nÃ o"
+msgstr "还没有任何对话"
+
+msgid "ChÆ°a cÃ³ tin nháº¯n"
+msgstr "还没有消息"
+
+msgid "ChÆ°a cÃ³ tin nháº¯n nÃ o"
+msgstr "还没有留言"
+
+msgid "ChÆ°a cÃ³ tÃ i khoáº£n máº¡ng xÃ£ há»i nÃ o ÄÆ°á»£c liÃªn káº¿t."
+msgstr "目前还没有关联的社交媒体帐户。"
+
+msgid "ChÆ°a cÃ³ tÃ i khoáº£n?"
+msgstr "还没有帐户？"
+
+msgid "ChÆ°a cáº­p nháº­t"
+msgstr "尚未更新"
+
+msgid ""
+"Chào bạn từ %(site_name)s! Bạn nhận được email này vì bạn hoặc ai đó đã yêu "
+"cầu đặt lại mật khẩu cho tài khoản của bạn. Nếu đây không phải là bạn, bạn "
+"có thể bỏ qua email này. Để đặt lại mật khẩu, vui lòng nhấp vào liên kết bên"
+" dưới:"
+msgstr ""
+"%(site_name)s "
+"您好！您收到这封电子邮件是因为您或其他人请求重置您的帐户密码。如果这不是您，您可以忽略这封电子邮件。要重置您的密码，请点击以下链接："
 
 msgid "Chào mừng trở lại!"
 msgstr "欢迎回来！"
 
+msgid "Cháº¥p nháº­n"
+msgstr "一探究竟"
+
+msgid ""
+"Cháº¥p nháº­n Äá» chuyá»n vÃ o há»p thÆ° chÃ­nh. Tá»« chá»i sáº½ áº©n "
+"cuá»c trÃ² chuyá»n nÃ y."
+msgstr "请点击这里切换到主位置。这一转变的结果是什么？"
+
+msgid "Cháº·n"
+msgstr "堵塞"
+
+msgid "Cháº·n má»i (7 ngÃ y)"
+msgstr "母亲节（7天）"
+
+msgid "Cháº¿ Äá» mÃ u"
+msgstr "一探究竟"
+
+msgid "Cháº¿ Äá» xem"
+msgstr "让我们来看看"
+
+msgid "Cháº¿ Äá» xem báº£ng tin"
+msgstr "留言板视图"
+
+msgid "Chá» há» trá»£ Facebook, Twitter/X, Instagram vÃ LinkedIn."
+msgstr "仅支持 Facebook、Twitter/X、Instagram 和 LinkedIn。"
+
+msgid "Chá» mÃ¬nh báº¡n xem ÄÆ°á»£c"
+msgstr "我们来看看屏幕"
+
+msgid "Chá» mÃ¬nh tÃ´i"
+msgstr "对不起"
+
+msgid "Chá» ngÆ°á»i theo dÃµi ÄÃ£ duyá»t má»i xem ÄÆ°á»£c"
+msgstr "您只能在这里观看该视频。"
+
+msgid ""
+"Chá» nhá»¯ng ngÆ°á»i theo dÃµi má»i cÃ³ thá» xem bÃ i viáº¿t cá»§a tÃ i "
+"khoáº£n nÃ y. HÃ£y theo dÃµi Äá» xem ná»i dung."
+msgstr "我们来看看这门课程的成果吧。请点击链接查看内容。"
+
+msgid "Chá»nh há» sÆ¡, máº­t kháº©u, xÃ³a / khÃ´i phá»¥c tÃ i khoáº£n."
+msgstr "怎么了，怎么了，怎么了？"
+
+msgid "Chá»nh khung áº£nh Äáº¡i diá»n"
+msgstr "如何固定框架？"
+
+msgid "Chá»nh sá»­a"
+msgstr "编辑"
+
+msgid "Chá»nh sá»­a bÃ i viáº¿t"
+msgstr "编辑文章"
+
+msgid "Chá»nh sá»­a há» sÆ¡"
+msgstr "编辑个人资料"
+
+msgid ""
+"Chá»n cháº¿ Äá» sÃ¡ng, tá»i hoáº·c theo há» thá»ng. TÃ¹y chá»n "
+"ÄÆ°á»£c lÆ°u trÃªn thiáº¿t bá» nÃ y."
+msgstr "根据不同的方式变化和再生。这里的情况并非如此。"
+
+msgid ""
+"Chá»n cÃ¡c tÃ¹y chá»n quyá»n riÃªng tÆ° báº±ng cÃ¡ch báº­t/táº¯t cÃ´ng "
+"táº¯c bÃªn dÆ°á»i."
+msgstr "通过切换下面的开关来选择您的隐私选项。"
+
+msgid ""
+"Chá»n email hoáº·c sá» Äiá»n thoáº¡i ÄÃ£ liÃªn káº¿t vá»i tÃ i "
+"khoáº£n. SÄT há» trá»£ má»i quá»c gia."
+msgstr "不要通过电子邮件发送文件来摆脱密钥。 SAT 还不错。"
+
+msgid "Chá»n giao diá»n"
+msgstr "不交流"
+
+msgid "Chá»n giá»i tÃ­nh"
+msgstr "选择性别"
+
+msgid "Chá»n lÃ½ do"
+msgstr "选择一个理由"
+
+msgid ""
+"Chá»n mÃ£ quá»c gia rá»i nháº­p sá» Äiá»n thoáº¡i (há» trá»£ má»i "
+"quá»c gia)."
+msgstr "选择国家/地区代码，然后输入电话号码（支持所有国家/地区）。"
+
+msgid ""
+"Chá»n mÃ£ quá»c gia rá»i nháº­p sá» â há» trá»£ má»i quá»c gia."
+msgstr "价格太低了，但是价格太低了。"
+
+msgid ""
+"Chá»n máº­t kháº©u máº¡nh vÃ dá» nhá» vá»i báº¡n. Sau ÄÃ³ báº¡n cÃ³ "
+"thá» ÄÄng nháº­p láº¡i ngay."
+msgstr "它相当嗜血，而且很容易对付。之后，您需要立即单击该按钮。"
+
+msgid "Chá»n má»t má»¥c bÃªn trÃ¡i Äá» xem vÃ chá»nh cÃ i Äáº·t."
+msgstr "查看这里的代码并检查一下。"
+
+msgid "Chá»n má»t má»¥c Äá» má» chi tiáº¿t."
+msgstr "查看详细信息。"
+
+msgid "Chá»n ngÃ y sinh cá»§a báº¡n"
+msgstr "选择您的出生日期"
+
+msgid ""
+"Chá»n ngÃ´n ngá»¯ hiá»n thá» cho tÃ i khoáº£n cá»§a báº¡n. TÃ¹y chá»n nÃ"
+" y sáº½ ÄÆ°á»£c lÆ°u vÃ Ã¡p dá»¥ng má»i khi báº¡n ÄÄng nháº­p."
+msgstr "选择您帐户的显示语言。每次登录时都会保存并应用此首选项。"
+
+msgid "Chá»n tÃªn ngÆ°á»i dÃ¹ng cá»§a báº¡n"
+msgstr "选择你的用户名"
+
 msgid "Chính sách bảo mật"
 msgstr "隐私政策"
+
+msgid "Chính sách quyền riêng tư"
+msgstr "隐私政策"
+
+msgid "Chúng tôi sẽ gửi liên kết đặt lại mật khẩu."
+msgstr "我们将向您发送密码重置链接。"
 
 msgid "Chưa có ai theo dõi %(username)s."
 msgstr "尚未有人关注 %(username)s。"
@@ -178,14 +667,50 @@ msgstr "还没有帐户？"
 msgid "Chưa cập nhật"
 msgstr "尚未更新"
 
+msgid "Chấp nhận"
+msgstr "接受"
+
+msgid ""
+"Chấp nhận để chuyển vào hộp thư chính. Từ chối sẽ ẩn cuộc trò chuyện này."
+msgstr "接受转移到主邮箱。拒绝将隐藏此对话。"
+
 msgid "Chặn"
 msgstr "堵塞"
+
+msgid "Chặn mới (7 ngày)"
+msgstr "新区块（7天）"
+
+msgid "Chế độ màu"
+msgstr "色彩模式"
+
+msgid "Chế độ xem"
+msgstr "查看模式"
 
 msgid "Chế độ xem bảng tin"
 msgstr "留言板视图"
 
 msgid "Chỉ hỗ trợ Facebook, Twitter/X, Instagram và LinkedIn."
 msgstr "仅支持 Facebook、Twitter/X、Instagram 和 LinkedIn。"
+
+msgid "Chỉ mình bạn xem được"
+msgstr "只有你能看到它"
+
+msgid "Chỉ mình tôi"
+msgstr "只有我"
+
+msgid "Chỉ người theo dõi đã duyệt mới xem được"
+msgstr "只有获得批准的关注者才能查看"
+
+msgid ""
+"Chỉ những người theo dõi mới có thể xem bài viết của tài khoản này. Hãy theo"
+" dõi để xem nội dung."
+msgstr "只有关注者才能看到此帐户的帖子。请继续关注查看内容。"
+
+msgid "Chỉnh hồ sơ, mật khẩu, xóa / khôi phục tài khoản."
+msgstr "编辑个人资料、密码、删除/恢复帐户。"
+
+msgid "Chỉnh khung ảnh đại diện"
+msgstr "调整代表性图像框"
 
 msgid "Chỉnh sửa"
 msgstr "编辑"
@@ -196,8 +721,21 @@ msgstr "编辑文章"
 msgid "Chỉnh sửa hồ sơ"
 msgstr "编辑个人资料"
 
+msgid ""
+"Chọn chế độ sáng, tối hoặc theo hệ thống. Tùy chọn được lưu trên thiết bị "
+"này."
+msgstr "选择浅色、深色或系统模式。首选项保存在此设备上。"
+
 msgid "Chọn các tùy chọn quyền riêng tư bằng cách bật/tắt công tắc bên dưới."
 msgstr "通过切换下面的开关来选择您的隐私选项。"
+
+msgid ""
+"Chọn email hoặc số điện thoại đã liên kết với tài khoản. SĐT hỗ trợ mọi quốc"
+" gia."
+msgstr "选择与帐户关联的电子邮件或电话号码。电话号码支持所有国家/地区。"
+
+msgid "Chọn giao diện"
+msgstr "选择界面"
 
 msgid "Chọn giới tính"
 msgstr "选择性别"
@@ -207,6 +745,19 @@ msgstr "选择一个理由"
 
 msgid "Chọn mã quốc gia rồi nhập số điện thoại (hỗ trợ mọi quốc gia)."
 msgstr "选择国家/地区代码，然后输入电话号码（支持所有国家/地区）。"
+
+msgid "Chọn mã quốc gia rồi nhập số — hỗ trợ mọi quốc gia."
+msgstr "选择国家/地区代码，然后输入号码 - 支持所有国家/地区。"
+
+msgid ""
+"Chọn mật khẩu mạnh và dễ nhớ với bạn. Sau đó bạn có thể đăng nhập lại ngay."
+msgstr "选择一个强度高且易于记住的密码。然后您可以立即重新登录。"
+
+msgid "Chọn một mục bên trái để xem và chỉnh cài đặt."
+msgstr "选择左侧的项目以查看和调整设置。"
+
+msgid "Chọn một mục để mở chi tiết."
+msgstr "选择一个项目以打开详细信息。"
 
 msgid "Chọn ngày sinh của bạn"
 msgstr "选择您的出生日期"
@@ -219,8 +770,79 @@ msgstr "选择您帐户的显示语言。每次登录时都会保存并应用此
 msgid "Chọn tên người dùng của bạn"
 msgstr "选择你的用户名"
 
-msgid "Cài đặt"
+msgid "Comment"
+msgstr "评论"
+
+msgid "Comment Reply"
+msgstr "评论回复"
+
+msgid "Cuá»c trÃ² chuyá»n"
+msgstr "转换过程"
+
+msgid "Cuộc gọi thoại"
+msgstr "语音通话"
+
+msgid "Cuộc gọi video"
+msgstr "视频电话"
+
+msgid "Cuộc trò chuyện"
+msgstr "对话"
+
+msgid "CÃ i Äáº·t"
 msgstr "环境"
+
+msgid "CÃ i Äáº·t báº£o máº­t"
+msgstr "安全设置"
+
+msgid "CÃ i Äáº·t ngÃ´n ngá»¯"
+msgstr "语言设置"
+
+msgid "CÃ i Äáº·t quyá»n riÃªng tÆ°"
+msgstr "隐私设置"
+
+msgid "CÃ i Äáº·t thÃ´ng bÃ¡o"
+msgstr "通知设置"
+
+msgid "CÃ i Äáº·t tÃ i khoáº£n"
+msgstr "账户设置"
+
+msgid "CÃ¡ nhÃ¢n"
+msgstr "能"
+
+msgid ""
+"CÃ¡ch chÃºng tÃ´i thu tháº­p, dÃ¹ng vÃ báº£o vá» dá»¯ liá»u cá»§a báº¡n."
+msgstr "我们收集、使用和销售原料。"
+
+msgid "CÃ¢u há»i thÆ°á»ng gáº·p vÃ hÆ°á»ng dáº«n dÃ¹ng Moora."
+msgstr "莫拉有很多地方和地方可以利用。"
+
+msgid ""
+"CÃ²n %(var)s/%(var)s tin nháº¯n trÆ°á»c khi ngÆ°á»i nháº­n cháº¥p nháº­n."
+msgstr "当用户收到消息时，您需要 %(var)s/%(var)s 才能接收该消息。"
+
+msgid "CÃ³ lá»i xáº£y ra khi cáº­p nháº­t bÃ i viáº¿t."
+msgstr "更新帖子时发生错误。"
+
+msgid "CÃ³ lá»i xáº£y ra khi táº£i danh sÃ¡ch ngÆ°á»i theo dÃµi."
+msgstr "加载关注者列表时出错。"
+
+msgid "CÃ³ lá»i xáº£y ra khi táº£i danh sÃ¡ch Äang theo dÃµi."
+msgstr "加载跟踪列表时发生错误。"
+
+msgid "CÃ³ lá»i xáº£y ra khi xoÃ¡ bÃ i viáº¿t."
+msgstr "删除帖子时发生错误。"
+
+msgid "CÃ³ lá»i xáº£y ra khi xÃ³a bÃ i viáº¿t."
+msgstr "删除帖子时发生错误。"
+
+msgid "CÃ³ thá» dÃ¹ng tÃªn nÃ y"
+msgstr "我该如何使用这个名字？"
+
+msgid "CÃ´ng khai"
+msgstr "同时声明"
+
+msgid "Cài đặt"
+msgstr "设置"
 
 msgid "Cài đặt bảo mật"
 msgstr "安全设置"
@@ -237,6 +859,32 @@ msgstr "通知设置"
 msgid "Cài đặt tài khoản"
 msgstr "账户设置"
 
+msgid "Cá nhân"
+msgstr "个人"
+
+msgid "Cách chúng tôi thu thập, dùng và bảo vệ dữ liệu của bạn."
+msgstr "我们如何收集、使用和保护您的数据。"
+
+msgid ""
+"Cáº£m Æ¡n báº¡n ÄÃ£ bÃ¡o cÃ¡o. ChÃºng tÃ´i sáº½ xem xÃ©t ná»i dung nÃ y "
+"trong thá»i gian sá»m nháº¥t."
+msgstr "感谢您的报告。我们将尽快审核此内容。"
+
+msgid "Cáº£nh bÃ¡o"
+msgstr "警告"
+
+msgid "Cáº§n Ã­t nháº¥t 3 kÃ½ tá»±"
+msgstr "最多三打"
+
+msgid "Cáº­p nháº­t vá» trÃ­ chÃ­nh xÃ¡c (GPS)"
+msgstr "准确的信号（GPS）"
+
+msgid "Câu hỏi thường gặp và hướng dẫn dùng Moora."
+msgstr "使用 Moora 的常见问题和说明。"
+
+msgid "Còn %(remaining)s/%(max)s tin nhắn trước khi người nhận chấp nhận."
+msgstr "在收件人接受之前，还剩下 %(remain)s/%(max)s 封邮件。"
+
 msgid "Có lỗi xảy ra khi cập nhật bài viết."
 msgstr "更新帖子时发生错误。"
 
@@ -252,6 +900,12 @@ msgstr "删除帖子时发生错误。"
 msgid "Có lỗi xảy ra khi xóa bài viết."
 msgstr "删除帖子时发生错误。"
 
+msgid "Có thể dùng tên này"
+msgstr "这个名字可以用"
+
+msgid "Công khai"
+msgstr "民众"
+
 msgid ""
 "Cảm ơn bạn đã báo cáo. Chúng tôi sẽ xem xét nội dung này trong thời gian sớm"
 " nhất."
@@ -260,8 +914,47 @@ msgstr "感谢您的报告。我们将尽快审核此内容。"
 msgid "Cảnh báo"
 msgstr "警告"
 
-msgid "Dành cho bạn"
+msgid "Cần ít nhất 3 ký tự"
+msgstr "需要至少 3 个字符"
+
+msgid "Cập nhật vị trí chính xác (GPS)"
+msgstr "精确位置更新 (GPS)"
+
+msgid "DÃ nh cho báº¡n"
 msgstr "为你"
+
+msgid "DÃ¡n URL Äáº§y Äá»§. Äá» trá»ng náº¿u khÃ´ng dÃ¹ng."
+msgstr "输入 URL §y §§。冰不再使用了。"
+
+msgid "DÃ¹ng #hashtag hoáº·c @tag ngÆ°á»i Äang follow..."
+msgstr "使用#hashtag 关注..."
+
+msgid "DÃ¹ng email / SÄT khÃ¡c"
+msgstr "使用其他电子邮件/电话号码"
+
+msgid "DÃ¹ng vá» trÃ­ hiá»n táº¡i"
+msgstr "使用与支持"
+
+msgid "DÃ¹ng áº£nh nÃ y"
+msgstr "使用此灯"
+
+msgid "Dành cho bạn"
+msgstr "推荐"
+
+msgid "Dán URL đầy đủ. Để trống nếu không dùng."
+msgstr "粘贴完整的 URL。如果不使用则留空。"
+
+msgid "Dùng #hashtag hoặc @tag người đang follow..."
+msgstr "使用 #hashtag 或 @tag 您关注的人..."
+
+msgid "Dùng email / SĐT khác"
+msgstr "使用其他电子邮件/电话号码"
+
+msgid "Dùng vị trí hiện tại"
+msgstr "使用当前位置"
+
+msgid "Dùng ảnh này"
+msgstr "使用这张照片"
 
 msgid "Email"
 msgstr "电子邮件"
@@ -269,14 +962,152 @@ msgstr "电子邮件"
 msgid "Email / Gmail"
 msgstr "电子邮件/Gmail"
 
+msgid ""
+"Email vÃ SÄT dÃ¹ng Äá» báº£o máº­t / khÃ´i phá»¥c tÃ i khoáº£n. Äá»i "
+"qua xÃ¡c thá»±c OTP."
+msgstr "用于出售/发现密码的电子邮件和电话号码。通过 OTP 检查 OTP。"
+
+msgid ""
+"Email và SĐT dùng để bảo mật / khôi phục tài khoản. Đổi qua xác thực OTP."
+msgstr "电子邮件和电话号码用于帐户安全/恢复。更改为 OTP 身份验证。"
+
+msgid "Email ÄÃ£ ÄÆ°á»£c gá»­i"
+msgstr "电子邮件 äâ£ äÆ°á»£c 女孩"
+
+msgid "Email đã được gửi"
+msgstr "电子邮件已发送"
+
+msgid "Female"
+msgstr "女性"
+
+msgid "File khÃ´ng ÄÆ°á»£c há» trá»£. Vui lÃ²ng chá»n áº£nh hoáº·c video."
+msgstr "文件不一样。请观看视频。"
+
+msgid "File không được hỗ trợ. Vui lòng chọn ảnh hoặc video."
+msgstr "不支持文件。请选择照片或视频。"
+
+msgid "Follow"
+msgstr "跟随"
+
+msgid "Follow Accepted"
+msgstr "关注已接受"
+
+msgid "Follow Request"
+msgstr "关注请求"
+
+msgid "GPS"
+msgstr "全球定位系统"
+
+msgid "Ghi nhá» ÄÄng nháº­p"
+msgstr "记得登录"
+
 msgid "Ghi nhớ đăng nhập"
 msgstr "记得登录"
+
+msgid "Ghi Ã¢m"
+msgstr "记住我"
+
+msgid "Ghi Ã¢m tin nháº¯n thoáº¡i"
+msgstr "记录留言信息"
+
+msgid "Ghi âm"
+msgstr "记录"
+
+msgid "Ghi âm tin nhắn thoại"
+msgstr "录制语音留言"
+
+msgid "Ghim"
+msgstr "置顶"
+
+msgid "Giao diá»n"
+msgstr "沟通"
+
+msgid "Giao diá»n sÃ¡ng / tá»i"
+msgstr "互相沟通"
+
+msgid "Giao diện"
+msgstr "界面"
+
+msgid "Giao diện sáng / tối"
+msgstr "明/暗界面"
+
+msgid "Giá»i thiá»u"
+msgstr "价格低"
+
+msgid "Giá»i tÃ­nh"
+msgstr "性别"
+
+msgid "Giá»¯ ghi Ã¢m Ã­t nháº¥t 1 giÃ¢y."
+msgstr "记录价格不到1秒。"
+
+msgid "Giá»¯ máº­t kháº©u cá»§a báº¡n an toÃ n vÃ Äá»«ng chia sáº» vá»i ai."
+msgstr "价格相当合理，因为它很安全并且可以与任何人共享。"
+
+msgid "Giá»¯ vá» trÃ­ GPS cÅ© (chÃ­nh xÃ¡c hÆ¡n)."
+msgstr "提供价格和 GPS 跟踪（仅准确）。"
+
+msgid "Giới thiệu"
+msgstr "介绍"
 
 msgid "Giới tính"
 msgstr "性别"
 
+msgid "Giữ ghi âm ít nhất 1 giây."
+msgstr "持续录音至少 1 秒。"
+
+msgid "Giữ mật khẩu của bạn an toàn và đừng chia sẻ với ai."
+msgstr "请妥善保管您的密码，不要与任何人分享。"
+
+msgid "Giữ vị trí GPS cũ (chính xác hơn)."
+msgstr "保留旧的 GPS 位置（更准确）。"
+
+msgid "Gá»i thoáº¡i"
+msgstr "逃脱"
+
+msgid "Gá»i video"
+msgstr "嘎»我视频"
+
+msgid "Gá»¡ admin"
+msgstr "管理员"
+
+msgid "Gá»­i bÃ¡o cÃ¡o"
+msgstr "提交报告"
+
+msgid "Gá»­i láº¡i email"
+msgstr "发送电子邮件"
+
+msgid "Gá»­i láº¡i mÃ£"
+msgstr "这个女孩是新来的"
+
+msgid "Gá»­i lá»i chÃ o Äá» báº¯t Äáº§u cuá»c trÃ² chuyá»n"
+msgstr "打个招呼即可开始对话"
+
+msgid "Gá»­i tin nháº¯n"
+msgstr "发送消息"
+
+msgid "Gá»­i tin nháº¯n thoáº¡i"
+msgstr "女孩相信性"
+
+msgid "Gá»­i tÃ³m táº¯t hÃ ng ngÃ y"
+msgstr "发送每日摘要"
+
+msgid "Gọi thoại"
+msgstr "语音通话"
+
+msgid "Gọi video"
+msgstr "视频通话"
+
+msgid "Gỡ admin"
+msgstr "删除管理员"
+
 msgid "Gửi báo cáo"
 msgstr "提交报告"
+
+msgid "Gửi lại email"
+msgstr "重新发送电子邮件"
+
+msgid "Gửi lại mã"
+msgstr "重新发送代码"
 
 msgid "Gửi lời chào để bắt đầu cuộc trò chuyện"
 msgstr "打个招呼即可开始对话"
@@ -284,23 +1115,123 @@ msgstr "打个招呼即可开始对话"
 msgid "Gửi tin nhắn"
 msgstr "发送消息"
 
+msgid "Gửi tin nhắn thoại"
+msgstr "发送语音消息"
+
 msgid "Gửi tóm tắt hàng ngày"
 msgstr "发送每日摘要"
+
+msgid "Hate speech"
+msgstr "仇恨言论"
+
+msgid "Hiá»n máº­t kháº©u"
+msgstr "很酷"
+
+msgid "Hiện mật khẩu"
+msgstr "显示密码"
 
 msgid "Home"
 msgstr "家"
 
-msgid "Moora - Mạng xã hội chia sẻ khoảnh khắc"
-msgstr "Moora - 分享时刻的社交网络"
+msgid "HoÃ n tÃ¡c xÃ³a áº£nh"
+msgstr "推迟结构"
+
+msgid "HoÃ n táº¥t"
+msgstr "完全的"
+
+msgid "Hoàn tác xóa ảnh"
+msgstr "撤消照片删除"
+
+msgid "Hoàn tất"
+msgstr "完全的"
+
+msgid "Hoáº¡t Äá»ng %(time)s trÆ°á»c"
+msgstr "%(time)s 前操作"
+
+msgid "Hoáº¡t Äá»ng %(var)s trÆ°á»c"
+msgstr "化学 %(var)s 位于"
 
 msgid "Hoạt động %(time)s trước"
 msgstr "%(time)s 前操作"
+
+msgid "HÃ ng Äá»£i bÃ¡o cÃ¡o bÃ i viáº¿t"
+msgstr "他们必须谈谈这件事。"
+
+msgid "HÃ ng Äá»£i bÃ¡o cÃ¡o ngÆ°á»i dÃ¹ng"
+msgstr "有多少人使用它？"
+
+msgid ""
+"HÃ£y má» email vÃ báº¥m vÃ o liÃªn káº¿t Äá» táº¡o máº­t kháº©u má»i. "
+"Äá»«ng quÃªn kiá»m tra cáº£ thÆ° má»¥c spam. Náº¿u báº¡n dÃ¹ng sá» "
+"Äiá»n thoáº¡i, hÃ£y quay láº¡i vÃ nháº­p SÄT Äá» nháº­n OTP."
+msgstr "打开您的电子邮件并更新您的电子邮件以获取更多信息。检查垃圾邮件机器。如果您想使用电话号码，请拨打该卡并点击 SÄT 以接收 OTP。"
+
+msgid "HÃ¬nh áº£nh"
+msgstr "图像"
+
+msgid "HÃ´m nay"
+msgstr "今天"
+
+msgid ""
+"HÆ°á»ng dáº«n nhanh. Báº¥m tá»«ng chá»§ Äá» hoáº·c má» trang trá»£ giÃºp"
+" Äáº§y Äá»§."
+msgstr "很快就完成了。你可以用它来赚钱。"
+
+msgid "Hàng đợi báo cáo bài viết"
+msgstr "发布报告队列"
+
+msgid "Hàng đợi báo cáo người dùng"
+msgstr "用户报告队列"
+
+msgid "Há» thá»ng"
+msgstr "哈当"
+
+msgid "Há»"
+msgstr "哈”"
+
+msgid ""
+"Há» tÃªn vÃ tÃªn ngÆ°á»i dÃ¹ng dÃ¹ng Äá» má»i ngÆ°á»i tÃ¬m tháº¥y "
+"báº¡n."
+msgstr "你想用多少人？"
+
+msgid "Há» sÆ¡"
+msgstr "文件"
+
+msgid "Há»§y"
+msgstr "取消"
+
+msgid "Há»§y liÃªn káº¿t %(name)s"
+msgstr "取消链接 %(name)s"
+
+msgid "Há»§y liÃªn káº¿t %(var)s"
+msgstr "如何连接 %(var)s"
+
+msgid "Há»§y yÃªu cáº§u theo dÃµi"
+msgstr "从现在开始你想要什么？"
+
+msgid ""
+"Hãy mở email và bấm vào liên kết để tạo mật khẩu mới. Đừng quên kiểm tra cả "
+"thư mục spam. Nếu bạn dùng số điện thoại, hãy quay lại và nhập SĐT để nhận "
+"OTP."
+msgstr "打开电子邮件并单击链接以创建新密码。不要忘记检查您的垃圾邮件文件夹。如果您使用电话号码，请返回并输入您的电话号码以接收 OTP。"
 
 msgid "Hình ảnh"
 msgstr "图像"
 
 msgid "Hôm nay"
 msgstr "今天"
+
+msgid "Hướng dẫn nhanh. Bấm từng chủ đề hoặc mở trang trợ giúp đầy đủ."
+msgstr "快速指南。单击每个主题或打开完整的帮助页面。"
+
+msgid "Hệ thống"
+msgstr "系统"
+
+msgid "Họ"
+msgstr "姓"
+
+msgid "Họ tên và tên người dùng dùng để mọi người tìm thấy bạn."
+msgstr "您的全名和用户名用于帮助人们找到您。"
 
 msgid "Hồ sơ"
 msgstr "文件"
@@ -311,10 +1242,51 @@ msgstr "取消"
 msgid "Hủy liên kết %(name)s"
 msgstr "取消链接 %(name)s"
 
+msgid "Hủy yêu cầu theo dõi"
+msgstr "取消跟踪请求"
+
+msgid "IP"
+msgstr "知识产权"
+
+msgid "If enabled, birth date is visible on your public profile."
+msgstr "如果启用，出生日期将显示在您的公开个人资料中。"
+
+msgid "If enabled, gender is visible on your public profile."
+msgstr "如果启用，性别会在您的公开个人资料中可见。"
+
+msgid "Image"
+msgstr "图像"
+
+msgid "Inappropriate content"
+msgstr "不当内容"
+
+msgid ""
+"Khi báº­t, báº¡n sáº½ cáº§n nháº­p mÃ£ xÃ¡c thá»±c tá»« á»©ng dá»¥ng (Google"
+" Authenticator, Authyâ¦) má»i khi ÄÄng nháº­p."
+msgstr "启用后，您每次登录时都需要输入应用程序（Google Authenticator、Authy...）中的验证码。"
+
 msgid ""
 "Khi bật, bạn sẽ cần nhập mã xác thực từ ứng dụng (Google Authenticator, "
 "Authy…) mỗi khi đăng nhập."
 msgstr "启用后，您每次登录时都需要输入应用程序（Google Authenticator、Authy...）中的验证码。"
+
+msgid ""
+"Khi cÃ³ ngÆ°á»i bÃ¬nh luáº­n bÃ i viáº¿t cá»§a báº¡n hoáº·c tráº£ lá»i "
+"bÃ¬nh luáº­n cá»§a báº¡n"
+msgstr "当有人评论您的帖子或回复您的评论时"
+
+msgid "Khi cÃ³ ngÆ°á»i gá»­i tin nháº¯n cho báº¡n"
+msgstr "当有人给你发消息时"
+
+msgid ""
+"Khi cÃ³ ngÆ°á»i nháº¯c Äáº¿n báº¡n trong bÃ i viáº¿t hoáº·c bÃ¬nh luáº­n"
+msgstr "当有人在帖子或评论中提到您时"
+
+msgid "Khi cÃ³ ngÆ°á»i theo dÃµi báº¡n"
+msgstr "当有人跟踪你时"
+
+msgid "Khi cÃ³ ngÆ°á»i thÃ­ch bÃ i viáº¿t hoáº·c bÃ¬nh luáº­n cá»§a báº¡n"
+msgstr "当有人喜欢你的帖子或评论时"
 
 msgid "Khi có người bình luận bài viết của bạn hoặc trả lời bình luận của bạn"
 msgstr "当有人评论您的帖子或回复您的评论时"
@@ -331,11 +1303,102 @@ msgstr "当有人跟踪你时"
 msgid "Khi có người thích bài viết hoặc bình luận của bạn"
 msgstr "当有人喜欢你的帖子或评论时"
 
+msgid "Khi ngÆ°á»i láº¡ nháº¯n tin, yÃªu cáº§u sáº½ hiá»n á» ÄÃ¢y."
+msgstr "当该人收到消息时，将显示该消息。"
+
+msgid "Khi người lạ nhắn tin, yêu cầu sẽ hiện ở đây."
+msgstr "当陌生人发短信时，请求将出现在此处。"
+
+msgid "KhÃ¡c"
+msgstr "其他"
+
+msgid "KhÃ´i phá»¥c truy cáº­p"
+msgstr "避免狩猎和钓鱼"
+
+msgid "KhÃ´i phá»¥c tÃ i khoáº£n"
+msgstr "帐户恢复"
+
+msgid ""
+"KhÃ´ng báº¯t buá»c. Báº­t chia sáº» náº¿u muá»n hiá»n trÃªn trang cÃ¡ "
+"nhÃ¢n."
+msgstr "没有证据。您想在页面上显示多少份额？"
+
+msgid ""
+"KhÃ´ng cÃ³ thiáº¿t bá» nÃ o khÃ¡c ÄÄng nháº­p vÃ o tÃ i khoáº£n cá»§a "
+"báº¡n."
+msgstr "没有其他设备登录您的帐户。"
+
+msgid "KhÃ´ng cÃ³ thiáº¿t bá» ÄÄng nháº­p nÃ o ÄÆ°á»£c ghi nháº­n"
+msgstr "没有记录登录设备"
+
+msgid "KhÃ´ng cÃ³ tin nháº¯n chá»"
+msgstr "没有消息"
+
+msgid "KhÃ´ng gá»­i ÄÆ°á»£c tin nháº¯n thoáº¡i"
+msgstr "不要害怕发短信"
+
+msgid "KhÃ´ng lÆ°u ÄÆ°á»£c vá» trÃ­."
+msgstr "没有问题也没有问题。"
+
+msgid ""
+"KhÃ´ng láº¥y ÄÆ°á»£c GPS. Thá»­ láº¡i hoáº·c kiá»m tra quyá»n vá» trÃ­."
+msgstr "没有 GPS 支持。让我们将调查和调查数字化。"
+
+msgid "KhÃ´ng nháº­n ÄÆ°á»£c gÃ¬?"
+msgstr "不喜欢它？"
+
+msgid "KhÃ´ng thá» báº¯t Äáº§u ghi Ã¢m."
+msgstr "不可能记录任何东西。"
+
+msgid "KhÃ´ng thá» cáº¯t áº£nh. Thá»­ láº¡i vá»i áº£nh khÃ¡c."
+msgstr "没有把握。让我们和其他人谈谈吧。"
+
+msgid ""
+"KhÃ´ng thá» gá»­i tin nháº¯n vÃ¬ má»t trong hai ngÆ°á»i ÄÃ£ cháº·n "
+"ngÆ°á»i cÃ²n láº¡i."
+msgstr "由于你们中的一个人阻止了另一个人，因此无法发送该消息。"
+
+msgid "KhÃ´ng thá» há»§y liÃªn káº¿t tÃ i khoáº£n."
+msgstr "帐户无法取消关联。"
+
+msgid "KhÃ´ng thá» láº¥y vá» trÃ­ hiá»n táº¡i."
+msgstr "已经不可能再修复了。"
+
+msgid "KhÃ´ng thá» nháº¯n tin (ÄÃ£ cháº·n)"
+msgstr "无法发短信（被阻止）"
+
+msgid ""
+"KhÃ´ng thá» truy cáº­p micro. HÃ£y cho phÃ©p quyá»n micro rá»i thá»­ "
+"láº¡i."
+msgstr "无法访问麦克风。让我们快速授予控制麦克风的权限。"
+
+msgid ""
+"KhÃ´ng thá» truy cáº­p vá» trÃ­. Vui lÃ²ng cho phÃ©p quyá»n Äá»nh vá»."
+msgstr "追踪问题是不可能的。请给予您的许可。"
+
+msgid "KhÃ´ng thá» Äáº·t láº¡i"
+msgstr "没问题"
+
+msgid "KhÃ´ng thá»±c hiá»n ÄÆ°á»£c. Thá»­ láº¡i."
+msgstr "无法理解。那»留下了i。"
+
+msgid "KhÃ´ng tÃ¬m tháº¥y bÃ i viáº¿t."
+msgstr "没有找到文章。"
+
+msgid "KhÃ´ng tÃ¬m tháº¥y ngÆ°á»i dÃ¹ng phÃ¹ há»£p."
+msgstr "不要每天都使用房间。"
+
 msgid "Khác"
 msgstr "其他"
 
+msgid "Khôi phục truy cập"
+msgstr "恢复访问权限"
+
 msgid "Khôi phục tài khoản"
 msgstr "帐户恢复"
+
+msgid "Không bắt buộc. Bật chia sẻ nếu muốn hiện trên trang cá nhân."
+msgstr "选修的。如果您想出现在您的个人页面上，请打开共享。"
 
 msgid "Không có thiết bị nào khác đăng nhập vào tài khoản của bạn."
 msgstr "没有其他设备登录您的帐户。"
@@ -343,34 +1406,217 @@ msgstr "没有其他设备登录您的帐户。"
 msgid "Không có thiết bị đăng nhập nào được ghi nhận"
 msgstr "没有记录登录设备"
 
+msgid "Không có tin nhắn chờ"
+msgstr "没有消息等待"
+
+msgid "Không gửi được tin nhắn thoại"
+msgstr "无法发送语音消息"
+
+msgid "Không lưu được vị trí."
+msgstr "无法保存位置。"
+
+msgid "Không lấy được GPS. Thử lại hoặc kiểm tra quyền vị trí."
+msgstr "无法获取 GPS。请重试或检查位置权限。"
+
+msgid "Không nhận được gì?"
+msgstr "没有收到任何东西？"
+
+msgid "Không thể bắt đầu ghi âm."
+msgstr "无法开始录制。"
+
+msgid "Không thể cắt ảnh. Thử lại với ảnh khác."
+msgstr "无法裁剪图像。用另一张照片重试。"
+
 msgid "Không thể gửi tin nhắn vì một trong hai người đã chặn người còn lại."
 msgstr "由于你们中的一个人阻止了另一个人，因此无法发送该消息。"
 
 msgid "Không thể hủy liên kết tài khoản."
 msgstr "帐户无法取消关联。"
 
+msgid "Không thể lấy vị trí hiện tại."
+msgstr "无法获取当前位置。"
+
 msgid "Không thể nhắn tin (đã chặn)"
 msgstr "无法发短信（被阻止）"
+
+msgid "Không thể truy cập micro. Hãy cho phép quyền micro rồi thử lại."
+msgstr "无法访问麦克风。请允许麦克风权限并重试。"
+
+msgid "Không thể truy cập vị trí. Vui lòng cho phép quyền định vị."
+msgstr "无法访问位置。请允许位置权限。"
+
+msgid "Không thể đặt lại"
+msgstr "无法重置"
+
+msgid "Không thực hiện được. Thử lại."
+msgstr "做不到。重试。"
 
 msgid "Không tìm thấy bài viết."
 msgstr "没有找到文章。"
 
+msgid "Không tìm thấy người dùng phù hợp."
+msgstr "未找到匹配的用户。"
+
+msgid "Kick"
+msgstr "踢"
+
+msgid "Kick %(name)s khỏi nhóm?"
+msgstr "将 %(name)s 从群组中踢出？"
+
+msgid "Kick %(var)s khá»i nhÃ³m?"
+msgstr "踢 %(var)s 相当多吗？"
+
+msgid "Kiá»m tra há»p thÆ°"
+msgstr "检查是否属实"
+
+msgid "Kiểm tra hộp thư"
+msgstr "检查您的邮箱"
+
+msgid "KÃ©o áº£nh Äá» Äáº·t vá» trÃ­"
+msgstr "Kéo áº£nh äá» äº·t 和"
+
+msgid "Káº¿t quáº£ sau"
+msgstr "不会太晚之后"
+
+msgid "Káº¿t quáº£ trÆ°á»c"
+msgstr "太晚了"
+
+msgid "Kéo thả hoặc chọn ảnh/video mới · tối đa 1GB/file"
+msgstr "拖放或选择新照片/视频 · 每个文件最大 1GB"
+
+msgid "Kéo ảnh để đặt vị trí"
+msgstr "拖动照片以设置位置"
+
+msgid "Kết quả sau"
+msgstr "结果如下"
+
+msgid "Kết quả trước"
+msgstr "之前的结果"
+
+msgid "Kết thúc"
+msgstr "结尾"
+
+msgid "Like"
+msgstr "喜欢"
+
+msgid "LiÃªn káº¿t & máº¡ng xÃ£ há»i"
+msgstr "链接和网络是什么？"
+
+msgid "LiÃªn káº¿t háº¿t háº¡n"
+msgstr "链接不可用"
+
+msgid "LiÃªn káº¿t máº¡ng xÃ£ há»i"
+msgstr "社交网络链接"
+
+msgid ""
+"LiÃªn káº¿t nÃ y khÃ´ng há»£p lá» hoáº·c ÄÃ£ háº¿t háº¡n. HÃ£y yÃªu cáº§u "
+"má»t liÃªn káº¿t má»i Äá» tiáº¿p tá»¥c."
+msgstr "这种联系不会改变这种情况。让我们祈求血脉相连。"
+
+msgid ""
+"LiÃªn káº¿t ÄÃ£ ÄÆ°á»£c lÆ°u vÃ o Website. Chá» há» trá»£ Facebook, "
+"Twitter/X, Instagram vÃ LinkedIn trong danh sÃ¡ch máº¡ng xÃ£ há»i."
+msgstr "该链接已保存到网站。社交网络列表仅支持 Facebook、Twitter/X、Instagram 和 LinkedIn。"
+
+msgid "Liên kết & mạng xã hội"
+msgstr "链接和社交网络"
+
+msgid "Liên kết hết hạn"
+msgstr "过期链接"
+
 msgid "Liên kết mạng xã hội"
 msgstr "社交网络链接"
+
+msgid ""
+"Liên kết này không hợp lệ hoặc đã hết hạn. Hãy yêu cầu một liên kết mới để "
+"tiếp tục."
+msgstr "该链接无效或已过期。请请求新链接以继续。"
 
 msgid ""
 "Liên kết đã được lưu vào Website. Chỉ hỗ trợ Facebook, Twitter/X, Instagram "
 "và LinkedIn trong danh sách mạng xã hội."
 msgstr "该链接已保存到网站。社交网络列表仅支持 Facebook、Twitter/X、Instagram 和 LinkedIn。"
 
+msgid "Loáº¡i file khÃ´ng ÄÆ°á»£c há» trá»£"
+msgstr "删除文件不是问题。"
+
+msgid "Loáº¡i thÃ´ng bÃ¡o"
+msgstr "通知类型"
+
+msgid "Loại file không được hỗ trợ"
+msgstr "不支持的文件类型"
+
 msgid "Loại thông báo"
 msgstr "通知类型"
+
+msgid "LÃ½ do bÃ¡o cÃ¡o"
+msgstr "举报原因"
+
+msgid "LÃ½ do xÃ³a tÃ i khoáº£n"
+msgstr "帐户删除原因"
+
+msgid "LÆ°u"
+msgstr "吕"
+
+msgid "LÆ°u há» sÆ¡"
+msgstr "LÆ°u ha» sÆ¡"
+
+msgid "LÆ°u máº­t kháº©u má»i"
+msgstr "血量相当不错"
+
+msgid "LÆ°u ngÃ´n ngá»¯"
+msgstr "保存语言"
+
+msgid "LÆ°u thay Äá»i"
+msgstr "保存更改"
+
+msgid "LÆ°u thay Äá»i quyá»n riÃªng tÆ°"
+msgstr "保存隐私更改"
+
+msgid "LÆ°u thay Äá»i thÃ´ng bÃ¡o"
+msgstr "保存通知更改"
+
+msgid "LÆ°á»£t thÃ­ch"
+msgstr "喜欢"
+
+msgid "Lá»c thÃ´ng bÃ¡o"
+msgstr "留下新闻"
+
+msgid "Lá»i táº¯t kiá»m duyá»t"
+msgstr "没那么糟糕"
+
+msgid "Lá»i khi gá»­i tin nháº¯n thoáº¡i"
+msgstr "女孩什么时候相信性？"
+
+msgid "Lá»i khi táº£i danh sÃ¡ch ngÆ°á»i theo dÃµi"
+msgstr "加载关注者列表时出错"
+
+msgid "Lá»i khi táº£i danh sÃ¡ch Äang theo dÃµi"
+msgstr "加载跟踪列表时出错"
+
+msgid "Lá»i khi táº£i lÃªn tá»p:"
+msgstr "上传文件时出错："
+
+msgid "Lá»i káº¿t ná»i tá»i mÃ¡y chá»§. Vui lÃ²ng thá»­ láº¡i sau."
+msgstr "连接到服务器时出错。请稍后重试。"
+
+msgid "Lá»i máº¡ng khi lÆ°u vá» trÃ­."
+msgstr "使用和生长时会冷却。"
 
 msgid "Lý do báo cáo"
 msgstr "举报原因"
 
 msgid "Lý do xóa tài khoản"
 msgstr "帐户删除原因"
+
+msgid "Lưu"
+msgstr "节省"
+
+msgid "Lưu hồ sơ"
+msgstr "保存个人资料"
+
+msgid "Lưu mật khẩu mới"
+msgstr "保存新密码"
 
 msgid "Lưu ngôn ngữ"
 msgstr "保存语言"
@@ -387,6 +1633,15 @@ msgstr "保存通知更改"
 msgid "Lượt thích"
 msgstr "喜欢"
 
+msgid "Lọc thông báo"
+msgstr "过滤通知"
+
+msgid "Lối tắt kiểm duyệt"
+msgstr "审查捷径"
+
+msgid "Lỗi khi gửi tin nhắn thoại"
+msgstr "发送语音消息时出错"
+
 msgid "Lỗi khi tải danh sách người theo dõi"
 msgstr "加载关注者列表时出错"
 
@@ -399,8 +1654,92 @@ msgstr "上传文件时出错："
 msgid "Lỗi kết nối tới máy chủ. Vui lòng thử lại sau."
 msgstr "连接到服务器时出错。请稍后重试。"
 
+msgid "Lỗi mạng khi lưu vị trí."
+msgstr "保存位置时出现网络错误。"
+
+msgid "Male"
+msgstr "男性"
+
+msgid "Mention"
+msgstr "提到"
+
 msgid "Menu"
 msgstr "菜单"
+
+msgid "Message"
+msgstr "信息"
+
+msgid "Moora - Máº¡ng xÃ£ há»i chia sáº» khoáº£nh kháº¯c"
+msgstr "Moora - 分享时刻的社交网络"
+
+msgid "Moora - Mạng xã hội chia sẻ khoảnh khắc"
+msgstr "Moora - 分享时刻的社交网络"
+
+msgid ""
+"Moora lÆ°u thiáº¿t bá» + vá» trÃ­ Äá» báº£o vá» tÃ i khoáº£n. Vá» trÃ­"
+" chÃ­nh xÃ¡c nháº¥t láº¥y tá»« GPS trÃ¬nh duyá»t (cáº§n báº¡n cho phÃ©p); "
+"náº¿u khÃ´ng sáº½ dÃ¹ng vá» trÃ­ theo IP (Äá» chÃ­nh xÃ¡c thÃ nh phá»)."
+msgstr "穆拉是一个好女孩+也是一个孩子。以及GPS导航仪（出售给客户）；如果您不使用它，则需要通过 IP 来跟踪它。"
+
+msgid ""
+"Moora lưu thiết bị + vị trí để bảo vệ tài khoản. Vị trí chính xác nhất lấy "
+"từ GPS trình duyệt (cần bạn cho phép); nếu không sẽ dùng vị trí theo IP (độ "
+"chính xác thành phố)."
+msgstr "Moora 会保存设备 + 位置以保护帐户。从浏览器 GPS 获取的最准确位置（需要您的许可）；否则将使用 IP 位置（城市精度）。"
+
+msgid "Moora Äang closed beta â cáº§n mÃ£ má»i Äá» ÄÄng kÃ½."
+msgstr "Moora 现在处于内测阶段，但仍然开放。"
+
+msgid "Moora đang closed beta — cần mã mời để đăng ký."
+msgstr "Moora 处于封闭测试阶段 - 需要邀请码才能注册。"
+
+msgid ""
+"MÃ£ 8 sá», hiá»u lá»±c 10 phÃºt. Sai quÃ¡ 5 láº§n sáº½ bá» khÃ³a táº¡m."
+msgstr "代码8小时，时间10分钟。 5片叶子的数量错误太多了。"
+
+msgid "MÃ£ má»i beta"
+msgstr "代码测试版"
+
+msgid "MÃ£ xÃ¡c thá»±c"
+msgstr "代码=月±c"
+
+msgid "MÃ´ táº£ chi tiáº¿t"
+msgstr "详细说明"
+
+msgid "Máº­t kháº©u"
+msgstr "密码"
+
+msgid "Máº­t kháº©u má»i"
+msgstr "很酷"
+
+msgid ""
+"Máº­t kháº©u má»i ÄÃ£ sáºµn sÃ ng. Báº¡n cÃ³ thá» ÄÄng nháº­p láº¡i "
+"ngay bÃ¢y giá»."
+msgstr "该产品非常酷。你必须利用这个价格。"
+
+msgid "Máº­t kháº©u vÃ ÄÄng nháº­p"
+msgstr "密码和登录"
+
+msgid "Máº­t kháº©u ÄÃ£ Äá»i"
+msgstr "很酷"
+
+msgid "Má» Trung tÃ¢m trá»£ giÃºp"
+msgstr "中心对这起犯罪行为负有责任"
+
+msgid "Má»¥c cÃ i Äáº·t"
+msgstr "存在哪些问题？"
+
+msgid "Má»¥c há» sÆ¡"
+msgstr "型材部分"
+
+msgid "Mã 8 số, hiệu lực 10 phút. Sai quá 5 lần sẽ bị khóa tạm."
+msgstr "8位密码，有效期10分钟。如果错误超过5次，将会被暂时锁定。"
+
+msgid "Mã mời beta"
+msgstr "内测邀请码"
+
+msgid "Mã xác thực"
+msgstr "验证码"
 
 msgid "Mô tả chi tiết"
 msgstr "详细说明"
@@ -408,14 +1747,70 @@ msgstr "详细说明"
 msgid "Mật khẩu"
 msgstr "密码"
 
+msgid "Mật khẩu mới"
+msgstr "新密码"
+
+msgid "Mật khẩu mới đã sẵn sàng. Bạn có thể đăng nhập lại ngay bây giờ."
+msgstr "新密码已准备好。您现在可以重新登录。"
+
 msgid "Mật khẩu và đăng nhập"
 msgstr "密码和登录"
+
+msgid "Mật khẩu đã đổi"
+msgstr "密码已更改"
+
+msgid "Mở Trung tâm trợ giúp"
+msgstr "打开帮助中心"
+
+msgid "Mục cài đặt"
+msgstr "设置部分"
 
 msgid "Mục hồ sơ"
 msgstr "型材部分"
 
 msgid "Nam"
 msgstr "男性"
+
+msgid "NguyÃªn táº¯c cá»ng Äá»ng"
+msgstr "信息来源"
+
+msgid "Nguyên tắc cộng đồng"
+msgstr "社区准则"
+
+msgid "NgÃ y sinh"
+msgstr "出生日期"
+
+msgid "NgÃ´n ngá»¯"
+msgstr "语言"
+
+msgid "NgÃ´n ngá»¯ hiá»n thá»"
+msgstr "显示语言"
+
+msgid "NgÆ°á»i báº¡n theo dÃµi"
+msgstr "人们根据时间出售"
+
+msgid "NgÆ°á»i dÃ¹ng"
+msgstr "用户"
+
+msgid "NgÆ°á»i dÃ¹ng ÄÃ£ bá» cháº·n"
+msgstr "用户已被屏蔽"
+
+msgid ""
+"NgÆ°á»i nÃ y báº¡n chÆ°a theo dÃµi. Cháº¥p nháº­n Äá» tráº£ lá»i trong "
+"há»p thÆ° chÃ­nh, hoáº·c tá»« chá»i."
+msgstr "此人需要遵循指示。咱们将左右叶子收在堂屋里，一起努力吧。"
+
+msgid "NgÆ°á»i theo dÃµi"
+msgstr "人们跟着"
+
+msgid "NgÆ°á»i theo dÃµi (%(count)s)"
+msgstr "关注者 (%(count)s)"
+
+msgid "NgÆ°á»i theo dÃµi (%(var)s)"
+msgstr "按长度划分的人员 (%(var)s)"
+
+msgid "NgÆ°á»i táº¡o"
+msgstr "吴涛"
 
 msgid "Ngày sinh"
 msgstr "出生日期"
@@ -426,11 +1821,103 @@ msgstr "语言"
 msgid "Ngôn ngữ hiển thị"
 msgstr "显示语言"
 
+msgid "Người bạn theo dõi"
+msgstr "您关注的人"
+
+msgid "Người dùng"
+msgstr "用户"
+
 msgid "Người dùng đã bị chặn"
 msgstr "用户已被屏蔽"
 
+msgid ""
+"Người này bạn chưa theo dõi. Chấp nhận để trả lời trong hộp thư chính, hoặc "
+"từ chối."
+msgstr "您尚未关注此人。接受在主收件箱中回复，或拒绝。"
+
+msgid "Người theo dõi"
+msgstr "追随者"
+
 msgid "Người theo dõi (%(count)s)"
 msgstr "关注者 (%(count)s)"
+
+msgid "Người tạo"
+msgstr "创作者"
+
+msgid "NhÃ³m má»i â gá»­i tin nháº¯n Äáº§u tiÃªn"
+msgstr "母亲和女孩相信花钱"
+
+msgid "Nháº¥n Ã Äá» ÄÃ¡nh dáº¥u xÃ³a áº£nh/video hiá»n cÃ³."
+msgstr "查看您需要的图片/视频。"
+
+msgid "Nháº­n email tÃ³m táº¯t cÃ¡c hoáº¡t Äá»ng má»i ngÃ y"
+msgstr "接收总结日常活动的电子邮件"
+
+msgid "Nháº­n thÃ´ng bÃ¡o ngay cáº£ khi khÃ´ng má» á»©ng dá»¥ng"
+msgstr "即使未打开应用程序也能收到通知"
+
+msgid "Nháº­n thÃ´ng bÃ¡o qua Äá»a chá» email cá»§a báº¡n"
+msgstr "通过您的电子邮件地址接收通知"
+
+msgid "Nháº­n thÃ´ng bÃ¡o sau 30 ngÃ y khÃ´ng hoáº¡t Äá»ng"
+msgstr "30 天不活动后收到通知"
+
+msgid "Nháº­p láº¡i máº­t kháº©u"
+msgstr "重新输入密码"
+
+msgid "Nháº­p láº¡i máº­t kháº©u má»i"
+msgstr "涂抹脸颊很酷"
+
+msgid "Nháº­p mÃ£ OTP"
+msgstr "单击一次性密码"
+
+msgid "Nháº­p mÃ£ má»i"
+msgstr "点击代码"
+
+msgid "Nháº­p máº­t kháº©u cá»§a báº¡n"
+msgstr "输入您的密码"
+
+msgid "Nháº­p máº­t kháº©u hoáº·c mÃ£ xÃ¡c thá»±c Äá» táº¯t 2FA:"
+msgstr "输入您的密码或验证码以关闭 2FA："
+
+msgid "Nháº­p máº­t kháº©u Äá» xÃ¡c nháº­n"
+msgstr "输入密码进行确认"
+
+msgid "Nháº­p tin nháº¯n..."
+msgstr "输入留言..."
+
+msgid "Nháº­p tÃªn ngÆ°á»i dÃ¹ng cá»§a báº¡n"
+msgstr "输入您的用户名"
+
+msgid "Nháº­p Äá»a chá» email cá»§a báº¡n"
+msgstr "输入您的电子邮件地址"
+
+msgid "Nháº¯c Äáº¿n"
+msgstr "提及"
+
+msgid "Nháº¯n tin"
+msgstr "发短信"
+
+msgid "Nháº¯n tin trá»±c tiáº¿p"
+msgstr "直接留言"
+
+msgid "Nhá»¯ng ngÆ°á»i mÃ %(username)s Äang theo dÃµi"
+msgstr "%(用户名)s 正在关注"
+
+msgid "Nhá»¯ng ngÆ°á»i mÃ %(var)s Äang theo dÃµi"
+msgstr "代码后面的 %(var)s 是什么？"
+
+msgid "Nhá»¯ng ngÆ°á»i Äang theo dÃµi %(username)s"
+msgstr "关注 %(用户名)s 的人"
+
+msgid "Nhá»¯ng ngÆ°á»i Äang theo dÃµi %(var)s"
+msgstr "哪些人正在关注长度 %(var)s"
+
+msgid "Nhóm mới — gửi tin nhắn đầu tiên"
+msgstr "新群组 — 发送第一条消息"
+
+msgid "Nhấn × để đánh dấu xóa ảnh/video hiện có."
+msgstr "按 × 标记删除现有照片/视频。"
 
 msgid "Nhận email tóm tắt các hoạt động mỗi ngày"
 msgstr "接收总结日常活动的电子邮件"
@@ -446,6 +1933,15 @@ msgstr "30 天不活动后收到通知"
 
 msgid "Nhập lại mật khẩu"
 msgstr "重新输入密码"
+
+msgid "Nhập lại mật khẩu mới"
+msgstr "重新输入新密码"
+
+msgid "Nhập mã OTP"
+msgstr "输入一次性密码"
+
+msgid "Nhập mã mời"
+msgstr "输入邀请码"
 
 msgid "Nhập mật khẩu của bạn"
 msgstr "输入您的密码"
@@ -480,8 +1976,59 @@ msgstr "%(用户名)s 正在关注"
 msgid "Những người đang theo dõi %(username)s"
 msgstr "关注 %(用户名)s 的人"
 
+msgid "NÃªn cÃ³ chá»¯ hoa, chá»¯ thÆ°á»ng, sá» vÃ kÃ½ tá»± Äáº·c biá»t."
+msgstr "有鲜花、香草、鲜花等食材。"
+
+msgid ""
+"Náº¿u báº¡n khÃ´ng yÃªu cáº§u Äáº·t láº¡i máº­t kháº©u, hÃ£y bá» qua email"
+" nÃ y. Cáº£m Æ¡n báº¡n ÄÃ£ sá»­ dá»¥ng %(var)s! %(var)s"
+msgstr "如果您不想询问更多信息，请通过此电子邮件告诉我。多少%(var)s！ %(变量)s"
+
+msgid ""
+"Náº¿u sá» káº¿t thÃºc báº±ng <strong>%(var)s</strong> cÃ³ trÃªn Moora, "
+"báº¡n sáº½ nháº­n mÃ£ 8 sá» trong vÃ i phÃºt."
+msgstr "如果您发现您在 Moora 上有 <strong>%(var)s</strong>，您将在短短几分钟内收到高达 8% 的奖励。"
+
+msgid ""
+"Náº¿u Äá»a chá» email tá»n táº¡i trÃªn Moora, báº¡n sáº½ nháº­n ÄÆ°á»£c"
+" liÃªn káº¿t Äáº·t láº¡i máº­t kháº©u trong vÃ i phÃºt."
+msgstr "如果您在 Moora 上有电子邮件地址，将来您将能够找到更好的链接。和分钟。"
+
+msgid "Ná»i dung"
+msgstr "内容"
+
+msgid "Ná»i dung & cá»ng Äá»ng"
+msgstr "内容和条款"
+
+msgid "Ná»i dung khÃ´ng phÃ¹ há»£p"
+msgstr "不当内容"
+
+msgid "Ná»¯"
+msgstr "女性"
+
+msgid "Nên có chữ hoa, chữ thường, số và ký tự đặc biệt."
+msgstr "应包含大写字母、小写字母、数字和特殊字符。"
+
+msgid ""
+"Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email này. Cảm ơn bạn đã "
+"sử dụng %(site_name)s! %(site_domain)s"
+msgstr "如果您没有请求重置密码，请忽略此电子邮件。感谢您使用 %(site_name)s！ %(站点_域)s"
+
+msgid ""
+"Nếu số kết thúc bằng <strong>%(hint)s</strong> có trên Moora, bạn sẽ nhận mã"
+" 8 số trong vài phút."
+msgstr "如果 Moora 上以 <strong>%(hint)s</strong> 结尾的号码，您将在几分钟内收到一个 8 位数的代码。"
+
+msgid ""
+"Nếu địa chỉ email tồn tại trên Moora, bạn sẽ nhận được liên kết đặt lại mật "
+"khẩu trong vài phút."
+msgstr "如果 Moora 上存在该电子邮件地址，您将在几分钟内收到密码重置链接。"
+
 msgid "Nội dung"
 msgstr "内容"
+
+msgid "Nội dung & cộng đồng"
+msgstr "内容和社区"
 
 msgid "Nội dung không phù hợp"
 msgstr "不当内容"
@@ -492,23 +2039,138 @@ msgstr "女性"
 msgid "Offline"
 msgstr "离线"
 
+msgid "Only me"
+msgstr "只有我"
+
+msgid "Other"
+msgstr "其他"
+
+msgid "Phong admin"
+msgstr "行政室"
+
+msgid "PhÃ¡p lÃ½ & cá»ng Äá»ng"
+msgstr "食品和饮料"
+
+msgid "PhÃ¢n trang thÃ´ng bÃ¡o"
+msgstr "通知分页"
+
+msgid "PhÃ³ng to"
+msgstr "房间大"
+
+msgid "PhÆ°Æ¡ng thá»©c nháº­n thÃ´ng bÃ¡o"
+msgstr "接收通知的方法"
+
+msgid "PhÆ°Æ¡ng thá»©c Äáº·t láº¡i"
+msgstr "一年中的月份和月份"
+
+msgid "PhÆ°Æ¡ng tiá»n hiá»n táº¡i"
+msgstr "当前媒体"
+
+msgid "Pháp lý & cộng đồng"
+msgstr "法律与社区"
+
 msgid "Phân trang thông báo"
 msgstr "通知分页"
+
+msgid "Phóng to"
+msgstr "放大"
 
 msgid "Phương thức nhận thông báo"
 msgstr "接收通知的方法"
 
+msgid "Phương thức đặt lại"
+msgstr "复位方法"
+
 msgid "Phương tiện hiện tại"
 msgstr "当前媒体"
+
+msgid "Public"
+msgstr "民众"
+
+msgid "Quay láº¡i"
+msgstr "回来"
+
+msgid "Quay láº¡i danh má»¥c"
+msgstr "旋转卡片"
+
+msgid "Quay láº¡i ÄÄng nháº­p"
+msgstr "轻轻旋转叶子"
 
 msgid "Quay lại"
 msgstr "回来"
 
+msgid "Quay lại danh mục"
+msgstr "返回类别"
+
+msgid "Quay lại đăng nhập"
+msgstr "返回登录"
+
+msgid "Quy táº¯c ÄÄng bÃ i vÃ táº£i dá»¯ liá»u cÃ¡ nhÃ¢n."
+msgstr "治疗和治疗的程序。"
+
+msgid "Quy táº¯c á»©ng xá»­ Äá» cá»ng Äá»ng an toÃ n vÃ tÃ´n trá»ng."
+msgstr "清洁和消毒过程安全有效。"
+
+msgid "Quy tắc đăng bài và tải dữ liệu cá nhân."
+msgstr "发布和下载个人数据的规则。"
+
+msgid "Quy tắc ứng xử để cộng đồng an toàn và tôn trọng."
+msgstr "安全和相互尊重的社区的行为准则。"
+
+msgid "Quyá»n riÃªng tÆ°"
+msgstr "隐私"
+
+msgid "Quyá»n riÃªng tÆ° & an toÃ n"
+msgstr "个人隐私和安全"
+
 msgid "Quyền riêng tư"
 msgstr "隐私"
 
+msgid "Quyền riêng tư & an toàn"
+msgstr "隐私与安全"
+
+msgid "QuÃªn máº­t kháº©u?"
+msgstr "忘记密码？"
+
+msgid "Quáº£n lÃ½ bÃ i viáº¿t"
+msgstr "写得太糟糕了"
+
+msgid "Quáº£n lÃ½ bÃ¬nh luáº­n"
+msgstr "太多是个问题"
+
+msgid "Quáº£n lÃ½ chat"
+msgstr "聊天太多了"
+
+msgid ""
+"Quáº£n lÃ½ cÃ i Äáº·t báº£o máº­t cho tÃ i khoáº£n cá»§a báº¡n. Báº­t xÃ¡c "
+"thá»±c hai yáº¿u tá» Äá» tÄng cÆ°á»ng báº£o máº­t."
+msgstr "管理您帐户的安全设置。启用双因素身份验证以提高安全性。"
+
+msgid ""
+"Quáº£n lÃ½ cÃ¡c tÃ i khoáº£n máº¡ng xÃ£ há»i ÄÆ°á»£c liÃªn káº¿t vá»i tÃ "
+"i khoáº£n Moora cá»§a báº¡n"
+msgstr "管理与您的 Moora 帐户关联的社交媒体帐户"
+
+msgid "Quáº£n lÃ½ danh sÃ¡ch ngÆ°á»i dÃ¹ng mÃ báº¡n ÄÃ£ cháº·n"
+msgstr "管理您已阻止的用户列表"
+
+msgid "Quáº£n lÃ½ story"
+msgstr "Tooº£n 是一个故事"
+
+msgid "Quáº¥y rá»i"
+msgstr "骚扰"
+
 msgid "Quên mật khẩu?"
 msgstr "忘记密码？"
+
+msgid "Quản lý bài viết"
+msgstr "文章管理"
+
+msgid "Quản lý bình luận"
+msgstr "管理评论"
+
+msgid "Quản lý chat"
+msgstr "聊天管理"
 
 msgid ""
 "Quản lý cài đặt bảo mật cho tài khoản của bạn. Bật xác thực hai yếu tố để "
@@ -522,8 +2184,50 @@ msgstr "管理与您的 Moora 帐户关联的社交媒体帐户"
 msgid "Quản lý danh sách người dùng mà bạn đã chặn"
 msgstr "管理您已阻止的用户列表"
 
+msgid "Quản lý story"
+msgstr "管理故事"
+
 msgid "Quấy rối"
 msgstr "骚扰"
+
+msgid "RiÃªng tÆ°"
+msgstr "确切地"
+
+msgid "Riêng tư"
+msgstr "私人的"
+
+msgid "Rá»i nhÃ³m"
+msgstr "太晚了"
+
+msgid "Rời nhóm"
+msgstr "退出群组"
+
+msgid "Share"
+msgstr "分享"
+
+msgid "Spam"
+msgstr "垃圾邮件"
+
+msgid "Story Äang sá»ng"
+msgstr "故事的故事"
+
+msgid "Story đang sống"
+msgstr "故事还活着"
+
+msgid "SÃ¡ng"
+msgstr "桑"
+
+msgid "Sáng"
+msgstr "明亮的"
+
+msgid "Sáºµn sÃ ng táº£i xuá»ng"
+msgstr "准备下载"
+
+msgid "Sá» Äiá»n thoáº¡i"
+msgstr "电话号码"
+
+msgid "Sá»­ dá»¥ng # hashtag vÃ @ gáº¯n tháº» ngÆ°á»i Äang follow"
+msgstr "Sá» dá»¥ng # 标签和@gá»¯n thaº» ngÆ°á»i äang 关注"
 
 msgid "Sẵn sàng tải xuống"
 msgstr "准备下载"
@@ -531,11 +2235,68 @@ msgstr "准备下载"
 msgid "Số điện thoại"
 msgstr "电话号码"
 
+msgid "Sử dụng # hashtag và @ gắn thẻ người đang follow"
+msgstr "使用 # 标签和 @ 标签您关注的人"
+
+msgid "Tham gia cá»ng Äá»ng Moora ngay hÃ´m nay"
+msgstr "立即加入 Moora 社区"
+
 msgid "Tham gia cộng đồng Moora ngay hôm nay"
 msgstr "立即加入 Moora 社区"
 
-msgid "Theo dõi"
+msgid "Thay Äá»i chá» lÆ°u khi báº¡n nháº¥n nÃºt bÃªn pháº£i."
+msgstr "更改休息时间的次数。"
+
+msgid "Thay đổi chỉ lưu khi bạn nhấn nút bên phải."
+msgstr "仅当您按下右侧按钮时才会保存更改。"
+
+msgid "Theo IP"
+msgstr "根据IP"
+
+msgid "Theo dÃµi"
 msgstr "监视器"
+
+msgid ""
+"Theo dÃµi bÃ¡o cÃ¡o, tÃ i khoáº£n bá» háº¡n cháº¿ vÃ hoáº¡t Äá»ng gáº§n "
+"ÄÃ¢y â giá»ng bÃ n Äiá»u khiá»n kiá»m duyá»t máº¡ng xÃ£ há»i."
+msgstr "根据报告，我不是在销售该产品，而是以合理的价格出售。有什么区别？"
+
+msgid "Theo dÃµi láº¡i"
+msgstr "按照说明操作"
+
+msgid "Theo dÃµi Äá» xem danh sÃ¡ch"
+msgstr "按照说明查看列表"
+
+msgid "Theo dõi"
+msgstr "关注"
+
+msgid ""
+"Theo dõi báo cáo, tài khoản bị hạn chế và hoạt động gần đây — giống bàn điều"
+" khiển kiểm duyệt mạng xã hội."
+msgstr "监控报告、受限帐户和最近的活动——就像社交媒体审核控制台一样。"
+
+msgid "Theo dõi lại"
+msgstr "跟着回来"
+
+msgid "Theo dõi để xem danh sách"
+msgstr "关注查看列表"
+
+msgid ""
+"Thiáº¿t bá» cá»§a báº¡n ÄÃ£ ÄÄng nháº­p. Báº¡n cÃ³ thá» ÄÄng xuáº¥t "
+"khá»i cÃ¡c thiáº¿t bá» khÃ¡c tá»« ÄÃ¢y."
+msgstr "您的设备已登录。您可以从此处退出其他设备。"
+
+msgid "Thiáº¿t bá» hiá»n táº¡i"
+msgstr "现有设备"
+
+msgid "Thiáº¿t bá» khÃ¡c"
+msgstr "其他设备"
+
+msgid "Thiáº¿t bá» ÄÄng nháº­p"
+msgstr "登录设备"
+
+msgid "Thiáº¿t láº­p xÃ¡c thá»±c hai yáº¿u tá»"
+msgstr "设置双因素身份验证"
 
 msgid ""
 "Thiết bị của bạn đã đăng nhập. Bạn có thể đăng xuất khỏi các thiết bị khác "
@@ -554,17 +2315,95 @@ msgstr "登录设备"
 msgid "Thiết lập xác thực hai yếu tố"
 msgstr "设置双因素身份验证"
 
+msgid "ThÃ nh viÃªn"
+msgstr "成员"
+
+msgid "ThÃ nh viÃªn nhÃ³m"
+msgstr "职员"
+
+msgid "ThÃªm"
+msgstr "更多的"
+
+msgid "ThÃªm báº¥t ká»³ liÃªn káº¿t máº¡ng xÃ£ há»i nÃ o cá»§a báº¡n"
+msgstr "添加您的任何社交媒体链接"
+
+msgid "ThÃªm thÃ nh viÃªn"
+msgstr "成为会员"
+
+msgid "ThÃªm vÃ o nhÃ³m"
+msgstr "去房子"
+
+msgid "ThÃªm áº£nh/video má»i"
+msgstr "添加新照片/视频"
+
+msgid "ThÃ´ng bÃ¡o"
+msgstr "通知"
+
+msgid "ThÃ´ng bÃ¡o há» thá»ng"
+msgstr "您多久报告一次？"
+
+msgid "ThÃ´ng bÃ¡o khi khÃ´ng hoáº¡t Äá»ng"
+msgstr "不活动时的通知"
+
+msgid "ThÃ´ng bÃ¡o qua email"
+msgstr "通过电子邮件通知"
+
+msgid "ThÃ´ng bÃ¡o Äáº©y"
+msgstr "推送通知"
+
+msgid "ThÃ´ng tin cÆ¡ báº£n"
+msgstr "信息被出售"
+
+msgid "ThÃ´ng tin liÃªn há»"
+msgstr "有什么信息？"
+
+msgid "ThÃ´ng tin liÃªn há» (cáº§n xÃ¡c thá»±c khi Äá»i)"
+msgstr "联系方式（交换时需认证）"
+
+msgid "ThÃ´ng tin nhÃ³m"
+msgstr "好消息"
+
+msgid "ThÃ´ng tin nÃ y hiá»n trÃªn trang há» sÆ¡ cÃ´ng khai cá»§a báº¡n."
+msgstr "此信息显示在卖家的网站上。"
+
+msgid "Thành viên"
+msgstr "成员"
+
+msgid "Thành viên nhóm"
+msgstr "团体成员"
+
+msgid "Tháº» & Äá» cáº­p"
+msgstr "Thaº» 和 äá» caºp"
+
+msgid "Thá»ng kÃª bÃ¡o cÃ¡o"
+msgstr "报告统计"
+
+msgid "Thá»ng kÃª bÃ¡o cÃ¡o chi tiáº¿t"
+msgstr "它要多少钱？"
+
+msgid "Thá»ng kÃª há» sÆ¡"
+msgstr "需要多长时间？"
+
 msgid "Thêm"
 msgstr "更多的"
 
 msgid "Thêm bất kỳ liên kết mạng xã hội nào của bạn"
 msgstr "添加您的任何社交媒体链接"
 
+msgid "Thêm thành viên"
+msgstr "添加成员"
+
+msgid "Thêm vào nhóm"
+msgstr "添加到群组"
+
 msgid "Thêm ảnh/video mới"
 msgstr "添加新照片/视频"
 
 msgid "Thông báo"
 msgstr "通知"
+
+msgid "Thông báo hệ thống"
+msgstr "系统通知"
 
 msgid "Thông báo khi không hoạt động"
 msgstr "不活动时的通知"
@@ -575,26 +2414,155 @@ msgstr "通过电子邮件通知"
 msgid "Thông báo đẩy"
 msgstr "推送通知"
 
+msgid "Thông tin cơ bản"
+msgstr "基本信息"
+
+msgid "Thông tin liên hệ"
+msgstr "联系信息"
+
 msgid "Thông tin liên hệ (cần xác thực khi đổi)"
 msgstr "联系方式（交换时需认证）"
+
+msgid "Thông tin nhóm"
+msgstr "集团信息"
+
+msgid "Thông tin này hiện trên trang hồ sơ công khai của bạn."
+msgstr "此信息显示在您的公开个人资料页面上。"
+
+msgid "Thẻ & đề cập"
+msgstr "标签和提及"
 
 msgid "Thống kê báo cáo"
 msgstr "报告统计"
 
-msgid "Tin nhắn"
+msgid "Thống kê báo cáo chi tiết"
+msgstr "详细的统计报告"
+
+msgid "Thống kê hồ sơ"
+msgstr "档案统计"
+
+msgid "Tin nháº¯n"
 msgstr "信息"
 
-msgid "Trang chủ"
+msgid "Tin nháº¯n 24h"
+msgstr "新闻24小时"
+
+msgid "Tin nháº¯n chá»"
+msgstr "好消息"
+
+msgid "Tin nháº¯n chá» (requests)"
+msgstr "新闻（请求）"
+
+msgid "Tin nháº¯n má»i"
+msgstr "好消息"
+
+msgid "Tin nháº¯n thoáº¡i"
+msgstr "突发新闻"
+
+msgid "Tin nháº¯n thoáº¡i quÃ¡ ngáº¯n."
+msgstr "新闻很无聊。"
+
+msgid "Tin nháº¯n ÄÃ£ ÄÆ°á»£c thu há»i"
+msgstr "秋天的消息"
+
+msgid "Tin nhắn"
+msgstr "私信"
+
+msgid "Tin nhắn 24h"
+msgstr "24小时消息"
+
+msgid "Tin nhắn chờ"
+msgstr "留言等待"
+
+msgid "Tin nhắn chờ (requests)"
+msgstr "消息等待（请求）"
+
+msgid "Tin nhắn mới"
+msgstr "新消息"
+
+msgid "Tin nhắn thoại"
+msgstr "语音留言"
+
+msgid "Tin nhắn thoại quá ngắn."
+msgstr "语音消息太短。"
+
+msgid "Tin nhắn đã được thu hồi"
+msgstr "该消息已被撤回"
+
+msgid "Tin tá»« ngÆ°á»i báº¡n chÆ°a theo dÃµi"
+msgstr "根据时间给卖家留言"
+
+msgid "Tin từ người bạn chưa theo dõi"
+msgstr "来自您尚未关注的人的新闻"
+
+msgid "Tiáº¿p tá»¥c"
+msgstr "Tiáº¿p ta»¥c"
+
+msgid "Tiếp tục"
+msgstr "继续"
+
+msgid "Trang chá»§"
 msgstr "主页"
 
-msgid "Trang cá nhân"
+msgid "Trang chá»§ Moora"
+msgstr "Trang chá»§ Moora"
+
+msgid "Trang chủ"
+msgstr "首页"
+
+msgid "Trang chủ Moora"
+msgstr "穆拉主页"
+
+msgid "Trang cÃ¡ nhÃ¢n"
 msgstr "个人页面"
+
+msgid "Trang cá nhân"
+msgstr "个人主页"
 
 msgid "Trang sau"
 msgstr "下一页"
 
+msgid "Trang trÆ°á»c"
+msgstr "上一页"
+
 msgid "Trang trước"
 msgstr "上一页"
+
+msgid "Trung tÃ¢m trá»£ giÃºp"
+msgstr "欺诈中心"
+
+msgid "Trung tÃ¢m váº­n hÃ nh Moora"
+msgstr "穆拉健康中心"
+
+msgid "Trung tâm trợ giúp"
+msgstr "帮助中心"
+
+msgid "Trung tâm vận hành Moora"
+msgstr "莫拉运营中心"
+
+msgid "TrÃ¬nh duyá»t khÃ´ng há» trá»£ GPS."
+msgstr "无法使用 GPS 追踪。"
+
+msgid "TrÃ¬nh duyá»t khÃ´ng há» trá»£ ghi Ã¢m."
+msgstr "不需要写记录。"
+
+msgid "TrÃ¬nh duyá»t khÃ´ng há» trá»£ Äá»nh vá» GPS."
+msgstr "导航不受 GPS 保护。"
+
+msgid "TrÃ² chuyá»n má»i"
+msgstr "新聊天"
+
+msgid "Tráº£ lá»i"
+msgstr "回复"
+
+msgid "Trình duyệt không hỗ trợ GPS."
+msgstr "该浏览器不支持 GPS。"
+
+msgid "Trình duyệt không hỗ trợ ghi âm."
+msgstr "浏览器不支持录音。"
+
+msgid "Trình duyệt không hỗ trợ định vị GPS."
+msgstr "该浏览器不支持GPS定位。"
 
 msgid "Trò chuyện mới"
 msgstr "新聊天"
@@ -602,14 +2570,168 @@ msgstr "新聊天"
 msgid "Trả lời"
 msgstr "回复"
 
+msgid "TÃ i khoáº£n & há» sÆ¡"
+msgstr "我被锁了，发生了什么事？"
+
+msgid "TÃ i khoáº£n bá» xÃ³a?"
+msgstr "帐号被删除？"
+
+msgid "TÃ i khoáº£n giáº£ máº¡o"
+msgstr "假账户"
+
+msgid "TÃ i khoáº£n riÃªng tÆ°"
+msgstr "我单独锁一下"
+
+msgid "TÃ i khoáº£n riÃªng tÆ°, cháº·n/bÃ¡o cÃ¡o, thiáº¿t bá» ÄÄng nháº­p."
+msgstr "我将以同样的方式把自己锁起来，只是一点点。"
+
+msgid "TÃ i khoáº£n Äang ÄÃ¬nh chá»"
+msgstr "我锁定程序"
+
+msgid "TÃ i khoáº£n ÄÃ£ xÃ³a má»m"
+msgstr "我锁了密码"
+
+msgid "TÃ i liá»u"
+msgstr "文档"
+
+msgid "TÃªn"
+msgstr "坦"
+
+msgid "TÃªn ngÆ°á»i dÃ¹ng"
+msgstr "用户名"
+
+msgid "TÃªn ngÆ°á»i dÃ¹ng khÃ´ng há»£p lá»"
+msgstr "用户名无效"
+
+msgid "TÃªn nhÃ³m"
+msgstr "姓名"
+
+msgid "TÃªn ÄÃ£ ÄÆ°á»£c sá»­ dá»¥ng"
+msgstr "姓名"
+
+msgid "TÃ¬m hoáº·c chá»n Äá»a Äiá»m (tÃ¹y chá»n)"
+msgstr "有所作为"
+
+msgid "TÃ¬m kiáº¿m"
+msgstr "搜索"
+
+msgid "TÃ¬m kiáº¿m cuá»c trÃ² chuyá»n..."
+msgstr "搜索聊天..."
+
+msgid "TÃ¬m kiáº¿m tin nháº¯n"
+msgstr "寻找新闻"
+
+msgid "TÃ¬m kiáº¿m..."
+msgstr "搜索..."
+
+msgid "TÃ¬m theo tÃªn hoáº·c @username"
+msgstr "关注@用户名"
+
+msgid "TÃ¬m tin nháº¯n..."
+msgstr "有消息吗..."
+
+msgid ""
+"TÃ´i hiá»u ráº±ng sau 30 ngÃ y tÃ i khoáº£n sáº½ bá» xÃ³a vÄ©nh viá» n vÃ "
+"khÃ´ng thá» khÃ´i phá»¥c"
+msgstr "我了解 30 天后该帐户将被永久删除且无法恢复"
+
+msgid "TÃ´i Äá»ng Ã½ vá»i"
+msgstr "我同意"
+
+msgid "TÃ¹y chá»nh cÃ¡ch báº¡n nháº­n thÃ´ng bÃ¡o tá»« Moora"
+msgstr "自定义您接收 Moora 通知的方式"
+
+msgid "TÃ¹y chá»nh thá»i gian ÄÃ¬nh chá»"
+msgstr "自定义暂停时间"
+
+msgid "TÃ¹y chá»nh thá»i gian ÄÃ¬nh chá» ngÆ°á»i dÃ¹ng bá» bÃ¡o cÃ¡o"
+msgstr "自定义报告的用户暂停时间"
+
+msgid "TÃ¹y chá»n thÃ´ng bÃ¡o khÃ¡c"
+msgstr "更多通知选项"
+
+msgid "Tài khoản & hồ sơ"
+msgstr "帐户和个人资料"
+
 msgid "Tài khoản bị xóa?"
 msgstr "帐号被删除？"
 
 msgid "Tài khoản giả mạo"
 msgstr "假账户"
 
+msgid "Tài khoản riêng tư"
+msgstr "私人账户"
+
+msgid "Tài khoản riêng tư, chặn/báo cáo, thiết bị đăng nhập."
+msgstr "私人账户、屏蔽/举报、设备登录。"
+
+msgid "Tài khoản đang đình chỉ"
+msgstr "帐户已被暂停"
+
+msgid "Tài khoản đã xóa mềm"
+msgstr "帐户软删除"
+
 msgid "Tài liệu"
 msgstr "文档"
+
+msgid "Táº¡m biá»t má»t chÃºt"
+msgstr "让我们看看是不是这样"
+
+msgid "Táº¡o bÃ i viáº¿t"
+msgstr "创建文章"
+
+msgid "Táº¡o bÃ i viáº¿t má»i"
+msgstr "创建新文章"
+
+msgid "Táº¡o máº­t kháº©u má»i"
+msgstr "创建新密码"
+
+msgid "Táº¡o tÃ i khoáº£n má»i"
+msgstr "创建一个新帐户"
+
+msgid "Táº£i xuá»ng"
+msgstr "下载"
+
+msgid ""
+"Táº£i xuá»ng báº£n sao dá»¯ liá»u cá»§a báº¡n, bao gá»m bÃ i viáº¿t, "
+"bÃ¬nh luáº­n, vÃ thÃ´ng tin cÃ¡ nhÃ¢n."
+msgstr "下载您的数据副本，包括帖子、评论和个人信息。"
+
+msgid "Táº£i xuá»ng dá»¯ liá»u"
+msgstr "下载数据"
+
+msgid "Táº¥t cáº£"
+msgstr "不能"
+
+msgid "Táº¯t bÃ¬nh luáº­n"
+msgstr "关闭评论"
+
+msgid "Táº¯t thÃ´ng bÃ¡o"
+msgstr "所有报告"
+
+msgid "Táº¯t xÃ¡c thá»±c hai yáº¿u tá»"
+msgstr "关闭双因素身份验证"
+
+msgid "Tá»i"
+msgstr "T»i"
+
+msgid "Tá»ng bÃ i viáº¿t"
+msgstr "我正在谈论它"
+
+msgid "Tá»ng quan kiá»m duyá»t"
+msgstr "这很重要"
+
+msgid "Tá»ng user"
+msgstr "所有用户"
+
+msgid "Tá»« chá»i"
+msgstr "塔»«恰»i"
+
+msgid "Tá»« chá»i tin nháº¯n nÃ y?"
+msgstr "谁会相信这个？"
+
+msgid "Tên"
+msgstr "姓名"
 
 msgid "Tên người dùng"
 msgstr "用户名"
@@ -617,14 +2739,32 @@ msgstr "用户名"
 msgid "Tên người dùng không hợp lệ"
 msgstr "用户名无效"
 
+msgid "Tên nhóm"
+msgstr "团体名称"
+
+msgid "Tên đã được sử dụng"
+msgstr "该名称已被使用"
+
+msgid "Tìm hoặc chọn địa điểm (tùy chọn)"
+msgstr "查找或选择位置（可选）"
+
 msgid "Tìm kiếm"
 msgstr "搜索"
 
 msgid "Tìm kiếm cuộc trò chuyện..."
 msgstr "搜索聊天..."
 
+msgid "Tìm kiếm tin nhắn"
+msgstr "搜索消息"
+
 msgid "Tìm kiếm..."
 msgstr "搜索..."
+
+msgid "Tìm theo tên hoặc @username"
+msgstr "按名称或@用户名搜索"
+
+msgid "Tìm tin nhắn..."
+msgstr "查找消息..."
 
 msgid ""
 "Tôi hiểu rằng sau 30 ngày tài khoản sẽ bị xóa vĩnh viễn và không thể khôi "
@@ -645,6 +2785,9 @@ msgstr "自定义报告的用户暂停时间"
 
 msgid "Tùy chọn thông báo khác"
 msgstr "更多通知选项"
+
+msgid "Tạm biệt một chút"
+msgstr "暂时再见"
 
 msgid "Tạo bài viết"
 msgstr "创建文章"
@@ -669,14 +2812,76 @@ msgstr "下载您的数据副本，包括帖子、评论和个人信息。"
 msgid "Tải xuống dữ liệu"
 msgstr "下载数据"
 
+msgid "Tất cả"
+msgstr "全部"
+
 msgid "Tắt bình luận"
 msgstr "关闭评论"
+
+msgid "Tắt thông báo"
+msgstr "关闭通知"
 
 msgid "Tắt xác thực hai yếu tố"
 msgstr "关闭双因素身份验证"
 
+msgid "Tối"
+msgstr "黑暗的"
+
+msgid "Tổng bài viết"
+msgstr "文章总数"
+
+msgid "Tổng quan kiểm duyệt"
+msgstr "审查制度概述"
+
+msgid "Tổng user"
+msgstr "用户总数"
+
+msgid "Từ chối"
+msgstr "拒绝"
+
+msgid "Từ chối tin nhắn này?"
+msgstr "拒绝此消息？"
+
+msgid "User má»i 24h"
+msgstr "用户24小时开放"
+
+msgid "User mới 24h"
+msgstr "新用户24小时"
+
 msgid "Video"
 msgstr "视频"
+
+msgid "Violence"
+msgstr "暴力"
+
+msgid ""
+"Việc xóa tài khoản là <strong>tạm thời</strong> trong vòng 30 ngày. Trong "
+"thời gian này, bạn có thể khôi phục lại tài khoản bằng cách đăng nhập lại "
+"hoặc sử dụng trang <a href=\"%(restore_url)s\" class=\"alert-link\">khôi "
+"phục tài khoản</a>. Sau 30 ngày, tài khoản và tất cả dữ liệu sẽ bị xóa vĩnh "
+"viễn."
+msgstr ""
+"帐户删除是<strong>临时</strong>，有效期为 30 天。在此期间，您可以通过重新登录或使用<a "
+"href=\"%(restore_url)s\" class=\"alert-link\">帐户恢复页面</a>来恢复帐户。 30 "
+"天后，该帐户和所有数据将被永久删除。"
+
+msgid "Vui lÃ²ng chá»n file áº£nh."
+msgstr "请检查此处的文件。"
+
+msgid "Vui lÃ²ng chá»n lÃ½ do bÃ¡o cÃ¡o."
+msgstr "请选择举报原因。"
+
+msgid "Vui lÃ²ng cung cáº¥p thÃªm thÃ´ng tin..."
+msgstr "请提供更多信息..."
+
+msgid "Vui lÃ²ng kiá»m tra láº¡i cÃ¡c thÃ´ng tin bÃªn dÆ°á»i."
+msgstr "请检查所提供的信息。"
+
+msgid "Vui lÃ²ng kiá»m tra láº¡i cÃ¡c trÆ°á»ng bá» lá»i bÃªn dÆ°á»i."
+msgstr "请随时查看您正在寻找的答案。"
+
+msgid "Vui lòng chọn file ảnh."
+msgstr "请选择图像文件。"
 
 msgid "Vui lòng chọn lý do báo cáo."
 msgstr "请选择举报原因。"
@@ -684,23 +2889,147 @@ msgstr "请选择举报原因。"
 msgid "Vui lòng cung cấp thêm thông tin..."
 msgstr "请提供更多信息..."
 
+msgid "Vui lòng kiểm tra lại các thông tin bên dưới."
+msgstr "请检查以下信息。"
+
+msgid "Vui lòng kiểm tra lại các trường bị lỗi bên dưới."
+msgstr "请检查下面的错误字段。"
+
+msgid "Vá» trang ÄÄng nháº­p"
+msgstr "请更新页面"
+
+msgid "Về trang đăng nhập"
+msgstr "进入登录页面"
+
+msgid "Website"
+msgstr "网站"
+
+msgid "Who can see this post"
+msgstr "谁能看到这个帖子"
+
+msgid "Xem bÃ i viáº¿t gá»c"
+msgstr "查看原文"
+
 msgid "Xem bài viết gốc"
 msgstr "查看原文"
+
+msgid "Xem chi tiáº¿t"
+msgstr "查看详情"
 
 msgid "Xem chi tiết"
 msgstr "查看详情"
 
+msgid "Xem há» sÆ¡"
+msgstr "让我们来看看"
+
+msgid "Xem hồ sơ"
+msgstr "查看个人资料"
+
+msgid "Xem thá»ng kÃª bÃ¡o cÃ¡o"
+msgstr "查看报告统计数据"
+
 msgid "Xem thống kê báo cáo"
 msgstr "查看报告统计数据"
+
+msgid "Xem trÃªn báº£n Äá»"
+msgstr "查看网站"
+
+msgid "Xem trên bản đồ"
+msgstr "在地图上查看"
+
+msgid "Xem táº¥t cáº£ thÃ´ng bÃ¡o"
+msgstr "查看所有公告"
 
 msgid "Xem tất cả thông báo"
 msgstr "查看所有公告"
 
+msgid "Xem áº£nh"
+msgstr "查看照片"
+
+msgid "Xem áº£nh Äáº¡i diá»n"
+msgstr "参见 áº£nh áº¡i diá»n"
+
 msgid "Xem ảnh"
 msgstr "查看照片"
 
+msgid "Xem ảnh đại diện"
+msgstr "查看代表照片"
+
+msgid "Xong rá»i"
+msgstr "完成了"
+
+msgid "Xong rồi"
+msgstr "完毕"
+
+msgid "XÃ¡c nháº­n"
+msgstr "请接受"
+
+msgid "XÃ¡c nháº­n máº­t kháº©u"
+msgstr "确认密码"
+
+msgid "XÃ¡c thá»±c OTP"
+msgstr "检查 OTP 状态"
+
+msgid "XÃ¡c thá»±c hai yáº¿u tá»"
+msgstr "双因素身份验证"
+
+msgid ""
+"XÃ¡c thá»±c hai yáº¿u tá» Äang <strong>báº­t</strong>. Báº¡n sáº½ cáº§n "
+"mÃ£ tá»« á»©ng dá»¥ng xÃ¡c thá»±c má»i khi ÄÄng nháº­p."
+msgstr "双因素身份验证已<strong>开启</strong>。每次登录时，您都需要来自身份验证器应用程序的代码。"
+
+msgid "XÃ¡c thá»±c sá» Äiá»n thoáº¡i"
+msgstr "确定情况的状态"
+
+msgid "XÃ³a"
+msgstr "擦除"
+
+msgid "XÃ³a bÃ i viáº¿t"
+msgstr "删除帖子"
+
+msgid ""
+"XÃ³a chá» bÃªn mÃ¬nh? (OK = chá» mÃ¬nh, Cancel rá»i thá»­ láº¡i Äá» "
+"chá»n khÃ¡c)"
+msgstr "你这人怎么回事？ （OK = 没关系，取消是下一步）"
+
+msgid "XÃ³a cuá»c trÃ² chuyá»n"
+msgstr "删除聊天记录"
+
+msgid "XÃ³a phÃ­a mÃ¬nh"
+msgstr "截屏"
+
+msgid "XÃ³a phÃ­a ngÆ°á»i nháº­n"
+msgstr "走开"
+
+msgid "XÃ³a thÃ´ng bÃ¡o"
+msgstr "据说"
+
+msgid "XÃ³a tin nháº¯n"
+msgstr "这是新闻"
+
+msgid "XÃ³a tin nháº¯n nÃ y."
+msgstr "看看这个新闻。"
+
+msgid "XÃ³a tÃ i khoáº£n"
+msgstr "删除帐户"
+
+msgid "XÃ³a táº¥t cáº£"
+msgstr "Xàaº¥t º£"
+
+msgid "XÃ³a áº£nh Äáº¡i diá»n"
+msgstr "这是怎么回事？"
+
+msgid "XÃ³a áº£nh Äáº¡i diá»n hiá»n táº¡i"
+msgstr "删除当前头像"
+
+msgid "Xác nhận"
+msgstr "确认"
+
 msgid "Xác nhận mật khẩu"
 msgstr "确认密码"
+
+msgid "Xác thực OTP"
+msgstr "一次性密码认证"
 
 msgid "Xác thực hai yếu tố"
 msgstr "双因素身份验证"
@@ -710,20 +3039,62 @@ msgid ""
 " thực mỗi khi đăng nhập."
 msgstr "双因素身份验证已<strong>开启</strong>。每次登录时，您都需要来自身份验证器应用程序的代码。"
 
+msgid "Xác thực số điện thoại"
+msgstr "验证电话号码"
+
 msgid "Xóa"
-msgstr "擦除"
+msgstr "删除"
 
 msgid "Xóa bài viết"
 msgstr "删除帖子"
 
+msgid "Xóa chỉ bên mình? (OK = chỉ mình, Cancel rồi thử lại để chọn khác)"
+msgstr "删除你这边的帖子吗？ （确定=只有我，取消并再次尝试选择另一个）"
+
 msgid "Xóa cuộc trò chuyện"
 msgstr "删除聊天记录"
+
+msgid "Xóa phía mình"
+msgstr "删除你的一面"
+
+msgid "Xóa phía người nhận"
+msgstr "删除接收方"
+
+msgid "Xóa thông báo"
+msgstr "删除通知"
+
+msgid "Xóa tin nhắn"
+msgstr "删除留言"
+
+msgid "Xóa tin nhắn này."
+msgstr "删除此消息。"
 
 msgid "Xóa tài khoản"
 msgstr "删除帐户"
 
+msgid "Xóa tất cả"
+msgstr "全部删除"
+
+msgid "Xóa ảnh đại diện"
+msgstr "删除头像"
+
 msgid "Xóa ảnh đại diện hiện tại"
 msgstr "删除当前头像"
+
+msgid "YÃªu cáº§u cá»§a báº¡n ÄÃ£ ÄÆ°á»£c ghi nháº­n."
+msgstr "您的请求已被确认。"
+
+msgid "YÃªu cáº§u gáº§n ÄÃ¢y"
+msgstr "最近的请求"
+
+msgid "YÃªu cáº§u liÃªn káº¿t má»i"
+msgstr "酷链接要求"
+
+msgid "YÃªu cáº§u nháº¯n tin"
+msgstr "您需要接收信息"
+
+msgid "YÃªu cáº§u táº£i xuá»ng"
+msgstr "需要下载"
 
 msgid "Yêu cầu của bạn đã được ghi nhận."
 msgstr "您的请求已被确认。"
@@ -731,14 +3102,116 @@ msgstr "您的请求已被确认。"
 msgid "Yêu cầu gần đây"
 msgstr "最近的请求"
 
+msgid "Yêu cầu liên kết mới"
+msgstr "新链接请求"
+
+msgid "Yêu cầu nhắn tin"
+msgstr "请求留言"
+
 msgid "Yêu cầu tải xuống"
 msgstr "需要下载"
+
+msgid "admin notes"
+msgstr "管理笔记"
+
+msgid "audio"
+msgstr "声音的。声音的"
+
+msgid "bio"
+msgstr "生物"
+
+msgid "birth date"
+msgstr "出生日期"
+
+msgid "block"
+msgstr "堵塞。堵塞"
+
+msgid "block messages from non-followers"
+msgstr "阻止来自非关注者的消息"
+
+msgid "blocks"
+msgstr "块。块"
+
+msgid "bÃ i viáº¿t"
+msgstr "文章"
 
 msgid "bài viết"
 msgstr "文章"
 
+msgid "caption"
+msgstr "标题"
+
+msgid "comment like"
+msgstr "评论喜欢"
+
+msgid "comment likes"
+msgstr "评论点赞"
+
+msgid "comment notifications"
+msgstr "评论通知"
+
+msgid "cá»§a Moora"
+msgstr "通过 星"
+
 msgid "của Moora"
 msgstr "通过 星"
+
+msgid "deleted account"
+msgstr "已删除帐户"
+
+msgid "deleted at"
+msgstr "删除于"
+
+msgid "deletion reason"
+msgstr "删除原因"
+
+msgid "description"
+msgstr "描述"
+
+msgid "details"
+msgstr "细节。细节"
+
+msgid "email address"
+msgstr "电子邮件"
+
+msgid "email notifications"
+msgstr "电子邮件通知"
+
+msgid "facebook"
+msgstr "Facebook"
+
+msgid "file"
+msgstr "文件"
+
+msgid "follow notifications"
+msgstr "关注通知"
+
+msgid "follow request"
+msgstr "关注请求"
+
+msgid "follow requests"
+msgstr "遵循请求"
+
+msgid "following"
+msgstr "下列的"
+
+msgid "followings"
+msgstr "追随者"
+
+msgid "gender"
+msgstr "性别"
+
+msgid "hide activity status"
+msgstr "隐藏活动状态"
+
+msgid "highlight"
+msgstr "强调。强调"
+
+msgid "hoáº·c tiáº¿p tá»¥c vá»i"
+msgstr "或继续"
+
+msgid "hoáº·c ÄÄng kÃ½ vá»i"
+msgstr "或注册"
 
 msgid "hoặc tiếp tục với"
 msgstr "或继续"
@@ -746,32 +3219,495 @@ msgstr "或继续"
 msgid "hoặc đăng ký với"
 msgstr "或注册"
 
+msgid "inactive notifications"
+msgstr "非活动通知"
+
+msgid "instagram"
+msgstr "Instagram"
+
+msgid "language"
+msgstr "语言。语言"
+
+msgid "like"
+msgstr "喜欢"
+
+msgid "like notifications"
+msgstr "喜欢通知"
+
+msgid "likes"
+msgstr "喜欢"
+
+msgid "linkedin"
+msgstr "链接"
+
+msgid "location"
+msgstr "地点。地点"
+
+msgid "lÆ°á»£t thÃ­ch"
+msgstr "喜欢"
+
 msgid "lượt thích"
 msgstr "喜欢"
+
+msgid "media"
+msgstr "媒体。媒体"
+
+msgid "media type"
+msgstr "媒体类型"
+
+msgid "mention notifications"
+msgstr "提及通知"
+
+msgid "message notifications"
+msgstr "消息通知"
+
+msgid "ngÆ°á»i theo dÃµi"
+msgstr "追随者"
 
 msgid "người theo dõi"
 msgstr "追随者"
 
+msgid "order"
+msgstr "命令。命令"
+
+msgid "phone number"
+msgstr "电话号码"
+
+msgid "post media"
+msgstr "后媒体"
+
+msgid "post report"
+msgstr "发布报告"
+
+msgid "post reports"
+msgstr "发布报告"
+
+msgid "private account"
+msgstr "私人账户"
+
+msgid "push notifications"
+msgstr "推送通知"
+
+msgid "reason"
+msgstr "原因。原因"
+
+msgid "resolved"
+msgstr "解决了。已解决"
+
+msgid "resolved at"
+msgstr "解决于"
+
+msgid "show birth date on profile"
+msgstr "在个人资料上显示出生日期"
+
+msgid "show gender on profile"
+msgstr "在个人资料上显示性别"
+
+msgid "stories"
+msgstr "故事。故事"
+
+msgid "story"
+msgstr "故事.故事"
+
+msgid "story view"
+msgstr "故事视图"
+
+msgid "story views"
+msgstr "故事观点"
+
+msgid "summary notifications"
+msgstr "摘要通知"
+
+msgid "suspended account"
+msgstr "暂停帐户"
+
+msgid "suspension end date"
+msgstr "暂停结束日期"
+
+msgid "suspension reason"
+msgstr "暂停原因"
+
+msgid "thÃ nh cÃ´ng."
+msgstr "成功。"
+
+msgid "thÃ nh viÃªn"
+msgstr "成员"
+
+msgid "thÃ´ng bÃ¡o chÆ°a Äá»c"
+msgstr "未读通知"
+
 msgid "thành công."
 msgstr "成功。"
+
+msgid "thành viên"
+msgstr "成员"
 
 msgid "thông báo chưa đọc"
 msgstr "未读通知"
 
+msgid "tin nháº¯n chÆ°a Äá»c"
+msgstr "仅有新闻"
+
+msgid "tin nhắn chưa đọc"
+msgstr "未读消息"
+
+msgid "twitter"
+msgstr "叽叽喳喳"
+
+msgid "two-factor authentication"
+msgstr "双因素身份验证"
+
+msgid "two-factor secret"
+msgstr "双因素秘密"
+
+msgid "user"
+msgstr "用户.用户"
+
+msgid "user report"
+msgstr "用户报告"
+
+msgid "user reports"
+msgstr "用户报告"
+
+msgid "users"
+msgstr "用户。用户"
+
+msgid "valid report"
+msgstr "有效报告"
+
+msgid "verified account"
+msgstr "已验证帐户"
+
+msgid "video"
+msgstr "视频"
+
+msgid "vÃ"
+msgstr "和"
+
 msgid "và"
 msgstr "和"
+
+msgid "website"
+msgstr "网站"
+
+msgid "you@email.com"
+msgstr "你@email.com"
+
+msgid "Âm thanh"
+msgstr "声音"
+
+msgid "Ãm thanh"
+msgstr "嗯声音"
+
+msgid "Ãt nháº¥t 8 kÃ½ tá»±"
+msgstr "ât 8 kâ� 打»±"
+
+msgid "Äang ghi Ã¢m..."
+msgstr "录音中..."
+
+msgid "Äang hoáº¡t Äá»ng"
+msgstr "积极的"
+
+msgid "Äang kiá»m traâ¦"
+msgstr "看着电车"
+
+msgid "Äang lÆ°u vá» trÃ­â¦"
+msgstr "ädÆ°u 和 » trâі"
+
+msgid "Äang lÆ°u..."
+msgstr "保存..."
+
+msgid "Äang láº¥y GPS chÃ­nh xÃ¡câ¦"
+msgstr "精准的GPS导航"
+
+msgid "Äang theo dÃµi"
+msgstr "下列的"
+
+msgid "Äang theo dÃµi (%(count)s)"
+msgstr "已关注 (%(count)s)"
+
+msgid "Äang theo dÃµi (%(var)s)"
+msgstr "长度 (%(var)s)"
+
+msgid "Äang tráº£ lá»i"
+msgstr "正在回复"
+
+msgid "Äang táº£i bÃ i viáº¿t..."
+msgstr "正在加载文章..."
+
+msgid "Äang táº£i..."
+msgstr "加载中..."
+
+msgid "Äang xá»­ lÃ½"
+msgstr "加工"
+
+msgid "Äang xá»­ lÃ½..."
+msgstr "加工..."
+
+msgid "Äiá»u hÆ°á»ng nhanh"
+msgstr "快速导航"
+
+msgid "Äiá»u khoáº£n dá»ch vá»¥"
+msgstr "如何解决这个问题？"
+
+msgid "Äiá»u khoáº£n sá»­ dá»¥ng"
+msgstr "使用条款"
+
+msgid "Äiá»u kiá»n sá»­ dá»¥ng tÃ i khoáº£n vÃ dá»ch vá»¥ Moora."
+msgstr "了解有关莫拉的更多信息。"
+
+msgid "ÄÃ¡nh dáº¥u táº¥t cáº£ lÃ ÄÃ£ Äá»c"
+msgstr "全部标记为已读"
+
+msgid "ÄÃ¡nh dáº¥u táº¥t cáº£ ÄÃ£ Äá»c"
+msgstr "➡️ ➡️ ➡️ ➡️ ➡️ ➡️c"
+
+msgid "ÄÃ¢y lÃ tÃ i khoáº£n riÃªng tÆ°"
+msgstr "Æ°yyyyyyyyyyyyyyyyyyyy Æ°"
+
+msgid "ÄÃ¢y lÃ tÃªn hiá»n táº¡i cá»§a báº¡n"
+msgstr "ày àn àn ào´n à§àn"
+
+msgid "ÄÃ£ bá» cháº·n"
+msgstr "畅通"
+
+msgid "ÄÃ£ chia sáº»"
+msgstr "共享"
+
+msgid "ÄÃ£ chia sáº» má»t bÃ i viáº¿t"
+msgstr "与水共享血"
+
+msgid "ÄÃ£ chia sáº» má»t bÃ¬nh luáº­n"
+msgstr "共享血脉"
+
+msgid "ÄÃ£ cÃ³ tÃ i khoáº£n?"
+msgstr "已经有帐户？"
+
+msgid "ÄÃ£ cáº­p nháº­t GPS"
+msgstr "GPS 线"
+
+msgid "ÄÃ£ cáº­p nháº­t bÃ i viáº¿t thÃ nh cÃ´ng!"
+msgstr "帖子更新成功！"
+
+msgid "ÄÃ£ cáº­p nháº­t ngÃ´n ngá»¯ hiá»n thá»."
+msgstr "将出现最短的电缆。"
+
+msgid "ÄÃ£ ghim"
+msgstr "针"
+
+msgid "ÄÃ£ gá»­i email"
+msgstr "发送电子邮件"
+
+msgid "ÄÃ£ gá»­i yÃªu cáº§u"
+msgstr "那个女孩爱你"
+
+msgid "ÄÃ£ háº¿t háº¡n"
+msgstr "已到期"
+
+msgid "ÄÃ£ há»§y liÃªn káº¿t"
+msgstr "未链接"
+
+msgid "ÄÃ£ lÆ°u"
+msgstr "已保存"
+
+msgid "ÄÃ£ thÃ­ch"
+msgstr "喜欢"
+
+msgid "ÄÃ£ táº¯t thÃ´ng bÃ¡o"
+msgstr "几十份报纸"
+
+msgid "ÄÃ£ xÃ³a bÃ i viáº¿t thÃ nh cÃ´ng!"
+msgstr "帖子删除成功！"
+
+msgid "ÄÃ£ xáº£y ra lá»i khi bá» cháº·n ngÆ°á»i dÃ¹ng."
+msgstr "取消阻止用户时发生错误。"
+
+msgid "ÄÃ£ xáº£y ra lá»i khi cháº·n ngÆ°á»i dÃ¹ng."
+msgstr "阻止用户时发生错误。"
+
+msgid ""
+"ÄÃ£ xáº£y ra lá»i khi cháº·n ngÆ°á»i dÃ¹ng. Vui lÃ²ng thá»­ láº¡i sau."
+msgstr "阻止用户时发生错误。请稍后重试。"
+
+msgid "ÄÃ£ xáº£y ra lá»i khi gá»­i bÃ¡o cÃ¡o."
+msgstr "发送报告时发生错误。"
+
+msgid "ÄÃ£ xáº£y ra lá»i khi gá»­i bÃ¡o cÃ¡o. Vui lÃ²ng thá»­ láº¡i sau."
+msgstr "发送报告时发生错误。请稍后重试。"
+
+msgid "ÄÃ£ xáº£y ra lá»i khi gá»­i yÃªu cáº§u."
+msgstr "发送请求时发生错误。"
+
+msgid "ÄÃ£ xáº£y ra lá»i khi há»§y liÃªn káº¿t."
+msgstr "取消链接时发生错误。"
+
+msgid ""
+"ÄÃ£ xáº£y ra lá»i khi thá»±c hiá»n thao tÃ¡c. Vui lÃ²ng thá»­ láº¡i sau."
+msgstr "执行操作时发生错误。请稍后重试。"
+
+msgid "ÄÃ£ xáº£y ra lá»i khi xÃ³a cuá»c trÃ² chuyá»n."
+msgstr "删除聊天时出错。"
+
+msgid "ÄÃ£ xáº£y ra lá»i khi ÄÄng xuáº¥t thiáº¿t bá»."
+msgstr "注销设备时发生错误。"
+
+msgid "ÄÃ£ yÃªu cáº§u"
+msgstr "要求"
+
+msgid ""
+"ÄÃ£ Äáº¡t giá»i háº¡n 3 tin nháº¯n chá». NgÆ°á»i nháº­n cáº§n cháº¥p "
+"nháº­n trÆ°á»c khi báº¡n gá»­i thÃªm."
+msgstr "还价 3 条消息。人在累的时候才能认清自己。"
+
+msgid "ÄÃ£ Äá»i máº­t kháº©u"
+msgstr "很酷"
+
+msgid "ÄÃ³ng"
+msgstr "关闭"
+
+msgid "ÄÄng kÃ½"
+msgstr "登记"
+
+msgid "ÄÄng kÃ½ ngay"
+msgstr "立即注册"
+
+msgid "ÄÄng kÃ½ vá»i Google"
+msgstr "使用 Google 注册"
+
+msgid "ÄÄng nháº­p"
+msgstr "登录"
+
+msgid "ÄÄng nháº­p báº±ng máº¡ng xÃ£ há»i"
+msgstr "使用社交网络登录"
+
+msgid "ÄÄng nháº­p ngay"
+msgstr "立即登录"
+
+msgid "ÄÄng nháº­p vá»i Google"
+msgstr "使用 Google 登录"
+
+msgid "ÄÄng nháº­p Äá» tiáº¿p tá»¥c vá»i Moora"
+msgstr "登录并继续使用 Moora"
+
+msgid "ÄÄng xuáº¥t"
+msgstr "登出"
+
+msgid "ÄÄng xuáº¥t?"
+msgstr "生产？"
+
+msgid ""
+"Äáº£m báº£o sá»­ dá»¥ng máº­t kháº©u máº¡nh vÃ khÃ´ng sá»­ dá»¥ng láº¡i á»"
+" cÃ¡c trang web khÃ¡c"
+msgstr "确保使用强密码，并且不要在其他网站上重复使用它们"
+
+msgid "Äáº·t láº¡i máº­t kháº©u"
+msgstr "很酷"
+
+msgid "Äáº·t láº¡i máº­t kháº©u cho %(var)s"
+msgstr "%(变量)s"
+
+msgid "Äáº·t láº¡i thÃ nh cÃ´ng"
+msgstr "让我们放轻松"
+
+msgid "Äá»a Äiá»m"
+msgstr "地点"
+
+msgid ""
+"Äá»c cÃ¡c tÃ i liá»u quan trá»ng vá» cÃ¡ch dÃ¹ng Moora vÃ cÃ¡ch chÃºng "
+"tÃ´i báº£o vá» báº¡n."
+msgstr "讨论了Moora和我们客户的相关文件和应用。"
+
+msgid "Äá»i"
+msgstr "改变"
+
+msgid ""
+"Äá»i SÄT sáº½ gá»­i mÃ£ xÃ¡c thá»±c vá» sá» hiá»n táº¡i (hoáº·c email "
+"náº¿u SMS khÃ´ng kháº£ dá»¥ng)."
+msgstr "更改您的电话号码会将验证码发送到您当前的号码（如果短信不可用，则发送电子邮件）。"
+
+msgid "Äá»i email sáº½ gá»­i mÃ£ xÃ¡c thá»±c vá» email hiá»n táº¡i."
+msgstr "更改您的电子邮件将会向您当前的电子邮件发送验证码。"
+
+msgid "Äá»i giao diá»n sÃ¡ng/tá»i"
+msgstr "联系电话/小时"
+
+msgid "Äá»i máº­t kháº©u"
+msgstr "更改密码"
+
+msgid "Äá»i áº£nh nhÃ³m"
+msgstr "对不起"
+
+msgid "Äá»i áº£nh Äáº¡i diá»n"
+msgstr "这是怎么回事？"
+
+msgid "Äá»£i thÃªm má»t lÃºc rá»i thá»­ láº¡i."
+msgstr "玩这个游戏真的很酷。"
+
+msgid "Äang nháº­p..."
+msgstr "进入..."
+
+msgid "Äang theo dÃµi"
+msgstr "正在关注"
+
+msgid "Ít nhất 8 ký tự"
+msgstr "至少 8 个字符"
+
+msgid "áº¢nh"
+msgstr "图像"
+
+msgid "áº¢nh / video"
+msgstr "图片/视频"
+
+msgid "áº¢nh sau khi cáº¯t vÆ°á»£t 5MB. HÃ£y thu nhá» khung hÆ¡n."
+msgstr "下载后的图像5MB。让我们收集更多的帧。"
+
+msgid "áº¢nh tá»i Äa 5MB."
+msgstr "特点 5MB。"
+
+msgid "áº¢nh Äang chá»nh"
+msgstr "对不起"
+
+msgid "áº¢nh Äáº¡i diá»n cá»§a %(var)s"
+msgstr "计算单个值%(var)s"
+
+msgid "áº¢nh Äáº§y Äá»§"
+msgstr "完整照片"
+
+msgid "áº¨n lÆ°á»£t thÃ­ch"
+msgstr "隐藏喜欢"
+
+msgid "á» láº¡i Moora"
+msgstr "á» laº¡i 穆拉"
+
+msgid "Đang ghi âm..."
+msgstr "记录..."
 
 msgid "Đang hoạt động"
 msgstr "积极的"
 
+msgid "Đang kiểm tra…"
+msgstr "检查…"
+
+msgid "Đang kết nối..."
+msgstr "正在连接..."
+
+msgid "Đang lưu vị trí…"
+msgstr "正在保存位置..."
+
 msgid "Đang lưu..."
 msgstr "保存..."
 
+msgid "Đang lấy GPS chính xác…"
+msgstr "获取准确的 GPS..."
+
 msgid "Đang theo dõi"
-msgstr "下列的"
+msgstr "正在关注"
 
 msgid "Đang theo dõi (%(count)s)"
 msgstr "已关注 (%(count)s)"
+
+msgid "Đang trong cuộc gọi"
+msgstr "随叫随到"
 
 msgid "Đang trả lời"
 msgstr "正在回复"
@@ -788,14 +3724,32 @@ msgstr "加工"
 msgid "Đang xử lý..."
 msgstr "加工..."
 
+msgid "Đang đổ chuông..."
+msgstr "铃声..."
+
 msgid "Điều hướng nhanh"
 msgstr "快速导航"
+
+msgid "Điều khoản dịch vụ"
+msgstr "服务条款"
 
 msgid "Điều khoản sử dụng"
 msgstr "使用条款"
 
+msgid "Điều kiện sử dụng tài khoản và dịch vụ Moora."
+msgstr "使用 Moora 帐户和服务的条件。"
+
 msgid "Đánh dấu tất cả là đã đọc"
 msgstr "全部标记为已读"
+
+msgid "Đánh dấu tất cả đã đọc"
+msgstr "全部标记为已读"
+
+msgid "Đây là tài khoản riêng tư"
+msgstr "这是一个私人帐户"
+
+msgid "Đây là tên hiện tại của bạn"
+msgstr "这是您现在的名字"
 
 msgid "Đã bỏ chặn"
 msgstr "畅通"
@@ -803,11 +3757,32 @@ msgstr "畅通"
 msgid "Đã chia sẻ"
 msgstr "共享"
 
+msgid "Đã chia sẻ một bài viết"
+msgstr "分享了一个帖子"
+
+msgid "Đã chia sẻ một bình luận"
+msgstr "分享了一条评论"
+
 msgid "Đã có tài khoản?"
 msgstr "已经有帐户？"
 
+msgid "Đã cập nhật GPS"
+msgstr "更新了 GPS"
+
 msgid "Đã cập nhật bài viết thành công!"
 msgstr "帖子更新成功！"
+
+msgid "Đã cập nhật ngôn ngữ hiển thị."
+msgstr "显示语言已更新。"
+
+msgid "Đã ghim"
+msgstr "已固定"
+
+msgid "Đã gửi email"
+msgstr "电子邮件已发送"
+
+msgid "Đã gửi yêu cầu"
+msgstr "请求已发送"
 
 msgid "Đã hết hạn"
 msgstr "已到期"
@@ -820,6 +3795,9 @@ msgstr "已保存"
 
 msgid "Đã thích"
 msgstr "喜欢"
+
+msgid "Đã tắt thông báo"
+msgstr "通知已关闭"
 
 msgid "Đã xóa bài viết thành công!"
 msgstr "帖子删除成功！"
@@ -854,11 +3832,22 @@ msgstr "删除聊天时出错。"
 msgid "Đã xảy ra lỗi khi đăng xuất thiết bị."
 msgstr "注销设备时发生错误。"
 
+msgid "Đã yêu cầu"
+msgstr "已请求"
+
+msgid ""
+"Đã đạt giới hạn 3 tin nhắn chờ. Người nhận cần chấp nhận trước khi bạn gửi "
+"thêm."
+msgstr "已达到 3 条等待消息的限制。在您发送更多内容之前，收件人需要接受。"
+
+msgid "Đã đổi mật khẩu"
+msgstr "密码已更改"
+
 msgid "Đóng"
 msgstr "关闭"
 
 msgid "Đăng ký"
-msgstr "登记"
+msgstr "注册"
 
 msgid "Đăng ký ngay"
 msgstr "立即注册"
@@ -882,14 +3871,30 @@ msgid "Đăng nhập để tiếp tục với Moora"
 msgstr "登录并继续使用 Moora"
 
 msgid "Đăng xuất"
-msgstr "登出"
+msgstr "退出登录"
+
+msgid "Đăng xuất?"
+msgstr "登出？"
 
 msgid ""
 "Đảm bảo sử dụng mật khẩu mạnh và không sử dụng lại ở các trang web khác"
 msgstr "确保使用强密码，并且不要在其他网站上重复使用它们"
 
+msgid "Đặt lại mật khẩu"
+msgstr "重置密码"
+
+msgid "Đặt lại mật khẩu cho %(site_name)s"
+msgstr "重置 %(site_name)s 的密码"
+
+msgid "Đặt lại thành công"
+msgstr "重置成功"
+
 msgid "Địa điểm"
 msgstr "地点"
+
+msgid ""
+"Đọc các tài liệu quan trọng về cách dùng Moora và cách chúng tôi bảo vệ bạn."
+msgstr "阅读有关如何使用 Moora 以及我们如何保护您的重要文档。"
 
 msgid "Đổi"
 msgstr "改变"
@@ -902,8 +3907,20 @@ msgstr "更改您的电话号码会将验证码发送到您当前的号码（如
 msgid "Đổi email sẽ gửi mã xác thực về email hiện tại."
 msgstr "更改您的电子邮件将会向您当前的电子邮件发送验证码。"
 
+msgid "Đổi giao diện sáng/tối"
+msgstr "更改明/暗界面"
+
 msgid "Đổi mật khẩu"
 msgstr "更改密码"
+
+msgid "Đổi ảnh nhóm"
+msgstr "更改集体照"
+
+msgid "Đổi ảnh đại diện"
+msgstr "更改头像"
+
+msgid "Đợi thêm một lúc rồi thử lại."
+msgstr "稍等片刻，然后重试。"
 
 msgid "đang nhập..."
 msgstr "进入..."
@@ -914,8 +3931,26 @@ msgstr "正在关注"
 msgid "Ảnh"
 msgstr "图像"
 
+msgid "Ảnh / video"
+msgstr "照片/视频"
+
+msgid "Ảnh sau khi cắt vượt 5MB. Hãy thu nhỏ khung hơn."
+msgstr "裁剪后的照片超过 5MB。让我们把框架缩小一点。"
+
+msgid "Ảnh tối đa 5MB."
+msgstr "照片最大尺寸 5MB。"
+
+msgid "Ảnh đang chỉnh"
+msgstr "照片正在编辑中"
+
+msgid "Ảnh đại diện của %(username)s"
+msgstr "%(username)s 的代表照片"
+
 msgid "Ảnh đầy đủ"
 msgstr "完整照片"
 
 msgid "Ẩn lượt thích"
 msgstr "隐藏喜欢"
+
+msgid "Ở lại Moora"
+msgstr "留在穆拉"

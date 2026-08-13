@@ -37,6 +37,38 @@
         return input ? input.value : '';
     }
 
+    function formatCreatePostError(data) {
+        if (!data) return '';
+        let raw = data.error;
+        if (raw == null && typeof data === 'object') {
+            raw = data;
+        }
+        if (typeof raw === 'string') {
+            try {
+                const parsed = JSON.parse(raw);
+                return formatCreatePostError({ error: parsed });
+            } catch (_) {
+                return raw;
+            }
+        }
+        if (typeof raw === 'object') {
+            const parts = [];
+            Object.keys(raw).forEach((field) => {
+                const errors = raw[field];
+                if (Array.isArray(errors)) {
+                    errors.forEach((err) => {
+                        if (err && err.message) parts.push(err.message);
+                        else if (typeof err === 'string') parts.push(err);
+                    });
+                } else if (typeof errors === 'string') {
+                    parts.push(errors);
+                }
+            });
+            if (parts.length) return parts.join('\n');
+        }
+        return typeof data.message === 'string' ? data.message : '';
+    }
+
     function formatVoiceTimer(seconds) {
         const m = Math.floor(seconds / 60);
         const s = seconds % 60;
@@ -73,7 +105,9 @@
 
         if (caption) {
             caption.value = '';
-            if (typeof window.syncMentionInputHighlight === 'function') {
+            if (typeof window.destroyMentionInputHighlight === 'function') {
+                window.destroyMentionInputHighlight(caption);
+            } else if (typeof window.syncMentionInputHighlight === 'function') {
                 window.syncMentionInputHighlight(caption);
             }
         }
@@ -426,8 +460,12 @@
         let suggestionTimeout = null;
         let locationTimeout = null;
 
-        if (captionInput && typeof window.initMentionInputHighlight === 'function') {
-            window.initMentionInputHighlight(captionInput);
+        // Composer: không dùng overlay highlight — dễ lệch caret + phình khoảng trống.
+        // Gợi ý @/# vẫn hoạt động bình thường.
+        if (captionInput && typeof window.destroyMentionInputHighlight === 'function') {
+            window.destroyMentionInputHighlight(captionInput);
+        } else if (captionInput) {
+            captionInput.classList.remove('mention-input-field');
         }
 
         function clearSuggestions() {
@@ -705,6 +743,12 @@
             formData.append('csrfmiddlewaretoken', getCsrfToken());
             formData.append('caption', captionInput.value);
             formData.append('location', locationInput ? locationInput.value : '');
+            const visibilitySelect = scope.querySelector('#post-visibility')
+                || this.querySelector('[name="visibility"]');
+            formData.append(
+                'visibility',
+                visibilitySelect && visibilitySelect.value ? visibilitySelect.value : 'public'
+            );
 
             const pondItems = pond.getFiles();
             const ERROR_STATUSES = new Set([8, 10]); // PROCESSING_ERROR, LOAD_ERROR
@@ -745,7 +789,9 @@
                     const contentType = response.headers.get('content-type') || '';
                     if (contentType.includes('application/json')) {
                         const data = await response.json();
-                        if (!response.ok) throw new Error(data.error || 'Không thể đăng bài.');
+                        if (!response.ok) {
+                            throw new Error(formatCreatePostError(data) || 'Không thể đăng bài.');
+                        }
                         if (Array.isArray(data.warnings) && data.warnings.length) {
                             alert(data.warnings.join('\n'));
                         }

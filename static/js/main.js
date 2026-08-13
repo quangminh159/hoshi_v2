@@ -71,7 +71,7 @@ function throttle(func, limit) {
     };
 }
 
-/** Logo + chữ Moora: hover có CSS; click logo / trang chủ thì animate (không reload nếu đã ở home). */
+/** Logo + chữ Moora: hover có CSS; click logo / trang chủ thì animate rồi điều hướng/reload. */
 const BRAND_ANIM_KEY = 'mooraBrandAnim';
 const BRAND_ANIM_MS = 980;
 const BRAND_NAV_DELAY_MS = 720;
@@ -135,16 +135,41 @@ function softStayOnPage() {
     }
 }
 
+function isInPageCallActive() {
+    try {
+        // Desktop: cuộc gọi nằm popup → tab chính thường idle, reload OK.
+        // Mobile / overlay trong trang: isBusy() = true → hard reload sẽ cắt máy.
+        if (!window.HoshiCall || typeof window.HoshiCall.isBusy !== 'function') return false;
+        if (!window.HoshiCall.isBusy()) return false;
+        if (typeof window.HoshiCall.focusCallWindow === 'function' && window.HoshiCall.focusCallWindow()) {
+            return false; // có cửa sổ gọi riêng
+        }
+        return true;
+    } catch (err) {
+        return false;
+    }
+}
+
 function navigateHomeWithBrandAnim(url) {
     playBrandLogoAnimation();
-    // Đã ở trang chủ → chỉ animate + kéo lên đầu, không reload
-    if (!url || samePageUrl(url) || (isHomePath(window.location.pathname) && isHomePath(new URL(url || '/', window.location.origin).pathname))) {
-        softStayOnPage();
+    const targetUrl = url || '/';
+    const delay = preferReducedMotion() ? 0 : Math.min(BRAND_NAV_DELAY_MS, 280);
+
+    // Đang gọi trong trang → điều hướng mềm, không reload (tránh cắt cuộc gọi)
+    if (isInPageCallActive() && typeof window.HoshiCall.softNavigate === 'function') {
+        window.setTimeout(() => {
+            window.HoshiCall.softNavigate(targetUrl);
+        }, delay);
         return;
     }
+
     requestBrandAnimOnNextHome();
-    const delay = preferReducedMotion() ? 0 : BRAND_NAV_DELAY_MS;
     window.setTimeout(() => {
+        // Cùng URL trang chủ → reload thật (feed mới), không chỉ scroll
+        if (!url || samePageUrl(url)) {
+            window.location.reload();
+            return;
+        }
         window.location.href = url;
     }, delay);
 }
@@ -161,11 +186,15 @@ document.addEventListener('click', (e) => {
         return;
     }
 
-    // Thanh task mobile: nếu đang đúng trang đó → không reload
+    // Thanh task mobile: tab đang mở — home thì reload, tab khác chỉ kéo lên đầu
     const bottomNav = e.target.closest('a.mobile-bottom-nav__item');
     if (bottomNav && bottomNav.href && samePageUrl(bottomNav.href)) {
         e.preventDefault();
-        softStayOnPage();
+        if (bottomNav.getAttribute('data-nav') === 'home' || isHomePath(bottomNav.pathname)) {
+            navigateHomeWithBrandAnim(bottomNav.href);
+        } else {
+            softStayOnPage();
+        }
         return;
     }
 

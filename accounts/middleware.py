@@ -31,16 +31,28 @@ class DebugOpenHostMiddleware:
 class UserLanguageMiddleware(MiddlewareMixin):
     """Activate the authenticated user's preferred language and keep the language cookie in sync."""
 
+    # Chuẩn hóa mã ngôn ngữ user → Django / gettext
+    LANG_ALIASES = {
+        'zh_hans': 'zh-hans',
+        'zh-cn': 'zh-hans',
+        'zh_cn': 'zh-hans',
+        'zh': 'zh-hans',
+    }
+
+    def _normalize_lang(self, lang: str) -> str:
+        lang = (lang or '').strip().replace('_', '-').lower()
+        lang = self.LANG_ALIASES.get(lang, lang)
+        supported = {code for code, _ in django_settings.LANGUAGES}
+        if lang not in supported:
+            return django_settings.LANGUAGE_CODE
+        return lang
+
     def process_request(self, request):
         user = getattr(request, 'user', None)
         if not user or not getattr(user, 'is_authenticated', False):
             return None
 
-        lang = getattr(user, 'language', None) or django_settings.LANGUAGE_CODE
-        supported = {code for code, _ in django_settings.LANGUAGES}
-        if lang not in supported:
-            lang = django_settings.LANGUAGE_CODE
-
+        lang = self._normalize_lang(getattr(user, 'language', None) or django_settings.LANGUAGE_CODE)
         translation.activate(lang)
         request.LANGUAGE_CODE = lang
         return None
@@ -50,7 +62,7 @@ class UserLanguageMiddleware(MiddlewareMixin):
         if not user or not getattr(user, 'is_authenticated', False):
             return response
 
-        lang = getattr(user, 'language', None)
+        lang = self._normalize_lang(getattr(user, 'language', None) or '')
         if not lang:
             return response
 

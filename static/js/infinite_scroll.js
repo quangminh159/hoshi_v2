@@ -1449,15 +1449,15 @@
             <div class="comment-body-main">
                 <div class="d-flex justify-content-between align-items-start gap-2 comment-header-row">
                     <div class="d-flex align-items-center flex-wrap gap-1 min-w-0">
-                        <a href="${profileUrl(username)}" class="text-dark text-decoration-none fw-bold">${escapeHtml(username)}</a>
+                        <a href="${profileUrl(username)}" class="comment-username text-decoration-none fw-bold">${escapeHtml(username)}</a>
                         ${commentAuthorBadgeHtml(comment)}
                     </div>
                     ${commentActionsMenuHtml(comment, postId, username)}
                 </div>
                 ${commentTextSpanHtml(comment.text)}
                 ${commentMediaHtml(comment)}
-                <div class="text-muted small d-flex align-items-center flex-wrap gap-2 mt-1 comment-meta-row">
-                    <span>${timeLabel}</span>${commentEditedLabelHtml(comment)}
+                <div class="text-muted small d-flex align-items-center flex-wrap comment-meta-row">
+                    <span class="comment-time">${timeLabel}</span>${commentEditedLabelHtml(comment)}
                     ${commentMetaActionsHtml(comment, postId, username, { showReplyCount: true })}
                 </div>
             </div>`;
@@ -1469,19 +1469,19 @@
         const timeLabel = formatCommentTime(comment.created_at);
 
         return `
-            <div class="comment reply-comment mb-2" id="comment-${commentId}" data-comment-id="${commentId}">
+            <div class="comment reply-comment" id="comment-${commentId}" data-comment-id="${commentId}">
                 <div class="comment-body-main">
                     <div class="d-flex justify-content-between align-items-start gap-2 comment-header-row">
                         <div class="d-flex align-items-center flex-wrap gap-1 min-w-0">
-                            <a href="${profileUrl(username)}" class="text-dark text-decoration-none fw-bold">${escapeHtml(username)}</a>
+                            <a href="${profileUrl(username)}" class="comment-username text-decoration-none fw-bold">${escapeHtml(username)}</a>
                             ${commentAuthorBadgeHtml(comment)}
                         </div>
                         ${commentActionsMenuHtml(comment, postId, username)}
                     </div>
                     ${commentTextSpanHtml(comment.text)}
                     ${commentMediaHtml(comment)}
-                    <div class="text-muted small d-flex align-items-center flex-wrap gap-2 mt-1 comment-meta-row">
-                        <span>${timeLabel}</span>${commentEditedLabelHtml(comment)}
+                    <div class="text-muted small d-flex align-items-center flex-wrap comment-meta-row">
+                        <span class="comment-time">${timeLabel}</span>${commentEditedLabelHtml(comment)}
                         ${commentMetaActionsHtml(comment, postId, username, { showReplyCount: false })}
                     </div>
                 </div>
@@ -1520,7 +1520,7 @@
             </div>` : '';
 
         return `
-            <div class="comment root-comment mb-2" id="comment-${commentId}" data-comment-id="${commentId}">
+            <div class="comment root-comment" id="comment-${commentId}" data-comment-id="${commentId}">
                 <div class="root-comment-body">${buildRootCommentBodyHtml(comment, postId)}</div>
                 ${repliesBlock}
             </div>`;

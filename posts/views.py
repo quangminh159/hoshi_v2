@@ -406,7 +406,15 @@ def create(request):
             return HttpResponseRedirect(reverse('posts:index'))
 
         if _is_ajax_request(request):
-            return JsonResponse({'error': form.errors.as_json()}, status=400)
+            # Trả message dễ đọc thay vì dump JSON form errors thô
+            messages_list = []
+            for field, errs in form.errors.items():
+                for err in errs:
+                    messages_list.append(str(err))
+            return JsonResponse({
+                'error': ' '.join(messages_list) or 'Dữ liệu không hợp lệ.',
+                'errors': form.errors,
+            }, status=400)
     else:
         form = PostForm()
 

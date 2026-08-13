@@ -31,17 +31,12 @@
 
     function buildMentionHighlightHtml(text) {
         const escaped = escapeHtml(text || '');
-        // Giữ khoảng trắng / xuống dòng khớp input
         return escaped
-            .replace(/@([A-Za-z0-9_.]+)/g, '<mark class="mention-chip">@$1</mark>')
-            .replace(/#([A-Za-z0-9_]+)/g, '<mark class="hashtag-chip">#$1</mark>')
+            .replace(/@([A-Za-z0-9_.]+)/g, '<span class="mention-chip">@$1</span>')
+            .replace(/#([A-Za-z0-9_]+)/g, '<span class="hashtag-chip">#$1</span>')
             .replace(/\n$/g, '\n ');
     }
 
-    /**
-     * Làm nổi @mention / #hashtag ngay trong ô nhập (overlay).
-     * Quan trọng: không đổi font-weight/padding trong backdrop kẻo lệch caret.
-     */
     window.initMentionInputHighlight = function (field) {
         if (!field || field.dataset.mentionHighlightBound === '1') return;
         field.dataset.mentionHighlightBound = '1';
@@ -66,21 +61,49 @@
 
         function syncStyles() {
             const cs = window.getComputedStyle(field);
-            const props = [
-                'fontFamily', 'fontSize', 'fontWeight', 'fontStyle',
-                'fontVariant', 'letterSpacing', 'textTransform', 'lineHeight',
-                'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft',
-                'borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth',
-                'boxSizing', 'textAlign', 'direction',
-            ];
-            props.forEach((prop) => {
-                backdrop.style[prop] = cs[prop];
-            });
-            backdrop.style.borderStyle = 'solid';
-            backdrop.style.borderColor = 'transparent';
+            // Dùng font shorthand + padding (gộp border) để nền chip khớp vị trí chữ
+            backdrop.style.font = cs.font;
+            backdrop.style.letterSpacing = cs.letterSpacing;
+            backdrop.style.wordSpacing = cs.wordSpacing;
+            backdrop.style.textTransform = cs.textTransform;
+            backdrop.style.textAlign = cs.textAlign;
+            backdrop.style.direction = cs.direction;
+            backdrop.style.textIndent = cs.textIndent;
             backdrop.style.whiteSpace = field.tagName === 'TEXTAREA' ? 'pre-wrap' : 'pre';
+            backdrop.style.wordBreak = cs.wordBreak;
+            backdrop.style.overflowWrap = cs.overflowWrap || 'break-word';
             backdrop.style.wordWrap = 'break-word';
-            backdrop.style.overflowWrap = 'break-word';
+            backdrop.style.tabSize = cs.tabSize;
+            backdrop.style.boxSizing = 'border-box';
+            backdrop.style.border = '0';
+            backdrop.style.margin = '0';
+
+            const pt = parseFloat(cs.paddingTop) || 0;
+            const pr = parseFloat(cs.paddingRight) || 0;
+            const pb = parseFloat(cs.paddingBottom) || 0;
+            const pl = parseFloat(cs.paddingLeft) || 0;
+            const bt = parseFloat(cs.borderTopWidth) || 0;
+            const br = parseFloat(cs.borderRightWidth) || 0;
+            const bb = parseFloat(cs.borderBottomWidth) || 0;
+            const bl = parseFloat(cs.borderLeftWidth) || 0;
+
+            backdrop.style.paddingTop = `${pt + bt}px`;
+            backdrop.style.paddingRight = `${pr + br}px`;
+            backdrop.style.paddingBottom = `${pb + bb}px`;
+            backdrop.style.paddingLeft = `${pl + bl}px`;
+            backdrop.style.left = '0';
+            backdrop.style.top = '0';
+            backdrop.style.right = 'auto';
+            backdrop.style.bottom = 'auto';
+            backdrop.style.width = `${field.offsetWidth}px`;
+            backdrop.style.height = `${field.offsetHeight}px`;
+
+            // line-height: luôn dùng px để div/textarea không lệch
+            let lh = cs.lineHeight;
+            if (!lh || lh === 'normal') {
+                lh = `${Math.round(parseFloat(cs.fontSize) * 1.5)}px`;
+            }
+            backdrop.style.lineHeight = lh;
         }
 
         function sync() {
@@ -117,7 +140,7 @@
                 configurable: true,
             });
         }
-        window.addEventListener('resize', syncStyles);
+        window.addEventListener('resize', sync);
         requestAnimationFrame(sync);
     };
 
@@ -125,6 +148,20 @@
         if (field && typeof field._syncMentionHighlight === 'function') {
             field._syncMentionHighlight();
         }
+    };
+
+    /** Gỡ overlay highlight (tránh lệch caret / khoảng trống ở composer). */
+    window.destroyMentionInputHighlight = function (field) {
+        if (!field) return;
+        const wrap = field.closest('.mention-input-wrap');
+        if (wrap && wrap.parentNode) {
+            wrap.parentNode.insertBefore(field, wrap);
+            wrap.remove();
+        }
+        field.classList.remove('mention-input-field');
+        delete field.dataset.mentionHighlightBound;
+        delete field.dataset.mentionValuePatched;
+        field._syncMentionHighlight = null;
     };
 
     /**

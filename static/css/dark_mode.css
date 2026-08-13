@@ -215,13 +215,17 @@
 
 [data-bs-theme="dark"] .post-audio-player,
 [data-bs-theme="dark"] .comment-audio-player,
-[data-bs-theme="dark"] .comment-replies-block,
 [data-bs-theme="dark"] .comment-voice-recording-bar,
 [data-bs-theme="dark"] .comment-edit-voice-bar,
 [data-bs-theme="dark"] .add-comment-form .input-group {
     background: var(--surface-muted) !important;
     border-color: var(--border-color) !important;
     color: var(--text-color) !important;
+}
+
+[data-bs-theme="dark"] .comment-replies-block {
+    background: transparent !important;
+    border-color: transparent !important;
 }
 
 [data-bs-theme="dark"] .post-audio-player__icon,
