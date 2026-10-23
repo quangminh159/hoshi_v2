@@ -377,13 +377,17 @@
         video.muted = !!state.prefs.muted;
         video.volume = Math.min(1, Math.max(0, state.prefs.volume || 0));
 
-        // Khung luôn full stage — không bao giờ co khung theo độ phân giải
-        video.style.position = 'absolute';
-        video.style.inset = '0';
-        video.style.width = '100%';
-        video.style.height = '100%';
-        video.style.maxWidth = 'none';
-        video.style.maxHeight = 'none';
+        // Giữ video trong flow để thanh controls native (seek/mute/fullscreen/…) không bị cắt
+        video.style.position = 'relative';
+        video.style.inset = 'auto';
+        video.style.left = '';
+        video.style.top = '';
+        video.style.right = '';
+        video.style.bottom = '';
+        video.style.width = 'auto';
+        video.style.height = 'auto';
+        video.style.maxWidth = '100%';
+        video.style.maxHeight = '100%';
         video.style.transform = 'none';
         video.style.objectFit = state.prefs.fit === 'cover' ? 'cover' : 'contain';
         video.style.objectPosition = 'center center';
@@ -610,6 +614,8 @@
         if (!item) return;
         resetTransform();
         mediaWrap.innerHTML = '';
+        mediaWrap.classList.toggle('is-video', item.type === 'video');
+        if (root) root.classList.toggle('is-video-mode', item.type === 'video');
 
         if (item.type === 'video') {
             const video = document.createElement('video');
@@ -617,6 +623,8 @@
             video.controls = true;
             video.autoplay = true;
             video.playsInline = true;
+            video.setAttribute('playsinline', '');
+            video.setAttribute('webkit-playsinline', '');
             video.setAttribute('controlsList', 'nodownload');
             mediaWrap.appendChild(video);
             const onMeta = () => {
@@ -673,6 +681,8 @@
             try { playing.pause(); } catch (_) {}
         }
         mediaWrap.innerHTML = '';
+        mediaWrap.classList.remove('is-video');
+        if (root) root.classList.remove('is-video-mode');
         root.classList.remove('is-open');
         document.body.classList.remove('hoshi-lightbox-open');
     }
@@ -858,6 +868,10 @@
         });
     });
     mo.observe(document.documentElement, { childList: true, subtree: true });
+
+    window.addEventListener('hoshi:viewport', () => {
+        if (state.open && currentVideo()) applyVideoPrefs();
+    });
 
     window.HoshiMediaLightbox = {
         open,

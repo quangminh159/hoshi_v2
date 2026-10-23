@@ -86,3 +86,33 @@ class Notification(models.Model):
             if conversation_id:
                 return reverse('chat:conversation_detail', args=[conversation_id])
         return '#'
+
+
+class WebPushSubscription(models.Model):
+    """Subscription Web Push (Chrome/Safari/Firefox trên ĐT & PC)."""
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='webpush_subscriptions',
+    )
+    endpoint = models.TextField(unique=True)
+    p256dh = models.CharField(max_length=255)
+    auth = models.CharField(max_length=255)
+    user_agent = models.CharField(max_length=255, blank=True, default='')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-updated_at']
+
+    def __str__(self):
+        return f'WebPush {self.user_id}…{self.endpoint[-24:]}'
+
+    def as_subscription_info(self):
+        return {
+            'endpoint': self.endpoint,
+            'keys': {
+                'p256dh': self.p256dh,
+                'auth': self.auth,
+            },
+        }

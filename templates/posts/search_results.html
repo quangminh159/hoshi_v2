@@ -214,13 +214,19 @@
 
         <ul class="nav nav-tabs mb-4" id="searchTab" role="tablist">
             <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="users-tab" data-bs-toggle="tab" data-bs-target="#users"
+                <button class="nav-link {% if active_tab == 'users' or active_tab == 'all' %}active{% endif %}" id="users-tab" data-bs-toggle="tab" data-bs-target="#users"
                         type="button" role="tab" aria-controls="users" aria-selected="true">
                     Người dùng ({{ users.paginator.count }})
                 </button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="posts-tab" data-bs-toggle="tab" data-bs-target="#posts"
+                <button class="nav-link {% if active_tab == 'hashtags' %}active{% endif %}" id="hashtags-tab" data-bs-toggle="tab" data-bs-target="#hashtags"
+                        type="button" role="tab" aria-controls="hashtags" aria-selected="false">
+                    Hashtag ({{ hashtags|length }})
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link {% if active_tab == 'posts' %}active{% endif %}" id="posts-tab" data-bs-toggle="tab" data-bs-target="#posts"
                         type="button" role="tab" aria-controls="posts" aria-selected="false">
                     Bài viết ({{ posts.paginator.count }})
                 </button>
@@ -228,7 +234,7 @@
         </ul>
 
         <div class="tab-content" id="searchTabContent">
-            <div class="tab-pane fade show active" id="users" role="tabpanel" aria-labelledby="users-tab">
+            <div class="tab-pane fade {% if active_tab == 'users' or active_tab == 'all' %}show active{% endif %}" id="users" role="tabpanel" aria-labelledby="users-tab">
                 {% if users %}
                     <div class="row">
                         {% for u in users %}
@@ -290,7 +296,22 @@
                 {% endif %}
             </div>
 
-            <div class="tab-pane fade" id="posts" role="tabpanel" aria-labelledby="posts-tab">
+            <div class="tab-pane fade {% if active_tab == 'hashtags' %}show active{% endif %}" id="hashtags" role="tabpanel" aria-labelledby="hashtags-tab">
+                {% if hashtags %}
+                    <div class="list-group list-group-flush rounded-3 border mb-3">
+                        {% for tag in hashtags %}
+                        <a href="{% url 'posts:hashtag' tag.name %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3">
+                            <span class="fw-semibold">#{{ tag.name }}</span>
+                            <span class="badge text-bg-light">{{ tag.posts_count_total }} bài</span>
+                        </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5 text-muted">Không tìm thấy hashtag phù hợp với "{{ query }}"</div>
+                {% endif %}
+            </div>
+
+            <div class="tab-pane fade {% if active_tab == 'posts' %}show active{% endif %}" id="posts" role="tabpanel" aria-labelledby="posts-tab">
                 {% if posts %}
                     <div class="row">
                         {% for post in posts %}

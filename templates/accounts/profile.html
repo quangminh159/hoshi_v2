@@ -10,9 +10,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560;9..144,700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link href="{% static 'css/feed.css' %}?v=comment-dark-text-1" rel="stylesheet">
-<link href="{% static 'css/profile.css' %}?v=post-media-fit-1" rel="stylesheet">
-<link href="{% static 'css/share_post_modal.css' %}" rel="stylesheet">
+<link href="{% static 'css/feed.css' %}?v=mobile-adapt-1" rel="stylesheet">
+<link href="{% static 'css/profile.css' %}?v=mobile-adapt-1" rel="stylesheet">
+<link href="{% static 'css/share_post_modal.css' %}?v=ui-polish-1" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -289,6 +289,8 @@
 
 <!-- Modal chia sẻ -->
 {% include 'posts/includes/share_post_modal.html' %}
+{% include 'posts/includes/post_edit_history_modal.html' %}
+{% include 'posts/includes/report_post_modal_shell.html' %}
 
 {% if can_view_posts %}
 <!-- Modal người theo dõi -->
@@ -359,9 +361,9 @@
 <script>
 window.HOSHI_USER_SUGGESTIONS_URL = '{% url "posts:user_suggestions" %}';
 </script>
-<script src="{% static 'js/edit_caption_suggestions.js' %}?v=caret-visible-1"></script>
-<script src="{% static 'js/infinite_scroll.js' %}?v=comments-ui-1"></script>
-<script src="{% static 'js/share_post_modal.js' %}?v=no-as-new-1"></script>
+<script src="{% static 'js/edit_caption_suggestions.js' %}?v=ui-polish-1"></script>
+<script src="{% static 'js/infinite_scroll.js' %}?v=edit-history-1"></script>
+<script src="{% static 'js/share_post_modal.js' %}?v=ui-polish-1"></script>
 <script>
 window.currentUserId = '{{ request.user.id }}';
 

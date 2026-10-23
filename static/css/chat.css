@@ -61,7 +61,9 @@ body:has(.chat-shell--detail) {
 
 body:has(.chat-shell--detail) main.container {
     height: calc(100dvh - var(--chat-nav-offset));
+    height: calc(var(--app-height, 100dvh) - var(--chat-nav-offset));
     max-height: calc(100dvh - var(--chat-nav-offset));
+    max-height: calc(var(--app-height, 100dvh) - var(--chat-nav-offset));
     max-width: 1280px;
     width: 100%;
     margin-top: var(--chat-nav-offset) !important;
@@ -244,6 +246,11 @@ body:has(.chat-shell--detail) .chat-container {
 .conversation-wrapper {
     position: relative;
     border-bottom: 1px solid var(--chat-border);
+    z-index: 1;
+}
+
+.conversation-wrapper.is-menu-open {
+    z-index: 30;
 }
 
 .conversation-wrapper:last-child {
@@ -425,6 +432,7 @@ body:has(.chat-shell--detail) .chat-container {
 .conversation-more-menu {
     position: absolute;
     top: calc(100% + 6px);
+    bottom: auto;
     right: 0;
     min-width: 188px;
     padding: 0.35rem;
@@ -432,7 +440,13 @@ body:has(.chat-shell--detail) .chat-container {
     background: #fff;
     border: 1px solid rgba(15, 15, 18, 0.06);
     box-shadow: 0 8px 28px rgba(15, 15, 18, 0.14);
-    z-index: 20;
+    z-index: 40;
+}
+
+/* Item cuối list: mở menu lên trên để không bị clip */
+.conversation-more-menu.is-flip-up {
+    top: auto;
+    bottom: calc(100% + 6px);
 }
 
 .conversation-more-item {
@@ -2475,19 +2489,15 @@ body:has(.chat-shell--detail) .chat-container {
         border-radius: 12px;
     }
 
+    /* Mobile: luôn hiện nút … (không chỉ long-press) */
     .conversation-more-btn {
-        opacity: 0;
-        pointer-events: none;
+        opacity: 1;
+        pointer-events: auto;
         background: rgba(18, 18, 20, 0.04);
         box-shadow: none;
     }
 
-    .conversation-wrapper.is-menu-open .conversation-more-btn,
-    .conversation-wrapper:focus-within .conversation-more-btn {
-        opacity: 1;
-        pointer-events: auto;
-    }
-
+    .conversation-wrapper .conversation-item,
     .conversation-wrapper:hover .conversation-item,
     .conversation-wrapper:focus-within .conversation-item,
     .conversation-wrapper.is-menu-open .conversation-item {

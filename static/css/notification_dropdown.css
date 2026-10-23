@@ -26,8 +26,8 @@
 }
 
 .notification-badge {
-    font-size: 0.65rem;
-    transform: translate(-50%, -50%) !important;
+    font-size: 0.62rem;
+    transform: none !important;
 }
 
 /* Toast nổi — nằm trên thanh task mobile */

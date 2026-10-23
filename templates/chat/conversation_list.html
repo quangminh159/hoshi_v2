@@ -8,7 +8,7 @@
 {% block body_class %} chat-layout{% endblock %}
 
 {% block extra_css %}
-<link href="{% static 'css/chat.css' %}?v=conv-menu-1" rel="stylesheet">
+<link href="{% static 'css/chat.css' %}?v=mobile-adapt-1" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -254,8 +254,25 @@
       const btn = el.querySelector('.conversation-more-btn');
       const menu = el.querySelector('.conversation-more-menu');
       if (btn) btn.setAttribute('aria-expanded', 'false');
-      if (menu) menu.hidden = true;
+      if (menu) {
+        menu.hidden = true;
+        menu.classList.remove('is-flip-up');
+      }
     });
+  }
+
+  function positionConversationMenu(wrap, menu) {
+    if (!wrap || !menu) return;
+    menu.classList.remove('is-flip-up');
+    menu.hidden = false;
+    const list = document.getElementById('conversationList') || wrap.closest('.conversation-list');
+    const wrapRect = wrap.getBoundingClientRect();
+    const listRect = list ? list.getBoundingClientRect() : { bottom: window.innerHeight };
+    const menuH = menu.offsetHeight || 160;
+    const spaceBelow = listRect.bottom - wrapRect.bottom;
+    if (spaceBelow < menuH + 12) {
+      menu.classList.add('is-flip-up');
+    }
   }
 
   function updatePinUi(wrap, isPinned) {
@@ -396,7 +413,7 @@
       if (!open) {
         wrap.classList.add('is-menu-open');
         moreBtn.setAttribute('aria-expanded', 'true');
-        if (menu) menu.hidden = false;
+        if (menu) positionConversationMenu(wrap, menu);
       }
       return;
     }
@@ -442,7 +459,7 @@
         const menu = wrap.querySelector('.conversation-more-menu');
         wrap.classList.add('is-menu-open');
         if (btn) btn.setAttribute('aria-expanded', 'true');
-        if (menu) menu.hidden = false;
+        if (menu) positionConversationMenu(wrap, menu);
         if (navigator.vibrate) navigator.vibrate(12);
         timer = null;
       }, 480);

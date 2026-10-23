@@ -8,5 +8,7 @@ router.register(r'notifications', api.NotificationViewSet, basename='notificatio
 app_name = 'notifications-api'
 
 urlpatterns = [
+    path('subscribe/', api.subscribe_webpush, name='webpush_subscribe'),
+    path('unsubscribe/', api.unsubscribe_webpush, name='webpush_unsubscribe'),
     path('', include(router.urls)),
 ] 

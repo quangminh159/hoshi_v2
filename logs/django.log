@@ -166389,3 +166389,12 @@ WARNING 2026-08-14 01:55:31,044 log 19532 6356 Not Found: /ws/notifications/3/
 WARNING 2026-08-14 01:55:31,045 basehttp 19532 6356 "GET /ws/notifications/3/ HTTP/1.1" 404 5659
 WARNING 2026-08-14 01:55:42,934 log 19532 29436 Not Found: /ws/chat/inbox/
 WARNING 2026-08-14 01:55:42,935 basehttp 19532 29436 "GET /ws/chat/inbox/ HTTP/1.1" 404 5644
+WARNING 2026-08-14 03:05:50,576 log 15740 17704 Not Found: /users/jack97/admin
+WARNING 2026-08-14 03:05:50,838 log 15740 17704 Not Found: /favicon.ico
+WARNING 2026-08-14 03:06:00,941 log 15740 19032 Not Found: /apple-touch-icon-precomposed.png
+WARNING 2026-08-14 03:06:00,941 log 15740 17704 Not Found: /favicon.ico
+WARNING 2026-08-14 03:06:00,941 log 15740 19032 Not Found: /apple-touch-icon.png
+WARNING 2026-08-14 03:06:10,467 log 15740 19032 Not Found: /amin
+WARNING 2026-08-14 03:06:10,709 log 15740 19032 Not Found: /favicon.ico
+WARNING 2026-10-23 11:33:27,756 log 4556 22132 Not Found: /robots.txt
+WARNING 2026-10-23 11:42:23,395 log 4556 22132 Not Found: /favicon.ico

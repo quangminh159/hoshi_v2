@@ -7,14 +7,14 @@
 {% block body_class %} post-detail-layout{% endblock %}
 
 {% block extra_css %}
-<link href="{% static 'css/feed.css' %}?v=comments-ui-1" rel="stylesheet">
-<link href="{% static 'css/post_detail.css' %}?v=comments-ui-1" rel="stylesheet">
+<link href="{% static 'css/feed.css' %}?v=edit-history-1" rel="stylesheet">
+<link href="{% static 'css/post_detail.css' %}?v=edit-history-1" rel="stylesheet">
 <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
 <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
 <link href="https://unpkg.com/filepond-plugin-file-poster/dist/filepond-plugin-file-poster.css" rel="stylesheet">
 <link href="https://unpkg.com/filepond-plugin-media-preview/dist/filepond-plugin-media-preview.css" rel="stylesheet">
-<link href="{% static 'css/create_post_composer.css' %}?v=edit-media-btn-1" rel="stylesheet">
-<link href="{% static 'css/share_post_modal.css' %}" rel="stylesheet">
+<link href="{% static 'css/create_post_composer.css' %}?v=ui-polish-1" rel="stylesheet">
+<link href="{% static 'css/share_post_modal.css' %}?v=ui-polish-1" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -239,25 +239,8 @@
 <!-- Modal Chia sẻ bài viết -->
 {% include 'posts/includes/share_post_modal.html' with share_post=post %}
 
-<!-- Modal Báo cáo bài viết -->
-<div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="reportModalLabel">Báo cáo bài viết</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body report-form-container">
-                <!-- Form sẽ được tải qua AJAX -->
-                <div class="text-center">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Đang tải...</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+{% include 'posts/includes/report_post_modal_shell.html' %}
+{% include 'posts/includes/post_edit_history_modal.html' %}
 
 {% endblock %}
 
@@ -265,8 +248,8 @@
 <script>
 window.HOSHI_USER_SUGGESTIONS_URL = '{% url "posts:user_suggestions" %}';
 </script>
-<script src="{% static 'js/share_post_modal.js' %}?v=no-as-new-1"></script>
-<script src="{% static 'js/edit_caption_suggestions.js' %}?v=caret-visible-1"></script>
+<script src="{% static 'js/share_post_modal.js' %}?v=ui-polish-1"></script>
+<script src="{% static 'js/edit_caption_suggestions.js' %}?v=ui-polish-1"></script>
 <script src="https://unpkg.com/filepond-plugin-image-exif-orientation/dist/filepond-plugin-image-exif-orientation.js"></script>
 <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
 <script src="https://unpkg.com/filepond-plugin-file-poster/dist/filepond-plugin-file-poster.js"></script>
@@ -2554,7 +2537,6 @@ function initializeNewComment(commentId, postId) {
                     this.innerHTML = 'Lưu thay đổi';
                     if (data.status === 'success') {
                         editModal.hide();
-                        alert('Đã cập nhật bài viết thành công!');
                         reloadAfterPostEdit();
                     } else {
                         alert(data.message || 'Có lỗi xảy ra khi cập nhật bài viết.');
@@ -2571,60 +2553,26 @@ function initializeNewComment(commentId, postId) {
             editModal.show();
         });
     });
+
+    // Feed → Chỉnh sửa: /posts/<id>/?edit=1 mở sẵn modal
+    try {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('edit') === '1') {
+            const editBtn = document.querySelector('.edit-post-btn');
+            if (editBtn) {
+                setTimeout(() => editBtn.click(), 200);
+            }
+            params.delete('edit');
+            const clean = params.toString();
+            const nextUrl = window.location.pathname + (clean ? `?${clean}` : '') + window.location.hash;
+            window.history.replaceState({}, '', nextUrl);
+        }
+    } catch (_) { /* ignore */ }
 })();
 
 // Modal chia sẻ được xử lý bởi share_post_modal.js
 
-// Xử lý báo cáo bài viết
-document.addEventListener('DOMContentLoaded', function() {
-    // Tải form báo cáo khi modal được hiển thị
-    document.addEventListener('click', function(e) {
-        const reportBtn = e.target.closest('.report-btn');
-        if (reportBtn) {
-            const postId = reportBtn.getAttribute('data-post-id');
-            const reportFormContainer = document.querySelector('.report-form-container');
-            
-            // Tải form báo cáo
-            reportFormContainer.innerHTML = `<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Đang tải...</span></div></div>`;
-            
-            fetch(`/posts/${postId}/report-modal/`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    reportFormContainer.innerHTML = data.html;
-                    
-                    // Thực thi script trong HTML một cách trực tiếp
-                    const scriptContent = reportFormContainer.querySelector('script')?.textContent;
-                    if (scriptContent) {
-                        setTimeout(() => {
-                            try {
-                                // Tạo và thực thi script
-                                const scriptFunc = new Function(scriptContent);
-                                scriptFunc();
-                                console.log('Report form script executed successfully');
-                            } catch (error) {
-                                console.error('Error executing report form script:', error);
-                            }
-                        }, 100); // Đợi một chút để DOM được cập nhật đầy đủ
-                    } else {
-                        console.warn('No script found in report form HTML');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error loading report form:', error);
-                    reportFormContainer.innerHTML = `
-                        <div class="alert alert-danger">
-                            Có lỗi xảy ra khi tải form báo cáo. Vui lòng thử lại sau. Chi tiết: ${error.message}
-                        </div>
-                    `;
-                });
-        }
-    });
-});
+// Báo cáo bài viết: xử lý bởi main.js (capture + #reportPostModal)
 
 // Gợi ý #hashtag và @mention ở trong trang chỉnh sửa bài viết
 (function () {

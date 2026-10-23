@@ -77,6 +77,12 @@ def send_notification_to_websocket(notification):
             f'notifications_{recipient.id}',
             notification_data
         )
+        # Web Push ra điện thoại / trình duyệt (khi đã subscribe)
+        try:
+            from .webpush import send_web_push_for_notification
+            send_web_push_for_notification(notification)
+        except Exception as push_exc:
+            print(f"Error sending web push: {push_exc}")
     except Exception as e:
         print(f"Error sending notification to websocket: {e}")
 

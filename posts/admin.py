@@ -5,7 +5,11 @@ from django.shortcuts import render
 from django.urls import path
 from django.contrib.auth import get_user_model
 from django.utils.html import format_html
-from .models import Post, Media, PostMedia, Like, Comment, SavedPost, Hashtag, Mention, CommentLike, Story, StoryView, PostReport, UserInteraction
+from .models import (
+    Post, Media, PostMedia, Like, Comment, SavedPost, Hashtag, Mention,
+    CommentLike, Story, StoryView, PostReport, CommentReport, HiddenPost,
+    PostEditHistory, UserInteraction,
+)
 from .viral import (
     promote_post_viral,
     demote_post_viral,
@@ -328,6 +332,20 @@ class PostMediaAdmin(admin.ModelAdmin):
     search_fields = ('post__caption', 'post__author__username')
 
 
+@admin.register(PostEditHistory)
+class PostEditHistoryAdmin(admin.ModelAdmin):
+    list_display = ('id', 'post', 'short_caption', 'location', 'created_at')
+    list_filter = ('created_at',)
+    search_fields = ('post__id', 'post__author__username', 'caption', 'location')
+    readonly_fields = ('created_at',)
+    autocomplete_fields = ('post',)
+
+    @admin.display(description='Caption')
+    def short_caption(self, obj):
+        text = (obj.caption or '').strip()
+        return (text[:60] + '…') if len(text) > 60 else (text or '—')
+
+
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
     list_display = ('id', 'author', 'post', 'text', 'has_image', 'created_at', 'likes_count')
@@ -401,5 +419,30 @@ class StoryViewAdmin(admin.ModelAdmin):
 class UserInteractionAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'post', 'interaction_type', 'duration', 'created_at')
     list_filter = ('interaction_type', 'created_at')
+    search_fields = ('user__username', 'post__caption')
+    readonly_fields = ('created_at',)
+
+
+@admin.register(CommentReport)
+class CommentReportAdmin(admin.ModelAdmin):
+    list_display = ('user', 'comment', 'reason', 'created_at', 'is_resolved', 'is_valid')
+    list_filter = ('reason', 'is_resolved', 'is_valid', 'created_at')
+    search_fields = ('user__username', 'comment__text', 'details')
+    readonly_fields = ('user', 'comment', 'reason', 'details', 'created_at')
+    ordering = ('is_resolved', '-created_at')
+    actions = ['mark_resolved_valid', 'mark_resolved_invalid']
+
+    @admin.action(description='Đánh dấu hợp lệ + đã xử lý')
+    def mark_resolved_valid(self, request, queryset):
+        queryset.update(is_resolved=True, is_valid=True, resolved_by=request.user, resolved_at=timezone.now())
+
+    @admin.action(description='Đánh dấu không hợp lệ + đã xử lý')
+    def mark_resolved_invalid(self, request, queryset):
+        queryset.update(is_resolved=True, is_valid=False, resolved_by=request.user, resolved_at=timezone.now())
+
+
+@admin.register(HiddenPost)
+class HiddenPostAdmin(admin.ModelAdmin):
+    list_display = ('user', 'post', 'created_at')
     search_fields = ('user__username', 'post__caption')
     readonly_fields = ('created_at',)

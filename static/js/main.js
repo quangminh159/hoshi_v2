@@ -201,6 +201,17 @@ document.addEventListener('click', (e) => {
     const homeNav = e.target.closest('a.nav-link, a.mobile-bottom-nav__item');
     if (!homeNav) return;
 
+    // Bỏ qua dropdown (avatar trang cá nhân dùng href="#" → pathname = "/")
+    if (
+        homeNav.classList.contains('dropdown-toggle') ||
+        homeNav.getAttribute('data-bs-toggle') === 'dropdown' ||
+        homeNav.closest('.dropdown')
+    ) {
+        return;
+    }
+    const hrefAttr = (homeNav.getAttribute('href') || '').trim();
+    if (!hrefAttr || hrefAttr === '#' || hrefAttr.startsWith('#')) return;
+
     const isHomeIcon = !!homeNav.querySelector('.fa-home');
     const navHome = homeNav.getAttribute('data-nav') === 'home';
     const hrefIsHome = homeNav.pathname ? isHomePath(homeNav.pathname) : false;
@@ -558,37 +569,317 @@ function handleWebSocketMessage(data) {
     }
 }
 
-// Notification permission
 function requestNotificationPermission() {
-    if ('Notification' in window) {
-        Notification.requestPermission().then(function(permission) {
-            if (permission === 'granted') {
-                subscribeToNotifications();
-            }
-        });
-    }
+    if (!('Notification' in window) || !('serviceWorker' in navigator)) return;
+    if (!window.HOSHI_VAPID_PUBLIC_KEY) return;
+    Notification.requestPermission().then(function (permission) {
+        if (permission === 'granted') subscribeToNotifications();
+    });
 }
 
 function subscribeToNotifications() {
-    navigator.serviceWorker.ready.then(function(registration) {
+    if (!window.HOSHI_VAPID_PUBLIC_KEY) return Promise.resolve();
+    return navigator.serviceWorker.register('/sw.js', { scope: '/' }).then(function () {
+        return navigator.serviceWorker.ready;
+    }).then(function (registration) {
         return registration.pushManager.subscribe({
             userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array(vapidPublicKey)
+            applicationServerKey: urlBase64ToUint8Array(window.HOSHI_VAPID_PUBLIC_KEY),
         });
-    }).then(function(subscription) {
-        // Send subscription to server
+    }).then(function (subscription) {
         return fetch('/api/notifications/subscribe/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
+                'X-CSRFToken': getCookie('csrftoken'),
             },
-            body: JSON.stringify({
-                subscription: subscription.toJSON()
-            })
+            credentials: 'same-origin',
+            body: JSON.stringify({ subscription: subscription.toJSON() }),
         });
+    }).catch(function (err) {
+        if (window.Hoshi && window.Hoshi.debug) console.warn('Web push subscribe failed', err);
     });
 }
+
+window.requestNotificationPermission = requestNotificationPermission;
+window.subscribeToNotifications = subscribeToNotifications;
+
+document.addEventListener('DOMContentLoaded', function () {
+    if (!document.body.classList.contains('user-authenticated')) return;
+    if (!window.HOSHI_VAPID_PUBLIC_KEY) return;
+    if (!('Notification' in window)) return;
+    if (Notification.permission === 'granted') {
+        subscribeToNotifications();
+    } else if (Notification.permission === 'default') {
+        // Xin quyền sau vài giây — tránh popup ngay khi vừa load
+        window.setTimeout(requestNotificationPermission, 4000);
+    }
+});
+
+function formatEditHistoryWhen(iso) {
+    if (!iso) return '';
+    try {
+        const d = new Date(iso);
+        if (Number.isNaN(d.getTime())) return '';
+        return d.toLocaleString('vi-VN', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+        });
+    } catch (_) {
+        return '';
+    }
+}
+
+function ensurePostEditHistoryModal() {
+    let modalEl = document.getElementById('postEditHistoryModal');
+    if (modalEl) return modalEl;
+    modalEl = document.createElement('div');
+    modalEl.className = 'modal fade';
+    modalEl.id = 'postEditHistoryModal';
+    modalEl.tabIndex = -1;
+    modalEl.setAttribute('aria-labelledby', 'postEditHistoryModalLabel');
+    modalEl.setAttribute('aria-hidden', 'true');
+    modalEl.innerHTML = `
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="postEditHistoryModalLabel">Lịch sử chỉnh sửa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body" id="postEditHistoryBody"></div>
+            </div>
+        </div>`;
+    document.body.appendChild(modalEl);
+    return modalEl;
+}
+
+function escapeHtmlText(text) {
+    return String(text || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
+function renderPostEditHistory(data) {
+    const parts = [];
+    const updatedLabel = formatEditHistoryWhen(data.updated_at);
+    parts.push(`
+        <div class="post-edit-history-item post-edit-history-item--current">
+            <div class="post-edit-history-meta text-muted small mb-1">
+                Phiên bản hiện tại${updatedLabel ? ` · ${updatedLabel}` : ''}
+            </div>
+            <div class="post-edit-history-caption">${escapeHtmlText(data.current?.caption || '').replace(/\n/g, '<br>') || '<em class="text-muted">(Không có nội dung)</em>'}</div>
+            ${data.current?.location ? `<div class="post-edit-history-location text-muted small mt-1"><i class="fas fa-map-marker-alt me-1"></i>${escapeHtmlText(data.current.location)}</div>` : ''}
+        </div>`);
+
+    const history = Array.isArray(data.history) ? data.history : [];
+    if (!history.length) {
+        parts.push('<p class="text-muted small mb-0 mt-3">Chưa có bản nội dung cũ được lưu (có thể chỉ đổi ảnh/cài đặt).</p>');
+    } else {
+        parts.push('<hr class="my-3"><p class="text-muted small mb-2">Các bản trước đó</p>');
+        history.forEach((item) => {
+            const when = formatEditHistoryWhen(item.edited_at);
+            parts.push(`
+                <div class="post-edit-history-item">
+                    <div class="post-edit-history-meta text-muted small mb-1">${when || 'Trước đó'}</div>
+                    <div class="post-edit-history-caption">${escapeHtmlText(item.caption || '').replace(/\n/g, '<br>') || '<em class="text-muted">(Không có nội dung)</em>'}</div>
+                    ${item.location ? `<div class="post-edit-history-location text-muted small mt-1"><i class="fas fa-map-marker-alt me-1"></i>${escapeHtmlText(item.location)}</div>` : ''}
+                </div>`);
+        });
+    }
+    return parts.join('');
+}
+
+function openPostEditHistory(postId) {
+    const modalEl = ensurePostEditHistoryModal();
+    const body = modalEl.querySelector('#postEditHistoryBody');
+    if (body) body.innerHTML = '<div class="text-center py-3 text-muted">Đang tải...</div>';
+    if (typeof bootstrap !== 'undefined') {
+        bootstrap.Modal.getOrCreateInstance(modalEl).show();
+    }
+    fetch(`/posts/${postId}/edit-history/`, {
+        credentials: 'same-origin',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+    })
+        .then((r) => r.json())
+        .then((data) => {
+            if (!body) return;
+            if (!data.ok) {
+                body.innerHTML = `<div class="alert alert-danger mb-0">${escapeHtmlText(data.error || 'Không tải được lịch sử.')}</div>`;
+                return;
+            }
+            body.innerHTML = renderPostEditHistory(data);
+        })
+        .catch(() => {
+            if (body) {
+                body.innerHTML = '<div class="alert alert-danger mb-0">Không tải được lịch sử chỉnh sửa.</div>';
+            }
+        });
+}
+
+// Ẩn bài / báo cáo / lịch sử edit / xóa: capture vì dropdown stopPropagation
+document.addEventListener('click', function (e) {
+    const editedBtn = e.target.closest('.post-edited-btn');
+    if (editedBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        const postId = editedBtn.getAttribute('data-post-id');
+        if (postId) openPostEditHistory(postId);
+        return;
+    }
+
+    const deleteBtn = e.target.closest('.delete-post-btn');
+    if (deleteBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        const postId = deleteBtn.getAttribute('data-post-id');
+        if (!postId) return;
+        if (!confirm('Bạn có chắc chắn muốn xóa bài viết này không?')) return;
+        fetch(`/posts/${postId}/delete/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            credentials: 'same-origin',
+        })
+            .then((r) => r.json())
+            .then((data) => {
+                if (data.status !== 'success') {
+                    alert(data.message || 'Không xóa được bài viết');
+                    return;
+                }
+                const card = deleteBtn.closest('.feed-post-card, .card[data-post-id], article[data-post-id]');
+                if (card) {
+                    card.remove();
+                    return;
+                }
+                window.location.href = '/';
+            })
+            .catch(() => alert('Không xóa được bài viết'));
+        return;
+    }
+
+    const hideBtn = e.target.closest('.hide-post-btn');
+    if (hideBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        const postId = hideBtn.getAttribute('data-post-id');
+        if (!postId) return;
+        const dropdown = hideBtn.closest('.dropdown');
+        if (dropdown && typeof bootstrap !== 'undefined') {
+            const toggle = dropdown.querySelector('[data-bs-toggle="dropdown"]');
+            if (toggle) bootstrap.Dropdown.getInstance(toggle)?.hide();
+        }
+        fetch(`/posts/${postId}/hide/`, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCookie('csrftoken'), 'X-Requested-With': 'XMLHttpRequest' },
+            credentials: 'same-origin',
+        })
+            .then((r) => r.json())
+            .then((data) => {
+                if (!data.ok) {
+                    alert(data.error || 'Không ẩn được bài viết');
+                    return;
+                }
+                const card = hideBtn.closest('.feed-post-card, .card[data-post-id], article[data-post-id]');
+                if (card) card.remove();
+            })
+            .catch(() => alert('Không ẩn được bài viết'));
+        return;
+    }
+
+    const reportBtn = e.target.closest('.report-btn');
+    if (reportBtn) {
+        const postId = reportBtn.getAttribute('data-post-id');
+        if (!postId) return;
+        e.preventDefault();
+        e.stopPropagation();
+
+        let modalEl = document.getElementById('reportPostModal');
+        if (!modalEl) {
+            modalEl = document.createElement('div');
+            modalEl.className = 'modal fade';
+            modalEl.id = 'reportPostModal';
+            modalEl.tabIndex = -1;
+            modalEl.setAttribute('aria-labelledby', 'reportPostModalLabel');
+            modalEl.setAttribute('aria-hidden', 'true');
+            modalEl.innerHTML = `
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="reportPostModalLabel">Báo cáo bài viết</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body report-post-form-container"></div>
+                    </div>
+                </div>`;
+            document.body.appendChild(modalEl);
+        }
+
+        const container = modalEl.querySelector('.report-post-form-container');
+        if (!container) return;
+        container.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Đang tải...</span></div></div>';
+
+        if (typeof bootstrap !== 'undefined') {
+            bootstrap.Modal.getOrCreateInstance(modalEl).show();
+        }
+
+        fetch(`/posts/${postId}/report-modal/`)
+            .then((response) => {
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return response.json();
+            })
+            .then((data) => {
+                container.innerHTML = data.html || '';
+                const scriptContent = container.querySelector('script')?.textContent;
+                if (scriptContent) {
+                    setTimeout(() => {
+                        try {
+                            // eslint-disable-next-line no-new-func
+                            new Function(scriptContent)();
+                        } catch (err) {
+                            console.error('Error executing report form script:', err);
+                        }
+                    }, 50);
+                }
+            })
+            .catch((err) => {
+                console.error('Error loading report form:', err);
+                container.innerHTML = '<div class="alert alert-danger mb-0">Không tải được form báo cáo. Vui lòng thử lại.</div>';
+            });
+        return;
+    }
+
+    const commentReportBtn = e.target.closest('.report-comment-btn');
+    if (!commentReportBtn) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const commentId = commentReportBtn.getAttribute('data-comment-id');
+    if (!commentId) return;
+    if (!confirm('Báo cáo bình luận này?')) return;
+    const body = new URLSearchParams({ reason: 'inappropriate' });
+    fetch(`/posts/comments/${commentId}/report/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+        credentials: 'same-origin',
+        body,
+    })
+        .then((r) => r.json())
+        .then((data) => {
+            alert(data.message || data.error || (data.ok ? 'Đã gửi báo cáo' : 'Lỗi'));
+        })
+        .catch(() => alert('Không gửi được báo cáo'));
+}, true);
 
 // Infinite scroll
 let loading = false;

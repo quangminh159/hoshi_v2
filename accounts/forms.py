@@ -218,7 +218,9 @@ class CustomSignupForm(AllAuthSignupForm):
         user.message_notifications = True
         user.summary_notifications = True
         user.inactive_notifications = True
-        
+        # User mới → hiện wizard onboarding
+        user.onboarding_completed = False
+
         user.save()
 
         invite = getattr(self, '_invite_obj', None)

@@ -47,6 +47,22 @@
     border-radius: 0;
     box-shadow: none;
     background: var(--card-bg, #fff);
+    overflow: visible;
+    position: relative;
+    z-index: 1;
+}
+
+.post-detail-page .post-detail-card:has(.dropdown-menu.show) {
+    z-index: 40;
+}
+
+.post-detail-menu .dropdown {
+    position: relative;
+    z-index: 30;
+}
+
+.post-detail-menu .dropdown-menu {
+    z-index: 1080;
 }
 
 .post-detail-page .feed-post-body {
@@ -259,11 +275,19 @@
 .post-detail-comment-form textarea.form-control {
     resize: none;
     overflow-y: hidden;
-    min-height: 38px;
-    max-height: 140px;
-    line-height: 1.4;
+    min-height: 36px;
+    max-height: 160px;
+    line-height: 1.45;
     white-space: pre-wrap;
     word-break: break-word;
+}
+
+@media (max-width: 991.98px) {
+    .post-detail-comment-form textarea.comment-input,
+    .post-detail-comment-form textarea.form-control,
+    .post-detail-comment-form .form-control {
+        font-size: 16px !important;
+    }
 }
 
 .comment-image-btn {
@@ -382,6 +406,15 @@
 
 .comment-edit-voice.is-recording {
     color: #ed4956;
+}
+
+.post-edited-btn {
+    text-decoration: none;
+    vertical-align: baseline;
+}
+
+.post-edited-btn:hover {
+    text-decoration: underline;
 }
 
 .comment-edited-label {

@@ -2,6 +2,10 @@
 venv/
 env/
 .env
+.env.production
+.env.local
+.env.*.local
+backups/
 
 # Python
 __pycache__/

@@ -3,10 +3,24 @@ from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
 from django.shortcuts import redirect, render
+from django.http import FileResponse, Http404
+from django.views.decorators.http import require_GET
 from posts.views import home
 from django.views.generic.base import RedirectView
 from accounts.views import CustomPasswordResetView, password_reset_otp
 from hoshi.range_media import serve_media_with_range
+
+
+@require_GET
+def service_worker(request):
+    """Service worker phải serve từ root scope để Web Push hoạt động."""
+    path = settings.BASE_DIR / 'static' / 'sw.js'
+    if not path.exists():
+        raise Http404
+    resp = FileResponse(path.open('rb'), content_type='application/javascript')
+    resp['Service-Worker-Allowed'] = '/'
+    resp['Cache-Control'] = 'no-cache'
+    return resp
 
 
 def redirect_legacy_profile(request, username):
@@ -31,6 +45,7 @@ def help_center(request):
 
 urlpatterns = [
     path('', home, name='home'),
+    path('sw.js', service_worker, name='service_worker'),
     path('admin/', admin.site.urls),
     path('legal/terms/', terms_of_service, name='terms'),
     path('legal/privacy/', privacy_policy, name='privacy'),

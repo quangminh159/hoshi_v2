@@ -489,8 +489,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
     
     @database_sync_to_async
     def check_conversation_access(self, conversation):
-        # Kiểm tra xem người dùng có quyền truy cập vào cuộc trò chuyện không
-        return conversation.participants.filter(id=self.user.id).exists()
+        from chat.access import user_can_access_conversation
+        return user_can_access_conversation(self.user, conversation)
     
     @database_sync_to_async
     def get_dm_other_user_id(self):

@@ -1,0 +1,53 @@
+========== 4 TÍNH NĂNG LAUNCH (đã code) ==========
+
+Cập nhật: 2026-10-23
+
+----------------------------------------------------------
+1) TÌM KIẾM NGƯỜI + HASHTAG
+----------------------------------------------------------
+- Trang: /posts/search/
+- Tab: Người dùng | Hashtag | Bài viết
+- Chuẩn hóa query (bỏ # / @)
+- Trang hashtag riêng: /posts/hashtag/<ten>/
+- Click # trong caption → trang hashtag
+
+----------------------------------------------------------
+2) PUSH THÔNG BÁO (Web Push — ĐT / trình duyệt)
+----------------------------------------------------------
+Tạo key:
+  cd C:\hoshi_v2
+  .\venv\Scripts\python.exe manage.py generate_vapid_keys
+
+Dán vào .env:
+  WEBPUSH_VAPID_PUBLIC_KEY=...
+  WEBPUSH_VAPID_PRIVATE_KEY=...   (giữ \n trong PEM một dòng)
+  WEBPUSH_VAPID_ADMIN_EMAIL=mailto:admin@domain.com
+
+Restart daphne.
+Mở app bằng HTTPS (ngrok) hoặc localhost → browser xin quyền thông báo.
+Cài đặt → bật “Thông báo đẩy”.
+Lưu ý: HTTP thường (IP LAN) có thể bị chặn Web Push.
+
+----------------------------------------------------------
+3) BÁO CÁO / CHẶN / ẨN + ADMIN
+----------------------------------------------------------
+- Ẩn bài: menu … trên bài người khác → “Ẩn bài viết” (không còn hiện trên feed bạn)
+- Báo cáo bài / báo cáo + chặn user: đã có (profile / post)
+- Báo cáo bình luận: menu … bình luận → “Báo cáo”
+- Admin Django:
+  - Post reports
+  - Comment reports
+  - User reports
+
+----------------------------------------------------------
+4) ONBOARDING NGẮN
+----------------------------------------------------------
+- User mới đăng ký → /users/onboarding/
+- Bước 1: chọn avatar (hoặc Để sau)
+- Bước 2: tick follow gợi ý ~5 người (hoặc Bỏ qua)
+- User cũ không bị bắt qua lại (onboarding_completed=True mặc định)
+
+Migrate (đã chạy local):
+  .\venv\Scripts\python.exe manage.py migrate
+
+==========================================================

@@ -1,0 +1,79 @@
+========== BẢO MẬT TIN NHẮN (MÃ HÓA KHI LƯU DB) ==========
+
+Mục đích
+- Nội dung chat lưu trong Postgres dạng mã hóa (enc:v1:…), không phải chữ thường.
+- User hợp lệ vẫn đọc bình thường trên app.
+- Dump DB / nhìn raw SQL không đọc được plaintext.
+- Đây là mã hóa phía server (có key thì server/admin vẫn giải mã được).
+  E2EE kiểu Signal (chỉ 2 máy đọc) là bước lớn hơn, chưa làm.
+
+----------------------------------------------------------
+1) TẠO KEY (máy anh / server)
+----------------------------------------------------------
+
+cd C:\hoshi_v2
+.\venv\Scripts\python.exe manage.py generate_message_encryption_key
+
+Copy dòng KEY in ra (dạng dài, url-safe).
+
+----------------------------------------------------------
+2) GHI VÀO .env
+----------------------------------------------------------
+
+MESSAGE_ENCRYPTION_ENABLED=True
+MESSAGE_ENCRYPTION_KEY=PASTE_KEY_VỪA_TẠO
+
+Local: file .env ở C:\hoshi_v2\.env
+Server: .env production (xem thêm .env.production.example)
+
+QUAN TRỌNG
+- Backup key ra chỗ an toàn (password manager / USB mã hóa).
+- Đổi / mất key sau khi đã mã hóa tin → không đọc lại được tin cũ.
+- Production (DEBUG=False) bắt buộc có MESSAGE_ENCRYPTION_KEY nếu bật mã hóa.
+
+----------------------------------------------------------
+3) MÃ HÓA TIN CŨ (chạy 1 lần sau khi có key)
+----------------------------------------------------------
+
+# Xem trước (không ghi DB)
+.\venv\Scripts\python.exe manage.py encrypt_chat_messages --dry-run
+
+# Mã hóa thật
+.\venv\Scripts\python.exe manage.py encrypt_chat_messages
+
+Tin mới gửi sau đó tự mã hóa khi save — không cần chạy lại command
+(trừ khi còn tin plaintext sót).
+
+----------------------------------------------------------
+4) KIỂM TRA NHANH
+----------------------------------------------------------
+
+1. Restart daphne / container web sau khi sửa .env
+2. Gửi 1 tin nhắn thử
+3. Trong DB, cột content/text phải bắt đầu bằng: enc:v1:
+4. App vẫn hiện chữ bình thường
+
+----------------------------------------------------------
+5) FILE LIÊN QUAN
+----------------------------------------------------------
+
+chat/crypto.py                          — mã hóa / giải mã Fernet
+chat/models.py                          — save + from_db
+chat/access.py                          — quyền vào hội thoại
+chat/management/commands/
+  generate_message_encryption_key.py
+  encrypt_chat_messages.py
+hoshi/settings.py                       — MESSAGE_ENCRYPTION_*
+.env.production.example                 — mẫu biến môi trường
+
+----------------------------------------------------------
+6) LƯU Ý VẬN HÀNH
+----------------------------------------------------------
+
+- HTTPS trên production vẫn bắt buộc (chống nghe lén đường truyền).
+- Không commit file .env / không đưa KEY lên GitHub.
+- Khi deploy server mới: copy cùng MESSAGE_ENCRYPTION_KEY, rồi mới mở chat.
+- Tắt mã hóa (không khuyến nghị): MESSAGE_ENCRYPTION_ENABLED=False
+  (tin đã enc:v1: vẫn cần đúng key để đọc).
+
+==========================================================

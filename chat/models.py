@@ -67,16 +67,34 @@ class Message(TrackingModel):
     def __str__(self):
         return f'From Thread - {self.thread.name if self.thread else "No Thread"}'
     
+    @classmethod
+    def from_db(cls, db, field_names, values):
+        instance = super().from_db(db, field_names, values)
+        from chat.crypto import decrypt_message_field
+        if 'content' in field_names:
+            idx = field_names.index('content')
+            instance.content = decrypt_message_field(values[idx])
+        if 'text' in field_names:
+            idx = field_names.index('text')
+            instance.text = decrypt_message_field(values[idx])
+        return instance
+
     def save(self, *args, **kwargs):
+        from chat.crypto import prepare_fields_for_storage
         if self.text and not self.content:
             self.content = self.text
         elif self.content and not self.text:
             self.text = self.content
+        self.content, self.text = prepare_fields_for_storage(self.content, self.text)
         if self.isread and not self.is_read:
             self.is_read = self.isread
         elif self.is_read and not self.isread:
             self.isread = self.is_read
         super().save(*args, **kwargs)
+        # Giữ plaintext trong RAM sau khi ghi (UX cùng request)
+        from chat.crypto import decrypt_message_field
+        self.content = decrypt_message_field(self.content)
+        self.text = decrypt_message_field(self.text)
 
 # Mô hình trò chuyện mới
 class Conversation(models.Model):
@@ -319,18 +337,46 @@ class ConversationMessage(models.Model):
         if user != self.sender and self.conversation.participants.filter(id=user.id).exists():
             self.is_read = True
             self.isread = True
-            self.save()
-            
+            self.save(update_fields=['is_read', 'isread', 'updated_at'])
+
+    @classmethod
+    def from_db(cls, db, field_names, values):
+        instance = super().from_db(db, field_names, values)
+        from chat.crypto import decrypt_message_field
+        if 'content' in field_names:
+            idx = field_names.index('content')
+            instance.content = decrypt_message_field(values[idx])
+        if 'text' in field_names:
+            idx = field_names.index('text')
+            instance.text = decrypt_message_field(values[idx])
+        return instance
+
     def save(self, *args, **kwargs):
-        if self.text and not self.content:
-            self.content = self.text
-        elif self.content and not self.text:
-            self.text = self.content
+        from chat.crypto import prepare_fields_for_storage
+        update_fields = kwargs.get('update_fields')
+        # Chỉ mã hóa khi ghi content/text (tránh đụng mark_as_read)
+        touch_body = update_fields is None or any(
+            f in update_fields for f in ('content', 'text')
+        )
+        if touch_body:
+            if self.text and not self.content:
+                self.content = self.text
+            elif self.content and not self.text:
+                self.text = self.content
+            self.content, self.text = prepare_fields_for_storage(self.content, self.text)
+            if update_fields is not None:
+                uf = set(update_fields)
+                uf.update({'content', 'text'})
+                kwargs['update_fields'] = list(uf)
         if self.isread and not self.is_read:
             self.is_read = self.isread
         elif self.is_read and not self.isread:
             self.isread = self.is_read
         super().save(*args, **kwargs)
+        if touch_body:
+            from chat.crypto import decrypt_message_field
+            self.content = decrypt_message_field(self.content)
+            self.text = decrypt_message_field(self.text)
 
 class ReadReceipt(models.Model):
     message = models.ForeignKey(ConversationMessage, on_delete=models.CASCADE, related_name='read_receipts')

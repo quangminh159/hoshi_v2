@@ -6,6 +6,7 @@ from django.http import JsonResponse, HttpResponse, FileResponse
 from django.views.decorators.http import require_POST, require_http_methods
 from django.contrib.auth import login as auth_login
 from django.core.paginator import Paginator, EmptyPage
+from django.db.models import Count
 from django.utils import timezone
 from django.urls import reverse_lazy
 from allauth.account.views import PasswordResetView, PasswordResetDoneView
@@ -696,24 +697,87 @@ def verify_change_phone(request):
     })
 
 
+def _follow_suggestions_qs(user, limit=5):
+    """Gợi ý follow: ưu tiên có nhiều follower, loại block + đã follow."""
+    blocked = set(user.get_blocked_related_ids()) if hasattr(user, 'get_blocked_related_ids') else set()
+    if not blocked:
+        blocked = set(
+            UserBlock.objects.filter(blocker=user).values_list('blocked_id', flat=True)
+        ) | set(
+            UserBlock.objects.filter(blocked=user).values_list('blocker_id', flat=True)
+        )
+    following = set(user.get_following_user_ids())
+    return (
+        User.objects.exclude(id=user.id)
+        .exclude(id__in=blocked)
+        .exclude(id__in=following)
+        .annotate(fc=Count('followers'))
+        .order_by('-fc', '?')[:limit]
+    )
+
+
 @login_required
 def get_suggestions(request):
-    # Lấy người dùng chưa được follow
-    suggestions = User.objects.exclude(
-        id__in=request.user.get_following_user_ids()
-    ).exclude(
-        id=request.user.id
-    ).order_by('?')[:5]  # Random 5 người dùng
-    
+    suggestions = _follow_suggestions_qs(request.user, limit=5)
     data = [{
         'id': user.id,
         'username': user.username,
         'name': f"{user.first_name} {user.last_name}".strip(),
         'avatar': user.get_avatar_url(),
-        'followers_count': user.followers.count()
+        'followers_count': getattr(user, 'fc', user.followers.count()),
     } for user in suggestions]
-    
     return JsonResponse({'suggestions': data})
+
+
+@login_required
+def onboarding(request):
+    """Wizard ngắn: avatar + gợi ý follow 5 người."""
+    if getattr(request.user, 'onboarding_completed', False):
+        return redirect('home')
+
+    suggestions = list(_follow_suggestions_qs(request.user, limit=5))
+
+    if request.method == 'POST':
+        skip = request.POST.get('skip') == '1'
+        avatar = request.FILES.get('avatar')
+        if avatar and not skip:
+            request.user.avatar = avatar
+            request.user.save(update_fields=['avatar'])
+
+        follow_ids = request.POST.getlist('follow_ids')
+        if follow_ids and not skip:
+            from accounts.models import UserFollowing
+            for uid in follow_ids:
+                try:
+                    uid = int(uid)
+                except (TypeError, ValueError):
+                    continue
+                if uid == request.user.id:
+                    continue
+                target = User.objects.filter(id=uid).first()
+                if not target:
+                    continue
+                if target.private_account:
+                    from accounts.models import FollowRequest
+                    FollowRequest.objects.get_or_create(
+                        from_user=request.user,
+                        to_user=target,
+                    )
+                else:
+                    UserFollowing.objects.get_or_create(
+                        user=request.user,
+                        following_user=target,
+                    )
+
+        request.user.onboarding_completed = True
+        request.user.save(update_fields=['onboarding_completed'])
+        if hasattr(request.user, 'get_avatar_url'):
+            messages.success(request, 'Chào mừng bạn đến Moora!')
+        return redirect('home')
+
+    return render(request, 'accounts/onboarding.html', {
+        'suggestions': suggestions,
+    })
 
 @login_required
 def api_load_profile_posts(request, username):

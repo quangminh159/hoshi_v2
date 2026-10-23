@@ -1,0 +1,110 @@
+{% extends 'base/base.html' %}
+{% load static i18n %}
+
+{% block title %}{% trans "Chào mừng đến Moora" %} - {{ block.super }}{% endblock %}
+
+{% block body_class %} onboarding-layout{% endblock %}
+
+{% block extra_css %}
+<style>
+.onboard-shell { max-width: 480px; margin: 1.5rem auto 3rem; padding: 0 1rem; }
+.onboard-card {
+    background: var(--card-bg, #fff);
+    border: 1px solid var(--border-color, #efefef);
+    border-radius: 20px;
+    padding: 1.5rem 1.25rem 1.25rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,.06);
+}
+.onboard-step { display: none; }
+.onboard-step.is-active { display: block; }
+.onboard-avatar-wrap { text-align: center; margin: 1rem 0 1.25rem; }
+.onboard-avatar-wrap img {
+    width: 96px; height: 96px; border-radius: 50%; object-fit: cover;
+    border: 3px solid #eef1ff;
+}
+.onboard-suggest-item {
+    display: flex; align-items: center; gap: .75rem;
+    padding: .75rem 0; border-bottom: 1px solid var(--border-color, #f0f0f0);
+}
+.onboard-suggest-item:last-child { border-bottom: none; }
+.onboard-suggest-item img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; }
+.onboard-actions { display: flex; gap: .5rem; margin-top: 1.25rem; }
+.onboard-actions .btn { flex: 1; border-radius: 999px; font-weight: 600; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="onboard-shell">
+    <div class="onboard-card">
+        <div class="text-center mb-2">
+            <img src="{% static 'images/logo-mark.svg' %}?v=moora-sprout-1" alt="" width="40" height="40">
+            <h1 class="h4 mt-2 mb-1">{% trans "Chào mừng đến Moora" %}</h1>
+            <p class="text-muted small mb-0">{% trans "Hai bước ngắn để bắt đầu" %}</p>
+        </div>
+
+        <form id="onboardForm" method="post" enctype="multipart/form-data" action="{% url 'accounts:onboarding' %}">
+            {% csrf_token %}
+
+            <div class="onboard-step is-active" data-step="1">
+                <h2 class="h6">{% trans "1. Ảnh đại diện" %}</h2>
+                <p class="text-muted small">{% trans "Giúp bạn bè nhận ra bạn dễ hơn." %}</p>
+                <div class="onboard-avatar-wrap">
+                    <img id="onboardAvatarPreview" class="js-self-avatar" src="{{ request.user.get_avatar_url }}" alt="">
+                </div>
+                <input type="file" name="avatar" id="onboardAvatar" accept="image/*" class="form-control">
+                <div class="onboard-actions">
+                    <button type="button" class="btn btn-outline-secondary" data-next="2">{% trans "Để sau" %}</button>
+                    <button type="button" class="btn btn-primary" data-next="2">{% trans "Tiếp tục" %}</button>
+                </div>
+            </div>
+
+            <div class="onboard-step" data-step="2">
+                <h2 class="h6">{% trans "2. Gợi ý theo dõi" %}</h2>
+                <p class="text-muted small">{% trans "Theo dõi vài người để feed không trống." %}</p>
+                <div id="onboardSuggestions">
+                    {% for u in suggestions %}
+                    <label class="onboard-suggest-item">
+                        <input type="checkbox" name="follow_ids" value="{{ u.id }}" checked class="form-check-input mt-0">
+                        <img src="{{ u.get_avatar_url }}" alt="">
+                        <div class="flex-grow-1 min-w-0">
+                            <div class="fw-semibold text-truncate">{{ u.username }}</div>
+                            <div class="text-muted small text-truncate">{{ u.first_name }} {{ u.last_name }}</div>
+                        </div>
+                    </label>
+                    {% empty %}
+                    <p class="text-muted small mb-0">{% trans "Chưa có gợi ý — bạn có thể tìm sau." %}</p>
+                    {% endfor %}
+                </div>
+                <input type="hidden" name="finish" value="1">
+                <div class="onboard-actions">
+                    <button type="submit" name="skip" value="1" class="btn btn-outline-secondary">{% trans "Bỏ qua" %}</button>
+                    <button type="submit" class="btn btn-primary">{% trans "Xong" %}</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    const steps = document.querySelectorAll('.onboard-step');
+    document.querySelectorAll('[data-next]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const next = btn.getAttribute('data-next');
+            steps.forEach((s) => s.classList.toggle('is-active', s.getAttribute('data-step') === next));
+        });
+    });
+    const input = document.getElementById('onboardAvatar');
+    const preview = document.getElementById('onboardAvatarPreview');
+    if (input && preview) {
+        input.addEventListener('change', () => {
+            const f = input.files && input.files[0];
+            if (!f) return;
+            preview.src = URL.createObjectURL(f);
+        });
+    }
+})();
+</script>
+{% endblock %}

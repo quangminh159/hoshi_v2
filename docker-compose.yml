@@ -1,8 +1,10 @@
-# Infra local: Postgres + Redis (+ TURN tùy chọn cho production / LAN)
-# Chạy: docker compose up -d
-# TURN (VPS / public IP): set TURN_EXTERNAL_IP rồi
+# Infra: Postgres + Redis + App (+ TURN tùy chọn)
+# Local / server bạn:
+#   docker compose up -d --build
+# Chỉ DB+Redis (máy anh đang dev):
+#   docker compose up -d db redis
+# TURN:
 #   docker compose --profile turn up -d
-# Tắt:  docker compose down
 
 services:
   db:
@@ -38,9 +40,28 @@ services:
       timeout: 3s
       retries: 10
 
-  # Coturn — TURN tự host trên máy/VPS của bạn (không cần Metered).
-  # Cần TURN_EXTERNAL_IP trong .env = IP public. Mở firewall 3478 + 49160-49200.
-  # Chạy: docker compose --profile turn up -d
+  web:
+    build: .
+    container_name: moora-web
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgres://hoshi:hoshipassword@db:5432/hoshi
+      REDIS_URL: redis://redis:6379/0
+      ALLOW_LOCAL_MEDIA: "True"
+    ports:
+      - "8000:8000"
+    volumes:
+      # Giữ ảnh / video / audio khi rebuild
+      - media_data:/app/media
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # Coturn — TURN tự host (profile turn)
   turn:
     image: coturn/coturn:4.6
     container_name: moora-turn
@@ -77,3 +98,4 @@ services:
 volumes:
   postgres_data:
   redis_data:
+  media_data:

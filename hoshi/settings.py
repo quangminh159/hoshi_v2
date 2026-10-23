@@ -43,6 +43,18 @@ SECRET_KEY = (
     or 'dev-only-insecure-key-change-me'
 )
 
+# Mã hóa nội dung chat khi lưu DB (Fernet). Nên đặt MESSAGE_ENCRYPTION_KEY riêng.
+MESSAGE_ENCRYPTION_ENABLED = config('MESSAGE_ENCRYPTION_ENABLED', default=True, cast=bool)
+MESSAGE_ENCRYPTION_KEY = (config('MESSAGE_ENCRYPTION_KEY', default='') or '').strip()
+
+# Web Push (thông báo ĐT/trình duyệt). Tạo key: manage.py generate_vapid_keys
+_vapid_priv = (config('WEBPUSH_VAPID_PRIVATE_KEY', default='') or '').strip()
+WEBPUSH_VAPID_PRIVATE_KEY = _vapid_priv.replace('\\n', '\n') if _vapid_priv else ''
+WEBPUSH_VAPID_PUBLIC_KEY = (config('WEBPUSH_VAPID_PUBLIC_KEY', default='') or '').strip()
+WEBPUSH_VAPID_ADMIN_EMAIL = (
+    config('WEBPUSH_VAPID_ADMIN_EMAIL', default='') or 'mailto:admin@moora.local'
+).strip()
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=None)
 if DEBUG is None:
@@ -406,6 +418,11 @@ if not DEBUG:
         'django-insecure-key-for-build-only',
     ):
         raise ImproperlyConfigured('Production cần SECRET_KEY / DJANGO_SECRET_KEY mạnh.')
+    if MESSAGE_ENCRYPTION_ENABLED and not MESSAGE_ENCRYPTION_KEY:
+        raise ImproperlyConfigured(
+            'Production cần MESSAGE_ENCRYPTION_KEY (chạy: '
+            'python manage.py generate_message_encryption_key).'
+        )
 
 if REDIS_URL and not USE_REDIS:
     import logging
@@ -631,16 +648,25 @@ USE_S3_MEDIA = all(
     for x in (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_STORAGE_BUCKET_NAME)
 )
 
+# Beta / server bạn: để trống AWS_* → media lưu ổ đĩa (cần volume Docker).
+ALLOW_LOCAL_MEDIA = config('ALLOW_LOCAL_MEDIA', default=True, cast=bool)
+
 if USE_S3_MEDIA:
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
     if AWS_S3_CUSTOM_DOMAIN:
         MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/'
     elif AWS_S3_ENDPOINT_URL:
         MEDIA_URL = f'{AWS_S3_ENDPOINT_URL.rstrip("/")}/{AWS_STORAGE_BUCKET_NAME}/'
-elif not DEBUG:
+elif not DEBUG and not ALLOW_LOCAL_MEDIA:
     import logging
     logging.getLogger(__name__).warning(
-        'DEBUG=False nhưng chưa cấu hình S3/R2 thật — media vẫn lưu local disk.'
+        'DEBUG=False và ALLOW_LOCAL_MEDIA=False nhưng chưa cấu hình S3/R2.'
+    )
+elif not DEBUG and ALLOW_LOCAL_MEDIA:
+    import logging
+    logging.getLogger(__name__).info(
+        'Media: lưu local disk (%s). Mount volume /app/media khi dùng Docker.',
+        MEDIA_ROOT,
     )
 
 # Sentry (optional)

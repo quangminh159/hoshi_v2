@@ -65,7 +65,7 @@ def format_caption(caption):
 
     def hashtag_repl(match):
         tag = match.group(1)
-        url = f'{reverse("posts:search")}?q={tag}'
+        url = reverse('posts:hashtag', kwargs={'name': tag})
         return f'<a href="{url}" class="hashtag-link" onclick="event.stopPropagation()">#{tag}</a>'
 
     text = _apply_outside_tags(text, re.compile(r'@(\w+)'), mention_repl)

@@ -5,7 +5,10 @@ from django.db.models import Count, Q
 from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator, EmptyPage
 from django.views.decorators.http import require_POST
-from .models import Post, Comment, Like, SavedPost, Hashtag, Media, Mention, PostReport, PostMedia, CommentLike, UserInteraction
+from .models import (
+    Post, Comment, Like, SavedPost, Hashtag, Media, Mention, PostReport,
+    PostMedia, CommentLike, UserInteraction, HiddenPost, CommentReport,
+)
 from django.conf import settings
 from django.urls import reverse
 from django.contrib import messages
@@ -39,6 +42,8 @@ def home(request):
     """Trang chủ dùng feed shell nhẹ; bài viết load qua /posts/?format=json."""
     if not request.user.is_authenticated:
         return redirect('account_login')
+    if not getattr(request.user, 'onboarding_completed', True):
+        return redirect('accounts:onboarding')
     return index(request)
 
 
@@ -253,11 +258,14 @@ def post_detail(request, post_id):
             'replies_count': getattr(comment, 'replies_total', None) or replies.count()
         })
     
+    from posts.edit_utils import post_is_edited
+
     context = {
         'post': post,
         'comments_data': comments_with_replies,
         'total_comments': Comment.objects.filter(post=post).count(),
         'is_liked': Like.objects.filter(user=request.user, post=post).exists(),
+        'post_is_edited': post_is_edited(post),
     }
     return render(request, 'posts/post_detail.html', context)
 
@@ -429,8 +437,11 @@ def edit_post(request, post_id):
     
     if request.method == 'POST':
         try:
+            from posts.edit_utils import record_post_edit_history
+
             # Cập nhật caption và location
-            old_caption = post.caption
+            old_caption = post.caption or ''
+            old_location = post.location or ''
             post.caption = request.POST.get('caption', '').strip()
             post.location = request.POST.get('location', '').strip()
             from posts.visibility import normalize_visibility
@@ -476,6 +487,12 @@ def edit_post(request, post_id):
                 post.hashtags.clear()
                 process_hashtags(post)
                 process_mentions(post)
+
+            record_post_edit_history(
+                post,
+                old_caption=old_caption,
+                old_location=old_location,
+            )
             
             # Lưu các thay đổi
             post.save()
@@ -979,6 +996,85 @@ def report_post_ajax(request, post_id):
         return JsonResponse({'error': form.errors}, status=400)
 
 @login_required
+@require_POST
+def hide_post(request, post_id):
+    """Ẩn bài khỏi feed của mình."""
+    post = get_object_or_404(Post, id=post_id)
+    if post.author_id == request.user.id:
+        return JsonResponse({'ok': False, 'error': 'Không thể ẩn bài của chính bạn.'}, status=400)
+    HiddenPost.objects.get_or_create(user=request.user, post=post)
+    return JsonResponse({'ok': True, 'post_id': post.id})
+
+
+@login_required
+@require_POST
+def unhide_post(request, post_id):
+    HiddenPost.objects.filter(user=request.user, post_id=post_id).delete()
+    return JsonResponse({'ok': True, 'post_id': post_id})
+
+
+@login_required
+def post_edit_history(request, post_id):
+    """API lịch sử chỉnh sửa nhẹ (caption/location đã lưu trước mỗi lần sửa)."""
+    from posts.edit_utils import post_is_edited
+    from posts.models import PostEditHistory
+
+    post = get_object_or_404(Post.objects.select_related('author'), id=post_id)
+    if UserBlock.objects.filter(blocker=post.author, blocked=request.user).exists():
+        return JsonResponse({'ok': False, 'error': 'Không thể xem bài viết này.'}, status=403)
+    denied = _deny_private_post_access(request, post, as_json=True)
+    if denied:
+        return denied
+
+    history = list(
+        PostEditHistory.objects.filter(post=post)
+        .order_by('-created_at')
+        .values('caption', 'location', 'created_at')[:10]
+    )
+    items = [
+        {
+            'caption': h['caption'] or '',
+            'location': h['location'] or '',
+            'edited_at': h['created_at'].isoformat(),
+        }
+        for h in history
+    ]
+    return JsonResponse({
+        'ok': True,
+        'post_id': post.id,
+        'is_edited': post_is_edited(post),
+        'updated_at': post.updated_at.isoformat() if post.updated_at else None,
+        'current': {
+            'caption': post.caption or '',
+            'location': post.location or '',
+        },
+        'history': items,
+    })
+
+
+@login_required
+@require_POST
+def report_comment(request, comment_id):
+    """Báo cáo bình luận (AJAX)."""
+    comment = get_object_or_404(Comment.objects.select_related('author', 'post'), id=comment_id)
+    if comment.author_id == request.user.id:
+        return JsonResponse({'ok': False, 'error': 'Không thể báo cáo bình luận của bạn.'}, status=403)
+    reason = (request.POST.get('reason') or request.GET.get('reason') or 'other').strip()
+    details = (request.POST.get('details') or '').strip()
+    valid_reasons = {c[0] for c in CommentReport.REASON_CHOICES}
+    if reason not in valid_reasons:
+        reason = 'other'
+    _, created = CommentReport.objects.get_or_create(
+        user=request.user,
+        comment=comment,
+        defaults={'reason': reason, 'details': details},
+    )
+    if not created:
+        return JsonResponse({'ok': False, 'error': 'Bạn đã báo cáo bình luận này.'}, status=400)
+    return JsonResponse({'ok': True, 'message': 'Đã gửi báo cáo. Cảm ơn bạn.'})
+
+
+@login_required
 def saved_posts(request):
     if request.GET.get('format') != 'json':
         return render(request, 'posts/feed.html', {
@@ -1102,28 +1198,43 @@ def api_add_comment(request):
     # Redirect từ /api/comments/add/ sang /api/posts/comments/add/
     return HttpResponseRedirect('/api/posts/comments/add/')
 
+def _normalize_search_query(raw):
+    """Chuẩn hóa q: bỏ #/@ đầu, khoảng trắng thừa."""
+    q = (raw or '').strip()
+    tag = q.lstrip('#').strip()
+    user_q = q.lstrip('@').strip()
+    return q, tag, user_q
+
+
 @login_required
 def search(request):
-    """
-    Tìm kiếm bài viết và người dùng
-    """
-    query = request.GET.get('q', '').strip()
+    """Tìm kiếm người dùng, hashtag và bài viết."""
+    raw_query = request.GET.get('q', '')
+    query, tag_query, user_query = _normalize_search_query(raw_query)
+    tab = (request.GET.get('tab') or 'all').strip().lower()
 
     if not query:
         return render(request, 'posts/search_results.html', {
             'query': query,
             'posts': [],
             'users': [],
+            'hashtags': [],
+            'active_tab': 'all',
         })
+
+    blocked_by_users = list(
+        UserBlock.objects.filter(blocked=request.user).values_list('blocker_id', flat=True)
+    )
+    blocked_ids = set(blocked_by_users) | set(
+        UserBlock.objects.filter(blocker=request.user).values_list('blocked_id', flat=True)
+    )
 
     posts = (
         Post.objects.filter(caption__icontains=query)
-        | Post.objects.filter(hashtags__name__icontains=query)
+        | Post.objects.filter(hashtags__name__icontains=tag_query or query)
     )
     posts = posts.select_related('author').prefetch_related('media').distinct().order_by('-created_at')
-
-    blocked_by_users = UserBlock.objects.filter(blocked=request.user).values_list('blocker_id', flat=True)
-    posts = posts.exclude(author_id__in=blocked_by_users)
+    posts = posts.exclude(author_id__in=blocked_ids)
 
     following_ids = request.user.get_following_user_ids()
     posts = posts.exclude(
@@ -1135,24 +1246,56 @@ def search(request):
     posts = filter_visible_posts(posts, request.user)
 
     users = (
-        User.objects.filter(username__icontains=query)
-        | User.objects.filter(first_name__icontains=query)
-        | User.objects.filter(last_name__icontains=query)
+        User.objects.filter(username__icontains=user_query or query)
+        | User.objects.filter(first_name__icontains=user_query or query)
+        | User.objects.filter(last_name__icontains=user_query or query)
     )
-    users = users.exclude(id__in=blocked_by_users).exclude(id=request.user.id).distinct().order_by('username')
+    if hasattr(User, 'bio'):
+        users = users | User.objects.filter(bio__icontains=user_query or query)
+    users = users.exclude(id__in=blocked_ids).exclude(id=request.user.id).distinct().order_by('username')
+
+    hashtags = (
+        Hashtag.objects.filter(name__icontains=tag_query or query)
+        .annotate(posts_count_total=Count('posts'))
+        .order_by('-posts_count_total')[:30]
+    )
 
     post_paginator = Paginator(posts, 9)
-    post_page = request.GET.get('post_page', 1)
-    posts_result = post_paginator.get_page(post_page)
-
+    posts_result = post_paginator.get_page(request.GET.get('post_page', 1))
     user_paginator = Paginator(users, 12)
-    user_page = request.GET.get('user_page', 1)
-    users_result = user_paginator.get_page(user_page)
+    users_result = user_paginator.get_page(request.GET.get('user_page', 1))
 
     return render(request, 'posts/search_results.html', {
         'query': query,
         'posts': posts_result,
         'users': users_result,
+        'hashtags': hashtags,
+        'active_tab': tab if tab in ('all', 'users', 'hashtags', 'posts') else 'all',
+    })
+
+
+@login_required
+def hashtag_detail(request, name):
+    """Trang riêng cho một hashtag."""
+    tag_name = (name or '').strip().lstrip('#').lower()
+    if not tag_name:
+        return redirect('posts:search')
+
+    hashtag = Hashtag.objects.filter(name__iexact=tag_name).first()
+    if not hashtag:
+        hashtag = Hashtag.objects.create(name=tag_name)
+    posts = (
+        _visible_posts_qs(request.user)
+        .filter(hashtags__name__iexact=tag_name)
+        .order_by('-created_at')
+    )
+    paginator = Paginator(posts, 12)
+    page = paginator.get_page(request.GET.get('page', 1))
+    return render(request, 'posts/hashtag_detail.html', {
+        'hashtag': hashtag,
+        'tag_name': tag_name,
+        'posts': page,
+        'posts_count': posts.count(),
     })
 
 
@@ -1431,6 +1574,8 @@ def feed_comment_replies_json(request, comment_id):
 def prepare_posts_json(posts, user, include_comments=False):
     """Helper để chuẩn bị dữ liệu posts cho JSON responses."""
     from posts.viral import is_post_trending
+    from posts.edit_utils import post_is_edited
+
     post_list = list(posts)
     if not post_list:
         return []
@@ -1474,6 +1619,7 @@ def prepare_posts_json(posts, user, include_comments=False):
             'location': post.location,
             'created_at': post.created_at.isoformat(),
             'updated_at': post.updated_at.isoformat(),
+            'is_edited': post_is_edited(post),
             'likes_count': post.likes_count,
             'comments_count': post.comments_count,
             'views_count': int(getattr(post, 'views_count', 0) or 0),

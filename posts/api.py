@@ -811,6 +811,11 @@ def edit_post(request, post_id):
                         status=status.HTTP_403_FORBIDDEN)
     
     try:
+        from posts.edit_utils import post_is_edited, record_post_edit_history
+
+        old_caption = post.caption or ''
+        old_location = post.location or ''
+
         # Cập nhật thông tin cơ bản của bài viết
         if 'caption' in request.data:
             post.caption = request.data['caption']
@@ -861,6 +866,12 @@ def edit_post(request, post_id):
                     order=last_order + index
                 )
 
+        record_post_edit_history(
+            post,
+            old_caption=old_caption,
+            old_location=old_location,
+        )
+
         # Lưu thay đổi (cập nhật updated_at sau khi xử lý media)
         post.save()
         
@@ -880,6 +891,7 @@ def edit_post(request, post_id):
                 'disable_comments': post.disable_comments,
                 'hide_likes': post.hide_likes,
                 'updated_at': post.updated_at.isoformat(),
+                'is_edited': post_is_edited(post),
                 'media': _serialize_post_media(post),
             }
         })
@@ -1071,7 +1083,7 @@ def search_suggestions(request):
     hashtags = [{
         'name': tag.name,
         'posts_count': tag.posts_count_total,
-        'search_url': f'/posts/search/?q={tag.name}',
+        'search_url': f'/posts/hashtag/{tag.name}/',
     } for tag in hashtags_qs]
 
     posts_qs = (

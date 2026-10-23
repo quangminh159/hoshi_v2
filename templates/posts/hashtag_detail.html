@@ -1,0 +1,53 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% load post_tags %}
+
+{% block title %}#{{ tag_name }} - {{ block.super }}{% endblock %}
+
+{% block body_class %} search-layout{% endblock %}
+
+{% block content %}
+<div class="container search-page" style="max-width:720px;margin:0 auto;padding:1rem 0 2rem;">
+    <div class="card border-0 shadow-sm rounded-4 mb-3">
+        <div class="card-body py-4">
+            <a href="{% url 'posts:search' %}?q={{ tag_name }}" class="text-muted small text-decoration-none">
+                <i class="fas fa-arrow-left me-1"></i> Tìm kiếm
+            </a>
+            <h1 class="h3 mt-2 mb-1">#{{ tag_name }}</h1>
+            <p class="text-muted mb-0">{{ posts_count }} bài viết</p>
+        </div>
+    </div>
+
+    {% if posts %}
+    <div class="row g-2">
+        {% for post in posts %}
+        <div class="col-4">
+            <a href="{% url 'posts:post_detail' post.id %}" class="d-block ratio ratio-1x1 rounded-3 overflow-hidden bg-dark">
+                {% with m=post.media.first %}
+                {% if m and m.media_type == 'image' %}
+                <img src="{{ m.file.url }}" alt="" class="w-100 h-100" style="object-fit:cover;">
+                {% elif m and m.media_type == 'video' %}
+                <div class="d-flex align-items-center justify-content-center text-white"><i class="fas fa-play"></i></div>
+                {% else %}
+                <div class="d-flex align-items-center justify-content-center text-white small p-2 text-center">{{ post.caption|truncatechars:40 }}</div>
+                {% endif %}
+                {% endwith %}
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+    {% if posts.has_other_pages %}
+    <nav class="mt-3 d-flex justify-content-center gap-2">
+        {% if posts.has_previous %}
+        <a class="btn btn-sm btn-outline-secondary" href="?page={{ posts.previous_page_number }}">Trước</a>
+        {% endif %}
+        {% if posts.has_next %}
+        <a class="btn btn-sm btn-primary" href="?page={{ posts.next_page_number }}">Sau</a>
+        {% endif %}
+    </nav>
+    {% endif %}
+    {% else %}
+    <div class="text-center text-muted py-5">Chưa có bài viết với hashtag này.</div>
+    {% endif %}
+</div>
+{% endblock %}

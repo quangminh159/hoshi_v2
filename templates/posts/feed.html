@@ -7,8 +7,8 @@
 {% block body_class %} feed-layout{% endblock %}
 
 {% block extra_css %}
-<link href="{% static 'css/feed.css' %}?v=comments-ui-1" rel="stylesheet">
-<link href="{% static 'css/share_post_modal.css' %}" rel="stylesheet">
+<link href="{% static 'css/feed.css' %}?v=edit-history-1" rel="stylesheet">
+<link href="{% static 'css/share_post_modal.css' %}?v=ui-polish-1" rel="stylesheet">
 {% include 'posts/includes/create_post_composer_assets.html' %}
 <style>
 .feed-page #posts-container .fas.fa-heart { color: inherit !important; }
@@ -97,15 +97,17 @@
 
 <!-- Modal chia sẻ (dùng chung cho mọi bài) -->
 {% include 'posts/includes/share_post_modal.html' %}
+{% include 'posts/includes/report_post_modal_shell.html' %}
+{% include 'posts/includes/post_edit_history_modal.html' %}
 {% endblock %}
 
 {% block extra_js %}
 <script>
 window.HOSHI_USER_SUGGESTIONS_URL = '{% url "posts:user_suggestions" %}';
 </script>
-<script src="{% static 'js/edit_caption_suggestions.js' %}?v=caret-visible-1"></script>
-<script src="{% static 'js/infinite_scroll.js' %}?v=comments-ui-1"></script>
-<script src="{% static 'js/share_post_modal.js' %}?v=no-as-new-1"></script>
+<script src="{% static 'js/edit_caption_suggestions.js' %}?v=ui-polish-1"></script>
+<script src="{% static 'js/infinite_scroll.js' %}?v=edit-history-1"></script>
+<script src="{% static 'js/share_post_modal.js' %}?v=ui-polish-1"></script>
 <script>
 window.currentUserId = '{{ request.user.id }}';
 </script>

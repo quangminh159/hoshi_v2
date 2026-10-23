@@ -81,6 +81,10 @@ class AccountAdapter(DefaultAccountAdapter):
     def get_login_redirect_url(self, request):
         if request.session.get('pending_2fa_user_id'):
             return reverse('accounts:verify_two_factor_login')
+        user = getattr(request, 'user', None)
+        if user and getattr(user, 'is_authenticated', False):
+            if not getattr(user, 'onboarding_completed', True):
+                return reverse('accounts:onboarding')
         return super().get_login_redirect_url(request)
 
     def is_open_for_signup(self, request):

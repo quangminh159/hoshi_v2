@@ -30,6 +30,8 @@ RUN printf '%s\n' \
 
 COPY . /app/
 
+RUN chmod +x /app/scripts/docker-entrypoint.sh
+
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV DJANGO_SETTINGS_MODULE=hoshi.settings
@@ -41,5 +43,8 @@ RUN DEBUG=True SECRET_KEY=django-insecure-key-for-build-only \
 
 EXPOSE 8000
 
-# ASGI + WebSocket (chat). Runtime cần DATABASE_URL + REDIS_URL + DEBUG=False
-CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "hoshi.asgi:application"]
+# Volume /app/media giữ ảnh-video giữa các lần redeploy
+VOLUME ["/app/media"]
+
+# ASGI + migrate + WebSocket. Runtime cần DATABASE_URL + REDIS_URL
+CMD ["/app/scripts/docker-entrypoint.sh"]

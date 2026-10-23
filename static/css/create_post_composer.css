@@ -3,7 +3,8 @@
     border: 1px solid var(--border-color, #efefef);
     border-radius: 16px;
     box-shadow: 0 4px 24px var(--shadow-color, rgba(0, 0, 0, 0.06));
-    overflow: hidden;
+    /* Gợi ý # / @ trên trang /posts/create/ không bị cắt */
+    overflow: visible;
     color: var(--text-color, #262626);
 }
 

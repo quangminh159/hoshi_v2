@@ -11,6 +11,20 @@
 html {
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
+    /* Token layout mobile — JS mobile_adapt.js cập nhật theo từng máy */
+    --app-vh: 1vh;
+    --app-height: 100dvh;
+    --app-width: 100vw;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-right: env(safe-area-inset-right, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-left: env(safe-area-inset-left, 0px);
+    --mobile-topbar-base: 52px;
+    --mobile-nav-base: 60px;
+    --mobile-topbar-h: calc(var(--mobile-topbar-base) + var(--safe-top));
+    --mobile-nav-h: calc(var(--mobile-nav-base) + var(--safe-bottom));
+    --mobile-main-pad-top: var(--mobile-topbar-h);
+    --mobile-main-pad-bottom: calc(var(--mobile-nav-h) + 12px);
 }
 
 body {

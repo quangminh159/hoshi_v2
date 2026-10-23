@@ -32,7 +32,8 @@ body.profile-layout.bg-light {
 
 .profile-hero {
     position: relative;
-    overflow: hidden;
+    /* visible: dropdown Báo cáo/Chặn không bị stats đè / cắt */
+    overflow: visible;
     background:
         linear-gradient(165deg, rgba(255, 255, 255, 0.92) 0%, rgba(246, 246, 246, 0.95) 100%);
     border: 1px solid var(--profile-line);
@@ -205,6 +206,18 @@ body.profile-layout.bg-light {
     justify-content: center;
     gap: 0.5rem;
     margin-top: 0.45rem;
+    position: relative;
+    z-index: 30;
+}
+
+.profile-hero__actions .dropdown {
+    position: relative;
+    z-index: 31;
+}
+
+.profile-hero__actions .dropdown-menu {
+    z-index: 1080;
+    margin-top: 0.35rem;
 }
 
 .profile-btn {
@@ -269,7 +282,7 @@ body.profile-layout.bg-light {
 
 .profile-stats {
     position: relative;
-    z-index: 1;
+    z-index: 0;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.65rem;

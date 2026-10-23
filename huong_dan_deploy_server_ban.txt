@@ -1,0 +1,53 @@
+# Đẩy Moora lên server bạn — chạy thử (kèm media local)
+
+════════════════════════════════════════
+Media (đã cấu hình sẵn)
+════════════════════════════════════════
+- Không cần R2/S3 khi chạy thử
+- Ảnh/video lưu volume Docker `media_data` → rebuild không mất file
+- App tự serve /media/... (kể cả DEBUG=False)
+- .env: ALLOW_LOCAL_MEDIA=True, để trống AWS_*
+
+
+════════════════════════════════════════
+Trên server bạn (Docker)
+════════════════════════════════════════
+1) Copy code + file .env lên server
+
+2) Sửa .env tối thiểu:
+DEBUG=False
+SECRET_KEY=...(đã có trong .env.production)
+ALLOWED_HOSTS=<IP_SERVER>
+CSRF_TRUSTED_ORIGINS=http://<IP_SERVER>:8000
+ALLOW_LOCAL_MEDIA=True
+INVITE_ONLY=True
+# DATABASE_URL / REDIS_URL: compose tự ghi đè khi dùng service db/redis
+
+3) Chạy tất cả:
+cd moora
+docker compose up -d --build
+
+4) Tạo admin + mã mời (1 lần):
+docker exec -it moora-web python manage.py createsuperuser
+docker exec -it moora-web python manage.py create_invite -n 5 --uses 1 --note ban-be
+
+5) Mở: http://IP_SERVER:8000
+   Đăng bài có ảnh → F5 vẫn còn (volume media_data)
+
+Kiểm tra volume media:
+  docker volume ls | grep media
+  docker exec moora-web ls -la /app/media
+
+
+════════════════════════════════════════
+Chỉ DB+Redis (máy anh đang code)
+════════════════════════════════════════
+docker compose up -d db redis
+# Không bật web trên máy anh nếu vẫn dùng Daphne local
+
+
+════════════════════════════════════════
+Sau này lên R2
+════════════════════════════════════════
+Điền AWS_* thật vào .env → restart.
+Không cần đổi code.

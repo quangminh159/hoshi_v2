@@ -29,6 +29,8 @@ urlpatterns = [
     path('password/reset/', RedirectView.as_view(url=reverse_lazy('account_reset_password')), name='account_reset_password'),
     path('password/reset/done/', RedirectView.as_view(url=reverse_lazy('account_reset_password_done')), name='account_reset_password_done'),
     
+    path('onboarding/', views.onboarding, name='onboarding'),
+
     # API URLs
     path('suggestions/', views.get_suggestions, name='get_suggestions'),
     path('api/check-username/', views.check_username_available, name='check_username'),

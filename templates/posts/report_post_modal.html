@@ -132,17 +132,12 @@
             .then(data => {
                 if (data.success) {
                     // Đóng modal
-                    const reportModal = bootstrap.Modal.getInstance(document.getElementById('reportModal'));
+                    const modalElement = document.getElementById('reportPostModal') || document.getElementById('reportModal');
+                    const reportModal = modalElement ? bootstrap.Modal.getInstance(modalElement) : null;
                     if (reportModal) {
                         reportModal.hide();
-                    } else {
-                        console.warn('Could not find reportModal instance');
-                        // Đóng modal theo cách thủ công
-                        const modalElement = document.getElementById('reportModal');
-                        if (modalElement) {
-                            const modal = new bootstrap.Modal(modalElement);
-                            modal.hide();
-                        }
+                    } else if (modalElement && typeof bootstrap !== 'undefined') {
+                        bootstrap.Modal.getOrCreateInstance(modalElement).hide();
                     }
                     
                     // Hiển thị thông báo thành công

@@ -12,8 +12,11 @@ def visibility_q_for_viewer(viewer):
 
 
 def filter_visible_posts(queryset, viewer):
-    """Lọc queryset Post theo chế độ xem."""
-    return queryset.filter(visibility_q_for_viewer(viewer))
+    """Lọc queryset Post theo chế độ xem (+ bài user đã ẩn khỏi feed)."""
+    qs = queryset.filter(visibility_q_for_viewer(viewer))
+    if viewer is not None and getattr(viewer, 'is_authenticated', False):
+        qs = qs.exclude(hidden_by__user=viewer)
+    return qs
 
 
 def can_view_post(post, viewer):

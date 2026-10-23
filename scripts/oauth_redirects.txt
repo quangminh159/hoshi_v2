@@ -1,0 +1,19 @@
+OAuth redirect URIs — thay YOUR_DOMAIN
+
+=== Google Cloud Console → Credentials → OAuth 2.0 Client ===
+Authorized JavaScript origins:
+  https://YOUR_DOMAIN
+  https://www.YOUR_DOMAIN
+
+Authorized redirect URIs:
+  https://YOUR_DOMAIN/accounts/google/login/callback/
+  https://www.YOUR_DOMAIN/accounts/google/login/callback/
+
+=== Facebook Developers → Facebook Login → Settings ===
+Valid OAuth Redirect URIs:
+  https://YOUR_DOMAIN/accounts/facebook/login/callback/
+  https://www.YOUR_DOMAIN/accounts/facebook/login/callback/
+
+=== Django Admin sau deploy ===
+1. Sites → domain = YOUR_DOMAIN (bỏ example.com)
+2. Social applications → Google / Facebook → chọn Site đúng

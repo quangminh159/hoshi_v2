@@ -1,58 +1,74 @@
-# Moora — Sentry + Media S3/R2 + Deploy + Invite beta
+# Moora — Tiến độ lên production (em đã chuẩn bị sẵn phần code)
 
-## 1) Sentry (error tracking)
-1. Tạo project Django tại https://sentry.io
-2. Copy DSN vào `.env`:
-```
-SENTRY_DSN=https://xxxx@o0.ingest.sentry.io/0
-SENTRY_TRACES_SAMPLE_RATE=0.1
-```
-3. Restart app. Lỗi 500 sẽ hiện trên Sentry.
+Cập nhật: 2026-08-14
 
-## 2) Media S3 / Cloudflare R2
-Điền credentials THẬT (không để `your-...`):
-```
-AWS_ACCESS_KEY_ID=...
-AWS_SECRET_ACCESS_KEY=...
-AWS_STORAGE_BUCKET_NAME=moora-media
-AWS_S3_REGION_NAME=auto
-# R2 example:
-AWS_S3_ENDPOINT_URL=https://<ACCOUNT_ID>.r2.cloudflarestorage.com
-AWS_S3_CUSTOM_DOMAIN=media.yourdomain.com
-AWS_QUERYSTRING_AUTH=True
-```
-Local: để trống / placeholder → lưu `media/` trên disk.
+════════════════════════════════════════
+ĐÃ LÀM SẴN TRONG REPO
+════════════════════════════════════════
+[x] .env.production.example — mẫu đủ biến
+[x] .env.production — file thật (gitignored), đã có SECRET_KEY mạnh
+[x] scripts/nginx-moora.conf — Nginx + HTTPS + WebSocket
+[x] scripts/oauth_redirects.txt — URL Google/Facebook
+[x] scripts/backup_postgres.ps1 + backup_postgres.sh
+[x] manage.py check_production — chấm checklist
+[x] manage.py send_test_email you@mail.com
+[x] Local: Postgres + Redis + TURN đang chạy (docker)
+[x] Bảo mật tin nhắn (mã hóa DB) — xem huong_dan_bao_mat_tin_nhan.txt
+[x] 4 tính năng launch — xem huong_dan_4_tinh_nang_launch.txt
+    (search/hashtag, web push, ẩn+báo cáo, onboarding)
+[x] Dockerfile Daphne ASGI sẵn
 
-## 3) Deploy public (gợi ý)
-Tối thiểu cần:
-- Host: Railway / Render / VPS + Docker
-- Env: `DEBUG=False`, `SECRET_KEY` mạnh, `ALLOWED_HOSTS=your.domain`
-- `DATABASE_URL` Postgres, `REDIS_URL` Redis
-- Process: **Daphne** (ASGI) — xem Dockerfile
-- Domain + HTTPS (Cloudflare / platform SSL)
-- Backup: `scripts/backup_postgres.ps1` (hoặc cron tương đương)
+Chạy kiểm tra (đọc .env local hiện tại):
+  .\venv\Scripts\python.exe manage.py check_production
 
-Ví dụ chạy container:
-```
-docker compose up -d
-# app image (khi đã build):
-# docker run -p 8000:8000 --env-file .env moora-web
-```
+════════════════════════════════════════
+ANH CẦN CUNG CẤP / LÀM (em không tự mua được)
+════════════════════════════════════════
 
-## 4) Invite-only beta
-`.env`:
-```
-INVITE_ONLY=True
-```
-(Local `DEBUG=True` mặc định tắt invite; production `DEBUG=False` mặc định bật.)
+--- 1) Domain + HTTPS ---
+Anh trả lời em:
+  a) Domain đã có chưa? (ví dụ moora.vn)
+  b) Host chọn: Railway / Render / VPS?
 
-Tạo mã:
-```
-.\venv\Scripts\python.exe manage.py create_invite -n 10 --uses 1 --note friends
-```
-Hoặc Admin → Mã mời beta.
+Em sẽ điền đúng ALLOWED_HOSTS + CSRF + nginx.
 
-## 5) Rate-limit / chống spam
-Đã bật:
-- Like 60/phút, comment 20/phút, tạo bài 10/phút, chat 60/phút (theo user, Redis cache)
-- DRF throttle anon 60/min, user 300/min
+--- 2) .env production ---
+File: C:\hoshi_v2\.env.production
+Đã có SECRET_KEY. Anh chỉ cần đổi YOUR_DOMAIN + password DB/Redis.
+
+--- 3) Postgres + Redis ---
+Local: ĐÃ OK (docker moora-postgres / moora-redis).
+Production: tạo DB trên host rồi dán DATABASE_URL / REDIS_URL vào .env.production.
+
+--- 4) Media R2 ---
+Anh tạo Cloudflare R2 bucket + API token, gửi em:
+  AWS_ACCESS_KEY_ID / SECRET / ACCOUNT_ID / (optional) media.domain
+Em điền giúp vào .env.production.
+
+--- 5) Email SMTP ---
+Anh tạo Gmail App Password (hoặc Resend), gửi:
+  EMAIL_HOST_USER + EMAIL_HOST_PASSWORD
+Rồi test:
+  .\venv\Scripts\python.exe manage.py send_test_email anh@email.com
+
+--- 6) OAuth ---
+Xem scripts/oauth_redirects.txt — thêm URI với domain thật.
+Gửi Client ID/Secret Google + Facebook → em điền .env.production.
+
+--- 7) TURN ---
+Local đang dùng IP 14.50.214.217.
+Production VPS: set TURN_EXTERNAL_IP = IP VPS, docker compose --profile turn up -d
+(Railway thường khó mở UDP → nên VPS cho TURN)
+
+--- 8) Backup + Sentry ---
+Backup: scripts/backup_postgres.sh (cron 3h sáng)
+Sentry: tạo project → dán SENTRY_DSN vào .env.production
+
+════════════════════════════════════════
+BƯỚC TIẾP THEO
+════════════════════════════════════════
+Trả lời 2 câu:
+1) Domain là gì?
+2) Deploy bằng Railway hay VPS?
+
+→ Em làm nốt từng mục còn lại theo lựa chọn đó.

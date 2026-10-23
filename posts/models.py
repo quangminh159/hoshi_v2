@@ -348,6 +348,93 @@ class StoryView(models.Model):
         verbose_name = _('story view')
         verbose_name_plural = _('story views')
 
+class HiddenPost(models.Model):
+    """User ẩn bài khỏi feed của mình (không quan tâm)."""
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='hidden_posts',
+    )
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='hidden_by')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'post')
+        ordering = ['-created_at']
+        verbose_name = _('hidden post')
+        verbose_name_plural = _('hidden posts')
+
+    def __str__(self):
+        return f'{self.user_id} hid post {self.post_id}'
+
+
+class PostEditHistory(models.Model):
+    """Snapshot caption/location trước mỗi lần chỉnh sửa (lịch sử nhẹ)."""
+    post = models.ForeignKey(
+        Post,
+        on_delete=models.CASCADE,
+        related_name='edit_history',
+    )
+    caption = models.TextField(blank=True)
+    location = models.CharField(max_length=100, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = _('post edit history')
+        verbose_name_plural = _('post edit histories')
+        indexes = [
+            models.Index(fields=['post', '-created_at']),
+        ]
+
+    def __str__(self):
+        return f'Edit history for post {self.post_id} at {self.created_at}'
+
+
+class CommentReport(models.Model):
+    REASON_CHOICES = (
+        ('spam', _('Spam')),
+        ('inappropriate', _('Inappropriate content')),
+        ('violence', _('Violence')),
+        ('hate_speech', _('Hate speech')),
+        ('other', _('Other')),
+    )
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='comment_reports',
+    )
+    comment = models.ForeignKey(
+        'Comment',
+        on_delete=models.CASCADE,
+        related_name='reports',
+    )
+    reason = models.CharField(_('reason'), max_length=20, choices=REASON_CHOICES)
+    details = models.TextField(_('details'), blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_resolved = models.BooleanField(_('resolved'), default=False)
+    is_valid = models.BooleanField(_('valid report'), null=True, blank=True)
+    resolved_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        related_name='resolved_comment_reports',
+        null=True,
+        blank=True,
+    )
+    resolved_at = models.DateTimeField(_('resolved at'), null=True, blank=True)
+    admin_notes = models.TextField(_('admin notes'), blank=True, null=True)
+
+    class Meta:
+        unique_together = ('user', 'comment')
+        ordering = ['-created_at']
+        verbose_name = _('comment report')
+        verbose_name_plural = _('comment reports')
+
+    def __str__(self):
+        return f'{self.user} reported comment {self.comment_id}'
+
+
 class PostReport(models.Model):
     REASON_CHOICES = (
         ('spam', _('Spam')),

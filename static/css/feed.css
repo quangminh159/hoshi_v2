@@ -80,15 +80,32 @@
     padding: 0.875rem 1rem;
 }
 
-/* Post cards */
+/* Post cards — overflow visible để menu … (Báo cáo/Xóa) không bị cắt */
 .feed-page #posts-container .card,
 .feed-page #posts-container .feed-post-card {
     border: 1px solid #efefef;
     border-radius: 16px;
     box-shadow: none;
     margin-bottom: 1rem;
-    overflow: hidden;
+    overflow: visible;
     background: #fff;
+    position: relative;
+    z-index: 1;
+}
+
+.feed-page #posts-container .card:has(.dropdown-menu.show),
+.feed-page #posts-container .feed-post-card:has(.dropdown-menu.show) {
+    z-index: 40;
+}
+
+.feed-page #posts-container .dropdown,
+.feed-page #posts-container .post-detail-menu .dropdown {
+    position: relative;
+    z-index: 30;
+}
+
+.feed-page #posts-container .dropdown-menu {
+    z-index: 1080;
 }
 
 .feed-page #posts-container .card-header {
@@ -342,7 +359,7 @@
 .feed-page #posts-container .card-footer {
     background: transparent !important;
     border-top: 1px solid #f5f5f5 !important;
-    padding: 0.5rem 0.75rem;
+    padding: 0.5rem 0;
 }
 
 .feed-page #posts-container .card-footer .btn-light {
@@ -370,11 +387,18 @@
     color: var(--primary-color, #405de6) !important;
 }
 
-/* ========== Comments — hierarchy rõ, thread gọn ========== */
+/* Comments + ô nhập: thẳng với caption/username (đã nằm trong feed-post-main) */
 .feed-page .comments-section,
-.post-detail-page .comments-section,
-.post-detail-comments-section {
-    padding: 0.15rem 0.5rem 0.35rem 0.95rem;
+.post-detail-page .comments-section {
+    padding: 0.15rem 0 0.35rem;
+}
+
+.feed-page .add-comment-form {
+    padding: 0.35rem 0 0.85rem;
+    margin-top: 0.35rem !important;
+    position: relative;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .feed-page .root-comments-list,
@@ -683,24 +707,19 @@
     pointer-events: auto;
 }
 
-.feed-page .add-comment-form {
-    padding: 0 0.35rem 1rem 0.95rem;
-    margin-top: 0 !important;
-    position: relative;
-}
-
 .feed-page .add-comment-form .input-group,
 .post-detail-page .add-comment-form .input-group,
 .add-comment-form .comment-compose-bar {
     display: flex;
     flex-wrap: nowrap;
     align-items: center;
-    gap: 0.15rem;
+    gap: 0.2rem;
     background: var(--surface-muted, #f8f9fa);
-    border-radius: 999px;
-    padding: 0.2rem 0.25rem 0.2rem 0.3rem;
+    border-radius: 22px;
+    padding: 0.35rem 0.4rem 0.35rem 0.55rem;
     border: 1px solid var(--border-color, #efefef);
     width: 100%;
+    min-height: 48px;
 }
 
 /* Bỏ kiểu Bootstrap input-group (âm margin / bo góc nối) — tránh đè ô nhập */
@@ -758,7 +777,7 @@
     background: transparent;
     box-shadow: none;
     font-size: 0.875rem;
-    padding: 0.45rem 0.35rem;
+    padding: 0.55rem 0.5rem;
     flex: 1 1 auto;
     min-width: 0;
     width: auto !important;
@@ -790,12 +809,31 @@
 .add-comment-form textarea.comment-input {
     resize: none;
     overflow-y: hidden;
-    min-height: 24px;
-    max-height: 140px;
-    line-height: 1.4;
+    min-height: 36px;
+    max-height: 160px;
+    line-height: 1.45;
     white-space: pre-wrap;
     word-break: break-word;
     field-sizing: content;
+}
+
+/* iOS/Safari: input < 16px → tự zoom khi focus. Ép 16px trên mobile. */
+@media (max-width: 991.98px) {
+    .feed-page .add-comment-form .form-control,
+    .post-detail-page .add-comment-form .form-control,
+    .add-comment-form .form-control,
+    .feed-page .add-comment-form textarea.comment-input,
+    .feed-page .add-comment-form textarea.form-control,
+    .post-detail-page .add-comment-form textarea.comment-input,
+    .post-detail-page .add-comment-form textarea.form-control,
+    .add-comment-form textarea.comment-input,
+    .feed-page .add-comment-form .mention-input-wrap > .form-control,
+    .post-detail-page .add-comment-form .mention-input-wrap > .form-control,
+    .add-comment-form .mention-input-wrap > .form-control,
+    .comment-edit-form textarea,
+    .comment-edit-form .form-control {
+        font-size: 16px !important;
+    }
 }
 
 .feed-page .add-comment-form .form-control:focus {
@@ -806,9 +844,9 @@
 .feed-page .add-comment-form .comment-send-btn,
 .post-detail-page .comment-send-btn {
     border-radius: 50%;
-    width: 38px;
-    height: 38px;
-    min-width: 38px;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
     padding: 0;
     display: inline-flex;
     align-items: center;
@@ -955,8 +993,38 @@
     color: #ed4956;
 }
 
-.feed-page .comment-edited-label {
+.feed-page .comment-edited-label,
+.feed-page .post-edited-btn {
     font-size: inherit;
+    text-decoration: none;
+}
+
+.feed-page .post-edited-btn:hover {
+    text-decoration: underline;
+}
+
+.post-edit-history-item {
+    padding: 0.65rem 0;
+    border-bottom: 1px solid var(--bs-border-color-translucent, rgba(0, 0, 0, 0.08));
+}
+
+.post-edit-history-item:last-child {
+    border-bottom: 0;
+}
+
+.post-edit-history-item--current {
+    background: rgba(64, 93, 230, 0.04);
+    margin: -0.25rem -0.5rem 0;
+    padding: 0.75rem 0.5rem;
+    border-radius: 0.5rem;
+    border-bottom: 0;
+}
+
+.post-edit-history-caption {
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-size: 0.95rem;
+    line-height: 1.45;
 }
 
 .feed-page .comment-author-badge {
@@ -1420,8 +1488,10 @@
         width: 100% !important;
         margin: 0 !important;
         padding: 0 !important;
-        padding-top: 52px !important;
-        padding-bottom: 72px !important;
+        padding-top: var(--mobile-main-pad-top, 52px) !important;
+        padding-bottom: var(--mobile-main-pad-bottom, 72px) !important;
+        padding-left: var(--safe-left, 0px) !important;
+        padding-right: var(--safe-right, 0px) !important;
         background: #f0f2f5;
     }
 
@@ -1508,7 +1578,7 @@
         margin-bottom: 0.75rem;
         box-shadow: 0 2px 10px rgba(15, 23, 42, 0.06);
         background: #fff;
-        overflow: hidden;
+        overflow: visible;
     }
 
     .feed-post-body {
@@ -1594,24 +1664,25 @@
     }
 
     .feed-page .comments-section {
-        padding-left: 0.85rem;
-        padding-right: 0.4rem;
+        padding-left: 0;
+        padding-right: 0;
     }
 
     .feed-page .comment-replies-block {
-        margin-left: 0.95rem;
-        margin-right: 0.1rem;
-        padding-left: 0.75rem;
+        margin-left: 0.5rem;
+        margin-right: 0;
+        padding-left: 0.65rem;
     }
 
     .feed-page .add-comment-form {
-        padding-left: 0.85rem;
-        padding-right: 0.4rem;
-        padding-bottom: 0.85rem;
+        padding-left: 0;
+        padding-right: 0;
+        padding-bottom: 0.75rem;
     }
 
     .feed-page .add-comment-form .input-group {
-        border-radius: 999px;
+        border-radius: 22px;
+        width: 100%;
     }
 
     .feed-page .shared-post-container {

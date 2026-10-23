@@ -27,6 +27,12 @@
                     </span>
                     {% endif %}
                     <span class="text-muted small feed-post-time">{{ post.created_at|timesince }} trước</span>
+                    {% if post_is_edited %}
+                    <button type="button"
+                            class="btn btn-link p-0 align-baseline post-edited-btn comment-edited-label text-muted small"
+                            data-post-id="{{ post.id }}"
+                            title="Xem lịch sử chỉnh sửa">· Đã chỉnh sửa</button>
+                    {% endif %}
                     {% if post.shared_from %}
                     <span class="text-muted small"><i class="fas fa-retweet me-1"></i>đã chia sẻ</span>
                     {% endif %}
@@ -70,10 +76,13 @@
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li>
-                                <button class="dropdown-item text-danger report-btn"
-                                        data-post-id="{{ post.id }}"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#reportModal">
+                                <button type="button" class="dropdown-item hide-post-btn" data-post-id="{{ post.id }}">
+                                    <i class="fas fa-eye-slash me-2"></i>Ẩn bài viết
+                                </button>
+                            </li>
+                            <li>
+                                <button type="button" class="dropdown-item text-danger report-btn"
+                                        data-post-id="{{ post.id }}">
                                     <i class="fas fa-flag me-2"></i>Báo cáo bài viết
                                 </button>
                             </li>

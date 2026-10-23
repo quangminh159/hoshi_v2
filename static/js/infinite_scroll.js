@@ -266,16 +266,46 @@
                     </a>
                 </div>
                 <div class="feed-post-main">
-                    <div class="feed-post-meta" style="cursor:pointer;" onclick="window.location='/posts/${post.id}/';">
-                        <div class="feed-post-meta-left">
+                    <div class="feed-post-meta d-flex justify-content-between align-items-start gap-2">
+                        <div class="feed-post-meta-left" style="cursor:pointer;" onclick="window.location='/posts/${post.id}/';">
                             <a href="${profileUrl(post.author.username)}"
                                class="text-dark text-decoration-none fw-bold feed-post-username"
                                onclick="event.stopPropagation();">${post.author.username}</a>
                             ${post.visibility === 'only_me' ? '<span class="badge bg-secondary-subtle text-secondary border ms-1 align-middle" title="Chỉ mình bạn xem được"><i class="fas fa-lock"></i> Chỉ mình tôi</span>' : (post.author?.is_private && post.visibility !== 'only_me' ? '<span class="badge visibility-badge visibility-badge--followers ms-1 align-middle" title="Chỉ người theo dõi đã duyệt mới xem được"><i class="fas fa-user-friends"></i> Người theo dõi</span>' : '')}
                             <span class="text-muted small feed-post-time">${timeAgo(new Date(post.created_at))}</span>
+                            ${post.is_edited ? `<button type="button" class="btn btn-link p-0 align-baseline post-edited-btn comment-edited-label text-muted small" data-post-id="${post.id}" title="Xem lịch sử chỉnh sửa" onclick="event.stopPropagation();">· Đã chỉnh sửa</button>` : ''}
                             ${post.is_trending ? '<span class="feed-trending-badge" title="Đang thịnh hành"><i class="fas fa-fire" aria-hidden="true"></i> Đang thịnh hành</span>' : ''}
                             ${post.shared_from ? `<span class="text-muted small"><i class="fas fa-retweet me-1"></i>đã chia sẻ</span>` : ''}
                             ${post.location ? `<div class="text-muted small feed-post-location">${locationLinkHtml(post.location)}</div>` : ''}
+                        </div>
+                        <div class="dropdown flex-shrink-0" onclick="event.stopPropagation();">
+                            <button class="btn btn-link p-1 text-muted" type="button" data-bs-toggle="dropdown" aria-label="Thêm">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                ${String(post.author?.id) === String(document.body.dataset.userId) ? `
+                                <li>
+                                    <a class="dropdown-item" href="/posts/${post.id}/?edit=1">
+                                        <i class="fas fa-edit me-2"></i>Chỉnh sửa
+                                    </a>
+                                </li>
+                                <li>
+                                    <button type="button" class="dropdown-item text-danger delete-post-btn" data-post-id="${post.id}">
+                                        <i class="fas fa-trash-alt me-2"></i>Xóa bài viết
+                                    </button>
+                                </li>` : `
+                                <li>
+                                    <button type="button" class="dropdown-item hide-post-btn" data-post-id="${post.id}">
+                                        <i class="fas fa-eye-slash me-2"></i>Ẩn bài viết
+                                    </button>
+                                </li>
+                                <li>
+                                    <button type="button" class="dropdown-item text-danger report-btn"
+                                            data-post-id="${post.id}">
+                                        <i class="fas fa-flag me-2"></i>Báo cáo
+                                    </button>
+                                </li>`}
+                            </ul>
                         </div>
                     </div>
                     ${post.caption ? `
@@ -930,6 +960,13 @@
                     </li>
                     ${editItem}
                     ${deleteItem}
+                    ${!comment.can_edit ? `
+                    <li>
+                        <button type="button" class="dropdown-item text-danger report-comment-btn"
+                                data-comment-id="${comment.id}">
+                            <i class="fas fa-flag me-2"></i>Báo cáo
+                        </button>
+                    </li>` : ''}
                 </ul>
             </div>`;
     }

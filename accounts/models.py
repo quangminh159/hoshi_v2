@@ -61,6 +61,9 @@ class User(AbstractUser):
     instagram = models.URLField(_('instagram'), max_length=200, blank=True)
     linkedin = models.URLField(_('linkedin'), max_length=200, blank=True)
     
+    # Onboarding lần đầu (avatar + gợi ý follow). True = user cũ / đã xong.
+    onboarding_completed = models.BooleanField(_('onboarding completed'), default=True)
+
     # Notification settings
     push_notifications = models.BooleanField(_('push notifications'), default=True)
     email_notifications = models.BooleanField(_('email notifications'), default=True)

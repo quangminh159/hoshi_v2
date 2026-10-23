@@ -1,3 +1,5 @@
+from django.conf import settings
+
 from notifications.models import Notification
 
 # Tin nhắn dùng badge Chat riêng — không lẫn vào feed Thông báo
@@ -5,7 +7,9 @@ _EXCLUDE_FROM_ACTIVITY = ('message',)
 
 
 def common_variables(request):
-    context = {}
+    context = {
+        'WEBPUSH_VAPID_PUBLIC_KEY': getattr(settings, 'WEBPUSH_VAPID_PUBLIC_KEY', '') or '',
+    }
 
     if request.user.is_authenticated:
         activity_qs = Notification.objects.filter(
