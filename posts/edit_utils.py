@@ -1,4 +1,4 @@
-"""Chỉnh sửa bài + lịch sử nhẹ (snapshot caption/location trước khi đổi)."""
+
 from __future__ import annotations
 
 MAX_EDIT_HISTORY = 10

@@ -369,7 +369,6 @@ class HiddenPost(models.Model):
 
 
 class PostEditHistory(models.Model):
-    """Snapshot caption/location trước mỗi lần chỉnh sửa (lịch sử nhẹ)."""
     post = models.ForeignKey(
         Post,
         on_delete=models.CASCADE,

@@ -8,7 +8,7 @@
 {% block body_class %} chat-layout chat-detail-layout{% endblock %}
 
 {% block extra_css %}
-<link href="{% static 'css/chat.css' %}?v=mobile-adapt-1" rel="stylesheet">
+<link href="{% static 'css/chat.css' %}?v=group-info-mobile-1" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -450,14 +450,14 @@
 </div>
 
 {% if is_group %}
-<div class="modal fade" id="groupMembersModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-    <div class="modal-content border-0 shadow">
-      <div class="modal-header border-0">
+<div class="modal fade group-info-modal" id="groupMembersModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable group-info-dialog">
+    <div class="modal-content border-0 shadow group-info-content">
+      <div class="modal-header border-0 group-info-header">
         <h5 class="modal-title fw-bold">{% trans "Thông tin nhóm" %}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Đóng' %}"></button>
       </div>
-      <div class="modal-body pt-0">
+      <div class="modal-body pt-0 group-info-body">
         <div class="group-avatar-block text-center mb-3">
           <div class="group-avatar-preview">
             <img src="{{ conversation.display_avatar }}" alt="{{ conversation.display_title }}" id="groupAvatarPreview">
@@ -477,15 +477,15 @@
         <form method="post" action="{% url 'chat:rename_group' conversation.id %}" class="group-rename-form mb-3">
           {% csrf_token %}
           <label class="form-label small text-muted mb-1">{% trans "Tên nhóm" %}</label>
-          <div class="d-flex gap-2">
+          <div class="group-rename-row">
             <input type="text" name="name" class="form-control" value="{{ conversation.name }}" maxlength="120" required>
-            <button type="submit" class="btn btn-primary rounded-pill">{% trans "Lưu" %}</button>
+            <button type="submit" class="btn btn-primary rounded-pill group-rename-save">{% trans "Lưu" %}</button>
           </div>
         </form>
         {% else %}
         <div class="mb-3">
           <div class="form-label small text-muted mb-1">{% trans "Tên nhóm" %}</div>
-          <div class="fw-semibold">{{ conversation.display_title }}</div>
+          <div class="fw-semibold text-break">{{ conversation.display_title }}</div>
         </div>
         {% endif %}
 
@@ -495,7 +495,7 @@
             <li class="group-member-item">
               <img src="{{ row.user.get_avatar_url }}" alt="{{ row.user.username }}">
               <div class="group-member-meta">
-                <a href="{% url 'accounts:profile' row.user.username %}" class="text-decoration-none fw-semibold">{{ row.user.username }}</a>
+                <a href="{% url 'accounts:profile' row.user.username %}" class="text-decoration-none fw-semibold text-break">{{ row.user.username }}</a>
                 {% if conversation.created_by_id == row.user.id %}
                   <span class="group-owner-badge">{% trans "Người tạo" %}</span>
                 {% elif row.is_admin %}
@@ -549,7 +549,7 @@
               <label class="group-add-item">
                 <input type="checkbox" name="member_ids" value="{{ u.id }}">
                 <img src="{{ u.get_avatar_url }}" alt="">
-                <span>{{ u.username }}</span>
+                <span class="text-break">{{ u.username }}</span>
               </label>
             {% endfor %}
           </div>
@@ -557,7 +557,7 @@
         </form>
         {% endif %}
 
-        <form method="post" action="{% url 'chat:leave_group' conversation.id %}" onsubmit="return confirm('{% trans "Bạn chắc muốn rời nhóm này?" %}');">
+        <form method="post" action="{% url 'chat:leave_group' conversation.id %}" class="group-leave-form" onsubmit="return confirm('{% trans "Bạn chắc muốn rời nhóm này?" %}');">
           {% csrf_token %}
           <button type="submit" class="btn btn-outline-danger w-100 rounded-pill">
             <i class="fas fa-sign-out-alt me-1"></i> {% trans "Rời nhóm" %}
